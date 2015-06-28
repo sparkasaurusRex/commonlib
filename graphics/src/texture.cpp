@@ -110,11 +110,11 @@ bool Texture::load()
                  image->pixels);
 #endif
 
-//not sure if these should go here, or in the render loop
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtering
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtering
+		//not sure if these should go here, or in the render loop
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtering
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtering
 
 #if defined(__USE_SOIL__)
     SOIL_free_image_data(image);
@@ -136,16 +136,16 @@ bool Texture::load_from_file_data(TextureFileData &tfd)
         return true; //already loaded
     }
 
-	glGenTextures(1, &gl_texture);
+		glGenTextures(1, &gl_texture);
 
-	glBindTexture(GL_TEXTURE_2D, gl_texture);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glBindTexture(GL_TEXTURE_2D, gl_texture);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     if(glIsTexture(gl_texture) != GL_TRUE)
-	{
+		{
 	    assert(false);
 	    return false;
-	}
+		}
 
     dim[0] = tfd.dim[0];
     dim[1] = tfd.dim[1];
