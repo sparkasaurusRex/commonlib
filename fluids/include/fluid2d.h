@@ -1,7 +1,7 @@
 #ifndef _FLUID2_D_H_
 #define _FLUID2_D_H_
 
-#define FLUID_DIM_DEFAULT   32
+#define FLUID_DIM_DEFAULT   128
 //#define N	32
 
 //"Fluxel" = "fluid pixel"
@@ -13,10 +13,10 @@
 typedef struct {
 	float p;		//pressure
 	float t;		//temperature
-	
+
 	float u;		//velocity (x)
 	float v;		//velocity (y)
-	
+
 	float dp;		//inflow / outflow rates
 	float dt;		//temperature change
 } Fluxel;
@@ -35,13 +35,13 @@ public:
 	const float get_y_dim() { return dim[1]; }
 
 	void simulate(const float t) {};
-	
+
 	void render_gl();
 	void init_gl();			//init the vertex array (openGL)
-	
+
 protected:
 	void init_helper();		//helper function for the constructor
-	
+
 	void advect(int b,
 	            float *d,
 	            float *d0,
@@ -63,12 +63,12 @@ protected:
 	void set_bnd(int b, float *x);
 
 private:
-	int N;					//TEMPORARY UNTIL I FIGURE OUT HOW TO HAVE DIFF DIMS
-	int dim[2];				//dimensions of the grid (+2 for boundary conditions)
-	Fluxel *f;				//fluid array
-	Fluxel *f_swap;			//swap array
+	int N;								//TEMPORARY UNTIL I FIGURE OUT HOW TO HAVE DIFF DIMS
+	int dim[2];						//dimensions of the grid (+2 for boundary conditions)
+	Fluxel *f;						//fluid array
+	Fluxel *f_swap;				//swap array
 
-	float diff_rate;		//rate of diffusion
+	float diff_rate;			//rate of diffusion
 
 	//GLfloat *gl_verts;		//the vertices of the grid
 	//GLuint gl_texture;

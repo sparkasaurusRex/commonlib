@@ -2,7 +2,7 @@ CC=g++
 LIB_PATH=
 CFLAGS=-I./include -I../mathlib/include -I/usr/include/libxml2
 SRCPATH=src/
-SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/static_mesh.cpp src/texture.cpp 
+SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/static_mesh.cpp src/texture.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -12,7 +12,6 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	CFLAGS+=-Wno-deprecated-declarations
 
 	LIB_PATH+=-Lbin/osx
-	LIB_PATH+=-L../mathlib/bin/osx
 	LIB_PATH+=-L../mathlib/bin/osx
 
 	LDFLAGS+=-framework SDL2
@@ -61,7 +60,7 @@ $(BINPATH)libgraphics.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgraphics.a $(OBJS_BIN)
 
 test: test.cpp $(BINPATH)libgraphics.a
-	$(CC) $(CFLAGS) $(LIB_PATH) $(LDFLAGS) -lgraphics test.cpp -o test
+	$(CC) $(CFLAGS) $(LIB_PATH) $(LDFLAGS) -lgraphics -lmath test.cpp -o test
 
 clean:
 	rm -f $(BINPATH)*.o

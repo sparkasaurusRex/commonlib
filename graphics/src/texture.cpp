@@ -23,19 +23,20 @@
 
 using namespace std;
 
-Texture::Texture()
+Texture::Texture(const int w, const int h)
 {
 	fname[0] = '\0';
-	gl_texture = 0;
-	dim[0] = dim[1] = -1;
+
+	assert(w > 0 && h > 0);
+	dim[0] = w;
+	dim[1] = h;
+
+	gl_mode = GL_RGBA;
 }
 
 Texture::Texture(const char *n)
 {
-    cout<<"creating texture from image file: "<<fname<<endl;
 	strcpy(fname, n);
-	gl_texture = 0;
-	dim[0] = dim[1] = -1;
 }
 
 Texture::~Texture()
@@ -43,15 +44,41 @@ Texture::~Texture()
     glDeleteTextures(1, &gl_texture);
 }
 
+void Texture::init()
+{
+	glGenTextures(1, &gl_texture);
+	glBindTexture(GL_TEXTURE_2D, gl_texture);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	assert(glIsTexture(gl_texture) == GL_TRUE);
+
+	glTexImage2D(GL_TEXTURE_2D,
+							0,
+							gl_mode,
+							dim[0],
+							dim[1],
+							0,
+							gl_mode,
+							GL_UNSIGNED_BYTE,
+							NULL);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtering
+
+	assert(glIsTexture(gl_texture) == GL_TRUE);
+}
+
 bool Texture::load()
 {
-    cout<<"loading texture from file..."<<endl;
+		/*
     if(gl_texture != 0)
     {
         assert(glIsTexture(gl_texture) == GL_TRUE);
         cerr<<"texture already loaded???"<<endl;
         return true; //already loaded
-    }
+    }*/
 
     int width, height, channels, mode;
     //char fname[] = "/home/chandra/brick/game/data/textures/cf_wtr_drop01.tga";
@@ -75,20 +102,17 @@ bool Texture::load()
 		if(image->format->BytesPerPixel == 3)
 		{
 			mode = GL_RGB;
-		} else if(image->format->BytesPerPixel == 4)
+		}
+		else if(image->format->BytesPerPixel == 4)
 		{
 			mode = GL_RGBA;
 		}
 
 #endif
 
-		cout<<"glGenTextures..."<<endl;
 		glGenTextures(1, &gl_texture);
-
-
-		cout<<"glBindTexture..."<<endl;
 		glBindTexture(GL_TEXTURE_2D, gl_texture);
-		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 		if(glIsTexture(gl_texture) != GL_TRUE)
 		{
@@ -96,14 +120,14 @@ bool Texture::load()
 				return false;
 		}
 
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 mode,
-                 width,
-                 height,
-                 0,
-                 mode,
-                 GL_UNSIGNED_BYTE,
+		glTexImage2D(GL_TEXTURE_2D,
+                 	0,
+                 	mode,
+                 	width,
+                 	height,
+                 	0,
+                 	mode,
+                 	GL_UNSIGNED_BYTE,
 #if defined(__USE_SOIL__)
                  image);
 #else
@@ -123,7 +147,7 @@ bool Texture::load()
     SDL_FreeSurface(image);
 #endif
 
-    assert(glIsTexture(gl_texture) == GL_TRUE);
+	assert(glIsTexture(gl_texture) == GL_TRUE);
 
 	return true;
 }
@@ -142,10 +166,10 @@ bool Texture::load_from_file_data(TextureFileData &tfd)
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     if(glIsTexture(gl_texture) != GL_TRUE)
-		{
+	{
 	    assert(false);
 	    return false;
-		}
+	}
 
     dim[0] = tfd.dim[0];
     dim[1] = tfd.dim[1];
@@ -153,12 +177,8 @@ bool Texture::load_from_file_data(TextureFileData &tfd)
     //not sure if these should go here, or in the render loop
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR); // Linear Filtering
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR); // Linear Filtering
-
-    cout<<"glTexImage2D()"<<endl;
-    cout<<"width: "<<dim[0]<<endl;
-    cout<<"height: "<<dim[1]<<endl;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtering
 
     glTexImage2D(GL_TEXTURE_2D,
                  0,
@@ -184,5 +204,22 @@ bool Texture::render_gl() const
 
     glBindTexture(GL_TEXTURE_2D, gl_texture);
 
-	return true;
+		return true;
+}
+
+bool Texture::update_pixels_from_mem(void *pixels, int bpp_mode)
+{
+		int mip_level = 0;
+		glBindTexture(GL_TEXTURE_2D, gl_texture);
+		//glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, dim[0], dim[1]);
+		glTexSubImage2D(GL_TEXTURE_2D,
+										mip_level,					//mip level to overwrite
+										0,							//starting u-coord
+										0,							//starting v-coord
+										dim[0],						//width of update rect
+										dim[1],						//height of update rect
+										gl_mode,					//pixel format
+										GL_UNSIGNED_BYTE,
+										pixels);					//pointer to pixel data
+		return true;
 }
