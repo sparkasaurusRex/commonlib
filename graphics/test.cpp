@@ -73,8 +73,10 @@ void fill_dynamic_texture(float t)
 {
     int w, h;
     dynamic_tex->get_dim(w, h);
+    GLuint mode = dynamic_tex->get_pixel_mode();
+    int num_bytes = (mode == GL_RGBA) ? 4 : 3;
 
-    GLubyte *pixels = new GLubyte[w * h * 4];
+    GLubyte *pixels = new GLubyte[w * h * num_bytes];
 
     for(int i = 0; i < w; i++)
     {
@@ -83,13 +85,16 @@ void fill_dynamic_texture(float t)
           float x_val = 1.0f * (float)i / (float)w;
           float y_val = 1.0f * (float)j / (float)h;
           float z_val = t * 0.0002f;
-            float val = PerlinNoise::octave_noise_3d(4, 1.0f, 1.0f, x_val, y_val, z_val);
-            //float val = PerlinNoise::raw_noise_3d(x_val, y_val, z_val);
-            for(int oct = 0; oct < 3; oct++)
-            {
-                pixels[((i * w + j) * 4) + oct] = (GLubyte)(val * 255.0f);
-            }
+          float val = PerlinNoise::octave_noise_3d(4, 1.0f, 1.0f, x_val, y_val, z_val);
+          //float val = PerlinNoise::raw_noise_3d(x_val, y_val, z_val);
+          for(int oct = 0; oct < 3; oct++)
+          {
+            pixels[((i * w + j) * num_bytes) + oct] = (GLubyte)(val * 255.0f);
+          }
+          if(num_bytes == 4)
+          {
             pixels[((i * w + j) * 4) + 3] = (GLubyte)255.0f;
+          }
         }
     }
 
@@ -111,8 +116,7 @@ void game_loop()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    //texture from memory
-
+    //texture from file
     t->render_gl();
     glBegin(GL_QUADS);
     	glColor3f(1.0f, 1.0f, 1.0f);
@@ -152,7 +156,7 @@ int main(int argc, char **argv)
   t = new Texture("data/test.tga");
   t->load();
 
-  dynamic_tex = new Texture(256, 256);
+  dynamic_tex = new Texture(256, 256, GL_RGB);
   dynamic_tex->init();
 
 	while(true)

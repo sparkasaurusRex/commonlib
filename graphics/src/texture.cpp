@@ -23,7 +23,7 @@
 
 using namespace std;
 
-Texture::Texture(const int w, const int h)
+Texture::Texture(const int w, const int h, const GLuint m)
 {
 	fname[0] = '\0';
 
@@ -31,7 +31,7 @@ Texture::Texture(const int w, const int h)
 	dim[0] = w;
 	dim[1] = h;
 
-	gl_mode = GL_RGBA;
+	gl_mode = m;
 }
 
 Texture::Texture(const char *n)
@@ -80,7 +80,7 @@ bool Texture::load()
         return true; //already loaded
     }*/
 
-    int width, height, channels, mode;
+    int width, height, channels;
     //char fname[] = "/home/chandra/brick/game/data/textures/cf_wtr_drop01.tga";
 
 #if defined(__USE_SOIL__)
@@ -101,11 +101,11 @@ bool Texture::load()
 
 		if(image->format->BytesPerPixel == 3)
 		{
-			mode = GL_RGB;
+			gl_mode = GL_RGB;
 		}
 		else if(image->format->BytesPerPixel == 4)
 		{
-			mode = GL_RGBA;
+			gl_mode = GL_RGBA;
 		}
 
 #endif
@@ -122,11 +122,11 @@ bool Texture::load()
 
 		glTexImage2D(GL_TEXTURE_2D,
                  	0,
-                 	mode,
+                 	gl_mode,
                  	width,
                  	height,
                  	0,
-                 	mode,
+                 	gl_mode,
                  	GL_UNSIGNED_BYTE,
 #if defined(__USE_SOIL__)
                  image);
