@@ -1,6 +1,6 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I../mathlib/include -I/usr/include/libxml2 -I../fluids/include
+CFLAGS=-I./include -I../mathlib/include -I/usr/include/libxml2 -I../fluids/include -Ofast
 SRCPATH=src/
 SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
 OBJS=$(SRCS:.cpp=.o)

@@ -46,6 +46,9 @@ void Fluid2D::init_helper()
 			f[idx(i, j)].dt = PerlinNoise::octave_noise_2d(1, 1.0f, 1.0f, (float)i * 0.13f + 0.1653f, (float)j * 0.13f + 7.127f);
 		}
 	}*/
+	viscosity = 0.01f;
+	diffusion_rate = 0.05f;
+
 	int size = (N + 2) * (N + 2);
 	u = new float[size];
 	v = new float[size];
@@ -130,7 +133,9 @@ void Fluid2D::add_velocity_at_point(const Float2 pt, const Float2 vel, const flo
 	}
 
 	add_source(u_prev, src_u, 1.0f);
+	//add_source(u, src_u, 1.0f);
 	add_source(v_prev, src_v, 1.0f);
+	//add_source(v, src_v, 1.0f);
 
 	delete src_u;
 	delete src_v;
@@ -138,8 +143,6 @@ void Fluid2D::add_velocity_at_point(const Float2 pt, const Float2 vel, const flo
 
 void Fluid2D::simulate(const float dt)
 {
-	float viscosity = 1.0f;
-	float diffusion_rate = 1.0f;
 	velocity_step(u, v, u_prev, v_prev, viscosity, dt);
 	density_step(dens, dens_prev, u, v, diffusion_rate, dt);
 }

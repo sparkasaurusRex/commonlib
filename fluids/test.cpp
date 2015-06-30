@@ -17,6 +17,8 @@ using namespace std;
 const int WIN_WIDTH =   512;
 const int WIN_HEIGHT =  512;
 
+const int FLUID_DIM = 256;
+
 float Previous_game_time = 0.0f;
 
 SDL_Window* sdl_window =        NULL;
@@ -63,29 +65,67 @@ void process_events()
     const Uint8 *keystate = SDL_GetKeyboardState(NULL);
     if(keystate[SDLK_ESCAPE]) quit_app();
 
+    int mouse_x, mouse_y, num_keys;
+    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    const Uint8 *keyboard_state = SDL_GetKeyboardState(&num_keys);
+    if(button_state & SDL_BUTTON(SDL_BUTTON_LEFT))
+    {
+      float fluid_amt = 10.0f;
+      if(keyboard_state[SDL_SCANCODE_LCTRL])
+      {
+        fluid_amt = -fluid_amt;
+      }
+      int w, h;
+      fluid_tex->get_dim(w, h);
+      Float2 click_pt((float)mouse_x / WIN_WIDTH, (float)mouse_y / WIN_HEIGHT);
+      fluid->add_density_at_point(click_pt, fluid_amt, 0.025f);
+    }
+
     SDL_Event event;
     while(SDL_PollEvent(&event))
     {
       switch(event.type)
       {
-        case SDL_MOUSEBUTTONDOWN:
-        //case SDL_MOUSEMOTION:
+        case SDL_KEYDOWN:
         {
-          int w, h;
-          fluid_tex->get_dim(w, h);
-          //cout<<"click ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
-          Float2 click_pt((float)event.button.x / WIN_WIDTH, (float)event.button.y / WIN_HEIGHT);
-          fluid->add_density_at_point(click_pt, 10.0f, 0.03f);
+          if(keyboard_state[SDL_SCANCODE_D])
+          {
+            float diff_rate = fluid->get_diffusion_rate();
+            if(keyboard_state[SDL_SCANCODE_UP])
+            {
+              diff_rate *= 2.0f;
+            } else if(keyboard_state[SDL_SCANCODE_DOWN])
+            {
+              diff_rate *= 0.5f;
+            }
+            fluid->set_diffusion_rate(diff_rate);
+            cout<<"diffusion rate: "<<diff_rate<<endl;
+          }
+          if(keyboard_state[SDL_SCANCODE_V])
+          {
+            float viscosity = fluid->get_viscosity();
+            if(keyboard_state[SDL_SCANCODE_UP])
+            {
+              viscosity *= 2.0f;
+            }
+            else if(keyboard_state[SDL_SCANCODE_DOWN])
+            {
+              viscosity *= 0.5f;
+            }
+            fluid->set_viscosity(viscosity);
+            cout<<"viscosity: "<<viscosity<<endl;
+          }
           break;
         }
         case SDL_MOUSEMOTION:
         {
-          if(event.motion.state & SDL_BUTTON(1))
+          if(event.motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT))
           {
             //cout<<"button 1 pressed and mouse moving"<<endl;
+            float vel_scale = 200.0f;
             Float2 pt((float)event.motion.x / WIN_WIDTH, (float)event.motion.y / WIN_HEIGHT);
-            Float2 vel((float)event.motion.xrel, (float)event.motion.yrel);
-            fluid->add_velocity_at_point(pt, vel, 0.1f);
+            Float2 vel(vel_scale * (float)event.motion.xrel, vel_scale * (float)event.motion.yrel);
+            fluid->add_velocity_at_point(pt, vel, 0.04f);
           }
           break;
         }
@@ -112,18 +152,18 @@ void fill_fluid_texture(float t)
   {
     for(int j = 0; j < h; j++)
     {
-        int fluid_idx = i + (w + 2) * j;
-        float val = min(f[fluid_idx], 1.0f);
-        //cout<<val<<endl;
+      int fluid_idx = i + (w + 2) * j;
+      float val = clamp(f[fluid_idx], 0.0f, 1.0f);
+      //cout<<val<<endl;
 
-        for(int oct = 0; oct < 3; oct++)
-        {
-          pixels[((i * w + j) * num_bytes) + oct] = (GLubyte)(val * 255.0f);
-        }
-        if(num_bytes == 4)
-        {
-          pixels[((i * w + j) * 4) + 3] = (GLubyte)(val * 255.0f);
-        }
+      for(int oct = 0; oct < 3; oct++)
+      {
+        pixels[((i * w + j) * num_bytes) + oct] = (GLubyte)(val * 255.0f);
+      }
+      if(num_bytes == 4)
+      {
+        pixels[((i * w + j) * 4) + 3] = (GLubyte)(val * 255.0f);
+      }
     }
   }
 
@@ -171,10 +211,10 @@ int main(int argc, char **argv)
 	init_sdl();
 	init_gl();
 
-  fluid_tex = new Texture(256, 256, GL_RGB);
+  fluid_tex = new Texture(FLUID_DIM, FLUID_DIM, GL_RGB);
   fluid_tex->init();
 
-  fluid = new Fluid2D(256, 256);
+  fluid = new Fluid2D(FLUID_DIM, FLUID_DIM);
 
   while(true)
   {

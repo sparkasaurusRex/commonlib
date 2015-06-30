@@ -37,8 +37,14 @@ public:
 	//static inline int IX(const int i, const int j) const { return (((i)+(N+2)*(j))) }
 
 	const float *get_density_array() { return dens; }
-	const float get_x_dim() { return dim[0]; }
-	const float get_y_dim() { return dim[1]; }
+	float get_x_dim() const { return dim[0]; }
+	float get_y_dim() const { return dim[1]; }
+
+	float get_viscosity() const { return viscosity; }
+	float get_diffusion_rate() const { return diffusion_rate; }
+
+	void set_viscosity(const float visc) { viscosity = visc; }
+	void set_diffusion_rate(const float diff) { diffusion_rate = diff; }
 
 	void simulate(const float t);
 
@@ -78,7 +84,8 @@ private:
 	float *u, *v, *u_prev, *v_prev;
 	float *dens, *dens_prev;
 
-	float diff_rate;			//rate of diffusion
+	float diffusion_rate;			//rate of diffusion
+	float viscosity;					//viscosity of the fluid
 
 	//list of objects that can interact w/ the fluid sim
 

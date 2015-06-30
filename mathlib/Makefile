@@ -1,6 +1,6 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include
+CFLAGS=-I./include -Ofast
 LDFLAGS=
 SRCPATH=src/
 SRCS=src/math_utility.cpp src/perlin.cpp

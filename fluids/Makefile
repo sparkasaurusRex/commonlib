@@ -1,6 +1,6 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I../mathlib/include -I../graphics/include
+CFLAGS=-I./include -I../mathlib/include -I../graphics/include -Ofast
 LDFLAGS=-lmath
 SRCPATH=src/
 SRCS=src/fluid2d.cpp src/fluid2d_interactor.cpp
