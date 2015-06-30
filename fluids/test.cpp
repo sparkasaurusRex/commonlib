@@ -20,6 +20,8 @@ const int WIN_HEIGHT =  512;
 const int FLUID_DIM = 256;
 
 float Previous_game_time = 0.0f;
+float Time_scale = 0.0016f;
+float Velocity_scale = 50.0f;
 
 SDL_Window* sdl_window =        NULL;
 SDL_GLContext sdl_gl_context =  NULL;
@@ -115,6 +117,17 @@ void process_events()
             fluid->set_viscosity(viscosity);
             cout<<"viscosity: "<<viscosity<<endl;
           }
+          if(keyboard_state[SDL_SCANCODE_T])
+          {
+              if(keyboard_state[SDL_SCANCODE_UP])
+              {
+                Time_scale *= 2.0f;
+              } else if(keyboard_state[SDL_SCANCODE_DOWN])
+              {
+                Time_scale *= 0.5f;
+              }
+              cout<<"time scale: "<<Time_scale<<endl;
+          }
           break;
         }
         case SDL_MOUSEMOTION:
@@ -122,10 +135,9 @@ void process_events()
           if(event.motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT))
           {
             //cout<<"button 1 pressed and mouse moving"<<endl;
-            float vel_scale = 200.0f;
             Float2 pt((float)event.motion.x / WIN_WIDTH, (float)event.motion.y / WIN_HEIGHT);
-            Float2 vel(vel_scale * (float)event.motion.xrel, vel_scale * (float)event.motion.yrel);
-            fluid->add_velocity_at_point(pt, vel, 0.04f);
+            Float2 vel(Velocity_scale * (float)event.motion.xrel, Velocity_scale * (float)event.motion.yrel);
+            fluid->add_velocity_at_point(pt, vel, 0.02f);
           }
           break;
         }
@@ -138,7 +150,7 @@ void process_events()
 
 void fill_fluid_texture(float t)
 {
-  fluid->simulate(t * 0.01f);
+  fluid->simulate(t * Time_scale);
   const float *f = fluid->get_density_array();
 
   int w, h;
@@ -175,7 +187,7 @@ void game_loop()
 {
     Uint32 ticks = SDL_GetTicks();
     float game_time = (float)ticks;
-    float dt = (game_time - Previous_game_time) * 0.01f;
+    float dt = (game_time - Previous_game_time);
     //cout<<dt<<endl;
     Previous_game_time = game_time;
 

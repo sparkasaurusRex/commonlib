@@ -46,7 +46,7 @@ void Fluid2D::init_helper()
 			f[idx(i, j)].dt = PerlinNoise::octave_noise_2d(1, 1.0f, 1.0f, (float)i * 0.13f + 0.1653f, (float)j * 0.13f + 7.127f);
 		}
 	}*/
-	viscosity = 0.01f;
+	viscosity = 0.00002f;
 	diffusion_rate = 0.05f;
 
 	int size = (N + 2) * (N + 2);
