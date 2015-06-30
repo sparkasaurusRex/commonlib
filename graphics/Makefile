@@ -1,8 +1,8 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I../mathlib/include -I/usr/include/libxml2
+CFLAGS=-I./include -I../mathlib/include -I/usr/include/libxml2 -I../fluids/include
 SRCPATH=src/
-SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/static_mesh.cpp src/texture.cpp
+SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -13,6 +13,7 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 
 	LIB_PATH+=-Lbin/osx
 	LIB_PATH+=-L../mathlib/bin/osx
+	LIB_PATH+=-L../fluids/bin/osx
 
 	LDFLAGS+=-framework SDL2
 	LDFLAGS+=-framework SDL2_image
@@ -23,10 +24,15 @@ else
 	#generic link flags
 	LIB_PATH += -Lbin/linux
 	LIB_PATH += -L../mathlib/bin/linux
-	LIB_PATH += -L../mathlib/bin/linux
+	LIB_PATH += -L../fluids/bin/linux
 
 	BINPATH=bin/linux/
-	CFLAGS += -I/usr/include/freetype2/
+	CFLAGS+=-I/usr/include/freetype2/
+	CFLAGS+=$(shell pkg-config --libs sdl2)
+
+	LDFLAGS+=$(shell pkg-config --libs sdl2)
+	LDFLAGS+=$(shell pkg-config --libs SDL2_image)
+	LDFLAGS+=-lGL
 endif
 
 OBJS_BIN=$(addprefix $(BINPATH), $(notdir $(OBJS)))
@@ -50,8 +56,8 @@ $(BINPATH)material.o: $(SRCPATH)material.cpp
 $(BINPATH)shader.o: $(SRCPATH)shader.cpp
 	$(CC) $(CFLAGS) -c src/shader.cpp -o $(BINPATH)shader.o
 
-$(BINPATH)static_mesh.o: $(SRCPATH)static_mesh.cpp
-	$(CC) $(CFLAGS) -c src/static_mesh.cpp -o $(BINPATH)static_mesh.o
+#$(BINPATH)static_mesh.o: $(SRCPATH)static_mesh.cpp
+#	$(CC) $(CFLAGS) -c src/static_mesh.cpp -o $(BINPATH)static_mesh.o
 
 $(BINPATH)texture.o: $(SRCPATH)texture.cpp
 	$(CC) $(CFLAGS) -c src/texture.cpp -o $(BINPATH)texture.o
@@ -60,7 +66,7 @@ $(BINPATH)libgraphics.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgraphics.a $(OBJS_BIN)
 
 test: test.cpp $(BINPATH)libgraphics.a
-	$(CC) $(CFLAGS) $(LIB_PATH) $(LDFLAGS) -lgraphics -lmath test.cpp -o test
+	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) $(LDFLAGS) -lgraphics -lmath -lfluids
 
 clean:
 	rm -f $(BINPATH)*.o

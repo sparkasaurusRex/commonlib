@@ -28,7 +28,7 @@ public:
 	bool load_from_file_data(TextureFileData &tfd);
 	bool render_gl() const;
 
-	bool update_pixels_from_mem(void *pixels, int bpp_mode);
+	bool update_pixels_from_mem(void *pixels);
 
 private:
 	int			dim[2];					//dimensions of the texture

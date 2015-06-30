@@ -1,7 +1,11 @@
 #include <SDL2/SDL.h>
 
 //http://www.libsdl.org/projects/SDL_image/
+#if defined(__APPLE__)
 #include <SDL2_image/SDL_image.h>
+#else
+#include <SDL2/SDL_image.h>
+#endif
 
 //#define __USE_SOIL__
 
@@ -207,15 +211,15 @@ bool Texture::render_gl() const
 		return true;
 }
 
-bool Texture::update_pixels_from_mem(void *pixels, int bpp_mode)
+bool Texture::update_pixels_from_mem(void *pixels)
 {
 		int mip_level = 0;
 		glBindTexture(GL_TEXTURE_2D, gl_texture);
 		//glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, dim[0], dim[1]);
 		glTexSubImage2D(GL_TEXTURE_2D,
-										mip_level,					//mip level to overwrite
-										0,							//starting u-coord
-										0,							//starting v-coord
+										mip_level,				//mip level to overwrite
+										0,								//starting u-coord
+										0,								//starting v-coord
 										dim[0],						//width of update rect
 										dim[1],						//height of update rect
 										gl_mode,					//pixel format

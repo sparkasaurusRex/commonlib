@@ -10,6 +10,7 @@
 
 #include "texture.h"
 #include "perlin.h"
+#include "fluid2d.h"
 
 using namespace std;
 
@@ -20,6 +21,9 @@ SDL_Window* sdl_window = NULL;
 SDL_GLContext sdl_gl_context = NULL;
 Texture *t = NULL;
 Texture *dynamic_tex = NULL;
+Texture *fluid_tex = NULL;
+
+Fluid2D *fluid = NULL;
 
 void quit_app()
 {
@@ -76,31 +80,69 @@ void fill_dynamic_texture(float t)
     GLuint mode = dynamic_tex->get_pixel_mode();
     int num_bytes = (mode == GL_RGBA) ? 4 : 3;
 
+    //not exactly optimal to allocate / deallocate this every frame...
     GLubyte *pixels = new GLubyte[w * h * num_bytes];
 
     for(int i = 0; i < w; i++)
     {
-        for(int j = 0; j < h; j++)
+      for(int j = 0; j < h; j++)
+      {
+        float x_val = 1.0f * (float)i / (float)w;
+        float y_val = 1.0f * (float)j / (float)h;
+        float z_val = t * 0.0002f;
+        float val = PerlinNoise::octave_noise_3d(2, 1.0f, 4.0f, x_val, y_val, z_val);
+        //float val = PerlinNoise::marble_noise_3d(2, 1.0f, 5.0f, x_val, y_val, z_val);
+        //float val = PerlinNoise::raw_noise_3d(x_val, y_val, z_val);
+        //float val = 0.5f * sin(M_PI * 2.0f * (float)i / (float)w) + 0.5f;
+        for(int oct = 0; oct < 3; oct++)
         {
-          float x_val = 1.0f * (float)i / (float)w;
-          float y_val = 1.0f * (float)j / (float)h;
-          float z_val = t * 0.0002f;
-          float val = PerlinNoise::octave_noise_3d(4, 1.0f, 1.0f, x_val, y_val, z_val);
-          //float val = PerlinNoise::raw_noise_3d(x_val, y_val, z_val);
-          for(int oct = 0; oct < 3; oct++)
-          {
-            pixels[((i * w + j) * num_bytes) + oct] = (GLubyte)(val * 255.0f);
-          }
-          if(num_bytes == 4)
-          {
-            pixels[((i * w + j) * 4) + 3] = (GLubyte)255.0f;
-          }
+          pixels[((i * w + j) * num_bytes) + oct] = (GLubyte)(val * 255.0f);
         }
+        if(num_bytes == 4)
+        {
+          pixels[((i * w + j) * 4) + 3] = (GLubyte)255.0f;
+        }
+      }
     }
 
     //cout<<"updating pixels..."<<endl;
-    dynamic_tex->update_pixels_from_mem(pixels, GL_RGBA);
+    dynamic_tex->update_pixels_from_mem(pixels);
     delete pixels;
+}
+
+void fill_fluid_texture(float t)
+{
+  return;
+  fluid->simulate(t);
+  const float *f = fluid->get_density_array();
+
+  int w, h;
+  fluid_tex->get_dim(w, h);
+  GLuint mode = fluid_tex->get_pixel_mode();
+  int num_bytes = (mode == GL_RGBA) ? 4 : 3;
+
+  GLubyte *pixels = new GLubyte[w * h * num_bytes];
+  for(int i = 0; i < w; i++)
+  {
+    for(int j = 0; j < h; j++)
+    {
+        int fluid_idx = i + (w + 2) * j;
+        float val = f[fluid_idx];
+
+        for(int oct = 0; oct < 3; oct++)
+        {
+          pixels[((i * w + j) * num_bytes) + oct] = (GLubyte)(val * 255.0f);
+        }
+        if(num_bytes == 4)
+        {
+          pixels[((i * w + j) * 4) + 3] = (GLubyte)255.0f;
+        }
+    }
+  }
+
+  fluid_tex->update_pixels_from_mem(pixels);
+
+  delete pixels;
 }
 
 void game_loop()
@@ -109,6 +151,7 @@ void game_loop()
     float game_time = (float)ticks;
 
     fill_dynamic_texture(game_time);
+    fill_fluid_texture(game_time);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -144,6 +187,20 @@ void game_loop()
         glVertex3f(-1.0f, 1.0f, 0.0f);
     glEnd();
 
+    //render fluid texture
+    fluid_tex->render_gl();
+    glBegin(GL_QUADS);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex3f(-1.0f, -1.0f, 0.0f);
+        glTexCoord2f(1.0f, 0.0f);
+        glVertex3f(0.0f, -1.0f, 0.0f);
+        glTexCoord2f(1.0f, 1.0f);
+        glVertex3f(0.0f, 0.0f, 0.0f);
+        glTexCoord2f(0.0f, 1.0f);
+        glVertex3f(-1.0f, 0.0f, 0.0f);
+    glEnd();
+
 	glFlush();
 	SDL_GL_SwapWindow(sdl_window);
 }
@@ -159,16 +216,24 @@ int main(int argc, char **argv)
   dynamic_tex = new Texture(256, 256, GL_RGB);
   dynamic_tex->init();
 
-	while(true)
-	{
-		process_events();
-		game_loop();
-	}
+  fluid_tex = new Texture(256, 256, GL_RGB);
+  fluid_tex->init();
 
-    quit_app();
+  fluid = new Fluid2D(256, 256);
 
-    delete t;
-    delete dynamic_tex;
+  while(true)
+  {
+    process_events();
+    game_loop();
+  }
+
+  quit_app();
+
+  delete fluid;
+
+  delete t;
+  delete dynamic_tex;
+  delete fluid_tex;
 
 	return 0;
 }
