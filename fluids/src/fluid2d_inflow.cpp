@@ -5,7 +5,7 @@ using namespace std;
 
 Fluid2DInflow::Fluid2DInflow() : Fluid2DInteractor()
 {
-  rate = 50.0f;
+  rate = 200.0f;
   velocity = Float2(10.0f, 0.0f);
   radius = 0.025f;
 }
@@ -27,10 +27,10 @@ void Fluid2DInflow::simulate(const float dt)
 
       if(d2 < r2)
       {
-        u[idx(i, j)] = velocity[0];
-        v[idx(i, j)] = velocity[1];
+        u[idx(i, j)] += velocity[0];
+        v[idx(i, j)] += velocity[1];
 
-        dens[idx(i, j)] = rate * dt;
+        dens[idx(i, j)] += rate * dt * (1.0f - d2 / (radius * radius));
       }
     }
   }

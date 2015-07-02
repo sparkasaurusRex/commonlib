@@ -12,6 +12,7 @@
 #include "perlin.h"
 #include "fluid2d.h"
 #include "fluid2d_inflow.h"
+#include "fluid2d_turbulence.h"
 
 using namespace std;
 
@@ -31,6 +32,7 @@ Texture *fluid_tex =            NULL;
 
 Fluid2D *fluid =                NULL;
 Fluid2DInflow *inflow =         NULL;
+Fluid2DTurbulenceField *turb =  NULL;
 
 void quit_app()
 {
@@ -271,6 +273,13 @@ int main(int argc, char **argv)
   inflow = new Fluid2DInflow;
   fluid->add_interactor(inflow);
 
+  turb = new Fluid2DTurbulenceField;
+  turb->set_scale(7.0f);
+  turb->set_octaves(2);
+  turb->set_speed(0.6f);
+  turb->set_strength(0.4f);
+  fluid->add_interactor(turb);
+
   while(true)
   {
     process_events();
@@ -282,6 +291,7 @@ int main(int argc, char **argv)
   delete fluid;
   delete fluid_tex;
   delete inflow;
+  delete turb;
 
 	return 0;
 }
