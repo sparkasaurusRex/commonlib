@@ -3,7 +3,7 @@ LIB_PATH=
 CFLAGS=-I./include -I../mathlib/include -I../graphics/include -Ofast
 LDFLAGS=-lmath
 SRCPATH=src/
-SRCS=src/fluid2d.cpp src/fluid2d_interactor.cpp
+SRCS=src/fluid2d.cpp src/fluid2d_interactor.cpp src/fluid2d_inflow.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -44,7 +44,10 @@ $(BINPATH)fluid2d.o: $(SRCPATH)fluid2d.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d.cpp -o $(BINPATH)fluid2d.o
 
 $(BINPATH)fluid2d_interactor.o: $(SRCPATH)fluid2d_interactor.cpp
-		$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d_interactor.cpp -o $(BINPATH)fluid2d_interactor.o
+	$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d_interactor.cpp -o $(BINPATH)fluid2d_interactor.o
+
+$(BINPATH)fluid2d_inflow.o: $(SRCPATH)fluid2d_inflow.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d_inflow.cpp -o $(BINPATH)fluid2d_inflow.o
 
 
 $(BINPATH)libfluids.a: $(OBJS_BIN)

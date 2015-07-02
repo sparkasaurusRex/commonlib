@@ -7,3 +7,9 @@ t + UP / DOWN arrow: increase / decrease time scale (TODO)
 L click: add fluid
 L click + CTRL: remove fluid
 R click + move: move fluid
+
+TODO:
+* add interactors
+* 3D?
+* bake to file?
+* GPU simulation?

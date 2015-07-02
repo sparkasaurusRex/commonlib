@@ -32,6 +32,7 @@ namespace Math {
 
       inline void normalize() { float m = magnitude(); _val[0] /= m; _val[1] /= m; }
       inline float magnitude() const { return sqrt(_val[0] * _val[0] + _val[1] * _val[1]); }
+      inline float mag_squared() const { return _val[0] * _val[0] + _val[1] * _val[1]; }
       //inline float distance(Float2 p) { return magnitude(this - p); }
 
       //data
@@ -74,6 +75,7 @@ namespace Math {
             //length / normalization
             inline void normalize() { float m = magnitude(); _val[0] /= m; _val[1] /= m; _val[2] /= m; }
             inline float magnitude() const { return sqrt(_val[0] * _val[0] + _val[1] * _val[1] + _val[2] * _val[2]); }
+            inline float mag_squared() const { return _val[0] * _val[0] + _val[1] * _val[1] + _val[2] * _val[2]; }
 
             //data
             float _val[3];

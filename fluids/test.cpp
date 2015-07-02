@@ -11,6 +11,7 @@
 #include "texture.h"
 #include "perlin.h"
 #include "fluid2d.h"
+#include "fluid2d_inflow.h"
 
 using namespace std;
 
@@ -20,14 +21,16 @@ const int WIN_HEIGHT =  512;
 const int FLUID_DIM = 256;
 
 float Previous_game_time = 0.0f;
-float Time_scale = 0.0016f;
+float Time_scale = 0.0001f;
 float Velocity_scale = 50.0f;
+float Fluid_add_amount = 100.0f;
 
 SDL_Window* sdl_window =        NULL;
 SDL_GLContext sdl_gl_context =  NULL;
 Texture *fluid_tex =            NULL;
 
 Fluid2D *fluid =                NULL;
+Fluid2DInflow *inflow =         NULL;
 
 void quit_app()
 {
@@ -42,18 +45,18 @@ void init_sdl()
 {
 	if(SDL_Init( SDL_INIT_VIDEO ) < 0)
     {
-        printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
+      printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
     }
     else
     {
-        //Create window
-        sdl_window = SDL_CreateWindow("Graphics Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-        assert(sdl_window);
+      //Create window
+      sdl_window = SDL_CreateWindow("Fluid Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+      assert(sdl_window);
 
-        sdl_gl_context = SDL_GL_CreateContext(sdl_window);
-        assert(sdl_gl_context);
+      sdl_gl_context = SDL_GL_CreateContext(sdl_window);
+      assert(sdl_gl_context);
 
-        SDL_GL_SetSwapInterval(1);
+      SDL_GL_SetSwapInterval(1);
     }
 }
 
@@ -72,7 +75,7 @@ void process_events()
     const Uint8 *keyboard_state = SDL_GetKeyboardState(&num_keys);
     if(button_state & SDL_BUTTON(SDL_BUTTON_LEFT))
     {
-      float fluid_amt = 10.0f;
+      float fluid_amt =  Fluid_add_amount;
       if(keyboard_state[SDL_SCANCODE_LCTRL])
       {
         fluid_amt = -fluid_amt;
@@ -128,6 +131,18 @@ void process_events()
               }
               cout<<"time scale: "<<Time_scale<<endl;
           }
+          if(keyboard_state[SDL_SCANCODE_P])
+          {
+            int project_steps = fluid->get_project_steps();
+            if(keyboard_state[SDL_SCANCODE_UP])
+            {
+              project_steps++;
+            } else if(keyboard_state[SDL_SCANCODE_DOWN]) {
+              project_steps--;
+            }
+            fluid->set_project_steps(project_steps);
+            cout<<"project steps: "<<project_steps<<endl;
+          }
           break;
         }
         case SDL_MOUSEMOTION:
@@ -137,7 +152,7 @@ void process_events()
             //cout<<"button 1 pressed and mouse moving"<<endl;
             Float2 pt((float)event.motion.x / WIN_WIDTH, (float)event.motion.y / WIN_HEIGHT);
             Float2 vel(Velocity_scale * (float)event.motion.xrel, Velocity_scale * (float)event.motion.yrel);
-            fluid->add_velocity_at_point(pt, vel, 0.02f);
+            fluid->add_velocity_at_point(pt, vel, 0.03f);
           }
           break;
         }
@@ -156,6 +171,9 @@ void fill_fluid_texture(float t)
   int w, h;
   fluid_tex->get_dim(w, h);
 
+  Float3 color_a(80.0f, 55.0f, 35.0f);
+  Float3 color_b(255.0f, 255.0f, 255.0f);
+
   GLuint mode = fluid_tex->get_pixel_mode();
   int num_bytes = (mode == GL_RGBA) ? 4 : 3;
 
@@ -165,12 +183,12 @@ void fill_fluid_texture(float t)
     for(int j = 0; j < h; j++)
     {
       int fluid_idx = i + (w + 2) * j;
-      float val = clamp(f[fluid_idx], 0.0f, 1.0f);
-      //cout<<val<<endl;
+      float val = 0.5f * clamp(f[fluid_idx], -1.0f, 1.0f) + 0.5f;
+      Float3 final_color = lerp(color_a, color_b, val);
 
       for(int oct = 0; oct < 3; oct++)
       {
-        pixels[((i * w + j) * num_bytes) + oct] = (GLubyte)(val * 255.0f);
+        pixels[((i * w + j) * num_bytes) + oct] = (GLubyte)final_color[oct];//(val * 255.0f);
       }
       if(num_bytes == 4)
       {
@@ -193,6 +211,28 @@ void game_loop()
 
     //fill_dynamic_texture(game_time);
     fill_fluid_texture(dt);
+
+/*
+    //HACK
+    Float2 pt(0.5f, 0.49f);
+    Float2 vel(100.0f * cos(game_time * 0.001f), 100.0f * sin(game_time * 0.001f));
+    fluid->add_velocity_at_point(pt, vel, 0.06f);
+    fluid->add_density_at_point(pt, Fluid_add_amount, 0.05f);
+
+    Float2 pt2(0.75f, 0.51f);
+    Float2 vel2(-100.0f, 0.0f);
+    //fluid->add_velocity_at_point(pt2, vel2, 0.1f);
+
+    Float2 pt3(0.25f, 0.5f);
+    Float2 vel3(200.0f, 0.0f);
+    //fluid->add_velocity_at_point(pt3, vel3, 0.1f);
+
+    Float2 pt4(0.5f + 0.25f * cos(game_time * 0.0005f), 0.5f + 0.25f * sin(game_time * 0.0005f));
+    //fluid->add_density_at_point(pt4, Fluid_add_amount, 0.04f);
+
+    Float2 pt5(0.5f + 0.25f * cos(M_PI + game_time * 0.001f), 0.5f + 0.25f * sin(M_PI + game_time * 0.001f));
+    fluid->add_density_at_point(pt5, -Fluid_add_amount, 0.05f);
+    */
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -228,6 +268,9 @@ int main(int argc, char **argv)
 
   fluid = new Fluid2D(FLUID_DIM, FLUID_DIM);
 
+  inflow = new Fluid2DInflow;
+  fluid->add_interactor(inflow);
+
   while(true)
   {
     process_events();
@@ -238,6 +281,7 @@ int main(int argc, char **argv)
 
   delete fluid;
   delete fluid_tex;
+  delete inflow;
 
 	return 0;
 }

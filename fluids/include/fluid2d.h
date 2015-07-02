@@ -10,6 +10,8 @@
 //#define IX(i ,j) 	((i)+(N+2)*(j))
 #define SWAP(x0,x) { float *tmp = x0; x0 = x; x = tmp;}
 
+#include <vector>
+#include "fluid2d_interactor.h"
 #include "math_utility.h"
 
 using namespace Math;
@@ -42,17 +44,17 @@ public:
 
 	float get_viscosity() const { return viscosity; }
 	float get_diffusion_rate() const { return diffusion_rate; }
+	int   get_project_steps() const { return project_steps; }
 
 	void set_viscosity(const float visc) { viscosity = visc; }
 	void set_diffusion_rate(const float diff) { diffusion_rate = diff; }
+	void set_project_steps(const int p) { project_steps = p; }
 
 	void simulate(const float t);
 
-	//void render_gl();
-	//void init_gl();			//init the vertex array (openGL)
-
 	void add_density_at_point(const Float2 pt, const float density, const float radius);
 	void add_velocity_at_point(const Float2 pt, const Float2 vel, const float radius);
+	void add_interactor(Fluid2DInteractor *fi);
 
 protected:
 	void init_helper();		//helper function for the constructor
@@ -64,7 +66,7 @@ protected:
 	void project(float *u, float *v, float *p, float *div);
 
 	void advect(int b, float *d, float *d0, float *u, float *v, float dt);			//advection step
-	void diffuse(int b, float *x, float *x0, float dif, float dt);			//diffusion step
+	void diffuse(int b, float *x, float *x0, float dif, float dt);							//diffusion step
 
 	//helper function access our 1-D fluid array with 2 coordinates
 	//inline just as fast as a macro? *shrug*
@@ -84,13 +86,16 @@ private:
 	float *u, *v, *u_prev, *v_prev;
 	float *dens, *dens_prev;
 
-	float diffusion_rate;			//rate of diffusion
-	float viscosity;					//viscosity of the fluid
+	int project_steps;							//number of steps to use in the project (and diffuse) functions
+	Float2 density_allowable_range;	//min/max density allowed in the simulation
+	float diffusion_rate;						//rate of diffusion
+	float viscosity;								//viscosity of the fluid
 
 	//list of objects that can interact w/ the fluid sim
 
 	//int num_interactors;
-	//Fluid2d_Interactor *interactors;
+	//Fluid2DInteractor *interactors;
+	std::vector<Fluid2DInteractor *> interactors;
 };
 
 #endif // _FLUID2_D_H_
