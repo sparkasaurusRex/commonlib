@@ -21,7 +21,9 @@ namespace Math {
       inline float operator[](const int idx) const { return _val[idx]; }
 
       //dot product
-      inline float operator*(const Float2 &b) const { return b._val[0] * _val[0] + b._val[1] * _val[1];}
+      inline float operator*(const Float2 &b) const { return b._val[0] * _val[0] + b._val[1] * _val[1]; }
+
+      inline Float2 operator*(const float &r) const { return Float2(r * _val[0], r * _val[1]); }
 
       inline float x() const { return _val[0]; }
       inline float y() const { return _val[1]; }
@@ -55,6 +57,8 @@ namespace Math {
             //dot product
             inline float operator*(const Float3 &r) const { return _val[0] * r._val[0] + _val[1] * r._val[1] + _val[2] * r._val[2]; }
 
+            inline Float3 operator*(const float &r) const { return Float3(r * _val[0], r * _val[1], r * _val[2]); }
+
             //cross product
             inline Float3 operator^(const Float3 &r) const { return Float3(_val[1] * r._val[2] - _val[2] * r._val[1],
                                                                            _val[2] * r._val[0] - _val[0] * r._val[2],
@@ -80,6 +84,17 @@ namespace Math {
             //data
             float _val[3];
     };
+
+  inline Float2 operator*(const float &l, const Float2 &r) { return Float2(l * r[0], l * r[1]); }
+  inline Float3 operator*(const float &l, const Float3 &r) { return Float3(l * r[0], l * r[1], l * r[2]); }
+
+  inline Float2 midpoint(Float2 &a, Float2 &b) { return a + 0.5f * (b - a); }
+  inline Float3 midpoint(Float3 &a, Float3 &b) { return a + 0.5f * (b - a); }
+
+  inline float distance(Float2 &a, Float2 &b) { Float2 v = b - a; return v.magnitude(); }
+  inline float dist_squared(Float2 &a, Float2 &b) { Float2 v = b - a; return v.mag_squared(); }
+  inline float distance(Float3 &a, Float3 &b) { Float3 v = b - a; return v.magnitude(); }
+  inline float dist_squared(Float3 &a, Float3 &b) { Float3 v = b - a; return v.mag_squared(); }
 
 	inline float lerp(float x, float y, float m) { return (x * (1.0f - m) + y * m); }
 	inline float cerp(float x, float y, float m) { double mu2 = (1.0f - cos(m * M_PI)) / 2.0f; return (x * (1.0f - mu2) + y * mu2); }

@@ -90,7 +90,7 @@ void fill_dynamic_texture(float t)
         float x_val = 1.0f * (float)i / (float)w;
         float y_val = 1.0f * (float)j / (float)h;
         float z_val = t * 0.0002f;
-        float val = PerlinNoise::octave_noise_3d(2, 1.0f, 4.0f, x_val, y_val, z_val);
+        float val = 0.5f * PerlinNoise::octave_noise_3d(2, 1.0f, 4.0f, x_val, y_val, z_val) + 0.5f;
         //float val = PerlinNoise::marble_noise_3d(2, 1.0f, 5.0f, x_val, y_val, z_val);
         //float val = PerlinNoise::raw_noise_3d(x_val, y_val, z_val);
         //float val = 0.5f * sin(M_PI * 2.0f * (float)i / (float)w) + 0.5f;

@@ -274,7 +274,7 @@ int main(int argc, char **argv)
   fluid->add_interactor(inflow);
 
   turb = new Fluid2DTurbulenceField;
-  turb->set_scale(7.0f);
+  turb->set_scale(4.0f);
   turb->set_octaves(2);
   turb->set_speed(0.6f);
   turb->set_strength(0.4f);
