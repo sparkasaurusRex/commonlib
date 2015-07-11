@@ -28,9 +28,9 @@ else
 
 	BINPATH=bin/linux/
 	CFLAGS+=-I/usr/include/freetype2/
-	CFLAGS+=$(shell pkg-config --libs sdl2)
+	CFLAGS+=$(shell pkg-config --cflags sdl2)
 
-	LDFLAGS+=$(shell pkg-config --libs sdl2)
+#	LDFLAGS+=$(shell pkg-config --libs sdl2)
 	LDFLAGS+=$(shell pkg-config --libs SDL2_image)
 	LDFLAGS+=-lGL
 endif

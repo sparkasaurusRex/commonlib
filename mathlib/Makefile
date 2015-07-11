@@ -3,7 +3,7 @@ LIB_PATH=
 CFLAGS=-I./include -Ofast
 LDFLAGS=
 SRCPATH=src/
-SRCS=src/math_utility.cpp src/perlin.cpp
+SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -22,11 +22,14 @@ OBJS_BIN=$(addprefix $(BINPATH), $(notdir $(OBJS)))
 
 all: $(OBJS_BIN) $(BINPATH)libmath.a test
 
-$(BINPATH)math_utility.o: $(SRCPATH)/math_utility.cpp
+$(BINPATH)math_utility.o: $(SRCPATH)math_utility.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)math_utility.cpp -o $(BINPATH)math_utility.o
 
-$(BINPATH)perlin.o: $(SRCPATH)/perlin.cpp
+$(BINPATH)perlin.o: $(SRCPATH)perlin.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)perlin.cpp -o $(BINPATH)perlin.o
+
+$(BINPATH)matrix.o: $(SRCPATH)matrix.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)matrix.cpp -o $(BINPATH)matrix.o
 
 #$(OBJS): $(SRCS)
 #	$(CC) $(CFLAGS) -c $< -o $@

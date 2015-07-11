@@ -4,7 +4,7 @@
 #include <math.h>
 
 #ifndef M_PHI
-#define M_PHI   1.61803398874989484820
+#define M_PHI   1.61803398874989484820f
 #endif
 
 namespace Math {
@@ -17,13 +17,14 @@ namespace Math {
       inline Float2 &operator=(const Float2 &r) { _val[0] = r._val[0]; _val[1] = r._val[1]; return *this; }
       inline Float2 operator+(const Float2 &r) { return Float2(_val[0] + r._val[0], _val[1] + r._val[1]); }
       inline Float2 operator-(const Float2 &r) { return Float2(_val[0] - r._val[0], _val[1] - r._val[1]); }
+      inline Float2 operator/(const float &r) { return Float2(_val[0] / r, _val[1] / r); }
+      inline Float2 operator*(const float &r) const { return Float2(r * _val[0], r * _val[1]); }
+
       inline float &operator[](const int idx) { return _val[idx]; }
       inline float operator[](const int idx) const { return _val[idx]; }
 
       //dot product
       inline float operator*(const Float2 &b) const { return b._val[0] * _val[0] + b._val[1] * _val[1]; }
-
-      inline Float2 operator*(const float &r) const { return Float2(r * _val[0], r * _val[1]); }
 
       inline float x() const { return _val[0]; }
       inline float y() const { return _val[1]; }
@@ -51,13 +52,14 @@ namespace Math {
             inline Float3 &operator=(const Float3 &r) { _val[0] = r._val[0]; _val[1] = r._val[1]; _val[2] = r._val[2]; return *this; }
             inline Float3 operator+(const Float3 &r) { return Float3(_val[0] + r._val[0], _val[1] + r._val[1], _val[2] + r._val[2]); }
             inline Float3 operator-(const Float3 &r) { return Float3(_val[0] - r._val[0], _val[1] - r._val[1], _val[2] - r._val[2]); }
+            inline Float3 operator/(const float &r) { return Float3(_val[0] / r, _val[1] / r, _val[2] / r); }
+            inline Float3 operator*(const float &r) const { return Float3(r * _val[0], r * _val[1], r * _val[2]); }
+
             inline float &operator[](const int idx) { return _val[idx]; }
             inline float operator[](const int idx) const { return _val[idx]; }
 
             //dot product
             inline float operator*(const Float3 &r) const { return _val[0] * r._val[0] + _val[1] * r._val[1] + _val[2] * r._val[2]; }
-
-            inline Float3 operator*(const float &r) const { return Float3(r * _val[0], r * _val[1], r * _val[2]); }
 
             //cross product
             inline Float3 operator^(const Float3 &r) const { return Float3(_val[1] * r._val[2] - _val[2] * r._val[1],
