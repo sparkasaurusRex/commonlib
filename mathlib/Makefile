@@ -3,7 +3,7 @@ LIB_PATH=
 CFLAGS=-I./include -Ofast
 LDFLAGS=
 SRCPATH=src/
-SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp
+SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -30,6 +30,9 @@ $(BINPATH)perlin.o: $(SRCPATH)perlin.cpp
 
 $(BINPATH)matrix.o: $(SRCPATH)matrix.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)matrix.cpp -o $(BINPATH)matrix.o
+
+$(BINPATH)aabb.o: $(SRCPATH)aabb.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)aabb.cpp -o $(BINPATH)aabb.o
 
 #$(OBJS): $(SRCS)
 #	$(CC) $(CFLAGS) -c $< -o $@

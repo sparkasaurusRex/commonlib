@@ -16,9 +16,9 @@ namespace Math {
       Float2(const Float2 &b);
 
       inline Float2 &operator=(const Float2 &r) { _val[0] = r._val[0]; _val[1] = r._val[1]; return *this; }
-      inline Float2 operator+(const Float2 &r) { return Float2(_val[0] + r._val[0], _val[1] + r._val[1]); }
-      inline Float2 operator-(const Float2 &r) { return Float2(_val[0] - r._val[0], _val[1] - r._val[1]); }
-      inline Float2 operator/(const float &r) { return Float2(_val[0] / r, _val[1] / r); }
+      inline Float2 operator+(const Float2 &r) const { return Float2(_val[0] + r._val[0], _val[1] + r._val[1]); }
+      inline Float2 operator-(const Float2 &r) const { return Float2(_val[0] - r._val[0], _val[1] - r._val[1]); }
+      inline Float2 operator/(const float &r) const { return Float2(_val[0] / r, _val[1] / r); }
       inline Float2 operator*(const float &r) const { return Float2(r * _val[0], r * _val[1]); }
 
       inline float &operator[](const int idx) { return _val[idx]; }
@@ -51,9 +51,9 @@ namespace Math {
             Float3(const Float3 &b);
 
             inline Float3 &operator=(const Float3 &r) { _val[0] = r._val[0]; _val[1] = r._val[1]; _val[2] = r._val[2]; return *this; }
-            inline Float3 operator+(const Float3 &r) { return Float3(_val[0] + r._val[0], _val[1] + r._val[1], _val[2] + r._val[2]); }
-            inline Float3 operator-(const Float3 &r) { return Float3(_val[0] - r._val[0], _val[1] - r._val[1], _val[2] - r._val[2]); }
-            inline Float3 operator/(const float &r) { return Float3(_val[0] / r, _val[1] / r, _val[2] / r); }
+            inline Float3 operator+(const Float3 &r) const { return Float3(_val[0] + r._val[0], _val[1] + r._val[1], _val[2] + r._val[2]); }
+            inline Float3 operator-(const Float3 &r) const { return Float3(_val[0] - r._val[0], _val[1] - r._val[1], _val[2] - r._val[2]); }
+            inline Float3 operator/(const float &r) const { return Float3(_val[0] / r, _val[1] / r, _val[2] / r); }
             inline Float3 operator*(const float &r) const { return Float3(r * _val[0], r * _val[1], r * _val[2]); }
 
             inline float &operator[](const int idx) { return _val[idx]; }
