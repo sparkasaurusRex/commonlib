@@ -14,10 +14,8 @@ Matrix2x2::Matrix2x2()
 
 Matrix2x2::Matrix2x2(const float _00, const float _01, const float _10, const float _11)
 {
-  m[0][0] = _00;
-  m[0][1] = _01;
-  m[1][0] = _10;
-  m[1][1] = _11;
+  m[0][0] = _00;    m[0][1] = _01;
+  m[1][0] = _10;    m[1][1] = _11;
 }
 
 Matrix2x2 Matrix2x2::operator*(const Matrix2x2 &r)

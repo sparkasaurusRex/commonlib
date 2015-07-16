@@ -2,6 +2,7 @@
 #define _MATH_UTILITY_H_
 
 #include <math.h>
+#include <iostream>
 
 #ifndef M_PHI
 #define M_PHI   1.61803398874989484820f
@@ -89,6 +90,8 @@ namespace Math {
 
   inline Float2 operator*(const float &l, const Float2 &r) { return Float2(l * r[0], l * r[1]); }
   inline Float3 operator*(const float &l, const Float3 &r) { return Float3(l * r[0], l * r[1], l * r[2]); }
+  inline std::ostream &operator<<(std::ostream &os, const Float3 &obj) { os<<"("<<obj[0]<<", "<<obj[1]<<", "<<obj[2]<<")"; return os; }
+  inline std::ostream &operator<<(std::ostream &os, const Float2 &obj) { os<<"("<<obj[0]<<", "<<obj[1]<<")"; return os; }
 
   inline Float2 midpoint(Float2 &a, Float2 &b) { return a + 0.5f * (b - a); }
   inline Float3 midpoint(Float3 &a, Float3 &b) { return a + 0.5f * (b - a); }
