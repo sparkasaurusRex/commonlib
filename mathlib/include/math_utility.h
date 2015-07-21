@@ -96,10 +96,10 @@ namespace Math {
   inline Float2 midpoint(Float2 &a, Float2 &b) { return a + 0.5f * (b - a); }
   inline Float3 midpoint(Float3 &a, Float3 &b) { return a + 0.5f * (b - a); }
 
-  inline float distance(Float2 &a, Float2 &b) { Float2 v = b - a; return v.magnitude(); }
-  inline float dist_squared(Float2 &a, Float2 &b) { Float2 v = b - a; return v.mag_squared(); }
-  inline float distance(Float3 &a, Float3 &b) { Float3 v = b - a; return v.magnitude(); }
-  inline float dist_squared(Float3 &a, Float3 &b) { Float3 v = b - a; return v.mag_squared(); }
+  inline float distance(const Float2 &a, const Float2 &b) { Float2 v = b - a; return v.magnitude(); }
+  inline float dist_squared(const Float2 &a, const Float2 &b) { Float2 v = b - a; return v.mag_squared(); }
+  inline float distance(const Float3 &a, const Float3 &b) { Float3 v = b - a; return v.magnitude(); }
+  inline float dist_squared(const Float3 &a, const Float3 &b) { Float3 v = b - a; return v.mag_squared(); }
 
 	inline float lerp(float x, float y, float m) { return (x * (1.0f - m) + y * m); }
 	inline float cerp(float x, float y, float m) { double mu2 = (1.0f - cos(m * M_PI)) / 2.0f; return (x * (1.0f - mu2) + y * mu2); }

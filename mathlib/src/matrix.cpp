@@ -61,6 +61,15 @@ Matrix3x3::Matrix3x3(const float _00, const float _01, const float _02,
     m[2][0] = _20;  m[2][1] = _21;  m[2][2] = _22;
 }
 
+Float3 Matrix3x3::operator*(const Float3 &r) const
+{
+  Float3 ret;
+  ret[0] = m[0][0] * r[0] + m[0][1] * r[1] + m[0][2] * r[2];
+  ret[1] = m[1][0] * r[0] + m[1][1] * r[1] + m[1][2] * r[2];
+  ret[2] = m[2][0] * r[0] + m[2][1] * r[1] + m[2][2] * r[2];
+  return ret;
+}
+
 void Matrix3x3::identity()
 {
   m[0][0] = 1.0f;   m[0][1] = 0.0f;   m[0][2] = 0.0f;
@@ -99,6 +108,8 @@ void Matrix3x3::rotation_from_quaternion(const Quaternion &q)
   m[2][1] = yz + wx;
   m[2][2] = w2 - x2 - y2 + z2;
 }
+
+
 
 ostream& Math::operator<<(ostream &os, const Matrix2x2 &m)
 {

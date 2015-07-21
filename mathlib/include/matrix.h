@@ -41,6 +41,8 @@ namespace Math {
 
       ~Matrix3x3() {};
 
+      Float3 operator*(const Float3 &r) const;
+
       inline float &operator()(const int &row, const int &col) { return m[row][col]; }
       inline float operator()(const int &row, const int &col) const { return m[row][col]; }
 

@@ -12,29 +12,29 @@
 class Texture
 {
 public:
-	Texture(const int w = 32, const int h = 32, const GLuint m = GL_RGBA);
-	Texture(const char *n);
+  Texture(const int w = 32, const int h = 32, const GLuint m = GL_RGBA);
+  Texture(const char *n);
 
-	~Texture();
+  ~Texture();
 
-	void get_dim(int &w, int &h) const { w = dim[0]; h = dim[1]; }
-	void set_dim(const int w, const int h) { dim[0] = w; dim[1] = h; }
-	GLuint get_pixel_mode() { return gl_mode; }
-	void set_pixel_mode(GLuint m) { gl_mode = m; }
+  void get_dim(int &w, int &h) const { w = dim[0]; h = dim[1]; }
+  void set_dim(const int w, const int h) { dim[0] = w; dim[1] = h; }
+  GLuint get_pixel_mode() { return gl_mode; }
+  void set_pixel_mode(GLuint m) { gl_mode = m; }
 
-	void init();
+  void init();
 
-	bool load();
-	bool load_from_file_data(TextureFileData &tfd);
-	bool render_gl() const;
+  bool load();
+  bool load_from_file_data(TextureFileData &tfd);
+  bool render_gl() const;
 
-	bool update_pixels_from_mem(void *pixels);
+  bool update_pixels_from_mem(void *pixels);
 
 private:
-	int			dim[2];					//dimensions of the texture
-	char		fname[256];			//filename
-	GLuint		gl_texture;		//OpenGL texture name
-	GLuint		gl_mode;			//image format
+  int      dim[2];          //dimensions of the texture
+  char    fname[256];      //filename
+  GLuint    gl_texture;    //OpenGL texture name
+  GLuint    gl_mode;      //image format
 };
 
 #endif // _TEXTURE_H_
