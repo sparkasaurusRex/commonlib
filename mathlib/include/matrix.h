@@ -41,12 +41,15 @@ namespace Math {
 
       ~Matrix3x3() {};
 
+      Matrix3x3 &operator=(const Matrix3x3 &r);
+
       Float3 operator*(const Float3 &r) const;
 
       inline float &operator()(const int &row, const int &col) { return m[row][col]; }
       inline float operator()(const int &row, const int &col) const { return m[row][col]; }
 
       void identity();
+      void invert();
       void rotation_from_quaternion(const Quaternion &q);
     private:
       float m[3][3];

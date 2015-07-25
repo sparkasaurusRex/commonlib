@@ -61,6 +61,19 @@ Matrix3x3::Matrix3x3(const float _00, const float _01, const float _02,
     m[2][0] = _20;  m[2][1] = _21;  m[2][2] = _22;
 }
 
+Matrix3x3 &Matrix3x3::operator=(const Matrix3x3 &r)
+{
+  for(int i = 0; i < 3; i++)
+  {
+    for(int j = 0; j < 3; j++)
+    {
+      m[i][j] = r.m[i][j];
+    }
+  }
+
+  return *this;
+}
+
 Float3 Matrix3x3::operator*(const Float3 &r) const
 {
   Float3 ret;
@@ -75,6 +88,29 @@ void Matrix3x3::identity()
   m[0][0] = 1.0f;   m[0][1] = 0.0f;   m[0][2] = 0.0f;
   m[1][0] = 0.0f;   m[1][1] = 1.0f;   m[1][2] = 0.0f;
   m[2][0] = 0.0f;   m[2][1] = 0.0f;   m[2][2] = 1.0f;
+}
+
+void Matrix3x3::invert()
+{
+  //ref: http://mathworld.wolfram.com/MatrixInverse.html
+  Matrix3x3 ret;
+
+  //row 1
+  ret.m[0][0] = m[1][1] * m[2][2] - m[2][1] * m[1][2];
+  ret.m[0][1] = m[2][0] * m[2][1] - m[0][1] * m[2][2];
+  ret.m[0][2] = m[0][1] * m[1][2] - m[0][2] * m[1][1];
+
+  //row 2
+  ret.m[1][0] = m[1][2] * m[2][0] - m[1][0] * m[2][2];
+  ret.m[1][1] = m[0][0] * m[2][2] - m[0][2] * m[2][0];
+  ret.m[1][2] = m[0][2] * m[1][0] - m[0][0] * m[1][2];
+
+  //row 3
+  ret.m[2][0] = m[1][0] * m[2][1] - m[1][1] * m[2][0];
+  ret.m[2][1] = m[0][1] * m[2][0] - m[0][0] * m[2][1];
+  ret.m[2][2] = m[0][0] * m[1][1] - m[0][1] * m[1][0];
+
+  *this = ret;
 }
 
 void Matrix3x3::rotation_from_quaternion(const Quaternion &q)

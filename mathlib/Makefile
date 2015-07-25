@@ -11,10 +11,17 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	#osx
 	LIB_PATH += -L../../common/mathlib/bin/osx
 	BINPATH=bin/osx/
+
+	LDFLAGS+=-framework SDL2
+	LDFLAGS+=-framework SDL2_image
+	LDFLAGS+=-framework OpenGL
 else
 	#generic link flags
 	LIB_PATH += -L../../common/mathlib/bin/linux
 	BINPATH=bin/linux/
+
+	LDFLAGS+=$(shell pkg-config --libs SDL2_image)
+	LDFLAGS+=-lGL
 endif
 
 OBJS_BIN=$(addprefix $(BINPATH), $(notdir $(OBJS)))
