@@ -3,7 +3,7 @@ LIB_PATH=-Lbin/osx
 CFLAGS=-I./include -I../game/include -Ofast
 LDFLAGS=
 SRCPATH=src/
-SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp src/quaternion.cpp
+SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp src/quaternion.cpp src/voronoi.cpp src/triangulation.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -44,6 +44,12 @@ $(BINPATH)aabb.o: $(SRCPATH)aabb.cpp
 
 $(BINPATH)quaternion.o: $(SRCPATH)quaternion.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)quaternion.cpp -o $(BINPATH)quaternion.o
+
+$(BINPATH)voronoi.o: $(SRCPATH)voronoi.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)voronoi.cpp -o $(BINPATH)voronoi.o
+
+$(BINPATH)triangulation.o: $(SRCPATH)triangulation.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)triangulation.cpp -o $(BINPATH)triangulation.o
 
 #$(OBJS): $(SRCS)
 #	$(CC) $(CFLAGS) -c $< -o $@

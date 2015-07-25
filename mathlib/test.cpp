@@ -1,5 +1,6 @@
 #include <iostream>
 #include <assert.h>
+#include <time.h>
 
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
@@ -13,6 +14,7 @@
 #include "matrix.h"
 #include "perlin.h"
 #include "quaternion.h"
+#include "voronoi.h"
 #include "sdl_game.h"
 
 using namespace std;
@@ -34,13 +36,40 @@ private:
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glPointSize(5.0f);
+		glColor3f(0.7f, 0.1f, 0.0f);
+		glBegin(GL_LINES);
 
+			Triangulation2D *tri = point_cloud.get_triangulation();
+			std::vector<Triangle2D> *triangles = tri->get_triangles();
+			for(int i = 0; i < triangles->size(); i++)
+			{
+				Triangle2D t = (*triangles)[i];
+				Float2 verts[3];
+				for(int j = 0; j < 3; j++)
+				{
+					verts[j] = point_cloud.get_point(t.indices[j]);
+				}
+
+				glVertex3f(verts[0][0], verts[0][1], 0.0f);
+				glVertex3f(verts[1][0], verts[1][1], 0.0f);
+
+				glVertex3f(verts[1][0], verts[1][1], 0.0f);
+				glVertex3f(verts[2][0], verts[2][1], 0.0f);
+
+				glVertex3f(verts[2][0], verts[2][1], 0.0f);
+				glVertex3f(verts[0][0], verts[0][1], 0.0f);
+			}
+
+		glEnd();
+
+		glPointSize(4.0f);
+		glColor3f(1.0f, 1.0f, 1.0f);
 		glBegin(GL_POINTS);
 
-			for(int i = 0; i < 100; i++)
+			for(int i = 0; i < point_cloud.get_num_points(); i++)
 			{
-				glVertex3f(random(-1.0f, 1.0f), random(-1.0f, 1.0f), 0.0f);
+				Float2 p = point_cloud.get_point(i);
+				glVertex3f(p[0], p[1], 0.0f);
 			}
 
 		glEnd();
@@ -48,16 +77,29 @@ private:
 		glFlush();
 		SDL_GL_SwapWindow(win);
 	}
-	void game_loop() {}
-	void user_init() {}
+	void game_loop() { render(); }
+	void user_init()
+	{
+		for(int i = 0; i < 10; i++)
+		{
+			Float2 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f));
+			point_cloud.add_point(p);
+		}
+		point_cloud.triangulate();
+	}
 	void user_run() {}
 	void user_process_event(const SDL_Event &event) {}
+
+	//variables
+	Voronoi2D point_cloud;
 };
 
 
 int main(int argc, char **argv)
 {
 	TestApp app;
+
+	srand(time(NULL));
 
 	app.init();
 	Float3 vec_test(1.5f, 0.4f, -21.4f);
@@ -90,13 +132,16 @@ int main(int argc, char **argv)
 	cout<<"quaternion from axis / angle rotation..."<<endl;
 	Quaternion rot_quat;
 	Float3 rot_axis(1.0f, 0.0f, 0.0f);
-	rot_quat.rotation_from_axis_angle(rot_axis, M_PI * 0.25f);
+	rot_quat.rotation_from_axis_angle(rot_axis, M_PI * 0.137f);
 	rot_quat.normalize();
 	cout<<"rot_quat:"<<endl<<rot_quat<<endl;
 
 	Matrix3x3 m3;
 	cout<<"rotation from quaternion rot_quat: "<<endl;
 	m3.rotation_from_quaternion(rot_quat);
+	cout<<m3<<endl;
+	cout<<"inverting matrix..."<<endl;
+	m3.invert();
 	cout<<m3<<endl;
 
 	app.run();
