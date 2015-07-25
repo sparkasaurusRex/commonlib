@@ -38,10 +38,6 @@ all: $(OBJS_BIN) $(BINPATH)libgame.a test
 #	$(CC) $(CFLAGS) -c $< -o $@
 #	mv $@ $(BINPATH)
 
-
-#$(BINPATH)static_mesh.o: $(SRCPATH)static_mesh.cpp
-#	$(CC) $(CFLAGS) -c src/static_mesh.cpp -o $(BINPATH)static_mesh.o
-
 $(BINPATH)sdl_game.o: $(SRCPATH)sdl_game.cpp
 	$(CC) $(CFLAGS) -c src/sdl_game.cpp -o $(BINPATH)sdl_game.o
 

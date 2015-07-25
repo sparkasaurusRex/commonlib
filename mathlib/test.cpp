@@ -13,93 +13,52 @@
 #include "matrix.h"
 #include "perlin.h"
 #include "quaternion.h"
+#include "sdl_game.h"
 
 using namespace std;
 using namespace Math;
 using namespace PerlinNoise;
 
-const int WIN_WIDTH = 512;
-const int WIN_HEIGHT = 512;
-
-SDL_Window* sdl_window = NULL;
-SDL_GLContext sdl_gl_context = NULL;
-
-void quit_app()
+class TestApp : public SDLGame
 {
-    SDL_GL_DeleteContext(sdl_gl_context);
-    SDL_DestroyWindow(sdl_window);
-    SDL_Quit();
-    exit(0);
-}
-
-void game_loop()
-{
-	Uint32 ticks = SDL_GetTicks();
-	float game_time = (float)ticks;
-
-	//render stuff here
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glPointSize(5.0f);
-
-	glBegin(GL_POINTS);
-
-		for(int i = 0; i < 100; i++)
-		{
-			glVertex3f(random(-1.0f, 1.0f), random(-1.0f, 1.0f), 0.0f);
-		}
-
-	glEnd();
-
-	glFlush();
-	SDL_GL_SwapWindow(sdl_window);
-}
-
-void init_sdl()
+public:
+	TestApp() : SDLGame(512, 512) {}
+	~TestApp() {}
+private:
+	void game_loop()
 	{
-	if(SDL_Init(SDL_INIT_VIDEO) < 0)
-  {
-    printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
-  }
-  else
-  {
-	  //Create window
-	  sdl_window = SDL_CreateWindow("Graphics Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-	  assert(sdl_window);
+		Uint32 ticks = SDL_GetTicks();
+		float game_time = (float)ticks;
 
-	  sdl_gl_context = SDL_GL_CreateContext(sdl_window);
-	  assert(sdl_gl_context);
+		//render stuff here
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-	  SDL_GL_SetSwapInterval(1);
-  }
-}
+		glPointSize(5.0f);
 
-void init_gl()
-{
+		glBegin(GL_POINTS);
 
-}
+			for(int i = 0; i < 100; i++)
+			{
+				glVertex3f(random(-1.0f, 1.0f), random(-1.0f, 1.0f), 0.0f);
+			}
 
-void process_events()
-{
-  const Uint8 *keystate = SDL_GetKeyboardState(NULL);
-  if(keystate[SDLK_ESCAPE]) quit_app();
+		glEnd();
 
-  SDL_Event event;
-  while(SDL_PollEvent(&event))
-  {
-    if(event.type == SDL_QUIT)
-    {
-      quit_app();
-    }
-  }
-}
+		glFlush();
+		SDL_GL_SwapWindow(win);
+	}
+	void user_init() {}
+	void user_run() {}
+	void user_process_event(const SDL_Event &event) {}
+};
+
 
 int main(int argc, char **argv)
 {
-	init_sdl();
-	init_gl();
+	TestApp app;
 
+	app.init();
 	Float3 vec_test(1.5f, 0.4f, -21.4f);
 
 	cout<<vec_test.magnitude()<<endl;
@@ -139,13 +98,7 @@ int main(int argc, char **argv)
 	m3.rotation_from_quaternion(rot_quat);
 	cout<<m3<<endl;
 
-	while(true)
-	{
-		process_events();
-		game_loop();
-	}
-
-	quit_app();
+	app.run();
 
 	return 0;
 }

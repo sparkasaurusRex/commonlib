@@ -19,12 +19,16 @@ public:
   SDLGame(const int w = SDL_GAME_DEFAULT_WIDTH, const int h = SDL_GAME_DEFAULT_HEIGHT);
   ~SDLGame();
 
-  virtual void init() = 0;
-  virtual void run() = 0;
+  void init();
+  void run();
+  void process_events();
 
 protected:
   virtual void game_loop() = 0;
-  virtual void process_events() = 0;
+
+  virtual void user_init() = 0;
+  virtual void user_run() = 0;
+  virtual void user_process_event(const SDL_Event &event) = 0;
 
   void init_sdl();
   void quit_app();

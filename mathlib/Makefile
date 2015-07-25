@@ -1,6 +1,6 @@
 CC=g++
-LIB_PATH=
-CFLAGS=-I./include -Ofast
+LIB_PATH=-Lbin/osx
+CFLAGS=-I./include -I../game/include -Ofast
 LDFLAGS=
 SRCPATH=src/
 SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp src/quaternion.cpp
@@ -9,7 +9,8 @@ OBJS=$(SRCS:.cpp=.o)
 UNAME := $(shell uname)
 ifneq (,$(findstring Darwin,$(UNAME)))
 	#osx
-	LIB_PATH += -L../../common/mathlib/bin/osx
+	#LIB_PATH += -L../../common/mathlib/bin/osx
+	LIB_PATH += -L../game/bin/osx
 	BINPATH=bin/osx/
 
 	LDFLAGS+=-framework SDL2
@@ -17,7 +18,7 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	LDFLAGS+=-framework OpenGL
 else
 	#generic link flags
-	LIB_PATH += -L../../common/mathlib/bin/linux
+	#LIB_PATH += -L../../common/mathlib/bin/linux
 	BINPATH=bin/linux/
 
 	LDFLAGS+=$(shell pkg-config --libs SDL2_image)
@@ -55,7 +56,7 @@ $(BINPATH)libmath.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libmath.a $(OBJS_BIN)
 
 test: test.cpp $(BINPATH)libmath.a
-	$(CC) $(CFLAGS) $(LIB_PATH) $(LDFLAGS) test.cpp -lmath -o test
+	$(CC) $(CFLAGS) $(LIB_PATH) $(LDFLAGS) test.cpp -lmath -lgame -o test
 
 clean:
 	rm -f $(BINPATH)*.o

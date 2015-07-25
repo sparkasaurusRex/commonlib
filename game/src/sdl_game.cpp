@@ -24,6 +24,39 @@ SDLGame::~SDLGame()
   }
 }
 
+void SDLGame::init()
+{
+  init_sdl();
+  user_init();
+}
+
+void SDLGame::run()
+{
+  while(true)
+  {
+    user_run();
+    process_events();
+    game_loop();
+  }
+}
+
+void SDLGame::process_events()
+{
+  //base level of event processing every app should have
+  const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+  if(keystate[SDLK_ESCAPE]) quit_app();
+
+  SDL_Event event;
+  while(SDL_PollEvent(&event))
+  {
+    if(event.type == SDL_QUIT)
+    {
+      quit_app();
+    }
+    user_process_event(event);
+  }
+}
+
 void SDLGame::init_sdl()
 {
 	if(SDL_Init( SDL_INIT_VIDEO ) < 0)
