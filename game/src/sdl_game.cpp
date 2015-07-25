@@ -1,13 +1,15 @@
 #include <assert.h>
 #include "sdl_game.h"
 
-SDLGame::SDLGame(const int w, const int h)
+SDLGame::SDLGame(const int w, const int h, std::string title)
 {
   resolution[0] = w;
   resolution[1] = h;
 
   win = NULL;
   gl_context = NULL;
+
+  window_title = title;
 }
 
 SDLGame::~SDLGame()
@@ -66,7 +68,7 @@ void SDLGame::init_sdl()
   else
   {
     //Create window
-    win = SDL_CreateWindow("Graphics Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, resolution[0], resolution[1], SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    win = SDL_CreateWindow(window_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, resolution[0], resolution[1], SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     assert(win);
 
     gl_context = SDL_GL_CreateContext(win);

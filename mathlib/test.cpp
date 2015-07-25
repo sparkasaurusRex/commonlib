@@ -22,10 +22,10 @@ using namespace PerlinNoise;
 class TestApp : public SDLGame
 {
 public:
-	TestApp() : SDLGame(512, 512) {}
+	TestApp() : SDLGame(512, 512, "Math Test") {}
 	~TestApp() {}
 private:
-	void game_loop()
+	void render()
 	{
 		Uint32 ticks = SDL_GetTicks();
 		float game_time = (float)ticks;
@@ -48,6 +48,7 @@ private:
 		glFlush();
 		SDL_GL_SwapWindow(win);
 	}
+	void game_loop() {}
 	void user_init() {}
 	void user_run() {}
 	void user_process_event(const SDL_Event &event) {}

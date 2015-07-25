@@ -9,6 +9,8 @@
 
 #include <SDL2/SDL.h>
 
+#include <string>
+
 #define SDL_GAME_DEFAULT_WIDTH    640
 #define SDL_GAME_DEFAULT_HEIGHT   480
 
@@ -16,7 +18,10 @@ class SDLGame
 {
 public:
   //SDLGame();
-  SDLGame(const int w = SDL_GAME_DEFAULT_WIDTH, const int h = SDL_GAME_DEFAULT_HEIGHT);
+  SDLGame(const int w = SDL_GAME_DEFAULT_WIDTH,
+          const int h = SDL_GAME_DEFAULT_HEIGHT,
+          const std::string title = "Game");
+
   ~SDLGame();
 
   void init();
@@ -36,6 +41,7 @@ protected:
   int resolution[2];
   SDL_Window *win;
   SDL_GLContext gl_context;
+  std::string window_title;
 };
 
 #endif //__SDL_GAME_H__
