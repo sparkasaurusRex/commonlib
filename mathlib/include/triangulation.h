@@ -3,28 +3,11 @@
 
 #include <vector>
 #include "math_utility.h"
+#include "shapes.h"
+
+#define USE_CGAL 0
 
 namespace Math {
-
-  class Triangle2D
-  {
-    public:
-      Triangle2D() { indices[0] = indices[1] = indices[2] = 0; }
-      ~Triangle2D() {}
-
-      //operator=()
-
-      int indices[3];
-  };
-
-  /*class Edge2D
-  {
-    public:
-      Edge2D() { indices[0] = indices[1] = 0; }
-      ~Edge2D() {}
-      int indices[2];
-  };*/
-
   class Triangulation2D
   {
   public:
@@ -34,10 +17,22 @@ namespace Math {
     void set_vertices(std::vector<Float2> *verts);
     void generate_delaunay_triangulation();
 
-    //int get_num_triangles() const;
-    //Triangle2D *get_triangle(int idx) const;
     std::vector<Triangle2D> *get_triangles();
   private:
+
+    //triangulation using the CGAL library (http://www.cgal.org/)
+#if USE_CGAL
+    void delaunay_cgal();
+#endif //USE_CGAL
+
+    void delaunay_fortune(); //fortune's line sweep / parabolic arc algorithm
+
+    void delaunay_merge(int start_a, int end_a, int start_b, int end_b);
+    void delaunay_divide_and_conquer(int axis, int start_idx, int end_idx);
+
+    Triangle2D create_super_triangle();
+    void delaunay_super_triangle_method();
+
     std::vector<Float2>     *vertices;
     std::vector<Triangle2D> triangles;
     //std::vector<Edge2D>     edges;

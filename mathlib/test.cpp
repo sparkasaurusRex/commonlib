@@ -24,8 +24,10 @@ using namespace PerlinNoise;
 class TestApp : public SDLGame
 {
 public:
-	TestApp() : SDLGame(512, 512, "Math Test") {}
+	TestApp() : SDLGame(512, 512, "Math Test") { Num_starting_points = 0; }
 	~TestApp() {}
+
+	void set_num_verts(int nv) { Num_starting_points = nv; }
 private:
 	void render()
 	{
@@ -80,7 +82,7 @@ private:
 	void game_loop() { render(); }
 	void user_init()
 	{
-		for(int i = 0; i < 10; i++)
+		for(int i = 0; i < Num_starting_points; i++)
 		{
 			Float2 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f));
 			point_cloud.add_point(p);
@@ -88,10 +90,24 @@ private:
 		point_cloud.triangulate();
 	}
 	void user_run() {}
-	void user_process_event(const SDL_Event &event) {}
+	void user_process_event(const SDL_Event &event)
+	{
+		switch(event.type)
+		{
+			case SDL_MOUSEBUTTONUP:
+				Float2 new_vertex;
+				cout<<"click: ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
+				new_vertex[0] = 2.0f * (((float)event.button.x / (float)resolution[0]) - 0.5f);
+				new_vertex[1] = -2.0f * (((float)event.button.y / (float)resolution[1]) - 0.5f);
+				point_cloud.add_point(new_vertex);
+				point_cloud.triangulate();
+				break;
+		}
+	}
 
 	//variables
 	Voronoi2D point_cloud;
+	int Num_starting_points;
 };
 
 
@@ -100,6 +116,11 @@ int main(int argc, char **argv)
 	TestApp app;
 
 	srand(time(NULL));
+
+	if(argc > 1)
+	{
+		app.set_num_verts(atoi(argv[1]));
+	}
 
 	app.init();
 	Float3 vec_test(1.5f, 0.4f, -21.4f);

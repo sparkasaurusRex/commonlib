@@ -26,6 +26,7 @@ int Voronoi2D::get_num_points() const
 
 void Voronoi2D::triangulate()
 {
+  if(pc.size() <= 0) { return; }
   delaunay.set_vertices(&pc);
   delaunay.generate_delaunay_triangulation();
 }

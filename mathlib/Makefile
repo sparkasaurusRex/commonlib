@@ -3,7 +3,7 @@ LIB_PATH=-Lbin/osx
 CFLAGS=-I./include -I../game/include -Ofast
 LDFLAGS=
 SRCPATH=src/
-SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp src/quaternion.cpp src/voronoi.cpp src/triangulation.cpp
+SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp src/quaternion.cpp src/voronoi.cpp src/triangulation.cpp src/shapes.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -11,11 +11,13 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	#osx
 	#LIB_PATH += -L../../common/mathlib/bin/osx
 	LIB_PATH += -L../game/bin/osx
+	LIB_PATH += -L/usr/local/Cellar/cgal/4.6.1/lib/
 	BINPATH=bin/osx/
 
 	LDFLAGS+=-framework SDL2
 	LDFLAGS+=-framework SDL2_image
 	LDFLAGS+=-framework OpenGL
+	LDFLAGS+=-lCGAL -lCGAL_Core
 else
 	#generic link flags
 	#LIB_PATH += -L../../common/mathlib/bin/linux
@@ -50,6 +52,9 @@ $(BINPATH)voronoi.o: $(SRCPATH)voronoi.cpp
 
 $(BINPATH)triangulation.o: $(SRCPATH)triangulation.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)triangulation.cpp -o $(BINPATH)triangulation.o
+
+$(BINPATH)shapes.o: $(SRCPATH)shapes.cpp
+		$(CC) $(CFLAGS) -c $(SRCPATH)shapes.cpp -o $(BINPATH)shapes.o
 
 #$(OBJS): $(SRCS)
 #	$(CC) $(CFLAGS) -c $< -o $@
