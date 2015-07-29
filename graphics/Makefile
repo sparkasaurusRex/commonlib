@@ -1,6 +1,17 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I../mathlib/include -I/usr/include/libxml2 -I../fluids/include -Ofast
+CFLAGS=-I./include -I../mathlib/include -I/usr/include/libxml2 -I../fluids/include
+CFLAGS+=-I/usr/local/include
+CFLAGS+=$(shell pkg-config freetype2 --cflags)
+CFLAGS+=$(shell pkg-config glew --cflags)
+CFLAGS+=$(shell pkg-config sdl2 --cflags)
+CFLAGS+=$(shell pkg-config SDL2_image --cflags)
+CFLAGS+=-Ofast
+
+LDFLAGS=$(shell pkg-config freetype2 --libs)
+LDFLAGS+=$(shell pkg-config glew --libs)
+LDFLAGS+=$(shell pkg-config sdl2 --libs)
+LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 SRCPATH=src/
 SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -8,15 +19,16 @@ OBJS=$(SRCS:.cpp=.o)
 UNAME := $(shell uname)
 ifneq (,$(findstring Darwin,$(UNAME)))
 	#osx
-	CFLAGS+=-I/opt/X11/include/freetype2/
+	#CFLAGS+=-I/opt/X11/include/freetype2/
 	CFLAGS+=-Wno-deprecated-declarations
+	#CFLAGS+=-I$(shell xcrun --show-sdk-path)/System/Library/Frameworks/
 
 	LIB_PATH+=-Lbin/osx
 	LIB_PATH+=-L../mathlib/bin/osx
 	LIB_PATH+=-L../fluids/bin/osx
 
-	LDFLAGS+=-framework SDL2
-	LDFLAGS+=-framework SDL2_image
+	#LDFLAGS+=-framework SDL2
+	#LDFLAGS+=-framework SDL2_image
 	LDFLAGS+=-framework OpenGL
 
 	BINPATH=bin/osx/
@@ -27,7 +39,7 @@ else
 	LIB_PATH += -L../fluids/bin/linux
 
 	BINPATH=bin/linux/
-	CFLAGS+=-I/usr/include/freetype2/
+	#CFLAGS+=-I/usr/include/freetype2/
 	CFLAGS+=$(shell pkg-config --cflags sdl2)
 
 #	LDFLAGS+=$(shell pkg-config --libs sdl2)

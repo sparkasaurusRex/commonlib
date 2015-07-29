@@ -1,6 +1,6 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -Ofast
+CFLAGS=-I./include -I/usr/local/include/ -Ofast
 SRCPATH=src/
 SRCS=src/sdl_game.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -12,9 +12,10 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 
 	LIB_PATH+=-Lbin/osx
 
-	LDFLAGS+=-framework SDL2
+	#LDFLAGS+=-framework SDL2
 	#LDFLAGS+=-framework SDL2_image
 	LDFLAGS+=-framework OpenGL
+	LDFLAGS+=$(shell pkg-config --libs sdl2)
 
 	BINPATH=bin/osx/
 else

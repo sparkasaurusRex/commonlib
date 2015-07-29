@@ -16,10 +16,10 @@
 
 using namespace std;
 
-const int WIN_WIDTH =   512;
-const int WIN_HEIGHT =  512;
+int WIN_WIDTH =   512;
+int WIN_HEIGHT =  512;
 
-const int FLUID_DIM = 256;
+int FLUID_DIM = 256;
 
 float Previous_game_time = 0.0f;
 float Time_scale = 0.0001f;

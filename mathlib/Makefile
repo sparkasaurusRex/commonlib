@@ -1,7 +1,7 @@
 CC=g++
 LIB_PATH=-Lbin/osx
-CFLAGS=-I./include -I../game/include -Ofast
-LDFLAGS=
+CFLAGS=-I./include -I../game/include -Ofast -I/usr/local/include
+LDFLAGS=$(shell pkg-config --libs sdl2)
 SRCPATH=src/
 SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp src/quaternion.cpp src/voronoi.cpp src/triangulation.cpp src/shapes.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -11,19 +11,23 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	#osx
 	#LIB_PATH += -L../../common/mathlib/bin/osx
 	LIB_PATH += -L../game/bin/osx
-	LIB_PATH += -L/usr/local/Cellar/cgal/4.6.1/lib/
+	#LIB_PATH += -L/usr/local/Cellar/cgal/4.6.1/lib/
+	#LIB_PATH += -L/usr/local/Cellar/SDL2/lib/
+
+	#CFLAGS += -I/usr/local/Cellar/sdl/2.0.3/
+
 	BINPATH=bin/osx/
 
-	LDFLAGS+=-framework SDL2
-	LDFLAGS+=-framework SDL2_image
+	#LDFLAGS+=-framework SDL2
+	#LDFLAGS+=-framework SDL2_image
 	LDFLAGS+=-framework OpenGL
-	LDFLAGS+=-lCGAL -lCGAL_Core
+	#LDFLAGS+=-lCGAL -lCGAL_Core
 else
 	#generic link flags
 	#LIB_PATH += -L../../common/mathlib/bin/linux
 	BINPATH=bin/linux/
 
-	LDFLAGS+=$(shell pkg-config --libs SDL2_image)
+	#LDFLAGS+=
 	LDFLAGS+=-lGL
 endif
 

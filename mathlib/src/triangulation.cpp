@@ -1,6 +1,10 @@
+#if USE_CGAL
+
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Projection_traits_xy_3.h>
 #include <CGAL/Delaunay_triangulation_2.h>
+
+#endif //USE_CGAL
 
 #include <assert.h>
 #include <iostream>
@@ -9,12 +13,13 @@
 using namespace Math;
 using namespace std;
 
+#if USE_CGAL
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef K::Point_2 Point_2;
 typedef CGAL::Delaunay_triangulation_2<K> Delaunay;
 typedef Delaunay::Face_iterator FaceIterator;
 typedef Delaunay::Vertex_handle VertexHandle;
-
+#endif
 
 Triangulation2D::Triangulation2D() { vertices = NULL; }
 

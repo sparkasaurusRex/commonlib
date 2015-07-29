@@ -3,7 +3,7 @@
 #else
 #include <GL/gl.h>
 #endif
-#include <GL/glut.h>
+
 #include <math.h>
 #include "glutility.h"
 
@@ -22,7 +22,7 @@ void gl_sphere(const float *_pos, const float *_dim, const float _radius)
     glTranslatef(_pos[0], _pos[1], _pos[2]);
     glScalef(_dim[0], _dim[1], _dim[2]);
 
-    glutSolidSphere(_radius, num_segments, num_rings);
+    //glutSolidSphere(_radius, num_segments, num_rings);
 }
 
 //draw a cube

@@ -1,11 +1,11 @@
 #include <SDL2/SDL.h>
 
 //http://www.libsdl.org/projects/SDL_image/
-#if defined(__APPLE__)
-#include <SDL2_image/SDL_image.h>
-#else
+//#if defined(__APPLE__)
+//#include <SDL2_image/SDL_image.h>
+//#else
 #include <SDL2/SDL_image.h>
-#endif
+//#endif
 
 //#define __USE_SOIL__
 

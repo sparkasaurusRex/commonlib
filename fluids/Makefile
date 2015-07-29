@@ -1,7 +1,10 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I../mathlib/include -I../graphics/include -Ofast
-LDFLAGS=-lmath
+CFLAGS=-I./include -I../mathlib/include -I../graphics/include -Ofast -I/usr/local/include
+CFLAGS+=$(shell pkg-config sdl2 --cflags)
+CFLAGS+=$(shell pkg-config SDL2_image --cflags)
+LDFLAGS=-lmath $(shell pkg-config sdl2 --libs)
+LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 SRCPATH=src/
 SRCS=src/fluid2d.cpp src/fluid2d_interactor.cpp src/fluid2d_inflow.cpp src/fluid2d_turbulence.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -13,8 +16,8 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	LIB_PATH += -L../mathlib/bin/osx
 	LIB_PATH += -L../graphics/bin/osx
 
-	LDFLAGS+=-framework SDL2
-	LDFLAGS+=-framework SDL2_image
+	#LDFLAGS+=-framework SDL2
+	#LDFLAGS+=-framework SDL2_image
 	LDFLAGS+=-framework OpenGL
 	LDFLAGS+=-lglew
 	BINPATH=bin/osx/
@@ -24,8 +27,8 @@ else
 	LIB_PATH += -L../mathlib/bin/linux
 	LIB_PATH += -L../graphics/bin/osx
 
-	LDFLAGS += $(shell pkg-config --libs sdl2)
-	LDFLAGS += $(shell pkg-config --libs SDL2_image)
+	#LDFLAGS += $(shell pkg-config --libs sdl2)
+	#LDFLAGS += $(shell pkg-config --libs SDL2_image)
 	LDFLAGS += $(shell pkg-config --libs gl)
 
 	BINPATH=bin/linux/
@@ -50,7 +53,7 @@ $(BINPATH)fluid2d_inflow.o: $(SRCPATH)fluid2d_inflow.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d_inflow.cpp -o $(BINPATH)fluid2d_inflow.o
 
 $(BINPATH)fluid2d_turbulence.o: $(SRCPATH)fluid2d_turbulence.cpp
-		$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d_turbulence.cpp -o $(BINPATH)fluid2d_turbulence.o
+	$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d_turbulence.cpp -o $(BINPATH)fluid2d_turbulence.o
 
 $(BINPATH)libfluids.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libfluids.a $(OBJS_BIN)
