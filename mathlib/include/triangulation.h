@@ -5,7 +5,8 @@
 #include "math_utility.h"
 #include "shapes.h"
 
-#define USE_CGAL 0
+//#define USE_CGAL 0
+//#define USE_BOOST
 
 namespace Math {
   class Triangulation2D
@@ -17,13 +18,24 @@ namespace Math {
     void set_vertices(std::vector<Float2> *verts);
     void generate_delaunay_triangulation();
 
+    void generate_convex_hull();
+
     std::vector<Triangle2D> *get_triangles();
+    std::vector<Edge2D> *get_edges();
   private:
 
+    //convex hull algorithms
+    void quick_hull();
+    void graham_scan_convex_hull();
+
     //triangulation using the CGAL library (http://www.cgal.org/)
-#if USE_CGAL
+#if defined(__USE_CGAL__)
     void delaunay_cgal();
 #endif //USE_CGAL
+
+#if defined(__USE_BOOST__)
+    void delaunay_boost();
+#endif
 
     void delaunay_fortune(); //fortune's line sweep / parabolic arc algorithm
 
@@ -35,7 +47,7 @@ namespace Math {
 
     std::vector<Float2>     *vertices;
     std::vector<Triangle2D> triangles;
-    //std::vector<Edge2D>     edges;
+    std::vector<Edge2D>     edges;
   };
 };
 

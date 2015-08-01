@@ -1,10 +1,15 @@
-#if USE_CGAL
-
+#if defined(__USE_CGAL__)
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Projection_traits_xy_3.h>
 #include <CGAL/Delaunay_triangulation_2.h>
+#endif //__USE_CGAL__
 
-#endif //USE_CGAL
+#if defined(__USE_BOOST__)
+#include <boost/polygon/voronoi.hpp>
+//#include "boost/polygon/voronoi.hpp"
+using boost::polygon::voronoi_builder;
+using boost::polygon::voronoi_diagram;
+#endif //__USE_BOOST__
 
 #include <assert.h>
 #include <iostream>
@@ -13,13 +18,13 @@
 using namespace Math;
 using namespace std;
 
-#if USE_CGAL
+#if defined(__USE_CGAL__)
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef K::Point_2 Point_2;
 typedef CGAL::Delaunay_triangulation_2<K> Delaunay;
 typedef Delaunay::Face_iterator FaceIterator;
 typedef Delaunay::Vertex_handle VertexHandle;
-#endif
+#endif //__USE_CGAL__
 
 Triangulation2D::Triangulation2D() { vertices = NULL; }
 
@@ -49,12 +54,22 @@ void Triangulation2D::generate_delaunay_triangulation()
 
   //first, sort the vertices by x-coord, w/ y-coord for tie breakers
   //std::sort(vertices->begin(), vertices->end(), sort_compare_x);
-  delaunay_divide_and_conquer(0, 0, vertices->size());
+  //delaunay_divide_and_conquer(0, 0, vertices->size());
 
   //delaunay_cgal();
+  delaunay_boost();
 }
 
-#if USE_CGAL
+#if defined(__USE_BOOST__)
+void Triangulation2D::delaunay_boost()
+{
+  //boost::polygon::voronoi_edge<double> *edge;
+  voronoi_diagram<double> vd;
+  //construct_voronoi(points.begin(), points.end(), &vd);
+}
+#endif //__USE_BOOST__
+
+#if defined(__USE_CGAL__)
 void Triangulation2D::delaunay_cgal()
 {
   Delaunay dt;
@@ -82,14 +97,14 @@ void Triangulation2D::delaunay_cgal()
     triangles.push_back(tri);
   }
 }
-#endif //USE_CGAL
+#endif //__USE_CGAL__
 
 void Triangulation2D::delaunay_merge(int start_a, int end_a, int start_b, int end_b)
 {
   Triangle2D t;
-  t.indices[0] = end_a - 1;
-  t.indices[1] = end_a;
-  t.indices[2] = start_b;
+  t.vidx[0] = end_a - 1;
+  t.vidx[1] = end_a;
+  t.vidx[2] = start_b;
 
   triangles.push_back(t);
 }
@@ -125,14 +140,145 @@ void Triangulation2D::delaunay_divide_and_conquer(int axis, int start_idx, int e
   else if (num_verts == 3)
   {
     Triangle2D t;
-    t.indices[0] = start_idx;
-    t.indices[1] = start_idx + 1;
-    t.indices[2] = start_idx + 2;
+    t.vidx[0] = start_idx;
+    t.vidx[1] = start_idx + 1;
+    t.vidx[2] = start_idx + 2;
     triangles.push_back(t);
+  }
+}
+
+struct CompareAngle {
+  inline bool operator()(int bi, int ai)
+  {
+    Float2 a = (*vertex_list)[ai];
+    Float2 b = (*vertex_list)[bi];
+
+    Float2 va = a - root;
+    Float2 vb = b - root;
+    Float2 ref = root + Float2(-1.0f, 0.0f);
+
+    double detb = ref[0] * vb[1] - ref[1] * vb[0];
+    if(detb == 0 && vb[0] * ref[0] + vb[1] * ref[1] >= 0) return false;
+
+    double deta = ref[0] * va[1] - ref[1] * va[0];
+    if(deta == 0 && va[0] * ref[0] + va[1] * ref[1] >= 0) return true;
+
+    if(deta * detb >= 0) { return ((va[0] * vb[1] - va[1] * vb[0]) > 0); }
+
+    return deta > 0.0f;
+  }
+
+  Float2 root;
+  std::vector<Float2> *vertex_list;
+};
+
+void Triangulation2D::generate_convex_hull()
+{
+  assert(vertices);
+  int num_verts = vertices->size();
+  if(num_verts < 3) { return; }
+  edges.clear();
+
+  //
+  // Graham Scan Algorithm
+  //
+  // 1. original vertex list must not change order!!!
+  //    instead, we can use a list of indices into the original list?
+  //
+
+  std::vector<int> index_list;
+
+  //first, find the vertex with the smallest y coordinate
+  int min_y_idx = -1;
+  Float2 min_vert;
+  for(int i = 0; i < vertices->size(); i++)
+  {
+    index_list.push_back(i);
+    Float2 v = (*vertices)[i];
+    if(min_y_idx < 0 || v[1] < min_vert[1] || (v[1] == min_vert[1] && v[0] < min_vert[0]))
+    {
+      min_y_idx = i;
+      min_vert = v;
+    }
+  }
+
+  //put that min_y vertex in the first element
+  int tmp_idx = index_list[0];
+  index_list[0] = index_list[min_y_idx];
+  index_list[min_y_idx] = tmp_idx;
+
+
+  // next sort the vertex list according to the angle betwixt each point
+  // and min_y (polar angle)
+  CompareAngle ca;
+  ca.root = (*vertices)[min_y_idx];
+  ca.vertex_list = vertices;
+  //std::sort(vertices->begin(), vertices->end(), ca);
+  std::sort(index_list.begin(), index_list.end(), ca);
+
+  std::vector<int> convex_hull;
+  for(int i = 0; i < index_list.size(); i++)
+  {
+    Float2 p = (*vertices)[index_list[i]];
+    while(convex_hull.size() > 2 && ccw((*vertices)[convex_hull[i - 2]],
+                                        (*vertices)[convex_hull[i - 1]], p) <= 0)
+    {
+      convex_hull.pop_back();
+    }
+    convex_hull.push_back(i);
+  }
+
+  /*
+  //next, we visit each vertex in sequence and compare it to the previous 2
+  int m = 0;
+  //std::vector<int>::iterator it;
+  for(int i = 2; i < num_verts; i++)
+  {
+    //find the next valid point on the convex hull
+    Float2 p[3];
+    p[0] = (*vertices)[index_list[m - 1]];
+    p[1] = (*vertices)[index_list[m]];
+    p[2] = (*vertices)[index_list[i]];
+
+    //calculate z-coord of cross product
+    float det = ccw(p[0], p[1], p[2]);
+
+    while(det <= 0)
+    {
+      if(m > 1) { m--; }
+      else if(i == num_verts)
+      {
+        break;
+      }
+      else
+      {
+        i++;
+      }
+    }
+
+    m++;
+    tmp_idx = index_list[i];// *it;
+    index_list[i] = index_list[m];
+    index_list[m] = tmp_idx;
+  }
+  */
+
+  //push all the indices into the edge list
+  for(int i = 0; i < convex_hull.size() - 1; i++)
+  {
+    Edge2D new_edge;
+    new_edge.vidx[0] = convex_hull[i];
+    new_edge.vidx[1] = convex_hull[i + 1];
+    edges.push_back(new_edge);
   }
 }
 
 std::vector<Triangle2D> *Triangulation2D::get_triangles()
 {
   return &triangles;
+}
+
+std::vector<Edge2D> *Triangulation2D::get_edges()
+{
+  return &edges;
 }

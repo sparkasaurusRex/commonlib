@@ -5,7 +5,7 @@
 
 using namespace Math;
 
-Circle2D Triangle2D::circumcircle() const
+Circle2D Triangle2D::circumcircle(std::vector<Float2> *verts) const
 {
   assert(false);
   Circle2D ret;

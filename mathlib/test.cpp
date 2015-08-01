@@ -42,7 +42,8 @@ private:
 		glBegin(GL_LINES);
 
 			Triangulation2D *tri = point_cloud.get_triangulation();
-			std::vector<Triangle2D> *triangles = tri->get_triangles();
+			/*std::vector<Triangle2D> *triangles = tri->get_triangles();
+
 			for(int i = 0; i < triangles->size(); i++)
 			{
 				Triangle2D t = (*triangles)[i];
@@ -60,6 +61,22 @@ private:
 
 				glVertex3f(verts[2][0], verts[2][1], 0.0f);
 				glVertex3f(verts[0][0], verts[0][1], 0.0f);
+			}*/
+
+			std::vector<Edge2D> *edges = tri->get_edges();
+			for(int i = 0; i < edges->size(); i++)
+			{
+				Edge2D e = (*edges)[i];
+				Float2 a = point_cloud.get_point(e.vidx[0]);
+				Float2 b = point_cloud.get_point(e.vidx[1]);
+
+				float pct = (float)i / (float)edges->size();
+				Float3 red(1.0f, 0.0f, 0.0f);
+				Float3 blue(0.0f, 0.0f, 1.0f);
+				Float3 col = lerp(red, blue, pct);
+				glColor3f(col[0], col[1], col[2]);
+				glVertex3f(a[0], a[1], 0.0f);
+				glVertex3f(b[0], b[1], 0.0f);
 			}
 
 		glEnd();

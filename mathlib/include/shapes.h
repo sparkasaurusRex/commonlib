@@ -5,16 +5,16 @@
 
 #include "math_utility.h"
 
-
-/*class Edge2D
-{
-  public:
-    Edge2D() { indices[0] = indices[1] = 0; }
-    ~Edge2D() {}
-    int indices[2];
-};*/
-
 namespace Math {
+  class Edge2D
+  {
+  public:
+    Edge2D() { vidx[0] = vidx[1] = 0; }
+    ~Edge2D() {}
+
+    int vidx[2]; //indices of points
+  };
+
   class Circle2D
   {
   public:
@@ -28,14 +28,14 @@ namespace Math {
   class Triangle2D
   {
     public:
-      Triangle2D() { indices[0] = indices[1] = indices[2] = 0; }
+      Triangle2D() { vidx[0] = vidx[1] = vidx[2] = 0; }
       ~Triangle2D() {}
 
       //operator=()
-      Circle2D circumcircle() const;
+      Circle2D circumcircle(std::vector<Float2> *vertices) const;
 
-      int indices[3];
-      std::vector<Float2> *vertices;
+      int vidx[3];
+      //std::vector<Float2> *vertices;
   };
 };
 

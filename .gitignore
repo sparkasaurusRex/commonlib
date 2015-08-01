@@ -1,0 +1,10 @@
+*.o
+*.a
+fluids/bin/*
+fluids/test
+game/bin/*
+game/test
+graphics/bin/*
+graphics/test
+mathlib/bin/*
+mathlib/test

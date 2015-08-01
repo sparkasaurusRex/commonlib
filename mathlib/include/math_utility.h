@@ -37,7 +37,6 @@ namespace Math {
       inline void normalize() { float m = magnitude(); _val[0] /= m; _val[1] /= m; }
       inline float magnitude() const { return sqrt(_val[0] * _val[0] + _val[1] * _val[1]); }
       inline float mag_squared() const { return _val[0] * _val[0] + _val[1] * _val[1]; }
-      //inline float distance(Float2 p) { return magnitude(this - p); }
 
       //data
       float _val[2];
@@ -119,6 +118,11 @@ namespace Math {
 
   inline float degrees_to_radians(float d) { return (d / 180.0f) * M_PI; }
 	inline float radians_to_degrees(float r) { return (r / M_PI) * 180.0f; }
+
+  inline float ccw(const Float2 a, const Float2 b, const Float2 c)
+  {
+    return (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0]);
+  }
 
 	unsigned int hash(unsigned char *str);
 }
