@@ -1,5 +1,5 @@
 CC=g++
-LIB_PATH=-Lbin/osx
+LIB_PATH=
 CFLAGS=-I./include -I../game/include -I/usr/local/include
 CFLAGS+=-D__USE_BOOST__ #use boost library for voronoi triangulation
 CFLAGS+=-Ofast
@@ -11,13 +11,16 @@ OBJS=$(SRCS:.cpp=.o)
 UNAME := $(shell uname)
 ifneq (,$(findstring Darwin,$(UNAME)))
 	#osx
-	LIB_PATH += -L../game/bin/osx
+	LIB_PATH+=-Lbin/osx
+	LIB_PATH+= -L../game/bin/osx
 	BINPATH=bin/osx/
+
 	LDFLAGS+=-framework OpenGL
 	#LDFLAGS+=-lCGAL -lCGAL_Core
 else
 	#generic link flags
-	#LIB_PATH += -L../../common/mathlib/bin/linux
+	LIB_PATH+=-Lbin/linux
+	LIB_PATH+=-L/../game/bin/osx
 	BINPATH=bin/linux/
 
 	#LDFLAGS+=
