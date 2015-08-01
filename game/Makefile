@@ -1,6 +1,8 @@
 CC=g++
 LIB_PATH=
 CFLAGS=-I./include -I/usr/local/include/ -Ofast
+CFLAGS+=$(shell pkg-config --cflags sdl2)
+LDFLAGS=$(shell pkg-config --libs sdl2)
 SRCPATH=src/
 SRCS=src/sdl_game.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -9,31 +11,21 @@ UNAME := $(shell uname)
 ifneq (,$(findstring Darwin,$(UNAME)))
 	#osx
 	CFLAGS+=-Wno-deprecated-declarations
-
 	LIB_PATH+=-Lbin/osx
-
-	#LDFLAGS+=-framework SDL2
-	#LDFLAGS+=-framework SDL2_image
 	LDFLAGS+=-framework OpenGL
-	LDFLAGS+=$(shell pkg-config --libs sdl2)
 
 	BINPATH=bin/osx/
 else
 	#generic link flags
+	LDFLAGS+=$(shell pkg-config --libs gl)
 	LIB_PATH += -Lbin/linux
-
 	BINPATH=bin/linux/
-	CFLAGS+=$(shell pkg-config --cflags sdl2)
-
-	LDFLAGS+=$(shell pkg-config --libs sdl2)
-#	LDFLAGS+=$(shell pkg-config --libs SDL2_image)
-	LDFLAGS+=-lGL
 endif
 
 OBJS_BIN=$(addprefix $(BINPATH), $(notdir $(OBJS)))
 #echo $(OBJS_BIN)
 
-all: $(OBJS_BIN) $(BINPATH)libgame.a test
+all: $(BINPATH) $(OBJS_BIN) $(BINPATH)libgame.a test
 
 #$(OBJS): $(SRCS)
 #	$(CC) $(CFLAGS) -c $< -o $@
@@ -45,8 +37,11 @@ $(BINPATH)sdl_game.o: $(SRCPATH)sdl_game.cpp
 $(BINPATH)libgame.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgame.a $(OBJS_BIN)
 
+$(BINPATH):
+	mkdir -p $(BINPATH)
+
 test: test.cpp $(BINPATH)libgame.a
-	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) $(LDFLAGS) -lgame
+	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lgame $(LDFLAGS)
 
 clean:
 	rm -f $(BINPATH)*.o

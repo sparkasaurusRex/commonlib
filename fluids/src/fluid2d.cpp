@@ -1,6 +1,7 @@
 //#include <GL/gl.h>
 #include <assert.h>
 #include <iostream>
+#include <cstring>
 
 //#include "graphics/glutility.h"
 #include "fluid2d.h"

@@ -12,7 +12,7 @@ UNAME := $(shell uname)
 ifneq (,$(findstring Darwin,$(UNAME)))
 	#osx
 	LIB_PATH+=-Lbin/osx
-	LIB_PATH+= -L../game/bin/osx
+	LIB_PATH+=-L../game/bin/osx
 	BINPATH=bin/osx/
 
 	LDFLAGS+=-framework OpenGL
@@ -20,7 +20,7 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 else
 	#generic link flags
 	LIB_PATH+=-Lbin/linux
-	LIB_PATH+=-L/../game/bin/osx
+	LIB_PATH+=-L../game/bin/linux
 	BINPATH=bin/linux/
 
 	#LDFLAGS+=
@@ -30,6 +30,9 @@ endif
 OBJS_BIN=$(addprefix $(BINPATH), $(notdir $(OBJS)))
 
 all: $(BINPATH) $(OBJS_BIN) $(BINPATH)libmath.a test
+
+$(BINPATH):
+	mkdir -p $(BINPATH)
 
 $(BINPATH)math_utility.o: $(SRCPATH)math_utility.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)math_utility.cpp -o $(BINPATH)math_utility.o
@@ -59,14 +62,11 @@ $(BINPATH)shapes.o: $(SRCPATH)shapes.cpp
 #	$(CC) $(CFLAGS) -c $< -o $@
 #	mv $@ $(BINPATH)
 
-$(BINPATH):
-	mkdir -p $(BINPATH)
-
 $(BINPATH)libmath.a: $(OBJS_BIN) $(BINPATH)
 	ar -cvq $(BINPATH)libmath.a $(OBJS_BIN)
 
 test: test.cpp $(BINPATH)libmath.a
-	$(CC) $(CFLAGS) $(LIB_PATH) $(LDFLAGS) test.cpp -lmath -lgame -o test
+	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lmath -lgame $(LDFLAGS)
 
 clean:
 	rm -f $(BINPATH)*.o

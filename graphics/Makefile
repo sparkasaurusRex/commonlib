@@ -12,6 +12,7 @@ LDFLAGS=$(shell pkg-config freetype2 --libs)
 LDFLAGS+=$(shell pkg-config glew --libs)
 LDFLAGS+=$(shell pkg-config sdl2 --libs)
 LDFLAGS+=$(shell pkg-config SDL2_image --libs)
+LDFLAGS+=-lmath
 SRCPATH=src/
 SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -43,14 +44,18 @@ else
 	CFLAGS+=$(shell pkg-config --cflags sdl2)
 
 #	LDFLAGS+=$(shell pkg-config --libs sdl2)
-	LDFLAGS+=$(shell pkg-config --libs SDL2_image)
+	#LDFLAGS+=$(shell pkg-config --libs SDL2_image)
 	LDFLAGS+=-lGL
 endif
 
 OBJS_BIN=$(addprefix $(BINPATH), $(notdir $(OBJS)))
 #echo $(OBJS_BIN)
 
-all: $(OBJS_BIN) $(BINPATH)libgraphics.a test
+
+all: $(BINPATH) $(OBJS_BIN) $(BINPATH)libgraphics.a test
+
+$(BINPATH):
+	mkdir -p $(BINPATH)
 
 #$(OBJS): $(SRCS)
 #	$(CC) $(CFLAGS) -c $< -o $@
@@ -78,7 +83,7 @@ $(BINPATH)libgraphics.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgraphics.a $(OBJS_BIN)
 
 test: test.cpp $(BINPATH)libgraphics.a
-	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) $(LDFLAGS) -lgraphics -lmath -lfluids
+	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lgraphics -lmath -lfluids $(LDFLAGS)
 
 clean:
 	rm -f $(BINPATH)*.o
