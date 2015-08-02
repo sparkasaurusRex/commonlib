@@ -49,6 +49,7 @@ bool sort_compare_y(Float2 a, Float2 b)
 
 void Triangulation2D::generate_delaunay_triangulation()
 {
+  cout<<"calculating delaunay triangulation..."<<endl;
   assert(vertices);
   triangles.clear();
 
@@ -57,15 +58,50 @@ void Triangulation2D::generate_delaunay_triangulation()
   //delaunay_divide_and_conquer(0, 0, vertices->size());
 
   //delaunay_cgal();
-  delaunay_boost();
+  #if defined(__USE_BOOST__)
+  if(vertices->size() >= 3)
+  {
+    delaunay_boost();
+  }
+  #endif //__USE_BOOST__
 }
 
 #if defined(__USE_BOOST__)
+typedef boost::polygon::point_data<int32_t> VPoint;
 void Triangulation2D::delaunay_boost()
 {
-  //boost::polygon::voronoi_edge<double> *edge;
+  edges.clear();
   voronoi_diagram<double> vd;
-  //construct_voronoi(points.begin(), points.end(), &vd);
+
+  std::vector<VPoint> points;
+  for(int i = 0; i < vertices->size(); i++)
+  {
+    VPoint vp((*vertices)[i][0] * 1000000, (*vertices)[i][1] * 1000000);
+    points.push_back(vp);
+  }
+
+
+  construct_voronoi(points.begin(), points.end(), &vd);
+
+  voronoi_diagram<double>::const_cell_iterator cit = vd.cells().begin();
+  for(; cit != vd.cells().end(); ++cit)
+  {
+    const voronoi_diagram<double>::cell_type& cell = *cit;
+    const voronoi_diagram<double>::edge_type* edge = cell.incident_edge();
+    do {
+      if(edge->is_primary())
+      {
+        const voronoi_diagram<double>::cell_type *twin_cell = edge->twin()->cell();
+
+        Edge2D delaunay_edge;
+        delaunay_edge.vidx[0] = (*cit).source_index();
+        delaunay_edge.vidx[1] = twin_cell->source_index();
+        edges.push_back(delaunay_edge);
+      }
+
+      edge = edge->next();
+    } while (edge != cell.incident_edge());
+  }
 }
 #endif //__USE_BOOST__
 
