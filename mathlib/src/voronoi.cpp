@@ -9,6 +9,12 @@ Voronoi2D::Voronoi2D()
 
 Voronoi2D::~Voronoi2D() {}
 
+void Voronoi2D::reset()
+{
+  pc.clear();
+  delaunay.reset();
+}
+
 void Voronoi2D::add_point(const Float2 &p)
 {
   pc.push_back(p);

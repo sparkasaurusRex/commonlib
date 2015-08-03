@@ -12,6 +12,7 @@ namespace Math {
      Voronoi2D();
     ~Voronoi2D();
 
+    void      reset();
     void      add_point(const Float2 &p);
     Float2    get_point(const int i) const;
     int       get_num_points() const;

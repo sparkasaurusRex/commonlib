@@ -30,6 +30,12 @@ Triangulation2D::Triangulation2D() { vertices = NULL; }
 
 Triangulation2D::~Triangulation2D() {}
 
+void Triangulation2D::reset()
+{
+  triangles.clear();
+  edges.clear();
+}
+
 void Triangulation2D::set_vertices(std::vector<Float2> *verts)
 {
   assert(verts);
@@ -49,7 +55,7 @@ bool sort_compare_y(Float2 a, Float2 b)
 
 void Triangulation2D::generate_delaunay_triangulation()
 {
-  cout<<"calculating delaunay triangulation..."<<endl;
+  //cout<<"calculating delaunay triangulation..."<<endl;
   assert(vertices);
   triangles.clear();
 

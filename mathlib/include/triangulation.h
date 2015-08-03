@@ -15,6 +15,8 @@ namespace Math {
     Triangulation2D();
     ~Triangulation2D();
 
+    void reset();
+
     void set_vertices(std::vector<Float2> *verts);
     void generate_delaunay_triangulation();
 
