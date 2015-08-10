@@ -1,5 +1,6 @@
 *.o
 *.a
+*.DS_Store
 fluids/bin/*
 fluids/test
 game/bin/*
