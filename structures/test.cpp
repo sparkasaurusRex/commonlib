@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 
   int nearest = -1;
   float min_d = -1.0f;
-  for(int i = 0; i < 100000; i++)
+  for(int i = 0; i < 20; i++)
   {
     Float3 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
     cout<<p<<endl;
@@ -40,6 +40,7 @@ int main(int argc, char **argv)
 
   float best_d2 = 0.0f;
   KDData3D<int> nearest_node = kd.find_nearest_neighbor(q, best_d2);
+  cout<<endl<<endl;
   cout<<"nearest: "<<endl;
   cout<<"\t"<<nearest_node.d<<endl;
   cout<<"\t"<<nearest_node.p<<endl;

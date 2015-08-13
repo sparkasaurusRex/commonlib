@@ -138,30 +138,50 @@ private:
       return new_node;
     }
 
-    KDNode3D<T> *find_nearest_neighbor_helper(int axis, KDNode3D<T> *r, const Float3 p, float &best_d2)
+    KDNode3D<T> *find_nearest_neighbor_helper(int axis, KDNode3D<T> *r, const Float3 p, float &best_d2, int depth = 0)
     {
       if(!r) { return NULL; }
       int new_axis = (axis + 1) % 3;
 
+      std::string indentation = "";
+      for(int i = 0; i < depth; i++) { indentation += "\t"; }
+
+      cout<<indentation.c_str()<<"---------"<<endl;
+      cout<<indentation.c_str()<<"idx: "<<r->data.d<<endl;
+
+
+
+      cout<<indentation.c_str()<<"best_d2: "<<best_d2<<endl;
       if(p[axis] < r->data.p[axis] && r->left)
       {
-        float l_d2 = dist_squared(p, r->left->data.p);
-        if(l_d2 < best_d2)
+        KDNode3D<T> *left = find_nearest_neighbor_helper(new_axis, r->left, p, best_d2, depth + 1);
+        cout<<indentation.c_str()<<"left: "<<(left ? left->data.d : -1)<<endl;
+        cout<<indentation.c_str()<<"best_d2 (after): "<<best_d2<<endl;
+        float d2 = dist_squared(left->data.p, p);
+        cout<<indentation.c_str()<<"d2: "<<d2<<endl;
+        if(d2 < best_d2 && left)
         {
-          best_d2 = l_d2;
-          return find_nearest_neighbor_helper(new_axis, r->left, p, best_d2);
+          best_d2 = d2;
+          return left;
         }
+        else { return r; }
       }
       else if(p[axis] > r->data.p[axis] && r->right)
       {
-        float r_d2 = dist_squared(p, r->right->data.p);
-        if(r_d2 < best_d2)
+        KDNode3D<T> *right = find_nearest_neighbor_helper(new_axis, r->right, p, best_d2, depth + 1);
+        cout<<indentation.c_str()<<"right: "<<(right ? right->data.d : -1)<<endl;
+        cout<<indentation.c_str()<<"best_d2 (after): "<<best_d2<<endl;
+        float d2 = dist_squared(right->data.p, p);
+        cout<<indentation.c_str()<<"d2: "<<d2<<endl;
+        if(d2 < best_d2 && right)
         {
-          best_d2 = r_d2;
-          return find_nearest_neighbor_helper(new_axis, r->right, p, best_d2);
+          best_d2 = d2;
+          return right;
         }
+        else { return r;}
       }
 
+      cout<<"leaf: "<<r->data.d<<endl;
       return r;
 
       //go left
