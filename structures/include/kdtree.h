@@ -82,8 +82,15 @@ namespace Structures
     KDData3D<T> find_nearest_neighbor(const Float3 p, float &best_d2)
     {
       best_d2 = dist_squared(p, root->data.p);
-      KDNode3D<T> *nearest = find_nearest_neighbor_helper(0, root, p, best_d2);
-      return nearest->data;
+      KDNode3D<T> *nearest = NULL;
+      find_nearest_neighbor_helper(0, root, p, nearest, best_d2);
+      if(nearest)
+      {
+        return nearest->data;
+      }
+
+      KDData3D<T> empty;
+      return empty;
     }
 
     int tree_size(KDNode3D<T> *r = NULL) const
@@ -138,9 +145,9 @@ private:
       return new_node;
     }
 
-    KDNode3D<T> *find_nearest_neighbor_helper(int axis, KDNode3D<T> *r, const Float3 p, float &best_d2, int depth = 0)
+    void find_nearest_neighbor_helper(int axis, KDNode3D<T> *r, const Float3 p, KDNode3D<T> *best, float &best_d2, int depth = 0)
     {
-      if(!r) { return NULL; }
+      if(!r) { return; }
       int new_axis = (axis + 1) % 3;
 
       std::string indentation = "";
@@ -149,40 +156,64 @@ private:
       cout<<indentation.c_str()<<"---------"<<endl;
       cout<<indentation.c_str()<<"idx: "<<r->data.d<<endl;
 
-
-
       cout<<indentation.c_str()<<"best_d2: "<<best_d2<<endl;
+
+      float d2 = dist_squared(r->data.p, p);
+      float dx = r->data.p[axis] - p[axis];
+
+      if(!best || d2 < best_d2)
+      {
+        best_d2 = d2;
+        best = r;
+      }
+
+      if(best_d2 == 0) { return; }
+
+      find_nearest_neighbor_helper(new_axis, dx > 0 ? r->left : r->right, p, best, best_d2, depth + 1);
+    //  find_nearest_neighbor_helper(new_axis, dx > 0 )
+
+
+      /*
       if(p[axis] < r->data.p[axis] && r->left)
       {
-        KDNode3D<T> *left = find_nearest_neighbor_helper(new_axis, r->left, p, best_d2, depth + 1);
-        cout<<indentation.c_str()<<"left: "<<(left ? left->data.d : -1)<<endl;
+        find_nearest_neighbor_helper(new_axis, r->left, p, best, best_d2, depth + 1);
+        cout<<indentation.c_str()<<"left"<<endl;
         cout<<indentation.c_str()<<"best_d2 (after): "<<best_d2<<endl;
-        float d2 = dist_squared(left->data.p, p);
-        cout<<indentation.c_str()<<"d2: "<<d2<<endl;
-        if(d2 < best_d2 && left)
+        if(left)
         {
-          best_d2 = d2;
-          return left;
+          float d2 = dist_squared(left->data.p, p);
+          cout<<indentation.c_str()<<"d2: "<<d2<<endl;
+          if(d2 < best_d2)
+          {
+            best_d2 = d2;
+            best = left;
+            return;
+          }
+          else { return; }
         }
-        else { return r; }
       }
       else if(p[axis] > r->data.p[axis] && r->right)
       {
-        KDNode3D<T> *right = find_nearest_neighbor_helper(new_axis, r->right, p, best_d2, depth + 1);
-        cout<<indentation.c_str()<<"right: "<<(right ? right->data.d : -1)<<endl;
+        KDNode3D<T> *right = find_nearest_neighbor_helper(new_axis, r->right, p, best, best_d2, depth + 1);
+        cout<<indentation.c_str()<<"right"<<endl;
         cout<<indentation.c_str()<<"best_d2 (after): "<<best_d2<<endl;
-        float d2 = dist_squared(right->data.p, p);
-        cout<<indentation.c_str()<<"d2: "<<d2<<endl;
-        if(d2 < best_d2 && right)
+        if(right)
         {
-          best_d2 = d2;
-          return right;
+          float d2 = dist_squared(right->data.p, p);
+          cout<<indentation.c_str()<<"d2: "<<d2<<endl;
+          if(d2 < best_d2)
+          {
+            best_d2 = d2;
+            best = right;
+            return;
+          }
+          else { return;}
         }
-        else { return r;}
       }
 
-      cout<<"leaf: "<<r->data.d<<endl;
-      return r;
+      cout<<indentation.c_str()<<"leaf: "<<r->data.d<<endl;
+      return;
+      */
 
       //go left
       /*if(p[axis] < r->data.p[axis])

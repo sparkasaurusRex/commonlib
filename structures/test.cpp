@@ -12,15 +12,17 @@ using namespace Math;
 int main(int argc, char **argv)
 {
   KDTree3D<int> kd;
-
   Float3 q(0.7f, -0.3f, 1.24f);
+
+  int num_pts = 10;
+  if(argc > 1) { num_pts = atoi(argv[1]); }
 
   int nearest = -1;
   float min_d = -1.0f;
-  for(int i = 0; i < 20; i++)
+  for(int i = 0; i < num_pts; i++)
   {
     Float3 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
-    cout<<p<<endl;
+    cout<<i<<": "<<p<<endl;
     float d = distance(p, q);
     cout<<"\tdist: "<<d<<endl;
     if(nearest < 0 || d < min_d)
