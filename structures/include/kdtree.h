@@ -22,8 +22,6 @@ using namespace std;
 
 namespace Structures
 {
-  //class KDTree3D<T>;
-
   template <class T>
   class KDData3D
   {
@@ -41,10 +39,7 @@ namespace Structures
     KDNode3D() : data() { left = right = NULL; }
     ~KDNode3D() {}
   //private:
-    //Float3 p;
     KDNode3D<T> *left, *right;
-
-    //T data;
     KDData3D<T> data;
   };
 
@@ -71,6 +66,16 @@ namespace Structures
       new_element.p = pt;
       new_element.d = data;
       elements.push_back(new_element);
+    }
+
+    //tear down the tree and deallocate memory
+    void reset()
+    {
+      if(root)
+      {
+        reset_helper(root);
+      }
+      elements.clear();
     }
 
     void build_tree()
@@ -108,6 +113,15 @@ namespace Structures
       }
     }
 private:
+    void reset_helper(KDNode3D<T> *r)
+    {
+        if(r->left) { reset_helper(r->left); }
+        if(r->right) { reset_helper(r->right); }
+
+        delete r;
+        return;
+    }
+
     KDNode3D<T> *build_tree_helper(const int axis,
                                    typename vector<KDData3D<T> >::iterator a,
                                    typename vector<KDData3D<T> >::iterator b)

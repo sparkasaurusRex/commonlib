@@ -48,5 +48,7 @@ int main(int argc, char **argv)
   cout<<"\t"<<nearest_node.p<<endl;
   cout<<"\t"<<sqrt(best_d2)<<endl;
 
+  kd.reset();
+
   return 0;
 }
