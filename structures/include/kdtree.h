@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <assert.h>
+#include <algorithm>
 
 #include "aabb.h"
 
