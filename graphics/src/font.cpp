@@ -17,20 +17,23 @@ Largely taken from NeHe:
 http://nehe.gamedev.net/tutorial/freetype_fonts_in_opengl/24001/
 */
 
-inline int next_p2 (int a )
+inline int next_p2(int a)
 {
-  int rval=1;
-  // rval<<=1 Is A Prettier Way Of Writing rval*=2;
-  while(rval<a) rval<<=1;
+  int rval = 1;
+  while(rval < a)
+  {
+    rval<<=1;
+  }
   return rval;
 }
 
 // A Fairly Straightforward Function That Pushes
 // A Projection Matrix That Will Make Object World
 // Coordinates Identical To Window Coordinates.
-inline void pushScreenCoordinateMatrix() {
+inline void pushScreenCoordinateMatrix()
+{
   glPushAttrib(GL_TRANSFORM_BIT);
-  GLint   viewport[4];
+  GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
@@ -41,7 +44,8 @@ inline void pushScreenCoordinateMatrix() {
 
 // Pops The Projection Matrix Without Changing The Current
 // MatrixMode.
-inline void pop_projection_matrix() {
+inline void pop_projection_matrix()
+{
   glPushAttrib(GL_TRANSFORM_BIT);
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();

@@ -83,6 +83,7 @@ void SDLGame::process_events()
         if(console.is_active())
         {
           console.receive_char(event.key.keysym.sym);
+          return;
         }
         break;
       }
