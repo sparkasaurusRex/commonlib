@@ -1,19 +1,27 @@
 #include "sdl_game.h"
 
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+
 class MySDLGame : public SDLGame
 {
 public:
   MySDLGame() {}
   ~MySDLGame() {}
 
-  //void init();
-  //void run();
-  //void process_events();
 private:
-  void game_loop() {}
+  void game_loop(){}
   void user_init() {}
   void user_run() {}
   void user_process_event(const SDL_Event &event) {}
+  void render_gl()
+  {
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
 };
 
 int main(int argc, char **argv)

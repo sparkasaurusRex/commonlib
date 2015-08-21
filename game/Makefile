@@ -1,10 +1,17 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I/usr/local/include/ -Ofast
+CFLAGS=-I./include -I/usr/local/include/
+CFLAGS+=-I../graphics/include/
+CFLAGS+=-I../mathlib/include/
 CFLAGS+=$(shell pkg-config --cflags sdl2)
+CFLAGS+=$(shell pkg-config --cflags freetype2)
+CFLAGS+=-Ofast
+
 LDFLAGS=$(shell pkg-config --libs sdl2)
+LDFLAGS+=$(shell pkg-config --libs freetype2)
+LDFLAGS+=-lgraphics -lmath
 SRCPATH=src/
-SRCS=src/sdl_game.cpp
+SRCS=src/sdl_game.cpp src/console.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -12,13 +19,19 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	#osx
 	CFLAGS+=-Wno-deprecated-declarations
 	LIB_PATH+=-Lbin/osx
+	LIB_PATH+=-L../graphics/bin/osx
+	LIB_PATH+=-L../mathlib/bin/osx
 	LDFLAGS+=-framework OpenGL
 
 	BINPATH=bin/osx/
 else
 	#generic link flags
+	LIB_PATH+=-Lbin/linux
+	LIB_PATH+=-L../graphics/bin/linux
+	LIB_PATH+=-L../mathlib/bin/linux
+
 	LDFLAGS+=$(shell pkg-config --libs gl)
-	LIB_PATH += -Lbin/linux
+
 	BINPATH=bin/linux/
 endif
 
@@ -31,14 +44,17 @@ all: $(BINPATH) $(OBJS_BIN) $(BINPATH)libgame.a test
 #	$(CC) $(CFLAGS) -c $< -o $@
 #	mv $@ $(BINPATH)
 
+$(BINPATH):
+	mkdir -p $(BINPATH)
+
 $(BINPATH)sdl_game.o: $(SRCPATH)sdl_game.cpp
 	$(CC) $(CFLAGS) -c src/sdl_game.cpp -o $(BINPATH)sdl_game.o
 
+$(BINPATH)console.o: $(SRCPATH)console.cpp
+	$(CC) $(CFLAGS) -c src/console.cpp -o $(BINPATH)console.o
+
 $(BINPATH)libgame.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgame.a $(OBJS_BIN)
-
-$(BINPATH):
-	mkdir -p $(BINPATH)
 
 test: test.cpp $(BINPATH)libgame.a
 	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lgame $(LDFLAGS)

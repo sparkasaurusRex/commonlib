@@ -11,6 +11,8 @@
 
 #include <string>
 
+#include "console.h"
+
 #define SDL_GAME_DEFAULT_WIDTH    640
 #define SDL_GAME_DEFAULT_HEIGHT   480
 
@@ -35,6 +37,8 @@ protected:
   virtual void user_run() = 0;
   virtual void user_process_event(const SDL_Event &event) = 0;
 
+  virtual void render_gl() = 0;
+
   void init_sdl();
   void quit_app();
 
@@ -42,6 +46,10 @@ protected:
   SDL_Window *win;
   SDL_GLContext gl_context;
   std::string window_title;
+
+  double last_game_time;
+
+  DebugConsole console;
 };
 
 #endif //__SDL_GAME_H__

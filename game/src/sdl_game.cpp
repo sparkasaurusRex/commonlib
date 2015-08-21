@@ -1,5 +1,8 @@
 #include <assert.h>
+#include <iostream>
 #include "sdl_game.h"
+
+using namespace std;
 
 SDLGame::SDLGame(const int w, const int h, std::string title)
 {
@@ -10,6 +13,8 @@ SDLGame::SDLGame(const int w, const int h, std::string title)
   gl_context = NULL;
 
   window_title = title;
+
+  last_game_time = 0.0f;
 }
 
 SDLGame::~SDLGame()
@@ -30,15 +35,31 @@ void SDLGame::init()
 {
   init_sdl();
   user_init();
+  console.init();
 }
 
 void SDLGame::run()
 {
   while(true)
   {
+    Uint32 ticks = SDL_GetTicks();
+    double game_time = (double)ticks;
+    double frame_time = (game_time - last_game_time) / 1000.0f;
+    last_game_time = game_time;
+
     user_run();
     process_events();
     game_loop();
+
+    render_gl();
+
+    console.simulate(frame_time);
+    console.render_gl();
+
+    glFlush();
+    SDL_GL_SwapWindow(win);
+
+    //if(console.is_active()) cout<<"true"<<endl; else cout<<"false"<<endl;
   }
 }
 
@@ -51,6 +72,22 @@ void SDLGame::process_events()
   SDL_Event event;
   while(SDL_PollEvent(&event))
   {
+    if(event.type == SDL_KEYUP)
+    {
+      switch(event.key.keysym.sym)
+      {
+      case '`':
+        console.activate(!console.is_active());
+        break;
+      default:
+        if(console.is_active())
+        {
+          console.receive_char(event.key.keysym.sym);
+        }
+        break;
+      }
+    }
+
     if(event.type == SDL_QUIT)
     {
       quit_app();
