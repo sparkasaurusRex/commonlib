@@ -67,7 +67,8 @@ void SDLGame::process_events()
 {
   //base level of event processing every app should have
   const Uint8 *keystate = SDL_GetKeyboardState(NULL);
-  if(keystate[SDLK_ESCAPE]) quit_app();
+  assert(keystate);
+  if(keystate[SDL_SCANCODE_ESCAPE]) quit_app();
 
   SDL_Event event;
   while(SDL_PollEvent(&event))
@@ -82,7 +83,13 @@ void SDLGame::process_events()
       default:
         if(console.is_active())
         {
-          console.receive_char(event.key.keysym.sym);
+          char c = event.key.keysym.sym;
+          if(keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT])
+          {
+            cout<<"shift"<<endl;
+            c -= ('a' - 'A');
+          }
+          console.receive_char(c);
           return;
         }
         break;
