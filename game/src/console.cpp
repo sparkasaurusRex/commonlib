@@ -65,12 +65,12 @@ void DebugConsole::simulate(const float dt)
 
 void DebugConsole::receive_char(const char c)
 {
-  cout<<(int)c<<endl;
+  //cout<<(int)c<<endl;
   switch(c)
   {
-    case 13:    //RETURN
+    /*case 13:    //RETURN
       execute();
-      break;
+      break;*/
     case 8:     //BACKSPACE
       if(current_command.size() > 0)
       {

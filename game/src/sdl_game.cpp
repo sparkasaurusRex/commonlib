@@ -80,19 +80,34 @@ void SDLGame::process_events()
       case '`':
         console.activate(!console.is_active());
         break;
-      default:
+
+      //ugh... I hate how hacky this is
+      //TODO: non-private traverse_command_history()
+      case SDLK_UP:
+      case SDLK_DOWN:
+        console.receive_char(event.key.keysym.sym);
+        break;
+      case SDLK_RETURN:
+      //case SDLK_ENTER:
         if(console.is_active())
         {
-          char c = event.key.keysym.sym;
-          if(keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT])
-          {
-            cout<<"shift"<<endl;
-            c -= ('a' - 'A');
-          }
-          console.receive_char(c);
-          return;
+          console.execute();
         }
         break;
+      default:
+        break;
+      }
+    }
+
+    if(event.type == SDL_TEXTINPUT)
+    {
+      //cout<<event.text.text<<endl;
+      if(console.is_active())
+      {
+        if(event.text.text[0] != '`')
+        {
+          console.receive_char(event.text.text[0]);
+        }
       }
     }
 
@@ -120,6 +135,8 @@ void SDLGame::init_sdl()
     assert(gl_context);
 
     SDL_GL_SetSwapInterval(1);
+
+    //SDL_EnableUNICODE(SDL_ENABLE);
   }
 }
 
