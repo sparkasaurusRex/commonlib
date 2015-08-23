@@ -120,7 +120,10 @@ void SDLGame::process_events()
     {
       quit_app();
     }
-    user_process_event(event);
+    if(!console.is_active())
+    {
+      user_process_event(event);
+    }
   }
 }
 
