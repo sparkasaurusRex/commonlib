@@ -65,30 +65,21 @@ void DebugConsole::simulate(const float dt)
 
 void DebugConsole::receive_char(const char c)
 {
-  //cout<<(int)c<<endl;
   switch(c)
   {
-    /*case 13:    //RETURN
-      execute();
-      break;*/
-    case 8:     //BACKSPACE
-      if(current_command.size() > 0)
-      {
-        current_command.erase(current_command.end() - 1, current_command.end());
-      }
-      break;
-    case 17:    //UP ARROW
-    case 82:    //UP
-      traverse_command_history(17);
-      break;
-    case 18:    //DOWN ARROW
-    case 81:    //DOWN
-      traverse_command_history(18);
+    case 17:
+    case 18:
+      //traverse_command_history(c);
       break;
     default:
       current_command.push_back(c);
       break;
   }
+}
+
+void DebugConsole::backspace()
+{
+  current_command.pop_back();
 }
 
 void DebugConsole::execute()
@@ -103,7 +94,7 @@ void DebugConsole::execute()
   }
 
   command_history.push_back(current_command);
-  command_history_idx = command_history.size() - 1;
+  command_history_idx = command_history.size();
   current_command.clear();
 }
 
@@ -180,12 +171,12 @@ void DebugConsole::register_switch(bool *b, const char *name)
   boolean_switches.push_back(b);
 }
 
-void DebugConsole::traverse_command_history(char c)
+void DebugConsole::traverse_command_history(const int dir)
 {
   if(command_history.size() > 0)
   {
-    current_command = command_history[command_history_idx];
-    command_history_idx = (c == 17) ? command_history_idx - 1 : command_history_idx + 1;
+    //current_command = command_history[command_history_idx];
+    command_history_idx = (dir > 0) ? command_history_idx - 1 : command_history_idx + 1;
     if(command_history_idx < 0)
     {
       command_history_idx = 0;
@@ -194,5 +185,6 @@ void DebugConsole::traverse_command_history(char c)
     {
       command_history_idx = command_history.size() - 1;
     }
+    current_command = command_history[command_history_idx];
   }
 }

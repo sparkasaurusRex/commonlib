@@ -84,8 +84,10 @@ void SDLGame::process_events()
       //ugh... I hate how hacky this is
       //TODO: non-private traverse_command_history()
       case SDLK_UP:
+        console.traverse_command_history(1);
+        break;
       case SDLK_DOWN:
-        console.receive_char(event.key.keysym.sym);
+        console.traverse_command_history(-1);
         break;
       case SDLK_RETURN:
       //case SDLK_ENTER:
@@ -93,6 +95,9 @@ void SDLGame::process_events()
         {
           console.execute();
         }
+        break;
+      case SDLK_BACKSPACE:
+        console.backspace();
         break;
       default:
         break;

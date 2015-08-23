@@ -30,13 +30,14 @@ class DebugConsole
     void activate(bool a);
     bool is_active() const;
     void receive_char(const char c);
+    void backspace();
     void execute();
     void simulate(const float dt);
     void render_gl();
     void register_switch(bool *b, const char *name);
-
+    void traverse_command_history(const int dir);
   private:
-    void traverse_command_history(char c);
+
     float pct_exposed;
     bool active;
 
