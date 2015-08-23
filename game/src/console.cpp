@@ -108,27 +108,42 @@ void DebugConsole::execute()
   //search single float variables
   std::vector<string>::iterator i;
   i = std::find(float_var_names.begin(), float_var_names.end(), words[0]);
-  if(i != float_var_names.end() && words.size() == 2)
+  if(i != float_var_names.end())
   {
     int idx = std::distance(float_var_names.begin(), i);
-    //cout<<"idx: "<<idx<<endl;
-    float val = atof(words[1].c_str());
     float *f = float_vars[idx];
-    *f = val;
+    if(words.size() == 1)
+    {
+      //just output the current value
+      cout<<float_var_names[idx].c_str()<<": "<<*f<<endl;
+    }
+    if(words.size() == 2)
+    {
+      //cout<<"idx: "<<idx<<endl;
+      float val = atof(words[1].c_str());
+      *f = val;
+    }
   }
 
   //search float3 variables
   i = std::find(float3_var_names.begin(), float3_var_names.end(), words[0]);
-  if(i != float3_var_names.end() && words.size() == 4)
+  if(i != float3_var_names.end())
   {
     int idx = std::distance(float3_var_names.begin(), i);
-    float val[3];
-    val[0] = atof(words[1].c_str());
-    val[1] = atof(words[2].c_str());
-    val[2] = atof(words[3].c_str());
-
     Float3 *f = float3_vars[idx];
-    *f = Float3(val[0], val[1], val[2]);
+    if(words.size() == 1)
+    {
+      cout<<float3_var_names[idx].c_str()<<": "<<*f<<endl;
+    }
+    else if(words.size() == 4)
+    {
+      float val[3];
+      val[0] = atof(words[1].c_str());
+      val[1] = atof(words[2].c_str());
+      val[2] = atof(words[3].c_str());
+
+      *f = Float3(val[0], val[1], val[2]);
+    }
   }
 
   i = std::find(boolean_switch_names.begin(), boolean_switch_names.end(), words[0]);
@@ -144,7 +159,10 @@ void DebugConsole::execute()
     }
     else if(words.size() == 1)
     {
-      *b = !(*b);
+      //*b = !(*b);
+      cout<<boolean_switch_names[idx].c_str()<<": ";
+      if(*b) { cout<<"true"; } else { cout<<"false"; }
+      cout<<endl;
     }
   }
 
