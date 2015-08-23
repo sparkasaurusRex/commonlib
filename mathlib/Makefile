@@ -1,9 +1,14 @@
 CC=g++
 LIB_PATH=
 CFLAGS=-I./include -I../game/include -I/usr/local/include
+CFLAGS+=-I../graphics/include
+CFLAGS+=$(shell pkg-config --cflags freetype2)
 CFLAGS+=-D__USE_BOOST__ #use boost library for voronoi triangulation
+CFLAGS+=-D__USE_CGAL3D__
 CFLAGS+=-Ofast
 LDFLAGS=$(shell pkg-config --libs sdl2)
+LDFLAGS+=$(shell pkg-config --libs freetype2)
+LDFLAGS+=-lCGAL -lCGAL_Core -lgmp
 SRCPATH=src/
 SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp src/quaternion.cpp src/voronoi.cpp src/triangulation.cpp src/shapes.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -13,6 +18,8 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	#osx
 	LIB_PATH+=-Lbin/osx
 	LIB_PATH+=-L../game/bin/osx
+	LIB_PATH+=-L../graphics/bin/osx
+	LIB_PATH+=-L/usr/local/Cellar/cgal/4.6.1/lib/
 	BINPATH=bin/osx/
 
 	LDFLAGS+=-framework OpenGL
@@ -21,6 +28,7 @@ else
 	#generic link flags
 	LIB_PATH+=-Lbin/linux
 	LIB_PATH+=-L../game/bin/linux
+	LIB_PATH+=-L../graphics/bin/linux
 	BINPATH=bin/linux/
 
 	#LDFLAGS+=
@@ -66,7 +74,7 @@ $(BINPATH)libmath.a: $(OBJS_BIN) $(BINPATH)
 	ar -cvq $(BINPATH)libmath.a $(OBJS_BIN)
 
 test: test.cpp $(BINPATH)libmath.a
-	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lmath -lgame $(LDFLAGS)
+	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lmath -lgame -lgraphics $(LDFLAGS)
 
 clean:
 	rm -f $(BINPATH)*.o

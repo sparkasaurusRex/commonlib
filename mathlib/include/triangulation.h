@@ -51,6 +51,24 @@ namespace Math {
     std::vector<Triangle2D> triangles;
     std::vector<Edge2D>     edges;
   };
+
+  class Triangulation3D
+  {
+  public:
+    Triangulation3D();
+    ~Triangulation3D();
+
+    void reset() {}
+    void set_vertices(std::vector<Float3> *verts);
+
+    void generate_delaunay_triangulation();
+
+    //std::vector<Triangle2D> *get_triangles();
+    std::vector<Edge3D> *get_edges();
+  private:
+    std::vector<Float3>   *vertices;
+    std::vector<Edge3D>   edges;
+  };
 };
 
 #endif //__TRIANGULATION_H__

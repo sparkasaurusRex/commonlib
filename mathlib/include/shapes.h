@@ -15,6 +15,8 @@ namespace Math {
     int vidx[2]; //indices of points
   };
 
+  typedef Edge2D Edge3D;
+
   class Circle2D
   {
   public:

@@ -29,7 +29,7 @@ public:
 
 	void set_num_verts(int nv) { Num_starting_points = nv; }
 private:
-	void render()
+	void render_gl()
 	{
 		Uint32 ticks = SDL_GetTicks();
 		float game_time = (float)ticks;
@@ -41,34 +41,14 @@ private:
 		glColor3f(0.7f, 0.1f, 0.0f);
 		glBegin(GL_LINES);
 
-			Triangulation2D *tri = point_cloud.get_triangulation();
-			/*std::vector<Triangle2D> *triangles = tri->get_triangles();
+			Triangulation3D *tri = point_cloud.get_triangulation();
 
-			for(int i = 0; i < triangles->size(); i++)
-			{
-				Triangle2D t = (*triangles)[i];
-				Float2 verts[3];
-				for(int j = 0; j < 3; j++)
-				{
-					verts[j] = point_cloud.get_point(t.indices[j]);
-				}
-
-				glVertex3f(verts[0][0], verts[0][1], 0.0f);
-				glVertex3f(verts[1][0], verts[1][1], 0.0f);
-
-				glVertex3f(verts[1][0], verts[1][1], 0.0f);
-				glVertex3f(verts[2][0], verts[2][1], 0.0f);
-
-				glVertex3f(verts[2][0], verts[2][1], 0.0f);
-				glVertex3f(verts[0][0], verts[0][1], 0.0f);
-			}*/
-
-			std::vector<Edge2D> *edges = tri->get_edges();
+			std::vector<Edge3D> *edges = tri->get_edges();
 			for(int i = 0; i < edges->size(); i++)
 			{
-				Edge2D e = (*edges)[i];
-				Float2 a = point_cloud.get_point(e.vidx[0]);
-				Float2 b = point_cloud.get_point(e.vidx[1]);
+				Edge3D e = (*edges)[i];
+				Float3 a = point_cloud.get_point(e.vidx[0]);
+				Float3 b = point_cloud.get_point(e.vidx[1]);
 
 				float pct = (float)i / (float)edges->size();
 				Float3 red(1.0f, 0.0f, 0.0f);
@@ -87,21 +67,21 @@ private:
 
 			for(int i = 0; i < point_cloud.get_num_points(); i++)
 			{
-				Float2 p = point_cloud.get_point(i);
+				Float3 p = point_cloud.get_point(i);
 				glVertex3f(p[0], p[1], 0.0f);
 			}
 
 		glEnd();
 
-		glFlush();
-		SDL_GL_SwapWindow(win);
+		//glFlush();
+		//SDL_GL_SwapWindow(win);
 	}
-	void game_loop() { render(); }
+	void game_loop() {}
 	void user_init()
 	{
 		for(int i = 0; i < Num_starting_points; i++)
 		{
-			Float2 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f));
+			Float3 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
 			point_cloud.add_point(p);
 		}
 		point_cloud.triangulate();
@@ -112,10 +92,12 @@ private:
 		switch(event.type)
 		{
 			case SDL_MOUSEBUTTONUP:
-				Float2 new_vertex;
+				Float3 new_vertex;
 				cout<<"click: ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
 				new_vertex[0] = 2.0f * (((float)event.button.x / (float)resolution[0]) - 0.5f);
 				new_vertex[1] = -2.0f * (((float)event.button.y / (float)resolution[1]) - 0.5f);
+				new_vertex[2] = random(-1.0f, 1.0f);
+				new_vertex.normalize();
 				point_cloud.add_point(new_vertex);
 				point_cloud.triangulate();
 				break;
@@ -123,7 +105,7 @@ private:
 	}
 
 	//variables
-	Voronoi2D point_cloud;
+	Voronoi3D point_cloud;
 	int Num_starting_points;
 };
 

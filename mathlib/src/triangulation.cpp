@@ -1,8 +1,16 @@
-#if defined(__USE_CGAL__)
+#if defined(__USE_CGAL2D__)
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Projection_traits_xy_3.h>
 #include <CGAL/Delaunay_triangulation_2.h>
+
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Triangulation_3.h>
 #endif //__USE_CGAL__
+
+#if defined(__USE_CGAL3D__)
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Triangulation_3.h>
+#endif
 
 #if defined(__USE_BOOST__)
 #include <boost/polygon/voronoi.hpp>
@@ -18,7 +26,7 @@ using boost::polygon::voronoi_diagram;
 using namespace Math;
 using namespace std;
 
-#if defined(__USE_CGAL__)
+#if defined(__USE_CGAL2D__)
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
 typedef K::Point_2 Point_2;
 typedef CGAL::Delaunay_triangulation_2<K> Delaunay;
@@ -64,12 +72,12 @@ void Triangulation2D::generate_delaunay_triangulation()
   //delaunay_divide_and_conquer(0, 0, vertices->size());
 
   //delaunay_cgal();
-  #if defined(__USE_BOOST__)
+#if defined(__USE_BOOST__)
   if(vertices->size() >= 3)
   {
     delaunay_boost();
   }
-  #endif //__USE_BOOST__
+#endif //__USE_BOOST__
 }
 
 #if defined(__USE_BOOST__)
@@ -111,7 +119,7 @@ void Triangulation2D::delaunay_boost()
 }
 #endif //__USE_BOOST__
 
-#if defined(__USE_CGAL__)
+#if defined(__USE_CGAL2D__)
 void Triangulation2D::delaunay_cgal()
 {
   Delaunay dt;
@@ -321,6 +329,44 @@ std::vector<Triangle2D> *Triangulation2D::get_triangles()
 }
 
 std::vector<Edge2D> *Triangulation2D::get_edges()
+{
+  return &edges;
+}
+
+#if defined(__USE_CGAL3D__)
+typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef CGAL::Triangulation_3<K>      Triangulation;
+typedef Triangulation::Cell_handle    Cell_handle;
+typedef Triangulation::Vertex_handle  Vertex_handle;
+typedef Triangulation::Locate_type    Locate_type;
+typedef Triangulation::Point          Point;
+#endif
+
+
+Triangulation3D::Triangulation3D()
+{
+  vertices = NULL;
+}
+
+Triangulation3D::~Triangulation3D()
+{}
+
+void Triangulation3D::set_vertices(std::vector<Float3> *verts)
+{
+  vertices = verts;
+}
+
+void Triangulation3D::generate_delaunay_triangulation()
+{
+  std::list<Point> L;
+  L.push_front(Point(0.0f, 0.01f, 0.0f));
+  L.push_front(Point(1.0f, 0.0f, 0.0f));
+  L.push_front(Point(0.0f, 1.0f, 0.0f));
+  Triangulation T(L.begin(), L.end());
+  Triangulation::size_type n = T.number_of_vertices();
+}
+
+std::vector<Edge3D> *Triangulation3D::get_edges()
 {
   return &edges;
 }

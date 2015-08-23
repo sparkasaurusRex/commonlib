@@ -25,6 +25,24 @@ namespace Math {
     Triangulation2D delaunay;
     //KDTree2D kdt;
   };
+
+  class Voronoi3D
+  {
+  public:
+    Voronoi3D();
+    ~Voronoi3D();
+
+    void      reset();
+    void      add_point(const Float3 &p);
+    Float3    get_point(const int i) const;
+    int       get_num_points() const;
+
+    void      triangulate();
+    Triangulation3D *get_triangulation();
+  private:
+    std::vector<Float3> pc;
+    Triangulation3D delaunay;
+  };
 }
 
 #endif //__VORONOI_H__
