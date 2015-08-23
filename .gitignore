@@ -9,3 +9,5 @@ graphics/bin/*
 graphics/test
 mathlib/bin/*
 mathlib/test
+structures/bin/*
+structures/test
