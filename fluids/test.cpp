@@ -13,6 +13,7 @@
 #include "fluid2d.h"
 #include "fluid2d_inflow.h"
 #include "fluid2d_turbulence.h"
+#include "fluid2d_turbulence_inflow.h"
 
 using namespace std;
 
@@ -33,6 +34,9 @@ Texture *fluid_tex =            NULL;
 Fluid2D *fluid =                NULL;
 Fluid2DInflow *inflow =         NULL;
 Fluid2DTurbulenceField *turb =  NULL;
+Fluid2DTurbulenceInflow *turb_in = NULL;
+Fluid2DTurbulenceInflow *turb_out = NULL;
+
 
 void quit_app()
 {
@@ -271,14 +275,32 @@ int main(int argc, char **argv)
   fluid = new Fluid2D(FLUID_DIM, FLUID_DIM);
 
   inflow = new Fluid2DInflow;
-  fluid->add_interactor(inflow);
+  //fluid->add_interactor(inflow);
 
   turb = new Fluid2DTurbulenceField;
-  turb->set_scale(4.0f);
+  turb->set_scale(8.0f);
   turb->set_octaves(2);
   turb->set_speed(0.6f);
-  turb->set_strength(0.4f);
+  turb->set_strength(2.4f);
   fluid->add_interactor(turb);
+
+  turb_in = new Fluid2DTurbulenceInflow;
+  turb_in->set_scale(8.0f);
+  turb_in->set_octaves(3);
+  turb_in->set_speed(-0.5f);
+  turb_in->set_strength(0.2f);
+  //turb_in->set_phase(0.0f);
+  fluid->add_interactor(turb_in);
+
+  Float2 phase(13.432f, -34.4654f);
+
+  turb_out = new Fluid2DTurbulenceInflow;
+  turb_out->set_scale(8.0f);
+  turb_out->set_octaves(3);
+  turb_out->set_speed(0.5f);
+  turb_out->set_strength(-0.2f);
+  turb_out->set_phase(phase);
+  fluid->add_interactor(turb_out);
 
   while(true)
   {
@@ -292,6 +314,8 @@ int main(int argc, char **argv)
   delete fluid_tex;
   delete inflow;
   delete turb;
+  delete turb_in;
+  delete turb_out;
 
 	return 0;
 }

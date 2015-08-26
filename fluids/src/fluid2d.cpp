@@ -124,8 +124,8 @@ void Fluid2D::add_velocity_at_point(const Float2 pt, const Float2 vel, const flo
 			}
 
 			//HACK - add artificial turbulence
-			src_u[idx(i, j)] += 0.5f * PerlinNoise::scaled_octave_noise_2d(1, 1.0f, 5.0f, -1.0f, 1.0f, (float)i / (float)dim[0], (float)j / (float)dim[1]);
-			src_v[idx(i, j)] += 0.5f * PerlinNoise::scaled_octave_noise_2d(1, 1.0f, 5.0f, -1.0f, 1.0f, (float)i / (float)dim[0] + 1.432f, (float)j / (float)dim[1] + 6.1235f);
+			//src_u[idx(i, j)] += 0.5f * PerlinNoise::scaled_octave_noise_2d(1, 1.0f, 5.0f, -1.0f, 1.0f, (float)i / (float)dim[0], (float)j / (float)dim[1]);
+			//src_v[idx(i, j)] += 0.5f * PerlinNoise::scaled_octave_noise_2d(1, 1.0f, 5.0f, -1.0f, 1.0f, (float)i / (float)dim[0] + 1.432f, (float)j / (float)dim[1] + 6.1235f);
 
 			//src_v[idx(i, j)] += 0.5f * sin((float)i / (float)dim[0] * M_PI * 5.0f);
 
@@ -138,7 +138,7 @@ void Fluid2D::add_velocity_at_point(const Float2 pt, const Float2 vel, const flo
 			src_u[idx(i, j)] += pull_strength * ((float)j / (float)dim[0] - 0.5f);
 			*/
 
-			src_v[idx(i, j)] += -5.0f * dens[idx(i, j)]; //lame temp differential code
+			//src_v[idx(i, j)] += -5.0f * dens[idx(i, j)]; //lame temp differential code
 
 		}
 	}

@@ -12,6 +12,7 @@ LDFLAGS+=$(shell pkg-config glew --libs)
 LDFLAGS+=-lgraphics
 SRCPATH=src/
 SRCS=src/fluid2d.cpp src/fluid2d_interactor.cpp src/fluid2d_inflow.cpp src/fluid2d_turbulence.cpp
+SRCS+=src/fluid2d_turbulence_inflow.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -62,6 +63,9 @@ $(BINPATH)fluid2d_inflow.o: $(SRCPATH)fluid2d_inflow.cpp
 
 $(BINPATH)fluid2d_turbulence.o: $(SRCPATH)fluid2d_turbulence.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d_turbulence.cpp -o $(BINPATH)fluid2d_turbulence.o
+
+$(BINPATH)fluid2d_turbulence_inflow.o: $(SRCPATH)fluid2d_turbulence_inflow.cpp
+		$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d_turbulence_inflow.cpp -o $(BINPATH)fluid2d_turbulence_inflow.o
 
 $(BINPATH)libfluids.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libfluids.a $(OBJS_BIN)

@@ -9,7 +9,9 @@
 
 #if defined(__USE_CGAL3D__)
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Triangulation_vertex_base_with_info_3.h>
 #include <CGAL/Triangulation_3.h>
+#include <CGAL/Delaunay_triangulation_3.h>
 #endif
 
 #if defined(__USE_BOOST__)
@@ -334,12 +336,19 @@ std::vector<Edge2D> *Triangulation2D::get_edges()
 }
 
 #if defined(__USE_CGAL3D__)
-typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
-typedef CGAL::Triangulation_3<K>      Triangulation;
-typedef Triangulation::Cell_handle    Cell_handle;
-typedef Triangulation::Vertex_handle  Vertex_handle;
-typedef Triangulation::Locate_type    Locate_type;
-typedef Triangulation::Point          Point;
+typedef CGAL::Exact_predicates_inexact_constructions_kernel         K;
+typedef CGAL::Triangulation_vertex_base_with_info_3<unsigned, K>    Vb;
+typedef CGAL::Triangulation_data_structure_3<Vb>                    Tds;
+
+typedef CGAL::Delaunay_triangulation_3<K, Tds, CGAL::Fast_location> CGALTriangulation;
+
+
+typedef CGALTriangulation::Cell_handle                              Cell_handle;
+typedef CGALTriangulation::Vertex_handle                            Vertex_handle;
+typedef CGALTriangulation::Locate_type                              Locate_type;
+typedef CGALTriangulation::Point                                    CGALPoint3;
+typedef CGALTriangulation::Edge_iterator                            Edge_iterator;
+//typedef CGALTriangulation::Face                               CGALFace;
 #endif
 
 
@@ -358,12 +367,26 @@ void Triangulation3D::set_vertices(std::vector<Float3> *verts)
 
 void Triangulation3D::generate_delaunay_triangulation()
 {
-  std::list<Point> L;
-  L.push_front(Point(0.0f, 0.01f, 0.0f));
-  L.push_front(Point(1.0f, 0.0f, 0.0f));
-  L.push_front(Point(0.0f, 1.0f, 0.0f));
-  Triangulation T(L.begin(), L.end());
-  Triangulation::size_type n = T.number_of_vertices();
+  std::vector<std::pair<CGALPoint3, unsigned> > cgal_verts;
+  for(int i = 0; i < vertices->size(); i++)
+  {
+    Float3 v = (*vertices)[i];
+    cgal_verts.push_back(std::make_pair(CGALPoint3(v[0], v[1], v[2]), i));
+  }
+
+  CGALTriangulation tri(cgal_verts.begin(), cgal_verts.end());
+  //CGALTriangulation::size_type n = T.number_of_vertices();
+
+  Edge_iterator ei;
+  //for(ei = tri.all_edges_begin(); ei != tri.all_edges_end(); ei++)
+  for(ei = tri.edges_begin(); ei != tri.edges_end(); ei++)
+  {
+    CGALTriangulation::Segment seg = tri.segment(*ei);
+    CGALPoint3 p0 = seg.point(0);
+    CGALPoint3 p1 = seg.point(1);
+
+    //cout<<p0[0]<<endl;
+  }
 }
 
 std::vector<Edge3D> *Triangulation3D::get_edges()

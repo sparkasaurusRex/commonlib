@@ -84,7 +84,7 @@ private:
 	//Fluxel *f_swap;				//swap array
 
 	float *u, *v, *u_prev, *v_prev;
-	float *dens, *dens_prev;
+	float *dens, *dens_prev; //TODO: Float3, or arbitrary-length vector to store more data
 
 	int project_steps;							//number of steps to use in the project (and diffuse) functions
 	Float2 density_allowable_range;	//min/max density allowed in the simulation

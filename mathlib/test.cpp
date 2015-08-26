@@ -24,7 +24,7 @@ using namespace PerlinNoise;
 class TestApp : public SDLGame
 {
 public:
-	TestApp() : SDLGame(512, 512, "Math Test") { Num_starting_points = 0; }
+	TestApp() : SDLGame(512, 512, "Math Test") { Num_starting_points = 0; rot_angle = 0.0f; }
 	~TestApp() {}
 
 	void set_num_verts(int nv) { Num_starting_points = nv; }
@@ -33,6 +33,13 @@ private:
 	{
 		Uint32 ticks = SDL_GetTicks();
 		float game_time = (float)ticks;
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glScalef(0.7f, 0.7f, 0.7f);
+
+		glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
+		rot_angle += 0.3f;
 
 		//render stuff here
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -55,8 +62,8 @@ private:
 				Float3 blue(0.0f, 0.0f, 1.0f);
 				Float3 col = lerp(red, blue, pct);
 				glColor3f(col[0], col[1], col[2]);
-				glVertex3f(a[0], a[1], 0.0f);
-				glVertex3f(b[0], b[1], 0.0f);
+				glVertex3f(a[0], a[1], a[2]);
+				glVertex3f(b[0], b[1], b[2]);
 			}
 
 		glEnd();
@@ -68,13 +75,10 @@ private:
 			for(int i = 0; i < point_cloud.get_num_points(); i++)
 			{
 				Float3 p = point_cloud.get_point(i);
-				glVertex3f(p[0], p[1], 0.0f);
+				glVertex3f(p[0], p[1], p[2]);
 			}
 
 		glEnd();
-
-		//glFlush();
-		//SDL_GL_SwapWindow(win);
 	}
 	void game_loop() {}
 	void user_init()
@@ -82,6 +86,7 @@ private:
 		for(int i = 0; i < Num_starting_points; i++)
 		{
 			Float3 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
+			p.normalize();
 			point_cloud.add_point(p);
 		}
 		point_cloud.triangulate();
@@ -107,6 +112,7 @@ private:
 	//variables
 	Voronoi3D point_cloud;
 	int Num_starting_points;
+	float rot_angle;
 };
 
 
