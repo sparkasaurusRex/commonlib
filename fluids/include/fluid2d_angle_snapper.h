@@ -11,6 +11,7 @@ class Fluid2DAngleSnapper : public Fluid2DInteractor
     ~Fluid2DAngleSnapper();
 
     void set_strength(const float s) { strength = s; }
+    void set_channel(FluidChannelType c) { channel = c; }
 
     void simulate(const float dt);
 
@@ -21,6 +22,8 @@ class Fluid2DAngleSnapper : public Fluid2DInteractor
     Float2 *angles;
 
     float strength;
+
+    FluidChannelType channel;
 };
 
 #endif

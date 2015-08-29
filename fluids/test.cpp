@@ -37,8 +37,8 @@ Texture *fluid_tex =            NULL;
 Fluid2D *fluid =                NULL;
 Fluid2DInflow *inflow =         NULL;
 Fluid2DTurbulenceField *turb =  NULL;
-Fluid2DTurbulenceInflow *turb_in = NULL;
-Fluid2DTurbulenceInflow *turb_out = NULL;
+Fluid2DTurbulenceInflow *turb_in[3];
+Fluid2DTurbulenceInflow *turb_out[3];
 Fluid2DAngleSnapper *angle_snapper = NULL;
 
 
@@ -147,7 +147,9 @@ void process_events()
             if(keyboard_state[SDL_SCANCODE_UP])
             {
               project_steps++;
-            } else if(keyboard_state[SDL_SCANCODE_DOWN]) {
+            }
+            else if(keyboard_state[SDL_SCANCODE_DOWN])
+            {
               project_steps--;
             }
             fluid->set_project_steps(project_steps);
@@ -194,8 +196,10 @@ void fill_fluid_texture(float t)
     for(int j = 0; j < h; j++)
     {
       int fluid_idx = i + (w + 2) * j;
-      float val = 0.5f * clamp(fc[fluid_idx].data[Fluid_channel_display], -1.0f, 1.0f) + 0.5f;
-      Float3 final_color = lerp(color_a, color_b, val);
+      float r = 255.0f * 0.5f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_R], 0.0f, 1.0f);
+      float g = 255.0f * 0.5f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_G], 0.0f, 1.0f);
+      float b = 255.0f * 0.5f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_B], 0.0f, 1.0f);
+      Float3 final_color(r, g, b);
 
       for(int oct = 0; oct < 3; oct++)
       {
@@ -203,7 +207,7 @@ void fill_fluid_texture(float t)
       }
       if(num_bytes == 4)
       {
-        pixels[((i * w + j) * 4) + 3] = (GLubyte)(val * 255.0f);
+        pixels[((i * w + j) * 4) + 3] = (GLubyte)255.0f;//(GLubyte)(val * 255.0f);
       }
     }
   }
@@ -278,6 +282,7 @@ int main(int argc, char **argv)
   fluid_tex->init();
 
   fluid = new Fluid2D(FLUID_DIM, FLUID_DIM);
+  fluid->set_diffusion_rate(0.0f);//0.002f);
 
   inflow = new Fluid2DInflow;
   inflow->set_rate(100.0f);
@@ -286,32 +291,40 @@ int main(int argc, char **argv)
   turb = new Fluid2DTurbulenceField;
   turb->set_scale(12.0f);
   turb->set_octaves(2);
-  turb->set_speed(0.6f);
-  turb->set_strength(1.2f);
+  turb->set_speed(0.1f);
+  turb->set_strength(100.2f);
   turb->set_strength(1.4f);
   fluid->add_interactor(turb);
 
-  turb_in = new Fluid2DTurbulenceInflow;
-  turb_in->set_scale(8.0f);
-  turb_in->set_octaves(3);
-  turb_in->set_speed(-2.0f);
-  turb_in->set_strength(0.2f);
-  //turb_in->set_phase(0.0f);
-  fluid->add_interactor(turb_in);
+  for(int i = 0; i < 3; i++)
+  {
+    Float2 in_phase(random(0.0f, 100.0f), random(0.0f, 100.0f));
+    Float2 out_phase(random(0.0f, 100.0f), random(0.0f, 100.0f));
 
-  angle_snapper = new Fluid2DAngleSnapper(3);
+    turb_in[i] = new Fluid2DTurbulenceInflow;
+    turb_in[i]->set_scale(3.0f);
+    turb_in[i]->set_octaves(3);
+    turb_in[i]->set_speed(-2.0f);
+    turb_in[i]->set_strength(0.05f);
+    turb_in[i]->set_phase(in_phase);
+    turb_in[i]->set_channel((FluidChannelType)(FLUID_CHANNEL_DENS_R + i));
+    //fluid->add_interactor(turb_in[i]);
+
+    turb_out[i] = new Fluid2DTurbulenceInflow;
+    turb_out[i]->set_scale(3.0f);
+    turb_out[i]->set_octaves(3);
+    turb_out[i]->set_speed(0.5f);
+    turb_out[i]->set_strength(-0.05f);
+    turb_out[i]->set_phase(out_phase);
+    turb_out[i]->set_channel((FluidChannelType)(FLUID_CHANNEL_DENS_R + i));
+    //fluid->add_interactor(turb_out[i]);
+  }
+
+  angle_snapper = new Fluid2DAngleSnapper(5);
   angle_snapper->set_strength(1.0f);
-  fluid->add_interactor(angle_snapper);
+  //fluid->add_interactor(angle_snapper);
 
   Float2 phase(13.432f, -34.4654f);
-
-  turb_out = new Fluid2DTurbulenceInflow;
-  turb_out->set_scale(8.0f);
-  turb_out->set_octaves(3);
-  turb_out->set_speed(0.5f);
-  turb_out->set_strength(-0.2f);
-  turb_out->set_phase(phase);
-  fluid->add_interactor(turb_out);
 
   while(true)
   {
@@ -325,8 +338,11 @@ int main(int argc, char **argv)
   delete fluid_tex;
   delete inflow;
   delete turb;
-  delete turb_in;
-  delete turb_out;
+  for(int i = 0; i < 3; i ++)
+  {
+    delete turb_in[i];
+    delete turb_out[i];
+  }
 
 	return 0;
 }

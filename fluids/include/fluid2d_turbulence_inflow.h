@@ -16,7 +16,8 @@ public:
   void set_speed(const float s) { speed = s; }
   void set_strength(const float s) { strength = s; }
   void set_phase(const Float2 &p) { phase = p; }
-  
+  void set_channel(const FluidChannelType c) { channel = c; }
+
 private:
   int octaves;
   float scale;
@@ -25,6 +26,8 @@ private:
   Float2 phase;
 
   float time;
+
+  FluidChannelType channel;
 };
 
 #endif

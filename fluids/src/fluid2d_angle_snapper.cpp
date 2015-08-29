@@ -43,7 +43,7 @@ void Fluid2DAngleSnapper::simulate(const float dt)
   {
     for(int j = 0; j < fluid_dim[1]; j++)
     {
-      Float2 vel(u[idx(i, j)], v[idx(i, j)]);
+      Float2 vel(curr[idx(i, j)].data[0], curr[idx(i, j)].data[1]);
       float mag = vel.magnitude();
 
       float max_dp = -1.0f;
@@ -61,8 +61,13 @@ void Fluid2DAngleSnapper::simulate(const float dt)
       assert(closest_angle >= 0);
       Float2 snap_vel = angles[closest_angle] * mag;
       Float2 new_vel = lerp(vel, snap_vel, strength);
-      u[idx(i, j)] = snap_vel[0];
-      v[idx(i, j)] = snap_vel[1];
+      //u[idx(i, j)] = snap_vel[0];
+      //v[idx(i, j)] = snap_vel[1];
+      curr[idx(i, j)].data[0] = snap_vel[0];
+      curr[idx(i, j)].data[1] = snap_vel[1];
+
+      prev[idx(i, j)].data[0] = snap_vel[0];
+      prev[idx(i, j)].data[1] = snap_vel[1];
     }
   }
 }

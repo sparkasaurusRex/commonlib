@@ -39,36 +39,29 @@ void Fluid2D::init_helper()
 
   int size = (N + 2) * (N + 2);
 
-  /*
-  u = new float[size];
-  v = new float[size];
-  u_prev = new float[size];
-  v_prev = new float[size];
-  dens = new Float3[size];
-  dens_prev = new Float3[size];
-  */
-
   curr_channels = new FluidChannels[size];
   prev_channels = new FluidChannels[size];
 
   float perlin_scale = 0.1f;
 
   cout<<"initializing fluid of size "<<N<<endl;
-  /*for(int i = 0; i < dim[0]; i++)
+  for(int i = 0; i < N; i++)
   {
-    for(int j = 0; j < dim[1]; j++)
+    for(int j = 0; j < N; j++)
     {
+      float r = (float)i / N;
+      float g = (float)j / N;
+      float b = 0.5f;
 
-      u[idx(i, j)] = 0.0f;
-      u_prev[idx(i, j)] = 0.0f;
+      curr_channels[idx(i, j)].data[FLUID_CHANNEL_DENS_R] = r;
+      curr_channels[idx(i, j)].data[FLUID_CHANNEL_DENS_G] = g;
+      curr_channels[idx(i, j)].data[FLUID_CHANNEL_DENS_B] = b;
 
-      v[idx(i, j)] = 0.0f;
-      v_prev[idx(i, j)] = 0.0f;
-
-      dens[idx(i, j)] = Float3(0.0f, 0.0f, 0.0f);
-      dens_prev[idx(i, j)] = Float3(0.0f, 0.0f, 0.0f);
+      prev_channels[idx(i, j)].data[FLUID_CHANNEL_DENS_R] = r;
+      prev_channels[idx(i, j)].data[FLUID_CHANNEL_DENS_G] = g;
+      prev_channels[idx(i, j)].data[FLUID_CHANNEL_DENS_B] = b;
     }
-  }*/
+  }
 }
 
 Fluid2D::~Fluid2D()
@@ -148,14 +141,9 @@ void Fluid2D::add_velocity_at_point(const Float2 pt, const Float2 vel, const flo
 void Fluid2D::add_interactor(Fluid2DInteractor *fi)
 {
   assert(fi);
-  //assert(dens);
-  //assert(u);
-  //assert(v);
   assert(prev_channels);
   assert(curr_channels);
 
-  //fi->set_density_grid(dens);
-  //fi->set_velocity_grid(u, v);
   fi->set_fluid_channels(curr_channels, prev_channels);
   fi->set_grid_dimensions(Float2(dim[0], dim[1]));
 
@@ -170,20 +158,9 @@ void Fluid2D::simulate(const float dt)
     fi->simulate(dt);
   }
 
-  //velocity_step(u, v, u_prev, v_prev, viscosity, dt);
-  //density_step(dens, dens_prev, u, v, diffusion_rate, dt);
   velocity_step(dt);
   density_step(dt);
 }
-
-/*void Fluid2D::add_source(float *_x, float *_s, float dt)
-{
-  int i, size = (N + 2) * (N + 2);
-  for(i = 0; i < size; i++)
-  {
-    _x[i] += dt * _s[i];
-  }
-}*/
 
 void Fluid2D::add_source(FluidChannels *_x, FluidChannels *_s, int a, int b, float dt)
 {
@@ -199,43 +176,12 @@ void Fluid2D::add_source(FluidChannels *_x, FluidChannels *_s, int a, int b, flo
 
 void Fluid2D::density_step(float dt)
 {
-  /*
-  add_source(_x, _x0, dt);
-  SWAP(_x0, _x);
-  diffuse(0, _x, _x0, diffusion_rate, dt);
-  SWAP(_x0, _x);
-  advect(0, _x, _x0, _u, _v, dt);
-  */
   add_source(curr_channels, prev_channels, 2, NUM_FLUID_CHANNELS, dt);
   //SWAP
   diffuse(0, prev_channels, curr_channels, 2, NUM_FLUID_CHANNELS, diffusion_rate, dt);
   //SWAP
   advect(0, curr_channels, prev_channels, curr_channels, 2, NUM_FLUID_CHANNELS, dt);
 }
-
-/*
-void Fluid2D::velocity_step(float *_u, float *_v, float *_u0, float *_v0, float visc, float dt)
-{
-  add_source(_u, _u0, dt);
-  add_source(_v, _v0, dt);
-
-  SWAP(_u0, _u);
-  diffuse(1, _u, _u0, visc, dt);
-
-  SWAP(_v0, _v);
-  diffuse(2, _v, _v0, visc, dt);
-
-  project(_u, _v, _u0, _v0);
-
-  SWAP(_u0, _u);
-  SWAP(_v0, _v);
-
-  advect(1, _u, _u0, _u0, _v0, dt);
-  advect(2, _v, _v0, _u0, _v0, dt);
-
-  project(_u, _v, _u0, _v0);
-}
-*/
 
 void Fluid2D::velocity_step(float dt)
 {
@@ -251,61 +197,12 @@ void Fluid2D::velocity_step(float dt)
   project(curr_channels, prev_channels, 0, 1);
 }
 
-/*
-void Fluid2D::project(float *_u, float *_v, float *_p, float *_div)
-{
-  int i, j, k;
-  float h;
-  h = 1.0 / N;
-  for(i = 1; i <= N; i++) {
-    for(j = 1; j <= N; j++) {
-      _div[idx(i,j)] = -0.5 * h * (_u[idx(i + 1, j)] - _u[idx(i - 1, j)] +
-                                   _v[idx(i, j + 1)] - _v[idx(i, j - 1)]);
-      _p[idx(i,j)] = 0;
-    }
-  }
-  set_bnd(0, _div);
-  set_bnd(0, _p);
-
-  for(k = 0; k < project_steps; k++)
-  {
-    for (i = 1; i <= N ; i++ )
-    {
-      for (j = 1; j <= N ; j++ )
-      {
-        _p[idx(i,j)] = (_div[idx(i, j)] + _p[idx(i - 1, j)] + _p[idx(i + 1, j)] + _p[idx(i, j - 1)] + _p[idx(i, j + 1)]) / 4;
-      }
-    }
-    set_bnd(0, _p);
-  }
-
-  for(i = 1; i <= N; i++)
-  {
-    for(j = 1; j <= N; j++)
-    {
-      _u[idx(i,j)] -= 0.5 * (_p[idx(i + 1, j)] - _p[idx(i - 1, j)]) / h;
-      _v[idx(i,j)] -= 0.5 * (_p[idx(i, j + 1)] - _p[idx(i, j - 1)]) / h;
-    }
-  }
-  set_bnd(1, _u);
-  set_bnd(2, _v);
-}
-*/
-
 void Fluid2D::project(FluidChannels *vel, FluidChannels *div_p, int a, int b)
 {
   float h = 1.0f / N;
 
   a = FLUID_CHANNEL_VEL_X;
   b = FLUID_CHANNEL_VEL_Y;
-
-  // for(i = 1; i <= N; i++) {
-  //   for(j = 1; j <= N; j++) {
-  //     _div[idx(i,j)] = -0.5 * h * (_u[idx(i + 1, j)] - _u[idx(i - 1, j)] +
-  //                                  _v[idx(i, j + 1)] - _v[idx(i, j - 1)]);
-  //     _p[idx(i,j)] = 0;
-  //   }
-  // }
 
   int pidx = 0;
   int didx = 1;
@@ -328,23 +225,6 @@ void Fluid2D::project(FluidChannels *vel, FluidChannels *div_p, int a, int b)
 
   set_boundaries(false, true, div_p, 0, 2);
 
-  /*
-  set_bnd(0, _div);
-  set_bnd(0, _p);
-  */
-
-  // for(k = 0; k < project_steps; k++)
-  // {
-  //   for (i = 1; i <= N ; i++ )
-  //   {
-  //     for (j = 1; j <= N ; j++ )
-  //     {
-  //       _p[idx(i,j)] = (_div[idx(i, j)] + _p[idx(i - 1, j)] + _p[idx(i + 1, j)] + _p[idx(i, j - 1)] + _p[idx(i, j + 1)]) / 4;
-  //     }
-  //   }
-  //   set_bnd(0, _p);
-  // }
-
   for(int k = 0; k < project_steps; k++)
   {
     for(int i = 1; i <= N; i++)
@@ -358,19 +238,8 @@ void Fluid2D::project(FluidChannels *vel, FluidChannels *div_p, int a, int b)
                                        div_p[idx(i, j + 1)].data[pidx]) / 4.0f;
       }
     }
-    //set_bnd(0, _p);
     set_boundaries(false, true, div_p, 0, 2);
   }
-
-
-  // for(i = 1; i <= N; i++)
-  // {
-  //   for(j = 1; j <= N; j++)
-  //   {
-  //     _u[idx(i,j)] -= 0.5 * (_p[idx(i + 1, j)] - _p[idx(i - 1, j)]) / h;
-  //     _v[idx(i,j)] -= 0.5 * (_p[idx(i, j + 1)] - _p[idx(i, j - 1)]) / h;
-  //   }
-  // }
 
   for(int i = 1; i <= N; i++)
   {
@@ -382,35 +251,11 @@ void Fluid2D::project(FluidChannels *vel, FluidChannels *div_p, int a, int b)
                                            div_p[idx(i, j - 1)].data[pidx]) / h;
     }
   }
-  //set_bnd(1, _u);
-  //set_bnd(2, _v);
 
   set_boundaries(true, false, vel, 0, 2);
 }
 
-//Gauss-Seidel relaxation
-/*
-void Fluid2D::diffuse(int b, float *_x, float *_x0, float diff, float dt)
-{
-  int i, j, k;
-  float a = dt * diff * N * N;
-
-  int diffuse_steps = project_steps; //TODO separate diffuse_steps
-  for(k = 0; k < diffuse_steps; k++) {
-    for(i = 1 ; i <= N; i++) {
-      for(j = 1; j <= N; j++) {
-        _x[idx(i,j)] = (_x0[idx(i,j)] +
-                        a * (_x[idx(i - 1, j)] +
-                              _x[idx(i + 1, j)] +
-                              _x[idx(i, j - 1)] +
-                              _x[idx(i, j + 1)])) / (1 + 4 * a);
-      }
-    }
-    set_bnd(b, _x);
-  }
-}
-*/
-
+//Gauss-Seidel relaxation (Jacobi another option?)
 void Fluid2D::diffuse(int bnd, FluidChannels *c, FluidChannels *c0, int a, int b, float diff, float dt)
 {
   float alpha = dt * diff * N * N;
@@ -431,54 +276,10 @@ void Fluid2D::diffuse(int bnd, FluidChannels *c, FluidChannels *c0, int a, int b
         }
       }
     }
-    //set_bnd(bnd, _x);
     bool is_vel = b <= 2;
     set_boundaries(is_vel, !is_vel, c, a, b);
   }
 }
-
-//advection step
-/*void Fluid2D::advect(int bnd, float *_d, float *_d0, float *_u, float *_v, float dt)
-{
-  int i, j, i0, j0, i1, j1;
-  float x, y, s0, t0, s1, t1, dt0;
-
-  dt0 = dt * N;
-  //dt1 = dt * dim[1];
-  for(i = 1; i <= N; i++) {
-    for(j = 1; j <= N; j++) {
-
-      x = i - dt0 * _u[idx(i,j)];
-      y = j - dt0 * _v[idx(i,j)];
-
-      if(x < 0.5)
-        x = 0.5;
-      if(x > N + 0.5)
-        x = N + 0.5;
-
-      i0 = (int)x;
-      i1 = i0 + 1;
-
-      if(y < 0.5)
-        y = 0.5;
-      if(y > N + 0.5)
-        y = N + 0.5;
-
-      j0 = (int)y;
-      j1 = j0 + 1;
-      s1 = x - i0;
-      s0 = 1 - s1;
-      t1 = y - j0;
-      t0 = 1 - t1;
-      _d[idx(i, j)] = s0 * (t0 * _d0[idx(i0, j0)] +
-                            t1 * _d0[idx(i0, j1)]) +
-                      s1 * (t0 * _d0[idx(i1, j0)] +
-                            t1 * _d0[idx(i1, j1)]);
-    }
-  }
-  set_bnd(bnd, _d);
-}*/
-
 
 void Fluid2D::advect(int bnd, FluidChannels *d, FluidChannels *d0, FluidChannels *vel, int a, int b, float dt)
 {
@@ -510,7 +311,6 @@ void Fluid2D::advect(int bnd, FluidChannels *d, FluidChannels *d0, FluidChannels
       }
     }
   }
-  //set_bnd(bnd, _d);
   set_boundaries(false, true, d, 2, NUM_FLUID_CHANNELS);
 }
 
@@ -559,35 +359,4 @@ void Fluid2D::set_boundaries(bool vel, bool dens, FluidChannels *fc, int a, int 
     fc[idx(N + 1, N + 1)].data[j] =  0.5 * (fc[idx(N, N + 1)].data[j] +
                                             fc[idx(N + 1, N)].data[j]);   //bottom right
   }
-
-
-  //0:  leftmost column =   same value as neighbor
-  //    rightmost column =  same value as neighbor
-  //    top row =           same value as neighbor
-  //    bottom row =        same value as neighbor
-  //
-  //1:  leftmost column =   neg value as neighbor
-  //    rightmost column =  neg value as neighbor
-  //    top row =           same value as neighbor
-  //    bottom row =        same value as neighbor
-  //
-  //2:  leftmost column =   same value as neighbor
-  //    rightmost column =  same value as neighbor
-  //    top row =           neg value as neighbor
-  //    bottom row =        neg value as neighbor
-  /*
-  for(int i = 1; i <= N; i++)
-  {
-    x[idx(0,     i)] =  flags == 1 ? -x[idx(1, i)] : x[idx(1, i)];    //leftmost column
-    x[idx(N + 1, i)] =  flags == 1 ? -x[idx(N, i)] : x[idx(N, i)];    //rightmost column
-    x[idx(i,     0)] =  flags == 2 ? -x[idx(i, 1)] : x[idx(i, 1)];    //top row
-    x[idx(i, N + 1)] =  flags == 2 ? -x[idx(i, N)] : x[idx(i, N)];    //bottom row
-  }
-
-  //corners = half the sum of the two perpendicular neighbors
-  x[idx(0, 0)] =          0.5 * (x[idx(1, 0)] +       x[idx(0, 1)]);       //top left
-  x[idx(0, N + 1)] =      0.5 * (x[idx(1, N + 1)] +   x[idx(0, N)]);       //bottom left
-  x[idx(N + 1, 0)] =      0.5 * (x[idx(N, 0)] +       x[idx(N + 1, 1)]);   //top right
-  x[idx(N + 1, N + 1)] =  0.5 * (x[idx(N, N + 1)] +   x[idx(N + 1, N)]);   //bottom right
-  */
 }
