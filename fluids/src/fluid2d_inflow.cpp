@@ -27,10 +27,16 @@ void Fluid2DInflow::simulate(const float dt)
 
       if(d2 < r2)
       {
-        u[idx(i, j)] += velocity[0];
-        v[idx(i, j)] += velocity[1];
+        //u[idx(i, j)] += velocity[0];
+        //v[idx(i, j)] += velocity[1];
+        curr[idx(i, j)].data[0] += velocity[0];
+        curr[idx(i, j)].data[1] += velocity[1];
 
-        dens[idx(i, j)] += rate * dt * (1.0f - d2 / (radius * radius));
+        //dens[idx(i, j)] += rate * dt * (1.0f - d2 / (radius * radius));
+        for(int k = 2; k < NUM_FLUID_CHANNELS; k++)
+        {
+          curr[idx(i, j)].data[k] += rate * dt * (1.0f - d2 / (radius * radius));
+        }
       }
     }
   }

@@ -28,6 +28,8 @@ float Time_scale = 0.0001f;
 float Velocity_scale = 50.0f;
 float Fluid_add_amount = 100.0f;
 
+int Fluid_channel_display = 2;
+
 SDL_Window* sdl_window =        NULL;
 SDL_GLContext sdl_gl_context =  NULL;
 Texture *fluid_tex =            NULL;
@@ -91,7 +93,7 @@ void process_events()
       int w, h;
       fluid_tex->get_dim(w, h);
       Float2 click_pt((float)mouse_x / WIN_WIDTH, (float)mouse_y / WIN_HEIGHT);
-      fluid->add_density_at_point(click_pt, fluid_amt, 0.025f);
+      //fluid->add_density_at_point(click_pt, fluid_amt, 0.025f);
     }
 
     SDL_Event event;
@@ -174,7 +176,8 @@ void process_events()
 void fill_fluid_texture(float t)
 {
   fluid->simulate(t * Time_scale);
-  const float *f = fluid->get_density_array();
+  //const float *f = fluid->get_density_array();
+  const FluidChannels *fc = fluid->get_channels();
 
   int w, h;
   fluid_tex->get_dim(w, h);
@@ -191,7 +194,7 @@ void fill_fluid_texture(float t)
     for(int j = 0; j < h; j++)
     {
       int fluid_idx = i + (w + 2) * j;
-      float val = 0.5f * clamp(f[fluid_idx], -1.0f, 1.0f) + 0.5f;
+      float val = 0.5f * clamp(fc[fluid_idx].data[Fluid_channel_display], -1.0f, 1.0f) + 0.5f;
       Float3 final_color = lerp(color_a, color_b, val);
 
       for(int oct = 0; oct < 3; oct++)
@@ -211,56 +214,56 @@ void fill_fluid_texture(float t)
 
 void game_loop()
 {
-    Uint32 ticks = SDL_GetTicks();
-    float game_time = (float)ticks;
-    float dt = (game_time - Previous_game_time);
-    //cout<<dt<<endl;
-    Previous_game_time = game_time;
+  Uint32 ticks = SDL_GetTicks();
+  float game_time = (float)ticks;
+  float dt = (game_time - Previous_game_time);
+  //cout<<dt<<endl;
+  Previous_game_time = game_time;
 
-    //fill_dynamic_texture(game_time);
-    fill_fluid_texture(dt);
+  //fill_dynamic_texture(game_time);
+  fill_fluid_texture(dt);
 
 /*
-    //HACK
-    Float2 pt(0.5f, 0.49f);
-    Float2 vel(100.0f * cos(game_time * 0.001f), 100.0f * sin(game_time * 0.001f));
-    fluid->add_velocity_at_point(pt, vel, 0.06f);
-    fluid->add_density_at_point(pt, Fluid_add_amount, 0.05f);
+  //HACK
+  Float2 pt(0.5f, 0.49f);
+  Float2 vel(100.0f * cos(game_time * 0.001f), 100.0f * sin(game_time * 0.001f));
+  fluid->add_velocity_at_point(pt, vel, 0.06f);
+  fluid->add_density_at_point(pt, Fluid_add_amount, 0.05f);
 
-    Float2 pt2(0.75f, 0.51f);
-    Float2 vel2(-100.0f, 0.0f);
-    //fluid->add_velocity_at_point(pt2, vel2, 0.1f);
+  Float2 pt2(0.75f, 0.51f);
+  Float2 vel2(-100.0f, 0.0f);
+  //fluid->add_velocity_at_point(pt2, vel2, 0.1f);
 
-    Float2 pt3(0.25f, 0.5f);
-    Float2 vel3(200.0f, 0.0f);
-    //fluid->add_velocity_at_point(pt3, vel3, 0.1f);
+  Float2 pt3(0.25f, 0.5f);
+  Float2 vel3(200.0f, 0.0f);
+  //fluid->add_velocity_at_point(pt3, vel3, 0.1f);
 
-    Float2 pt4(0.5f + 0.25f * cos(game_time * 0.0005f), 0.5f + 0.25f * sin(game_time * 0.0005f));
-    //fluid->add_density_at_point(pt4, Fluid_add_amount, 0.04f);
+  Float2 pt4(0.5f + 0.25f * cos(game_time * 0.0005f), 0.5f + 0.25f * sin(game_time * 0.0005f));
+  //fluid->add_density_at_point(pt4, Fluid_add_amount, 0.04f);
 
-    Float2 pt5(0.5f + 0.25f * cos(M_PI + game_time * 0.001f), 0.5f + 0.25f * sin(M_PI + game_time * 0.001f));
-    fluid->add_density_at_point(pt5, -Fluid_add_amount, 0.05f);
-    */
+  Float2 pt5(0.5f + 0.25f * cos(M_PI + game_time * 0.001f), 0.5f + 0.25f * sin(M_PI + game_time * 0.001f));
+  fluid->add_density_at_point(pt5, -Fluid_add_amount, 0.05f);
+  */
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    //render fluid texture
-    fluid_tex->render_gl();
-    glBegin(GL_QUADS);
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glTexCoord2f(1.0f, 0.0f);
-        glVertex3f(-1.0f, -1.0f, 0.0f);
-        glTexCoord2f(1.0f, 1.0f);
-        glVertex3f(1.0f, -1.0f, 0.0f);
-        glTexCoord2f(0.0f, 1.0f);
-        glVertex3f(1.0f, 1.0f, 0.0f);
-        glTexCoord2f(0.0f, 0.0f);
-        glVertex3f(-1.0f, 1.0f, 0.0f);
-    glEnd();
+  //render fluid texture
+  fluid_tex->render_gl();
+  glBegin(GL_QUADS);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(-1.0f, -1.0f, 0.0f);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(1.0f, -1.0f, 0.0f);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(1.0f, 1.0f, 0.0f);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(-1.0f, 1.0f, 0.0f);
+  glEnd();
 
 	glFlush();
 	SDL_GL_SwapWindow(sdl_window);
@@ -277,19 +280,21 @@ int main(int argc, char **argv)
   fluid = new Fluid2D(FLUID_DIM, FLUID_DIM);
 
   inflow = new Fluid2DInflow;
+  inflow->set_rate(100.0f);
   //fluid->add_interactor(inflow);
 
   turb = new Fluid2DTurbulenceField;
-  turb->set_scale(8.0f);
+  turb->set_scale(12.0f);
   turb->set_octaves(2);
   turb->set_speed(0.6f);
   turb->set_strength(1.2f);
+  turb->set_strength(1.4f);
   fluid->add_interactor(turb);
 
   turb_in = new Fluid2DTurbulenceInflow;
   turb_in->set_scale(8.0f);
   turb_in->set_octaves(3);
-  turb_in->set_speed(-0.5f);
+  turb_in->set_speed(-2.0f);
   turb_in->set_strength(0.2f);
   //turb_in->set_phase(0.0f);
   fluid->add_interactor(turb_in);

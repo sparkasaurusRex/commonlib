@@ -9,6 +9,8 @@ public:
   Fluid2DInflow();
   ~Fluid2DInflow();
 
+  void set_rate(const float r) { rate = r; }
+
   void simulate(const float dt);
 protected:
   float radius;
