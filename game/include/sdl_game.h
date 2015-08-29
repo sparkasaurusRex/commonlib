@@ -13,6 +13,8 @@
 
 #include "console.h"
 
+//TODO: framerate counter
+
 #define SDL_GAME_DEFAULT_WIDTH    640
 #define SDL_GAME_DEFAULT_HEIGHT   480
 
@@ -30,6 +32,9 @@ public:
   void run();
   void process_events();
 
+  void begin_video_capture() { recording_movie = true; movie_frame_counter = 0; }
+  void end_video_capture() { recording_movie = false; movie_frame_counter = 0; }
+
 protected:
   virtual void game_loop() = 0;
 
@@ -41,6 +46,11 @@ protected:
 
   void init_sdl();
   void quit_app();
+
+  void screenshot();
+
+  bool recording_movie;
+  int movie_frame_counter;
 
   int resolution[2];
   SDL_Window *win;

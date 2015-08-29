@@ -15,6 +15,9 @@ SDLGame::SDLGame(const int w, const int h, std::string title)
   window_title = title;
 
   last_game_time = 0.0f;
+
+  recording_movie = false;
+  movie_frame_counter = 0;
 }
 
 SDLGame::~SDLGame()
@@ -56,6 +59,11 @@ void SDLGame::run()
     console.simulate(frame_time);
     console.render_gl();
 
+    if(recording_movie)
+    {
+      screenshot();
+    }
+
     glFlush();
     SDL_GL_SwapWindow(win);
 
@@ -80,9 +88,6 @@ void SDLGame::process_events()
       case '`':
         console.activate(!console.is_active());
         break;
-
-      //ugh... I hate how hacky this is
-      //TODO: non-private traverse_command_history()
       case SDLK_UP:
         console.traverse_command_history(1);
         break;
@@ -98,6 +103,24 @@ void SDLGame::process_events()
         break;
       case SDLK_BACKSPACE:
         console.backspace();
+        break;
+      case SDLK_F12:
+        if(keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT])
+        {
+          recording_movie = !recording_movie;
+          if(recording_movie)
+          {
+            begin_video_capture();
+          }
+          else
+          {
+            end_video_capture();
+          }
+        }
+        else
+        {
+          screenshot();
+        }
         break;
       default:
         break;
@@ -125,6 +148,20 @@ void SDLGame::process_events()
       user_process_event(event);
     }
   }
+}
+
+void SDLGame::screenshot()
+{
+  cout<<"taking screenshot..."<<endl;
+  SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, resolution[0], resolution[1], 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
+
+  glReadPixels(0, 0, resolution[0], resolution[1], GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+
+  char filename[256];
+  sprintf(filename, "capture/%s%i.bmp", window_title.c_str(), movie_frame_counter++);
+  cout<<"writing "<<filename<<endl;
+  SDL_SaveBMP(image, filename);
+  SDL_FreeSurface(image);
 }
 
 void SDLGame::init_sdl()
