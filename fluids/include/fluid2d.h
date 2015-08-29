@@ -2,32 +2,24 @@
 #define _FLUID2_D_H_
 
 #define FLUID_DIM_DEFAULT   64
-//#define N	32
-
-//"Fluxel" = "fluid pixel"
-
-//helper macro for indexing the fluxel array
-//#define IX(i ,j) 	((i)+(N+2)*(j))
-#define SWAP(x0,x) { float *tmp = x0; x0 = x; x = tmp;}
 
 #include <vector>
 #include "fluid2d_interactor.h"
 #include "math_utility.h"
+#include "fluid_channels.h"
 
 using namespace Math;
 
+//#define SWAP(x0, x) { FluidChannels *tmp = x0; x0 = x; x = tmp;}
 
+//TODO
 /*
-typedef struct {
-	float p;		//pressure
-	float t;		//temperature
-
-	float u;		//velocity (x)
-	float v;		//velocity (y)
-
-	float dp;		//inflow / outflow rates
-	float dt;		//temperature change
-} Fluxel;*/
+clarify the set_bnd function...
+#define FLUID_BOUNDARY_SAME_VERT		(1<<0)		//set the vertical boundaries to the same value as their neighbor
+#define FLUID_BOUNDARY_NEG_VERT			(1<<1)		//set the vertical boundaries to the negative value of their neighbor
+#define FLUID_BOUNDARY_SAME_HORIZ		(1<<2)		//set the horizontal boundaries to the same value as their neighbor
+#define FLUID_BOUNDARY_NEG_HORIZ		(1<<3)		//set the horizontal boundaries to the negative value as their neighbor
+*/
 
 class Fluid2D
 {
@@ -36,9 +28,9 @@ public:
 	Fluid2D(const int w, const int h);
 	~Fluid2D();
 
-	//static inline int IX(const int i, const int j) const { return (((i)+(N+2)*(j))) }
+	//const Float3 *get_density_array() { return dens; }
+	const FluidChannels *get_channels() { return curr_channels; }
 
-	const float *get_density_array() { return dens; }
 	float get_x_dim() const { return dim[0]; }
 	float get_y_dim() const { return dim[1]; }
 
@@ -52,21 +44,29 @@ public:
 
 	void simulate(const float t);
 
-	void add_density_at_point(const Float2 pt, const float density, const float radius);
+	void add_density_at_point(const Float2 pt, const Float3 density, const float radius);
 	void add_velocity_at_point(const Float2 pt, const Float2 vel, const float radius);
 	void add_interactor(Fluid2DInteractor *fi);
 
 protected:
 	void init_helper();		//helper function for the constructor
 
-	void add_source(float *x, float *s, float dt);
+	//void add_source(float *x, float *s, float dt);
+	//void add_source(Float3 *x, Float3 *s, float dt);
+	void add_source(FluidChannels *_x, FluidChannels *_s, int a, int b, float dt);
 
-	void density_step(float *x, float *x0, float *u, float *v, float diff, float dt);
-	void velocity_step(float *u, float *v, float *u0, float *v0, float visc, float dt);
-	void project(float *u, float *v, float *p, float *div);
+	//void density_step(Float3 *x, Float3 *x0, float *u, float *v, float diff, float dt);
+	//void velocity_step(float *u, float *v, float *u0, float *v0, float visc, float dt);
+	//void project(float *u, float *v, float *p, float *div);
+	void density_step(float dt);
+	void velocity_step(float dt);
+	void project(FluidChannels *c, FluidChannels *c0, int a, int b);
 
-	void advect(int b, float *d, float *d0, float *u, float *v, float dt);			//advection step
-	void diffuse(int b, float *x, float *x0, float dif, float dt);							//diffusion step
+
+	//void advect(int bnd, float *d, float *d0, float *u, float *v, float dt);			//advection step
+	//void diffuse(int b, float *x, float *x0, float dif, float dt);							//diffusion step
+	void advect(int bnd, FluidChannels *d, FluidChannels *d0, FluidChannels *vel, int a, int b, float dt);
+	void diffuse(int bnd, FluidChannels *c, FluidChannels *c0, int a, int b, float diff, float dt);
 
 	//helper function access our 1-D fluid array with 2 coordinates
 	//inline just as fast as a macro? *shrug*
@@ -75,16 +75,22 @@ protected:
 		return i + (dim[0] + 2) * j;
 	}
 
-	void set_bnd(int b, float *x);
+	//void set_bnd(int bnd, float *x);
+	void set_boundaries(bool vel, bool dens, FluidChannels *fc, int a, int b);
 
 private:
 	int N;								//TEMPORARY UNTIL I FIGURE OUT HOW TO HAVE DIFF DIMS
 	int dim[2];						//dimensions of the grid (+2 for boundary conditions)
-	//Fluxel *f;						//fluid array
-	//Fluxel *f_swap;				//swap array
 
-	float *u, *v, *u_prev, *v_prev;
-	float *dens, *dens_prev; //TODO: Float3, or arbitrary-length vector to store more data
+	//float *u, *v, *u_prev, *v_prev;
+	//Float3 *dens, *dens_prev; //TODO: arbitrary-length vector to store more data
+
+	//channels 0-1: velocity_step
+	//channels 2-4: RGB density
+	//channel    5: temperature?
+	//channel		 6: fuel?
+	FluidChannels *curr_channels;
+	FluidChannels *prev_channels;
 
 	int project_steps;							//number of steps to use in the project (and diffuse) functions
 	Float2 density_allowable_range;	//min/max density allowed in the simulation
@@ -92,9 +98,6 @@ private:
 	float viscosity;								//viscosity of the fluid
 
 	//list of objects that can interact w/ the fluid sim
-
-	//int num_interactors;
-	//Fluid2DInteractor *interactors;
 	std::vector<Fluid2DInteractor *> interactors;
 };
 
