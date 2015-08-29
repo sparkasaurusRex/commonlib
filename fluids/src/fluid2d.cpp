@@ -31,7 +31,7 @@ void Fluid2D::init_helper()
   density_allowable_range = Float2(-1.0f, 1.0f);
   viscosity = 0.0075f;
   diffusion_rate = 0.001f;
-  project_steps = 20;
+  project_steps = 15;
 
   //Ellis' values:
   //viscosity = 0.0001f;

@@ -282,16 +282,16 @@ int main(int argc, char **argv)
   //fluid->add_interactor(inflow);
 
   turb = new Fluid2DTurbulenceField;
-  turb->set_scale(8.0f);
+  turb->set_scale(12.0f);
   turb->set_octaves(2);
   turb->set_speed(0.6f);
-  turb->set_strength(0.4f);
+  turb->set_strength(1.4f);
   fluid->add_interactor(turb);
 
   turb_in = new Fluid2DTurbulenceInflow;
   turb_in->set_scale(8.0f);
   turb_in->set_octaves(3);
-  turb_in->set_speed(-0.5f);
+  turb_in->set_speed(-2.0f);
   turb_in->set_strength(0.2f);
   //turb_in->set_phase(0.0f);
   fluid->add_interactor(turb_in);
