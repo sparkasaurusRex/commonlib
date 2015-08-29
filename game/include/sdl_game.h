@@ -36,7 +36,7 @@ public:
   void end_video_capture() { recording_movie = false; movie_frame_counter = 0; }
 
 protected:
-  virtual void game_loop() = 0;
+  virtual void game_loop(const float game_time, const float frame_time) = 0;
 
   virtual void user_init() = 0;
   virtual void user_run() = 0;

@@ -52,7 +52,7 @@ void SDLGame::run()
 
     user_run();
     process_events();
-    game_loop();
+    game_loop(game_time, frame_time);
 
     render_gl();
 
