@@ -12,7 +12,7 @@ LDFLAGS+=$(shell pkg-config glew --libs)
 LDFLAGS+=-lgraphics
 SRCPATH=src/
 SRCS=src/fluid2d.cpp src/fluid2d_interactor.cpp src/fluid2d_inflow.cpp src/fluid2d_turbulence.cpp
-SRCS+=src/fluid2d_turbulence_inflow.cpp
+SRCS+=src/fluid2d_turbulence_inflow.cpp src/fluid2d_angle_snapper.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -65,7 +65,10 @@ $(BINPATH)fluid2d_turbulence.o: $(SRCPATH)fluid2d_turbulence.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d_turbulence.cpp -o $(BINPATH)fluid2d_turbulence.o
 
 $(BINPATH)fluid2d_turbulence_inflow.o: $(SRCPATH)fluid2d_turbulence_inflow.cpp
-		$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d_turbulence_inflow.cpp -o $(BINPATH)fluid2d_turbulence_inflow.o
+	$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d_turbulence_inflow.cpp -o $(BINPATH)fluid2d_turbulence_inflow.o
+
+$(BINPATH)fluid2d_angle_snapper.o: $(SRCPATH)fluid2d_angle_snapper.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)fluid2d_angle_snapper.cpp -o $(BINPATH)fluid2d_angle_snapper.o
 
 $(BINPATH)libfluids.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libfluids.a $(OBJS_BIN)

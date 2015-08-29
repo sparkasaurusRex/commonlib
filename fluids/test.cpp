@@ -14,6 +14,7 @@
 #include "fluid2d_inflow.h"
 #include "fluid2d_turbulence.h"
 #include "fluid2d_turbulence_inflow.h"
+#include "fluid2d_angle_snapper.h"
 
 using namespace std;
 
@@ -36,6 +37,7 @@ Fluid2DInflow *inflow =         NULL;
 Fluid2DTurbulenceField *turb =  NULL;
 Fluid2DTurbulenceInflow *turb_in = NULL;
 Fluid2DTurbulenceInflow *turb_out = NULL;
+Fluid2DAngleSnapper *angle_snapper = NULL;
 
 
 void quit_app()
@@ -281,7 +283,7 @@ int main(int argc, char **argv)
   turb->set_scale(8.0f);
   turb->set_octaves(2);
   turb->set_speed(0.6f);
-  turb->set_strength(2.4f);
+  turb->set_strength(1.2f);
   fluid->add_interactor(turb);
 
   turb_in = new Fluid2DTurbulenceInflow;
@@ -291,6 +293,10 @@ int main(int argc, char **argv)
   turb_in->set_strength(0.2f);
   //turb_in->set_phase(0.0f);
   fluid->add_interactor(turb_in);
+
+  angle_snapper = new Fluid2DAngleSnapper(3);
+  angle_snapper->set_strength(1.0f);
+  fluid->add_interactor(angle_snapper);
 
   Float2 phase(13.432f, -34.4654f);
 
