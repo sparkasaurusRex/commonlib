@@ -80,7 +80,7 @@ private:
 
 		glEnd();
 	}
-	void game_loop() {}
+	void game_loop(const float game_time, const float frame_time) {}
 	void user_init()
 	{
 		for(int i = 0; i < Num_starting_points; i++)
