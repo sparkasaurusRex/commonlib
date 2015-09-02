@@ -185,11 +185,6 @@ void SDLGame::init_sdl()
 
     glewInit();
 
-    //GLint major_version, minor_version;
-    //glGetIntegerv(GL_MAJOR_VERSION, &major_version);
-    //glGetIntegerv(GL_MINOR_VERSION, &minor_version);
-    //glGetString(GL_VERSION);
-
     cout<<"Initializing OpenGL..."<<endl;
     cout<<"version "<<glGetString(GL_VERSION)<<endl;//major_version<<"."<<minor_version<<endl;
 
