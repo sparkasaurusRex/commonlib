@@ -168,7 +168,7 @@ void SDLGame::screenshot()
 
 void SDLGame::init_sdl()
 {
-	if(SDL_Init( SDL_INIT_VIDEO ) < 0)
+	if(SDL_Init(SDL_INIT_VIDEO) < 0)
   {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
   }
@@ -181,9 +181,17 @@ void SDLGame::init_sdl()
     gl_context = SDL_GL_CreateContext(win);
     assert(gl_context);
 
+    SDL_GL_SetSwapInterval(1);
+
     glewInit();
 
-    SDL_GL_SetSwapInterval(1);
+    //GLint major_version, minor_version;
+    //glGetIntegerv(GL_MAJOR_VERSION, &major_version);
+    //glGetIntegerv(GL_MINOR_VERSION, &minor_version);
+    //glGetString(GL_VERSION);
+
+    cout<<"Initializing OpenGL..."<<endl;
+    cout<<"version "<<glGetString(GL_VERSION)<<endl;//major_version<<"."<<minor_version<<endl;
 
     //SDL_EnableUNICODE(SDL_ENABLE);
   }

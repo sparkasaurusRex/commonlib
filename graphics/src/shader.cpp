@@ -84,11 +84,11 @@ bool Shader::load_link_and_compile()
     GLsizei err_len;
     GLcharARB err_log[512];
 
-    cout<<"loading "<<gl_vertex_shader_fname<<endl;
+    cout<<"loading vertex shader "<<gl_vertex_shader_fname<<endl;
 
     //create the shader program
     gl_shader_program = glCreateProgram();
-    cout<<"meow"<<endl;
+    //cout<<"meow"<<endl;
     assert(gl_shader_program);
 
     //load shader file from disk
@@ -119,7 +119,7 @@ bool Shader::load_link_and_compile()
       cout<<"could not load vertex shader file!"<<endl;
     }
 
-    cout<<"loading "<<gl_fragment_shader_fname<<endl;
+    cout<<"loading fragment shader "<<gl_fragment_shader_fname<<endl;
     fp = fopen(gl_fragment_shader_fname, "r");
     if(fp)
     {
