@@ -115,9 +115,9 @@ void fill_dynamic_texture(float t)
 
 void fill_fluid_texture(float t)
 {
-  //return;
+  return;
   fluid->simulate(t);
-  const float *f = fluid->get_density_array();
+  const float *f;// = fluid->get_density_array();
 
   int w, h;
   fluid_tex->get_dim(w, h);

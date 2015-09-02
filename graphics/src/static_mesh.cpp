@@ -253,53 +253,53 @@ bool StaticMesh::make_render_data()
     std::vector<Material *>::iterator mi;
     for(mi = materials.begin(); mi != materials.end(); mi++)
     {
-        DrawCall dc;
-        dc.m = *mi;
-        dc.m->init();
+      DrawCall dc;
+      dc.m = *mi;
+      dc.m->init();
 
-        std::vector<MeshFace> mat_face_list;
+      std::vector<MeshFace> mat_face_list;
 
-        std::vector<MeshFace>::iterator fi;
-        for(fi = faces.begin(); fi != faces.end(); fi++)
+      std::vector<MeshFace>::iterator fi;
+      for(fi = faces.begin(); fi != faces.end(); fi++)
+      {
+        MeshFace f = *fi;
+        if(f.mat_id == mat_counter)
         {
-            MeshFace f = *fi;
-            if(f.mat_id == mat_counter)
-            {
-                mat_face_list.push_back(f);
-            }
+          mat_face_list.push_back(f);
         }
+      }
 
-        dc.num_indices = 3 * mat_face_list.size();
-        GLushort *gl_indices = new GLushort[dc.num_indices * 3];
-        assert(gl_indices);
+      dc.num_indices = 3 * mat_face_list.size();
+      GLushort *gl_indices = new GLushort[dc.num_indices * 3];
+      assert(gl_indices);
 
-        int index_data_size = 3 * mat_face_list.size() * sizeof(GLushort);
+      int index_data_size = 3 * mat_face_list.size() * sizeof(GLushort);
 
-        //std::vector<MeshFace>::iterator fi;
-        int buffer_idx = 0;
-        cout<<"num_faces: "<<faces.size()<<endl;
-        for(fi = mat_face_list.begin(); fi != mat_face_list.end(); fi++)
-        {
-            MeshFace f = *(fi);
-            assert(f.vertex_indices.size() == 3);
+      //std::vector<MeshFace>::iterator fi;
+      int buffer_idx = 0;
+      cout<<"num_faces: "<<faces.size()<<endl;
+      for(fi = mat_face_list.begin(); fi != mat_face_list.end(); fi++)
+      {
+        MeshFace f = *(fi);
+        assert(f.vertex_indices.size() == 3);
 
-            gl_indices[buffer_idx++] = f.vertex_indices[0];
-            gl_indices[buffer_idx++] = f.vertex_indices[1];
-            gl_indices[buffer_idx++] = f.vertex_indices[2];
-        }
-        cout<<"buffer_idx: "<<buffer_idx<<endl;
+        gl_indices[buffer_idx++] = f.vertex_indices[0];
+        gl_indices[buffer_idx++] = f.vertex_indices[1];
+        gl_indices[buffer_idx++] = f.vertex_indices[2];
+      }
+      cout<<"buffer_idx: "<<buffer_idx<<endl;
 
-        //int index_data_size = sizeof(GLushort) * 3 * faces.size();
+      //int index_data_size = sizeof(GLushort) * 3 * faces.size();
 
-        glGenBuffersARB(1, &dc.ibo);
-        assert(dc.ibo != 0);
-        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, dc.ibo);
-        glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, index_data_size, gl_indices, GL_STATIC_DRAW_ARB);
+      glGenBuffersARB(1, &dc.ibo);
+      assert(dc.ibo != 0);
+      glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, dc.ibo);
+      glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, index_data_size, gl_indices, GL_STATIC_DRAW_ARB);
 
-        delete gl_indices;
+      delete gl_indices;
 
-        dc.m = materials[mat_counter++];
-        draw_calls.push_back(dc);
+      dc.m = materials[mat_counter++];
+      draw_calls.push_back(dc);
     }
 
     //vertex buffer
@@ -314,16 +314,16 @@ bool StaticMesh::make_render_data()
     std::vector<MeshVertex>::iterator vi;
     for(vi = vertices.begin(); vi != vertices.end(); vi++)
     {
-        MeshVertex v = *(vi);
+      MeshVertex v = *(vi);
 
-        gl_normals[buffer_idx] = v.normal[0];
-        gl_verts[buffer_idx++] = v.pos[0];
+      gl_normals[buffer_idx] = v.normal[0];
+      gl_verts[buffer_idx++] = v.pos[0];
 
-        gl_normals[buffer_idx] = v.normal[1];
-        gl_verts[buffer_idx++] = v.pos[1];
+      gl_normals[buffer_idx] = v.normal[1];
+      gl_verts[buffer_idx++] = v.pos[1];
 
-        gl_normals[buffer_idx] = v.normal[1];
-        gl_verts[buffer_idx++] = v.pos[2];
+      gl_normals[buffer_idx] = v.normal[1];
+      gl_verts[buffer_idx++] = v.pos[2];
     }
 
     cout<<"num_vertices: "<<vertices.size()<<endl;
@@ -348,38 +348,37 @@ bool StaticMesh::make_render_data()
 
 bool StaticMesh::init()
 {
-    if(RENDER_METHOD_VBO)
+  if(RENDER_METHOD_VBO)
+  {
+    make_render_data();
+  }
+  else
+  {
+    //build display list
+    display_list = glGenLists(1);
+    glNewList(display_list, GL_COMPILE);
     {
-        make_render_data();
-    }
-    else
-    {
-        //build display list
-        display_list = glGenLists(1);
-        glNewList(display_list, GL_COMPILE);
+      std::vector<MeshFace>::iterator fi;
+      for(fi = faces.begin(); fi != faces.end(); fi++)
+      {
+        MeshFace f = *(fi);
+        glBegin(GL_TRIANGLES);
+
+        std::vector<int>::iterator vi;
+        for(vi = f.vertex_indices.begin(); vi != f.vertex_indices.end(); vi++)
         {
-            std::vector<MeshFace>::iterator fi;
-            for(fi = faces.begin(); fi != faces.end(); fi++)
-            {
-                MeshFace f = *(fi);
-                glBegin(GL_TRIANGLES);
-
-                std::vector<int>::iterator vi;
-                for(vi = f.vertex_indices.begin(); vi != f.vertex_indices.end(); vi++)
-                {
-                    int v_idx = *(vi);
-                    MeshVertex vert = vertices[v_idx];
-                    glNormal3f(f.normal[0], f.normal[1], f.normal[2]);
-                    glVertex3f(vert.pos[0], vert.pos[1], vert.pos[2]);
-                }
-                glEnd();
-            }
+          int v_idx = *(vi);
+          MeshVertex vert = vertices[v_idx];
+          glNormal3f(f.normal[0], f.normal[1], f.normal[2]);
+          glVertex3f(vert.pos[0], vert.pos[1], vert.pos[2]);
         }
-
-        glEndList();
+        glEnd();
+      }
     }
+    glEndList();
+  }
 
-    return true;
+  return true;
 }
 
 void StaticMesh::render_gl()

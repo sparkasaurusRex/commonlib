@@ -9,6 +9,7 @@ CFLAGS+=-Ofast
 
 LDFLAGS=$(shell pkg-config --libs sdl2)
 LDFLAGS+=$(shell pkg-config --libs freetype2)
+LDFLAGS+=$(shell pkg-config --libs glew)
 LDFLAGS+=-lgraphics -lmath
 SRCPATH=src/
 SRCS=src/sdl_game.cpp src/console.cpp

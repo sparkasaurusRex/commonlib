@@ -1,5 +1,7 @@
 #include <assert.h>
 #include <iostream>
+#include <GL/glew.h>
+
 #include "sdl_game.h"
 
 using namespace std;
@@ -178,6 +180,8 @@ void SDLGame::init_sdl()
 
     gl_context = SDL_GL_CreateContext(win);
     assert(gl_context);
+
+    glewInit();
 
     SDL_GL_SetSwapInterval(1);
 

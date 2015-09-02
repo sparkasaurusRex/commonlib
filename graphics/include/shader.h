@@ -10,29 +10,26 @@
 class Shader
 {
 public:
-	Shader();
-	~Shader();
+  Shader();
+  ~Shader();
 
-	GLuint load_and_compile_shader(GLenum shader_type, const char *source);
-	bool load_link_and_compile();
-	void render_gl();
+  GLuint load_and_compile_shader(GLenum shader_type, const char *source);
+  bool load_link_and_compile();
+  void render_gl();
 //private:
-	char name[256];
+  char name[256];
 
-	GLuint gl_fragment_shader;
-    GLuint gl_vertex_shader;
-    GLuint gl_shader_program;
+  GLuint gl_fragment_shader;
+  GLuint gl_vertex_shader;
+  GLuint gl_shader_program;
 
-	char gl_fragment_shader_fname[256];
-    char gl_vertex_shader_fname[256];
+  char gl_fragment_shader_fname[256];
+  char gl_vertex_shader_fname[256];
 
-    //char *gl_fragment_source;
-    //char *gl_vertex_source;
-
-//#pragma mark HACK
-    int gl_pos_loc;
-    int gl_col_loc;
-    int gl_uv_loc;
+	//HACK
+  int gl_pos_loc;
+  int gl_col_loc;
+  int gl_uv_loc;
 };
 
 #endif // _SHADER_H_
