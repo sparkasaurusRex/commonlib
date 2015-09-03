@@ -39,7 +39,7 @@ public:
 	float get_diffusion_rate() const { return diffusion_rate; }
 	float *get_diffusion_rate_ptr() { return &diffusion_rate; }
 	int   get_project_steps() const { return project_steps; }
-	int		*get_project_steps_ptr() const { return &project_steps; }
+	int		*get_project_steps_ptr() { return &project_steps; }
 
 	void set_viscosity(const float visc) { viscosity = visc; }
 	void set_diffusion_rate(const float diff) { diffusion_rate = diff; }

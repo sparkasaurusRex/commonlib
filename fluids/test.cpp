@@ -44,12 +44,14 @@ public:
       turb_out[i] = NULL;
     }
   }
+
   ~FluidGame()
   {
     delete fluid;
     delete fluid_tex;
     delete inflow;
     delete turb;
+    delete turb2;
     for(int i = 0; i < 3; i ++)
     {
       delete turb_in[i];
@@ -82,9 +84,12 @@ private:
 
   void game_loop(const float game_time, const float frame_time)
   {
-    fluid->simulate(frame_time * time_scale);
+    float sim_time = frame_time * time_scale;
+    //sim_time = 0.005f;
+    fluid->simulate(sim_time);
     fill_fluid_texture();
   }
+
   void user_init()
   {
     fluid_tex = new Texture(fluid_dim, fluid_dim, GL_RGB);
@@ -102,9 +107,15 @@ private:
     turb->set_scale(12.0f);
     turb->set_octaves(2);
     turb->set_speed(0.1f);
-    turb->set_strength(100.2f);
-    turb->set_strength(1.4f);
+    turb->set_strength(1.0f);
     fluid->add_interactor(turb);
+
+    turb2 = new Fluid2DTurbulenceField;
+    turb2->set_scale(6.0f);
+    turb2->set_octaves(1);
+    turb2->set_speed(0.1f);
+    turb2->set_strength(0.1f);
+    fluid->add_interactor(turb2);
 
     for(int i = 0; i < 3; i++)
     {
@@ -132,6 +143,9 @@ private:
 
     angle_snapper = new Fluid2DAngleSnapper(5);
     angle_snapper->set_strength(1.0f);
+
+    console.register_variable(fluid->get_viscosity_ptr(), "viscosity");
+    console.register_variable(fluid->get_diffusion_rate_ptr(), "diffusion_rate");
   }
 
   void user_run()
@@ -144,7 +158,6 @@ private:
 
   void fill_fluid_texture()
   {
-
     //const float *f = fluid->get_density_array();
     const FluidChannels *fc = fluid->get_channels();
 
@@ -163,8 +176,8 @@ private:
       for(int j = 0; j < h; j++)
       {
         int fluid_idx = i + (w + 2) * j;
-        float r = 255.0f * clamp(0.2f * fc[fluid_idx].data[FLUID_CHANNEL_VEL_X], 0.0f, 1.0f);
-        float g = 255.0f * clamp(0.2f * fc[fluid_idx].data[FLUID_CHANNEL_VEL_Y], 0.0f, 1.0f);
+        float r = 255.0f * (0.25f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_VEL_X], -2.0f, 2.0f) + 0.5f);
+        float g = 255.0f * (0.25f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_VEL_Y], -2.0f, 2.0f) + 0.5f);
         //float r = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_R], 0.0f, 1.0f);
         //float g = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_G], 0.0f, 1.0f);
         float b = 0.0f;//255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_B], 0.0f, 1.0f);
@@ -196,7 +209,7 @@ private:
   Texture *fluid_tex;
   Fluid2D *fluid;
   Fluid2DInflow *inflow;
-  Fluid2DTurbulenceField *turb;
+  Fluid2DTurbulenceField *turb, *turb2;
   Fluid2DTurbulenceInflow *turb_in[3];
   Fluid2DTurbulenceInflow *turb_out[3];
   Fluid2DAngleSnapper *angle_snapper;
