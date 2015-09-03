@@ -24,9 +24,13 @@ public:
   //SDLGame();
   SDLGame(const int w = SDL_GAME_DEFAULT_WIDTH,
           const int h = SDL_GAME_DEFAULT_HEIGHT,
-          const std::string title = "Game");
+          const std::string title = "Game",
+          const int gl_major_version = -1,
+          const int gl_minor_version = -1);
 
   ~SDLGame();
+
+  void set_gl_version(const int major, const int minor) { gl_version[0] = major; gl_version[1] = minor; }
 
   void init();
   void run();
@@ -55,6 +59,7 @@ protected:
   int resolution[2];
   SDL_Window *win;
   SDL_GLContext gl_context;
+  int gl_version[2];
   std::string window_title;
 
   double last_game_time;

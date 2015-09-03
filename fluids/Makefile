@@ -9,6 +9,7 @@ CFLAGS+=$(shell pkg-config freetype2 --cflags)
 LDFLAGS=-lmath $(shell pkg-config sdl2 --libs)
 LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 LDFLAGS+=$(shell pkg-config freetype2 --libs)
+LDFLAGS+=$(shell pkg-config glew --libs)
 LDFLAGS+=-lgraphics
 SRCPATH=src/
 SRCS=src/fluid2d.cpp src/fluid2d_interactor.cpp src/fluid2d_inflow.cpp src/fluid2d_turbulence.cpp

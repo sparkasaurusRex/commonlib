@@ -9,7 +9,7 @@
 class MySDLGame : public SDLGame
 {
 public:
-  MySDLGame() {}
+  MySDLGame() : SDLGame(640, 480, "Game Test") {}
   ~MySDLGame() {}
 
 private:

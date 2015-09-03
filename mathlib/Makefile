@@ -8,6 +8,7 @@ CFLAGS+=-D__USE_CGAL3D__
 CFLAGS+=-Ofast
 LDFLAGS=$(shell pkg-config --libs sdl2)
 LDFLAGS+=$(shell pkg-config --libs freetype2)
+LDFLAGS+=$(shell pkg-config --libs glew)
 LDFLAGS+=-lCGAL -lCGAL_Core -lgmp
 SRCPATH=src/
 SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp src/quaternion.cpp src/voronoi.cpp src/triangulation.cpp src/shapes.cpp

@@ -92,6 +92,7 @@ private:
 
     fluid = new Fluid2D(fluid_dim, fluid_dim);
     fluid->set_diffusion_rate(0.0f);//0.002f);
+    fluid->set_viscosity(0.0f);
 
     inflow = new Fluid2DInflow;
     inflow->set_rate(100.0f);
@@ -162,9 +163,11 @@ private:
       for(int j = 0; j < h; j++)
       {
         int fluid_idx = i + (w + 2) * j;
-        float r = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_R], 0.0f, 1.0f);
-        float g = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_G], 0.0f, 1.0f);
-        float b = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_B], 0.0f, 1.0f);
+        float r = 255.0f * clamp(0.2f * fc[fluid_idx].data[FLUID_CHANNEL_VEL_X], 0.0f, 1.0f);
+        float g = 255.0f * clamp(0.2f * fc[fluid_idx].data[FLUID_CHANNEL_VEL_Y], 0.0f, 1.0f);
+        //float r = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_R], 0.0f, 1.0f);
+        //float g = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_G], 0.0f, 1.0f);
+        float b = 0.0f;//255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_B], 0.0f, 1.0f);
         Float3 final_color(r, g, b);
 
         for(int oct = 0; oct < 3; oct++)

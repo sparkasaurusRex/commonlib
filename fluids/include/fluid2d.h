@@ -35,8 +35,11 @@ public:
 	float get_y_dim() const { return dim[1]; }
 
 	float get_viscosity() const { return viscosity; }
+	float *get_viscosity_ptr() { return &viscosity; }
 	float get_diffusion_rate() const { return diffusion_rate; }
+	float *get_diffusion_rate_ptr() { return &diffusion_rate; }
 	int   get_project_steps() const { return project_steps; }
+	int		*get_project_steps_ptr() const { return &project_steps; }
 
 	void set_viscosity(const float visc) { viscosity = visc; }
 	void set_diffusion_rate(const float diff) { diffusion_rate = diff; }
@@ -51,20 +54,11 @@ public:
 protected:
 	void init_helper();		//helper function for the constructor
 
-	//void add_source(float *x, float *s, float dt);
-	//void add_source(Float3 *x, Float3 *s, float dt);
 	void add_source(FluidChannels *_x, FluidChannels *_s, int a, int b, float dt);
 
-	//void density_step(Float3 *x, Float3 *x0, float *u, float *v, float diff, float dt);
-	//void velocity_step(float *u, float *v, float *u0, float *v0, float visc, float dt);
-	//void project(float *u, float *v, float *p, float *div);
 	void density_step(float dt);
 	void velocity_step(float dt);
 	void project(FluidChannels *c, FluidChannels *c0, int a, int b);
-
-
-	//void advect(int bnd, float *d, float *d0, float *u, float *v, float dt);			//advection step
-	//void diffuse(int b, float *x, float *x0, float dif, float dt);							//diffusion step
 	void advect(int bnd, FluidChannels *d, FluidChannels *d0, FluidChannels *vel, int a, int b, float dt);
 	void diffuse(int bnd, FluidChannels *c, FluidChannels *c0, int a, int b, float diff, float dt);
 
@@ -81,9 +75,6 @@ protected:
 private:
 	int N;								//TEMPORARY UNTIL I FIGURE OUT HOW TO HAVE DIFF DIMS
 	int dim[2];						//dimensions of the grid (+2 for boundary conditions)
-
-	//float *u, *v, *u_prev, *v_prev;
-	//Float3 *dens, *dens_prev; //TODO: arbitrary-length vector to store more data
 
 	//channels 0-1: velocity_step
 	//channels 2-4: RGB density

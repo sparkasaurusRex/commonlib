@@ -37,23 +37,24 @@ Shader::~Shader()
 
 GLuint Shader::load_and_compile_shader(GLenum shader_type, const char *source)
 {
-  GLuint my_shader = glCreateShaderObjectARB(shader_type);
-  glShaderSourceARB(my_shader, 1, &source, NULL);
-  glCompileShaderARB(my_shader);
+  //GLuint my_shader = glCreateShaderObjectARB(shader_type);
+  GLuint my_shader = glCreateShader(shader_type);
+  glShaderSource(my_shader, 1, &source, NULL);
+  glCompileShader(my_shader);
 
-  GLint compiled;
-  glGetObjectParameterivARB(my_shader, GL_COMPILE_STATUS, &compiled);
-  if (compiled)
+  GLint compiled = false;
+  glGetShaderiv(my_shader, GL_COMPILE_STATUS, &compiled);
+  if(!compiled)
   {
-    cout<<"shader successfully compiled"<<endl;
-  }
-  else
-  {
-    cout<<"shader failed to compile"<<endl;
-    GLsizei len;
-    GLcharARB log[512];
-    glGetInfoLogARB(my_shader, 512, &len, log);
-    cout<<log<<endl;
+    GLint maxLength = 0;
+  	glGetShaderiv(my_shader, GL_INFO_LOG_LENGTH, &maxLength);
+
+  	// The maxLength includes the NULL character
+  	GLchar errorLog[maxLength];
+  	glGetShaderInfoLog(my_shader, maxLength, &maxLength, &errorLog[0]);
+    cout<<errorLog<<endl;
+
+  	glDeleteShader(my_shader);
   }
   return my_shader;
 }
@@ -64,9 +65,9 @@ void print_log(GLuint obj)
 	int maxLength;
 
 	if(glIsShader(obj))
-		glGetShaderiv(obj,GL_INFO_LOG_LENGTH,&maxLength);
+		glGetShaderiv(obj,GL_INFO_LOG_LENGTH, &maxLength);
 	else
-		glGetProgramiv(obj,GL_INFO_LOG_LENGTH,&maxLength);
+		glGetProgramiv(obj,GL_INFO_LOG_LENGTH, &maxLength);
 
 	char infoLog[maxLength];
 
