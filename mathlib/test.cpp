@@ -122,13 +122,14 @@ private:
     cep[2].p = Float2(1.0f, 0.0f);
     //cep[2].t = Float2(-1.0f, 0.0f);
 
-    CurveSegmentCerp csl[2];
-    csl[0].set_endpoints(cep[0], cep[1]);
-    csl[1].set_endpoints(cep[1], cep[2]);
+    CurveSegmentCerp csc;
+    CurveSegmentLerp csl
+    csc.set_endpoints(cep[0], cep[1]);
+    csl.set_endpoints(cep[1], cep[2]);
 
     Curve c;
-    c.add_segment(&csl[0]);
-    c.add_segment(&csl[1]);
+    c.add_segment(&csc);
+    c.add_segment(&csl);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
