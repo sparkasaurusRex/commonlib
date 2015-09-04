@@ -123,7 +123,7 @@ private:
     //cep[2].t = Float2(-1.0f, 0.0f);
 
     CurveSegmentCerp csc;
-    CurveSegmentLerp csl
+    CurveSegmentLerp csl;
     csc.set_endpoints(cep[0], cep[1]);
     csl.set_endpoints(cep[1], cep[2]);
 
