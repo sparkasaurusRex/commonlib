@@ -11,7 +11,9 @@ LDFLAGS+=$(shell pkg-config --libs freetype2)
 LDFLAGS+=$(shell pkg-config --libs glew)
 LDFLAGS+=-lCGAL -lCGAL_Core -lgmp
 SRCPATH=src/
-SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp src/quaternion.cpp src/voronoi.cpp src/triangulation.cpp src/shapes.cpp
+SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp
+SRCS+=src/quaternion.cpp src/voronoi.cpp src/triangulation.cpp src/shapes.cpp
+SRCS+=src/function.cpp src/curve.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -66,6 +68,12 @@ $(BINPATH)triangulation.o: $(SRCPATH)triangulation.cpp
 
 $(BINPATH)shapes.o: $(SRCPATH)shapes.cpp
 		$(CC) $(CFLAGS) -c $(SRCPATH)shapes.cpp -o $(BINPATH)shapes.o
+
+$(BINPATH)function.o: $(SRCPATH)function.cpp
+		$(CC) $(CFLAGS) -c $(SRCPATH)function.cpp -o $(BINPATH)function.o
+
+$(BINPATH)curve.o: $(SRCPATH)curve.cpp
+				$(CC) $(CFLAGS) -c $(SRCPATH)curve.cpp -o $(BINPATH)curve.o
 
 #$(OBJS): $(SRCS)
 #	$(CC) $(CFLAGS) -c $< -o $@

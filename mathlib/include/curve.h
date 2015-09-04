@@ -1,6 +1,9 @@
 #ifndef __CURVE_H__
 #define __CURVE_H__
 
+#include <vector>
+#include "math_utility.h"
+
 namespace Math {
 
   enum InterpolationMethod
@@ -17,7 +20,7 @@ namespace Math {
     public:
       CurveEndPoint() {};
       ~CurveEndPoint() {};
-    private:
+  //  private:
       Float2 p;   //vertex
       Float2 t;   //tangent handle
   };
@@ -33,6 +36,9 @@ namespace Math {
       ~CurveSegment() {}
 
       virtual float evaluate(const float _x) const = 0;
+
+      void set_endpoints(CurveEndPoint &a, CurveEndPoint &b);
+      bool in_range(const float _x) const;
     protected:
       CurveEndPoint end_points[2];
   };
@@ -65,10 +71,12 @@ namespace Math {
       Curve() {}
       ~Curve() {}
 
+      void add_segment(CurveSegment *s);
+
       float evaluate(const float _x);
 
     private:
-      std::vector<CurveSegment> segments;
+      std::vector<CurveSegment *> segments;
   };
 };
 

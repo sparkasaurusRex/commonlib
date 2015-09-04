@@ -146,6 +146,7 @@ private:
 
     console.register_variable(fluid->get_viscosity_ptr(), "viscosity");
     console.register_variable(fluid->get_diffusion_rate_ptr(), "diffusion_rate");
+    console.register_variable(&time_scale, "time_scale");
   }
 
   void user_run()
@@ -158,7 +159,6 @@ private:
 
   void fill_fluid_texture()
   {
-    //const float *f = fluid->get_density_array();
     const FluidChannels *fc = fluid->get_channels();
 
     int w, h;
@@ -176,11 +176,11 @@ private:
       for(int j = 0; j < h; j++)
       {
         int fluid_idx = i + (w + 2) * j;
-        float r = 255.0f * (0.25f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_VEL_X], -2.0f, 2.0f) + 0.5f);
-        float g = 255.0f * (0.25f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_VEL_Y], -2.0f, 2.0f) + 0.5f);
+        float r = 255.0f * (0.125f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_VEL_X], -4.0f, 4.0f) + 0.5f);
+        float g = 255.0f * (0.125f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_VEL_Y], -4.0f, 4.0f) + 0.5f);
         //float r = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_R], 0.0f, 1.0f);
         //float g = 255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_G], 0.0f, 1.0f);
-        float b = 0.0f;//255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_B], 0.0f, 1.0f);
+        float b = 128.0f;//255.0f * clamp(fc[fluid_idx].data[FLUID_CHANNEL_DENS_B], 0.0f, 1.0f);
         Float3 final_color(r, g, b);
 
         for(int oct = 0; oct < 3; oct++)
