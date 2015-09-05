@@ -33,7 +33,7 @@ enum TestMode
 class TestApp : public SDLGame
 {
 public:
-  TestApp() : SDLGame(512, 512, "Math Test") { Num_starting_points = 0; rot_angle = 0.0f; }
+  TestApp() : SDLGame(512, 512, "Math Test") { Num_starting_points = 0; rot_angle = 0.0f; function_theta = 0.0f; }
   ~TestApp() {}
 
   void set_num_verts(int nv) { Num_starting_points = nv; }
@@ -114,13 +114,14 @@ private:
   {
     CurveEndPoint cep[3];
     cep[0].p = Float2(0.0f, 0.0f);
-    cep[0].t = Float2(1.0f, 0.0f);
+    cep[0].t = Float2(cep[0].p[0] + 0.4f * cos(function_theta * 1.5f), cep[0].p[1] + 0.4f * sin(function_theta * 1.5f));
+
 
     cep[1].p = Float2(0.5f, 1.0f);
-    cep[1].t = Float2(0.0f, 1.0f);
+    cep[1].t = Float2(cep[1].p[0] + 0.2f * cos(function_theta), cep[1].p[1] + 0.2f * sin(function_theta));
 
     cep[2].p = Float2(1.0f, 0.0f);
-    //cep[2].t = Float2(-1.0f, 0.0f);
+    cep[2].t = Float2(0.9f, 0.0f);
 
     CurveSegmentBezier csc;
     CurveSegmentLerp csl;
@@ -136,15 +137,35 @@ private:
 
     glPointSize(3.0f);
 
-    glScalef(1.8f, 0.7f, 0.0f);
+    glScalef(1.2f, 1.2f, 0.0f);
     glTranslatef(-0.5f, -0.5f, 0.0f);
 
+    glColor3f(0.0f, 0.0f, 1.0f);
     glBegin(GL_POINTS);
       glVertex3f(cep[0].p[0], cep[0].p[1], 0.0f);
       glVertex3f(cep[1].p[0], cep[1].p[1], 0.0f);
       glVertex3f(cep[2].p[0], cep[2].p[1], 0.0f);
     glEnd();
 
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glBegin(GL_POINTS);
+      glVertex3f(cep[0].t[0], cep[0].t[1], 0.0f);
+      glVertex3f(cep[1].t[0], cep[1].t[1], 0.0f);
+      glVertex3f(cep[2].t[0], cep[2].t[1], 0.0f);
+    glEnd();
+
+    glBegin(GL_LINES);
+      glVertex3f(cep[0].p[0], cep[0].p[1], 0.0f);
+      glVertex3f(cep[0].t[0], cep[0].t[1], 0.0f);
+
+      glVertex3f(cep[1].p[0], cep[1].p[1], 0.0f);
+      glVertex3f(cep[1].t[0], cep[1].t[1], 0.0f);
+
+      glVertex3f(cep[2].p[0], cep[2].p[1], 0.0f);
+      glVertex3f(cep[2].t[0], cep[2].t[1], 0.0f);
+    glEnd();
+
+    glColor3f(1.0f, 1.0f, 1.0f);
     int num_slices = 100;
     glBegin(GL_LINE_STRIP);
       for(int i = 0; i < num_slices + 1; i++)
@@ -157,7 +178,6 @@ private:
     glEnd();
 
     //draw bounding box
-    return;
     glBegin(GL_LINE_STRIP);
       glVertex3f(0.0f, 0.0f, 0.0f);
       glVertex3f(1.0f, 0.0f, 0.0f);
@@ -168,7 +188,11 @@ private:
   }
 
 
-  void game_loop(const float game_time, const float frame_time) {}
+  void game_loop(const float game_time, const float frame_time)
+  {
+    function_theta += frame_time;
+    if(function_theta > M_PI * 2.0f) { function_theta -= M_PI * 2.0f; }
+  }
 
   void user_init()
   {
@@ -222,6 +246,8 @@ private:
   int Num_starting_points;
   float rot_angle;
   TestMode mode;
+
+  float function_theta;
 };
 
 
