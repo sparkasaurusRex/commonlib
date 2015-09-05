@@ -1,6 +1,6 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I/usr/local/include/
+CFLAGS=-I./include -I./include/cinematics -I/usr/local/include/
 CFLAGS+=-I../graphics/include/
 CFLAGS+=-I../mathlib/include/
 CFLAGS+=$(shell pkg-config --cflags sdl2)
@@ -10,9 +10,9 @@ CFLAGS+=-Ofast
 LDFLAGS=$(shell pkg-config --libs sdl2)
 LDFLAGS+=$(shell pkg-config --libs freetype2)
 LDFLAGS+=$(shell pkg-config --libs glew)
-LDFLAGS+=-lgraphics -lmath
+LDFLAGS+=-lmath
 SRCPATH=src/
-SRCS=src/sdl_game.cpp src/console.cpp
+SRCS=src/sdl_game.cpp src/console.cpp src/cinematics/fade_screen.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -54,11 +54,14 @@ $(BINPATH)sdl_game.o: $(SRCPATH)sdl_game.cpp
 $(BINPATH)console.o: $(SRCPATH)console.cpp
 	$(CC) $(CFLAGS) -c src/console.cpp -o $(BINPATH)console.o
 
+$(BINPATH)fade_screen.o: $(SRCPATH)cinematics/fade_screen.cpp
+	$(CC) $(CFLAGS) -c src/cinematics/fade_screen.cpp -o $(BINPATH)fade_screen.o
+
 $(BINPATH)libgame.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgame.a $(OBJS_BIN)
 
 test: test.cpp $(BINPATH)libgame.a
-	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lgame $(LDFLAGS)
+	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lgame -lgraphics $(LDFLAGS)
 
 clean:
 	rm -f $(BINPATH)*.o

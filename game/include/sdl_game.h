@@ -12,6 +12,7 @@
 #include <string>
 
 #include "console.h"
+#include "fade_screen.h"
 
 //TODO: framerate counter
 
@@ -64,7 +65,13 @@ protected:
 
   double last_game_time;
 
+  std::string font_face;
+  unsigned int font_height;
+
+  Font *font;    //font we want to use for mostly everything
   DebugConsole console;
+
+  FadeScreen title_screen;
 };
 
 #endif //__SDL_GAME_H__

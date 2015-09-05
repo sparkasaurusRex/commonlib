@@ -25,6 +25,12 @@ SDLGame::SDLGame(const int w, const int h,
 
   recording_movie = false;
   movie_frame_counter = 0;
+
+  font = NULL;
+#if defined(__APPLE__)
+  font_face = "/Library/Fonts/Andale Mono.ttf";
+#endif //__APPLE__
+  font_height = 24;
 }
 
 SDLGame::~SDLGame()
@@ -44,12 +50,17 @@ SDLGame::~SDLGame()
 void SDLGame::init()
 {
   init_sdl();
+  font = new Font(font_face.c_str(), font_height);
+  font->init();
+  title_screen.set_font(font);
   user_init();
   console.init();
 }
 
 void SDLGame::run()
 {
+  title_screen.play();
+  title_screen.set_text(window_title);
   while(true)
   {
     Uint32 ticks = SDL_GetTicks();
@@ -61,7 +72,15 @@ void SDLGame::run()
     process_events();
     game_loop(game_time, frame_time);
 
-    render_gl();
+    if(title_screen.is_active())
+    {
+      title_screen.simulate(frame_time);
+      title_screen.render_gl();
+    }
+    else
+    {
+      render_gl();
+    }
 
     console.simulate(frame_time);
     console.render_gl();
