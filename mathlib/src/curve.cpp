@@ -57,6 +57,22 @@ float CurveSegmentCerp::evaluate(const float _x) const
   return cerp(end_points[0].p[1], end_points[1].p[1], x_pct);
 }
 
+float CurveSegmentBezier::evaluate(const float _x) const
+{
+  float x_pct = (_x - end_points[0].p[0]) / (end_points[1].p[0] - end_points[0].p[0]);
+
+  float a = (1.0f - x_pct);
+  float a2 = a * a;
+  float a3 = a2 * a;
+
+  Float2 b3 = a3 * end_points[0].p +
+              3.0f * a2 * x_pct * end_points[0].t +
+              3.0f * a * x_pct * x_pct * end_points[1].t +
+              x_pct * x_pct * x_pct * end_points[1].p;
+
+  return b3[1];
+}
+
 void Curve::add_segment(CurveSegment *s)
 {
   segments.push_back(s);

@@ -114,15 +114,15 @@ private:
   {
     CurveEndPoint cep[3];
     cep[0].p = Float2(0.0f, 0.0f);
-    //cep[0].t = Float2(1.0f, 0.0f);
+    cep[0].t = Float2(1.0f, 0.0f);
 
     cep[1].p = Float2(0.5f, 1.0f);
-    //cep[1].t = Float2(-1.0f, 0.0f);
+    cep[1].t = Float2(0.0f, 1.0f);
 
     cep[2].p = Float2(1.0f, 0.0f);
     //cep[2].t = Float2(-1.0f, 0.0f);
 
-    CurveSegmentCerp csc;
+    CurveSegmentBezier csc;
     CurveSegmentLerp csl;
     csc.set_endpoints(cep[0], cep[1]);
     csl.set_endpoints(cep[1], cep[2]);

@@ -65,6 +65,17 @@ namespace Math {
     virtual float evaluate(const float _x) const;
   };
 
+  //
+  // bezier (cubic) interpolation
+  //
+  class CurveSegmentBezier : public CurveSegment
+  {
+  public:
+    CurveSegmentBezier() : CurveSegment() {}
+    ~CurveSegmentBezier() {}
+    virtual float evaluate(const float _x) const;
+  };
+
   class Curve
   {
     public:
