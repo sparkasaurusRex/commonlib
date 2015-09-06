@@ -61,9 +61,12 @@ void SDLGame::run()
 {
   title_screen.play();
   title_screen.set_text(window_title);
+
+  Uint32 ticks = SDL_GetTicks();
+  last_game_time = (double)ticks;
   while(true)
   {
-    Uint32 ticks = SDL_GetTicks();
+    ticks = SDL_GetTicks();
     double game_time = (double)ticks;
     double frame_time = (game_time - last_game_time) / 1000.0f;
     last_game_time = game_time;

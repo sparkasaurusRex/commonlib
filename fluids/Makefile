@@ -1,7 +1,7 @@
 CC=g++
 LIB_PATH=
 CFLAGS=-I./include -I../mathlib/include -I../graphics/include -I/usr/local/include
-CFLAGS+=-I../game/include
+CFLAGS+=-I../game/include -I../game/include/cinematics
 CFLAGS+= -Ofast
 CFLAGS+=$(shell pkg-config sdl2 --cflags)
 CFLAGS+=$(shell pkg-config SDL2_image --cflags)

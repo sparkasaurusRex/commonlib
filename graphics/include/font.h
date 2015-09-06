@@ -22,10 +22,13 @@ class Font
 
     void init();
     void print(float x, float y, const char *fmt, ...);
+    float get_string_width(char *s) const;
+    float get_height() const { return h; }
   private:
     void create_display_list(FT_Face face, char ch, GLuint list_base, GLuint *tex_base);
 
     float h;                //font height
+    float character_w[128]; //character widths
     char face_fname[256];   //font face name
     GLuint *textures;       //texture ids
     GLuint list_base;       //first display list id

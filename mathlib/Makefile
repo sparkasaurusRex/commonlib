@@ -1,6 +1,6 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I../game/include -I/usr/local/include
+CFLAGS=-I./include -I../game/include  -I../game/include/cinematics -I/usr/local/include
 CFLAGS+=-I../graphics/include
 CFLAGS+=$(shell pkg-config --cflags freetype2)
 CFLAGS+=-D__USE_BOOST__ #use boost library for voronoi triangulation

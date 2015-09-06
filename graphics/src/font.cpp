@@ -254,8 +254,11 @@ void Font::create_display_list(FT_Face face, char ch, GLuint list_base, GLuint *
   glTranslatef(0, vertical_offset, 0);
 
   //account for padding space in the texture
-  float x = (float)bitmap.width / (float)width,
-  y = (float)bitmap.rows / (float)height;
+  float x = (float)bitmap.width / (float)width;
+  float y = (float)bitmap.rows / (float)height;
+
+  int idx = (int)ch;
+  character_w[idx] = face->glyph->advance.x >> 6;
 
   //draw the textured quad
   glBegin(GL_QUADS);
@@ -270,4 +273,16 @@ void Font::create_display_list(FT_Face face, char ch, GLuint list_base, GLuint *
   glTranslatef(face->glyph->advance.x >> 6, 0, 0);
 
   glEndList();
+}
+
+float Font::get_string_width(char *s) const
+{
+  float w = 0.0f;
+  int i = 0;
+  while(s[i] != '\0')
+  {
+    w += character_w[s[i]];
+    i++;
+  }
+  return w;
 }

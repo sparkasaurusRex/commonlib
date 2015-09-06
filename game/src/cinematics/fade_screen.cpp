@@ -7,8 +7,8 @@ using namespace Math;
 
 FadeScreen::FadeScreen()
 {
-  fade_in_timer.set(2.0f);
-  linger_timer.set(2.0f);
+  fade_in_timer.set(1.0f);
+  linger_timer.set(1.0f);
   fade_out_timer.set(1.0f);
 
   font = NULL;
@@ -50,17 +50,48 @@ void FadeScreen::simulate(const float dt)
     fade_out_timer.simulate(dt);
     fade_opacity = clamp(1.0f - fade_out_timer.pct_elapsed(), 0.0f, 1.0f);
   }
-  //cout<<"title screen opacity: "<<fade_opacity<<endl;
+  cout<<"title screen opacity: "<<fade_opacity<<endl;
 }
 
 void FadeScreen::render_gl() const
 {
+  glPushAttrib(GL_DEPTH_BUFFER_BIT);
+
+  //first render the backdrop
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+
+  glDisable(GL_LIGHTING);
+  glDisable(GL_TEXTURE_2D);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_CULL_FACE);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+
   glColor4f(1.0f, 1.0f, 1.0f, fade_opacity);
 
-  font->print(10, 10, text.c_str());
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+
+  float h = font->get_height();
+  char foo[256];
+  strcpy(foo, text.c_str());
+  float w = font->get_string_width(foo);
+  //cout<<"font width: "<<w<<endl;
+  font->print((viewport[2] - w) / 2.0f, (viewport[3] - h) / 2.0f, text.c_str());
+
+  glPopMatrix();
+  glPopMatrix();
+  glPopAttrib();
 }
 
 void FadeScreen::play()
