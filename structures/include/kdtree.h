@@ -99,6 +99,15 @@ namespace Structures
       return empty;
     }
 
+    /*void find_n_nearest_neighbors(int n, const Float3 p, KDData3D<t> *nearest, float *best_d2)
+    {
+      int num_found = 0;
+      best_d2 = dist_squared(p, root->data.p);
+      KDNode3D<T> *nearest = NULL;
+
+      find_nearest_neighbor_helper
+    }*/
+
     int tree_size(KDNode3D<T> *r = NULL) const
     {
       if(r)

@@ -1,0 +1,81 @@
+CC=g++
+LIB_PATH=
+CFLAGS=-I./include -I../game/include -I../graphics/include -I../mathlib/include
+CFLAGS+=-I/usr/local/include
+CFLAGS+=$(shell pkg-config freetype2 --cflags)
+CFLAGS+=$(shell pkg-config glew --cflags)
+CFLAGS+=$(shell pkg-config sdl2 --cflags)
+CFLAGS+=$(shell pkg-config SDL2_image --cflags)
+#CFLAGS+=-Ofast
+CFLAGS+= -g3 -O0
+
+LDFLAGS=$(shell pkg-config freetype2 --libs)
+LDFLAGS+=$(shell pkg-config glew --libs)
+LDFLAGS+=$(shell pkg-config sdl2 --libs)
+LDFLAGS+=$(shell pkg-config SDL2_image --libs)
+LDFLAGS+=-lmath -lgame -lgraphics
+SRCPATH=src/
+SRCS=src/label.cpp src/widget.cpp
+OBJS=$(SRCS:.cpp=.o)
+
+UNAME := $(shell uname)
+ifneq (,$(findstring Darwin,$(UNAME)))
+	#osx
+	#CFLAGS+=-I/opt/X11/include/freetype2/
+	CFLAGS+=-Wno-deprecated-declarations
+	#CFLAGS+=-I$(shell xcrun --show-sdk-path)/System/Library/Frameworks/
+
+	LIB_PATH+=-Lbin/osx
+	LIB_PATH+=-L../mathlib/bin/osx
+	LIB_PATH+=-L../graphics/bin/osx
+	LIB_PATH+=-L../game/bin/osx
+
+	#LDFLAGS+=-framework SDL2
+	#LDFLAGS+=-framework SDL2_image
+	LDFLAGS+=-framework OpenGL
+
+	BINPATH=bin/osx/
+else
+	#generic link flags
+	LIB_PATH += -Lbin/linux
+	LIB_PATH += -L../mathlib/bin/linux
+	LIB_PATH += -L../fluids/bin/linux
+
+	BINPATH=bin/linux/
+	#CFLAGS+=-I/usr/include/freetype2/
+	CFLAGS+=$(shell pkg-config --cflags sdl2)
+
+#	LDFLAGS+=$(shell pkg-config --libs sdl2)
+	#LDFLAGS+=$(shell pkg-config --libs SDL2_image)
+	LDFLAGS+=-lGL
+endif
+
+OBJS_BIN=$(addprefix $(BINPATH), $(notdir $(OBJS)))
+#echo $(OBJS_BIN)
+
+
+all: $(BINPATH) $(OBJS_BIN) $(BINPATH)libui.a test
+
+$(BINPATH):
+	mkdir -p $(BINPATH)
+
+#$(OBJS): $(SRCS)
+#	$(CC) $(CFLAGS) -c $< -o $@
+#	mv $@ $(BINPATH)
+
+$(BINPATH)widget.o: $(SRCPATH)widget.cpp
+	$(CC) $(CFLAGS) -c src/widget.cpp -o $(BINPATH)widget.o
+
+$(BINPATH)label.o: $(SRCPATH)label.cpp
+	$(CC) $(CFLAGS) -c src/label.cpp -o $(BINPATH)label.o
+
+$(BINPATH)libui.a: $(OBJS_BIN)
+	ar -cvq $(BINPATH)libui.a $(OBJS_BIN)
+
+test: test.cpp $(BINPATH)libui.a
+	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lui $(LDFLAGS)
+
+clean:
+	rm -f $(BINPATH)*.o
+	rm -f $(BINPATH)libui.a
+	rm -f test

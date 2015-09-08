@@ -12,7 +12,7 @@
 #include <string>
 
 #include "console.h"
-#include "fade_screen.h"
+#include "cinematics/fade_screen.h"
 
 //TODO: framerate counter
 
