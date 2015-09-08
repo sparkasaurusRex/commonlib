@@ -11,7 +11,6 @@ public:
 private:
   void render_gl()
   {
-    glColor3f(1.0f, 1.0f, 1.0f);
     label.render();
   }
   void game_loop(const float game_time, const float frame_time)

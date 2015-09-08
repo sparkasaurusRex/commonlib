@@ -13,6 +13,7 @@
 
 #include "console.h"
 #include "cinematics/fade_screen.h"
+#include "label.h"
 
 //TODO: framerate counter
 
@@ -70,6 +71,9 @@ protected:
 
   Font *font;    //font we want to use for mostly everything
   DebugConsole console;
+
+  Font *widget_font;
+  UI::Label fps_label;
 
   FadeScreen title_screen;
 };

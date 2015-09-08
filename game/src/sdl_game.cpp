@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 
 #include "sdl_game.h"
+#include "label.h"
 
 using namespace std;
 
@@ -53,6 +54,15 @@ void SDLGame::init()
   font = new Font(font_face.c_str(), font_height);
   font->init();
   title_screen.set_font(font);
+
+  widget_font = new Font(font_face.c_str(), 14);
+  widget_font->init();
+  fps_label.set_font(widget_font);
+  fps_label.set_text(std::string("fps"));
+  fps_label.init();
+  fps_label.translate(Float2(10.0f, 10.0f));
+  fps_label.show();
+
   user_init();
   console.init();
 }
@@ -71,9 +81,15 @@ void SDLGame::run()
     double frame_time = (game_time - last_game_time) / 1000.0f;
     last_game_time = game_time;
 
+    float fps = 1.0f / frame_time;
+
     user_run();
     process_events();
     game_loop(game_time, frame_time);
+
+    std::string fps_text = std::string("fps: ") + std::to_string(fps);
+    fps_label.set_text(fps_text);
+    fps_label.simulate(frame_time);
 
     if(title_screen.is_active())
     {
@@ -83,6 +99,7 @@ void SDLGame::run()
     else
     {
       render_gl();
+      fps_label.render();
     }
 
     console.simulate(frame_time);

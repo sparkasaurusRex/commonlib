@@ -1,7 +1,7 @@
 CC=g++
 LIB_PATH=
 CFLAGS=-I./include -I./include/cinematics -I/usr/local/include/
-CFLAGS+=-I../graphics/include/
+CFLAGS+=-I../graphics/include/ -I../ui/include
 CFLAGS+=-I../mathlib/include/
 CFLAGS+=$(shell pkg-config --cflags sdl2)
 CFLAGS+=$(shell pkg-config --cflags freetype2)
@@ -10,7 +10,7 @@ CFLAGS+=-Ofast
 LDFLAGS=$(shell pkg-config --libs sdl2)
 LDFLAGS+=$(shell pkg-config --libs freetype2)
 LDFLAGS+=$(shell pkg-config --libs glew)
-LDFLAGS+=-lmath
+LDFLAGS+=-lmath -lui
 SRCPATH=src/
 SRCS=src/sdl_game.cpp src/console.cpp src/cinematics/fade_screen.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -22,6 +22,7 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	LIB_PATH+=-Lbin/osx
 	LIB_PATH+=-L../graphics/bin/osx
 	LIB_PATH+=-L../mathlib/bin/osx
+	LIB_PATH+=-L../ui/bin/osx
 	LDFLAGS+=-framework OpenGL
 
 	BINPATH=bin/osx/

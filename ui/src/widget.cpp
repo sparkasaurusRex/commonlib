@@ -4,6 +4,7 @@ using namespace UI;
 
 void Widget::render_prep()
 {
+  //TODO: UI renderer / context that preps all this before rendering all UI components
   glPushAttrib(GL_DEPTH_BUFFER_BIT);
 
   //first render the backdrop
@@ -19,8 +20,8 @@ void Widget::render_prep()
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
+  //glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  //glClear(GL_COLOR_BUFFER_BIT);
 
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
