@@ -38,7 +38,8 @@ inline void pushScreenCoordinateMatrix()
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  gluOrtho2D(viewport[0],viewport[2],viewport[1],viewport[3]);
+  //gluOrtho2D(viewport[0],viewport[2],viewport[1],viewport[3]);
+  gluOrtho2D(viewport[0], viewport[2], viewport[3], viewport[1]);
   glPopAttrib();
 }
 
@@ -64,11 +65,11 @@ void Font::print(float x, float y, const char *fmt, ...)
   va_list ap;                                     // Pointer To List Of Arguments
 
   if(fmt == NULL)                                    // If There's No Text
-      *text = 0;                                    // Do Nothing
+    *text = 0;                                    // Do Nothing
   else {
-      va_start(ap, fmt);                              // Parses The String For Variables
-      vsprintf(text, fmt, ap);                            // And Converts Symbols To Actual Numbers
-      va_end(ap);                                 // Results Are Stored In Text
+    va_start(ap, fmt);                              // Parses The String For Variables
+    vsprintf(text, fmt, ap);                            // And Converts Symbols To Actual Numbers
+    va_end(ap);                                 // Results Are Stored In Text
   }
 
   // Here Is Some Code To Split The Text That We Have Been
@@ -99,6 +100,7 @@ void Font::print(float x, float y, const char *fmt, ...)
   glDisable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
   glDisable(GL_DEPTH_TEST);
+  //glFrontFace(GL_CW);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -117,8 +119,10 @@ void Font::print(float x, float y, const char *fmt, ...)
   for(int i = 0; i < lines.size(); i++) {
     glPushMatrix();
     glLoadIdentity();
-    glTranslatef(x, y - height * i, 0);
+    glTranslatef(x, (y + height * i), 0);
+    glScalef(1.0f, -1.0f, 1.0f);
     glMultMatrixf(modelview_matrix);
+
 
 // The Commented Out Raster Position Stuff Can Be Useful If You Need To
 // Know The Length Of The Text That You Are Creating.

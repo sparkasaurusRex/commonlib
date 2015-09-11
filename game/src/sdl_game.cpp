@@ -55,8 +55,9 @@ void SDLGame::init()
   font->init();
   title_screen.set_font(font);
 
-  widget_font = new Font(font_face.c_str(), 14);
+  widget_font = new Font(font_face.c_str(), 12);
   widget_font->init();
+  
   fps_label.set_font(widget_font);
   fps_label.set_text(std::string("fps"));
   fps_label.init();

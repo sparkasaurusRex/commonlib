@@ -15,7 +15,7 @@ LDFLAGS+=$(shell pkg-config sdl2 --libs)
 LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 LDFLAGS+=-lmath -lgame -lgraphics
 SRCPATH=src/
-SRCS=src/label.cpp src/widget.cpp
+SRCS=src/label.cpp src/widget.cpp src/push_button.cpp src/widget_wrangler.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -63,11 +63,19 @@ $(BINPATH):
 #	$(CC) $(CFLAGS) -c $< -o $@
 #	mv $@ $(BINPATH)
 
+
+
 $(BINPATH)widget.o: $(SRCPATH)widget.cpp
 	$(CC) $(CFLAGS) -c src/widget.cpp -o $(BINPATH)widget.o
 
+$(BINPATH)widget_wrangler.o: $(SRCPATH)widget_wrangler.cpp
+		$(CC) $(CFLAGS) -c src/widget_wrangler.cpp -o $(BINPATH)widget_wrangler.o
+
 $(BINPATH)label.o: $(SRCPATH)label.cpp
 	$(CC) $(CFLAGS) -c src/label.cpp -o $(BINPATH)label.o
+
+$(BINPATH)push_button.o: $(SRCPATH)push_button.cpp
+	$(CC) $(CFLAGS) -c src/push_button.cpp -o $(BINPATH)push_button.o
 
 $(BINPATH)libui.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libui.a $(OBJS_BIN)

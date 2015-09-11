@@ -1,7 +1,7 @@
 CC=g++
 LIB_PATH=
 CFLAGS=-I./include -I../mathlib/include -I../graphics/include -I/usr/local/include
-CFLAGS+=-I../game/include -I../game/include/cinematics
+CFLAGS+=-I../game/include -I../game/include/cinematics -I../ui/include
 CFLAGS+= -Ofast
 CFLAGS+=$(shell pkg-config sdl2 --cflags)
 CFLAGS+=$(shell pkg-config SDL2_image --cflags)
@@ -10,7 +10,7 @@ LDFLAGS=-lmath $(shell pkg-config sdl2 --libs)
 LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 LDFLAGS+=$(shell pkg-config freetype2 --libs)
 LDFLAGS+=$(shell pkg-config glew --libs)
-LDFLAGS+=-lgraphics
+LDFLAGS+=-lgraphics -lui
 SRCPATH=src/
 SRCS=src/fluid2d.cpp src/fluid2d_interactor.cpp src/fluid2d_inflow.cpp src/fluid2d_turbulence.cpp
 SRCS+=src/fluid2d_turbulence_inflow.cpp src/fluid2d_angle_snapper.cpp
@@ -23,6 +23,7 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	LIB_PATH+=-L../mathlib/bin/osx
 	LIB_PATH+=-L../graphics/bin/osx
 	LIB_PATH+=-L../game/bin/osx
+	LIB_PATH+=-L../ui/bin/osx
 
 	#LDFLAGS+=-framework SDL2
 	#LDFLAGS+=-framework SDL2_image
