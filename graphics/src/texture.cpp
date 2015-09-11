@@ -29,18 +29,18 @@ using namespace std;
 
 Texture::Texture(const int w, const int h, const GLuint m)
 {
-	fname[0] = '\0';
+  fname[0] = '\0';
 
-	assert(w > 0 && h > 0);
-	dim[0] = w;
-	dim[1] = h;
+  assert(w > 0 && h > 0);
+  dim[0] = w;
+  dim[1] = h;
 
-	gl_mode = m;
+  gl_mode = m;
 }
 
 Texture::Texture(const char *n)
 {
-	strcpy(fname, n);
+  strcpy(fname, n);
 }
 
 Texture::~Texture()
@@ -50,33 +50,33 @@ Texture::~Texture()
 
 void Texture::init()
 {
-	glGenTextures(1, &gl_texture);
-	glBindTexture(GL_TEXTURE_2D, gl_texture);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glGenTextures(1, &gl_texture);
+  glBindTexture(GL_TEXTURE_2D, gl_texture);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	assert(glIsTexture(gl_texture) == GL_TRUE);
+  assert(glIsTexture(gl_texture) == GL_TRUE);
 
-	glTexImage2D(GL_TEXTURE_2D,
-							0,
-							gl_mode,
-							dim[0],
-							dim[1],
-							0,
-							gl_mode,
-							GL_UNSIGNED_BYTE,
-							NULL);
+  glTexImage2D(GL_TEXTURE_2D,
+              0,
+              gl_mode,
+              dim[0],
+              dim[1],
+              0,
+              gl_mode,
+              GL_UNSIGNED_BYTE,
+              NULL);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtering
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtering
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtering
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtering
 
-	assert(glIsTexture(gl_texture) == GL_TRUE);
+  assert(glIsTexture(gl_texture) == GL_TRUE);
 }
 
 bool Texture::load()
 {
-		/*
+    /*
     if(gl_texture != 0)
     {
         assert(glIsTexture(gl_texture) == GL_TRUE);
@@ -103,46 +103,46 @@ bool Texture::load()
 
     cout<<"image dimensions: "<<dim[0]<<", "<<dim[1]<<endl;
 
-		if(image->format->BytesPerPixel == 3)
-		{
-			gl_mode = GL_RGB;
-		}
-		else if(image->format->BytesPerPixel == 4)
-		{
-			gl_mode = GL_RGBA;
-		}
+    if(image->format->BytesPerPixel == 3)
+    {
+      gl_mode = GL_RGB;
+    }
+    else if(image->format->BytesPerPixel == 4)
+    {
+      gl_mode = GL_RGBA;
+    }
 
 #endif
 
-		glGenTextures(1, &gl_texture);
-		glBindTexture(GL_TEXTURE_2D, gl_texture);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glGenTextures(1, &gl_texture);
+    glBindTexture(GL_TEXTURE_2D, gl_texture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		if(glIsTexture(gl_texture) != GL_TRUE)
-		{
-				assert(false);
-				return false;
-		}
+    if(glIsTexture(gl_texture) != GL_TRUE)
+    {
+      assert(false);
+      return false;
+    }
 
-		glTexImage2D(GL_TEXTURE_2D,
-                 	0,
-                 	gl_mode,
-                 	width,
-                 	height,
-                 	0,
-                 	gl_mode,
-                 	GL_UNSIGNED_BYTE,
+    glTexImage2D(GL_TEXTURE_2D,
+                   0,
+                   gl_mode,
+                   width,
+                   height,
+                   0,
+                   gl_mode,
+                   GL_UNSIGNED_BYTE,
 #if defined(__USE_SOIL__)
                  image);
 #else
                  image->pixels);
 #endif
 
-		//not sure if these should go here, or in the render loop
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtering
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtering
+    //not sure if these should go here, or in the render loop
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtering
 
 #if defined(__USE_SOIL__)
     SOIL_free_image_data(image);
@@ -151,9 +151,9 @@ bool Texture::load()
     SDL_FreeSurface(image);
 #endif
 
-	assert(glIsTexture(gl_texture) == GL_TRUE);
+  assert(glIsTexture(gl_texture) == GL_TRUE);
 
-	return true;
+  return true;
 }
 
 bool Texture::load_from_file_data(TextureFileData &tfd)
@@ -164,16 +164,16 @@ bool Texture::load_from_file_data(TextureFileData &tfd)
         return true; //already loaded
     }
 
-		glGenTextures(1, &gl_texture);
+    glGenTextures(1, &gl_texture);
 
-		glBindTexture(GL_TEXTURE_2D, gl_texture);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glBindTexture(GL_TEXTURE_2D, gl_texture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     if(glIsTexture(gl_texture) != GL_TRUE)
-	{
-	    assert(false);
-	    return false;
-	}
+  {
+      assert(false);
+      return false;
+  }
 
     dim[0] = tfd.dim[0];
     dim[1] = tfd.dim[1];
@@ -200,30 +200,30 @@ bool Texture::load_from_file_data(TextureFileData &tfd)
 //set up the texture for rendering
 bool Texture::render_gl() const
 {
-    glEnable(GL_TEXTURE_2D);
+  glEnable(GL_TEXTURE_2D);
 
-    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-    glBindTexture(GL_TEXTURE_2D, gl_texture);
+  glBindTexture(GL_TEXTURE_2D, gl_texture);
 
-		return true;
+  return true;
 }
 
 bool Texture::update_pixels_from_mem(void *pixels)
 {
-		int mip_level = 0;
-		glBindTexture(GL_TEXTURE_2D, gl_texture);
-		//glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, dim[0], dim[1]);
-		glTexSubImage2D(GL_TEXTURE_2D,
-										mip_level,				//mip level to overwrite
-										0,								//starting u-coord
-										0,								//starting v-coord
-										dim[0],						//width of update rect
-										dim[1],						//height of update rect
-										gl_mode,					//pixel format
-										GL_UNSIGNED_BYTE,
-										pixels);					//pointer to pixel data
-		return true;
+  int mip_level = 0;
+  glBindTexture(GL_TEXTURE_2D, gl_texture);
+  //glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, dim[0], dim[1]);
+  glTexSubImage2D(GL_TEXTURE_2D,
+                  mip_level,        //mip level to overwrite
+                  0,                //starting u-coord
+                  0,                //starting v-coord
+                  dim[0],            //width of update rect
+                  dim[1],            //height of update rect
+                  gl_mode,          //pixel format
+                  GL_UNSIGNED_BYTE,
+                  pixels);          //pointer to pixel data
+  return true;
 }

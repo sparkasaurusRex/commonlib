@@ -19,6 +19,7 @@ namespace UI
     void set_font(Font *f) { font = f; }
     void translate(Math::Float2 p) { pos = p; }
     void scale(Math::Float2 s) { dim = s; }
+    Math::Float2 get_dim() const { return dim; }
 
     bool hit_test(const int x, const int y) const;
 
@@ -29,7 +30,6 @@ namespace UI
     virtual void render() = 0;
 
   protected:
-
     void render_prep();
     void render_cleanup();
 
