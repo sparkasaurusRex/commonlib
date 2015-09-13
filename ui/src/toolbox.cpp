@@ -2,6 +2,7 @@
 #include "toolbox.h"
 
 using namespace UI;
+using namespace std;
 
 ToolBox::ToolBox() : Widget()
 {
@@ -23,6 +24,10 @@ void ToolBox::init()
     buttons[i]->scale(pb_dim);
     dx += margin + pb_dim[0];
   }
+
+  dim[0] = dx;
+  dim[1] = 2.0f * margin + pb_dim[1];
+  //cout<<"dim: "<<dim<<endl;
 }
 
 void ToolBox::show(const bool d)
