@@ -85,14 +85,14 @@ void PushButton::render()
     glEnable(GL_BLEND);
     glBegin(GL_TRIANGLE_STRIP);
       glVertex3f(pos[0], pos[1], 0.0f);
-      glTexCoord2f(0.0f, 0.0f);
-      glVertex3f(pos[0] + dim[0], pos[1], 0.0f);
       glTexCoord2f(1.0f, 1.0f);
+      glVertex3f(pos[0] + dim[0], pos[1], 0.0f);
+      glTexCoord2f(0.0f, 0.0f);
 
       glVertex3f(pos[0], pos[1] - dim[1], 0.0f);
-      glTexCoord2f(0.0f, 1.0f);
-      glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
       glTexCoord2f(1.0f, 0.0f);
+      glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
+      glTexCoord2f(0.0f, 1.0f);
     glEnd();
     glDisable(GL_TEXTURE_2D);
   }
@@ -103,14 +103,14 @@ void PushButton::render()
     glEnable(GL_BLEND);
     glBegin(GL_TRIANGLE_STRIP);
       glVertex3f(pos[0], pos[1], 0.0f);
-      glTexCoord2f(0.0f, 0.0f);
-      glVertex3f(pos[0] + dim[0], pos[1], 0.0f);
       glTexCoord2f(1.0f, 1.0f);
+      glVertex3f(pos[0] + dim[0], pos[1], 0.0f);
+      glTexCoord2f(0.0f, 0.0f);
 
       glVertex3f(pos[0], pos[1] - dim[1], 0.0f);
-      glTexCoord2f(0.0f, 1.0f);
-      glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
       glTexCoord2f(1.0f, 0.0f);
+      glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
+      glTexCoord2f(0.0f, 1.0f);
     glEnd();
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
