@@ -17,8 +17,8 @@ namespace UI
     void set_click_color(const Float3 c) { click_rgb = c; }
 
     //void init();
-    void process_event(const SDL_Event &event);
-    void render();
+    virtual void process_event(const SDL_Event &event);
+    virtual void render();
   protected:
     void (*click_callback)(const SDL_Event &e); //callback func
     bool click_capture;

@@ -23,7 +23,7 @@ namespace UI
 
     bool hit_test(const int x, const int y) const;
 
-    void process_event(const SDL_Event &e) { std::cout<<"Widget::process_event()"<<std::endl; }
+    virtual void process_event(const SDL_Event &e) { std::cout<<"Widget::process_event()"<<std::endl; }
 
     virtual void init() = 0;
     virtual void simulate(const float dt) = 0;

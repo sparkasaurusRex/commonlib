@@ -2,9 +2,10 @@
 #include "widget_wrangler.h"
 #include "label.h"
 #include "push_button.h"
+#include "check_button.h"
 #include "toolbox.h"
 
-#define TOOLBOX_SIZE 5
+#define TOOLBOX_SIZE 1
 
 using namespace UI;
 
@@ -17,7 +18,7 @@ public:
   {
     widget_font = NULL;
     pb_tex[0] = new Texture("../graphics/data/test.tga");
-    pb_tex[1] = new Texture("../graphics/data/test.tga");
+    pb_tex[1] = new Texture("../graphics/data/smoke_alpha_01.tga");
   }
   ~App() {}
 
@@ -94,7 +95,7 @@ private:
   Float3 bg_color;
   WidgetWrangler ww;
   Label label;
-  PushButton pb[TOOLBOX_SIZE];
+  CheckButton pb[TOOLBOX_SIZE];
   ToolBox tb;
 
   Texture *pb_tex[2];
@@ -105,7 +106,7 @@ App *my_app = NULL;
 void pb_callback(const SDL_Event &e)
 {
   my_app->randomize_bg_color();
-  my_app->randomize_tb_pos();
+  //my_app->randomize_tb_pos();
   cout<<"pb_callback!"<<endl;
 }
 

@@ -1,29 +1,14 @@
 #include <iostream>
-#include "push_button.h"
+#include "check_button.h"
 
 using namespace std;
 using namespace UI;
 
-PushButton::PushButton() : Label()
+void CheckButton::process_event(const SDL_Event &event)
 {
-  click_capture = false;
-  click_callback = NULL;
-  textures[0] = textures[1] = NULL;
-  click_rgb = Float3(0.8f, 0.8f, 0.8f);
-}
+  //PushButton::process_event(event);
+  //cout<<"checkbutton::process_event"<<endl;
 
-void PushButton::set_click_callback(void (*cb)(const SDL_Event &e))
-{
-  click_callback = cb;
-}
-
-void PushButton::set_texture(const int i, Texture *t)
-{
-  textures[i] = t;
-}
-
-void PushButton::process_event(const SDL_Event &event)
-{
   if(event.type == SDL_MOUSEBUTTONDOWN)
   {
     int mouse_x, mouse_y;
@@ -40,7 +25,8 @@ void PushButton::process_event(const SDL_Event &event)
 
     if(click_capture && hit_test(mouse_x, mouse_y))
     {
-      cout<<"PushButton::process_event(): button clicked!"<<endl;
+      checked = !checked;
+      cout<<(int)checked<<endl;
       if(click_callback)
       {
         click_callback(event);
@@ -51,10 +37,10 @@ void PushButton::process_event(const SDL_Event &event)
   }
 }
 
-void PushButton::render()
+void CheckButton::render()
 {
-  //cout<<"dim: "<<dim<<endl;
-
+  //cout<<"checkbutton::render()"<<endl;
+  //if(checked) { cout<<"checked"<<endl; }
   glLineWidth(1.0f);
   if(click_capture)
   {
@@ -79,7 +65,7 @@ void PushButton::render()
     glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
   glEnd();
 
-  if(textures[0] && !click_capture)
+  if(textures[0] && !checked)
   {
     textures[0]->render_gl();
     glDisable(GL_CULL_FACE);
@@ -97,7 +83,7 @@ void PushButton::render()
     glEnd();
     glDisable(GL_TEXTURE_2D);
   }
-  if(textures[1] && click_capture)
+  if(textures[1] && checked)
   {
     textures[1]->render_gl();
     glDisable(GL_CULL_FACE);
@@ -115,10 +101,5 @@ void PushButton::render()
     glEnd();
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
-  }
-
-  if(text.size() > 0)
-  {
-    Label::render();
   }
 }
