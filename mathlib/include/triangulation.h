@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "math_utility.h"
+#include "topology.h"
 #include "shapes.h"
 
 //#define USE_CGAL 0
@@ -33,6 +34,7 @@ namespace Math {
     //triangulation using the CGAL library (http://www.cgal.org/)
 #if defined(__USE_CGAL__)
     void delaunay_cgal();
+    void delaunay_cgal_sphere();
 #endif //USE_CGAL
 
 #if defined(__USE_BOOST__)
