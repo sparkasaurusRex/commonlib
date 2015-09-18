@@ -51,7 +51,7 @@ void CheckButton::render()
     glColor4f(rgb[0], rgb[1], rgb[2], 1.0f);
   }
 
-  glBegin(GL_LINES);
+  /*glBegin(GL_LINES);
     glVertex3f(pos[0], pos[1], 0.0f);
     glVertex3f(pos[0] + dim[0], pos[1], 0.0f);
 
@@ -63,7 +63,7 @@ void CheckButton::render()
 
     glVertex3f(pos[0] + dim[0], pos[1], 0.0f);
     glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
-  glEnd();
+  glEnd();*/
 
   if(textures[0] && !checked)
   {
