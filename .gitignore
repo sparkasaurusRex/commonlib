@@ -1,6 +1,7 @@
 *.o
 *.a
 *.DS_Store
+*test.dSYM
 fluids/bin/*
 fluids/test
 game/bin/*
@@ -11,3 +12,4 @@ mathlib/bin/*
 mathlib/test
 structures/bin/*
 structures/test
+ui/test
