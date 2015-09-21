@@ -64,6 +64,7 @@ private:
     float game_time = (float)ticks;
 
     glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
     glLoadIdentity();
     glScalef(0.7f, 0.7f, 0.7f);
 
@@ -106,6 +107,7 @@ private:
       }
 
     glEnd();
+    glPopMatrix();
   }
 
   void render_voronoi_2d() {}
@@ -114,11 +116,15 @@ private:
   {
     CurveEndPoint cep[3];
     cep[0].p = Float2(0.0f, 0.0f);
-    cep[0].t = Float2(cep[0].p[0] + 0.4f * cos(function_theta * 1.5f), cep[0].p[1] + 0.4f * sin(function_theta * 1.5f));
+
+    float r1 = (1.0f + sin(function_theta * 1.0f));
+    cep[0].t = Float2(cep[0].p[0] + r1 * cos(function_theta * 1.5f), cep[0].p[1] + r1 * sin(function_theta * 1.5f));
 
 
     cep[1].p = Float2(0.5f, 1.0f);
-    cep[1].t = Float2(cep[1].p[0] + 0.2f * cos(function_theta), cep[1].p[1] + 0.2f * sin(function_theta));
+
+    float r2 = (1.0f + sin(function_theta * 1.0f));
+    cep[1].t = Float2(cep[1].p[0] + r2 * cos(function_theta), cep[1].p[1] + r2 * sin(function_theta));
 
     cep[2].p = Float2(1.0f, 0.0f);
     cep[2].t = Float2(0.9f, 0.0f);
@@ -197,13 +203,13 @@ private:
   void user_init()
   {
     mode = TEST_MODE_FUNCTIONS;
-    /*for(int i = 0; i < Num_starting_points; i++)
+    for(int i = 0; i < Num_starting_points; i++)
     {
       Float3 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
       p.normalize();
       point_cloud.add_point(p);
     }
-    point_cloud.triangulate();*/
+    point_cloud.triangulate();
   }
   void user_run() {}
   void user_process_event(const SDL_Event &event)
@@ -215,7 +221,7 @@ private:
         {
           case ']':
             mode = (TestMode)((int)mode + 1);
-            if(mode >= NUM_TEST_MODES) { mode = TEST_MODE_VORONOI_3D; }
+            if(mode >= NUM_TEST_MODES) { mode = TEST_MODE_VORONOI_2D; }
             break;
           case '[':
             mode = (TestMode)((int)mode - 1);

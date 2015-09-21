@@ -14,5 +14,5 @@ Function::~Function()
 
 float Function::evaluate(const float x) const
 {
-
+  return -1.0f;
 }

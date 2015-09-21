@@ -1,25 +1,26 @@
-#if defined(__USE_CGAL2D__)
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-#include <CGAL/Projection_traits_xy_3.h>
-#include <CGAL/Delaunay_triangulation_2.h>
-
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-#include <CGAL/Triangulation_3.h>
-#endif //__USE_CGAL__
-
-#if defined(__USE_CGAL3D__)
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-#include <CGAL/Triangulation_vertex_base_with_info_3.h>
-#include <CGAL/Triangulation_3.h>
-#include <CGAL/Delaunay_triangulation_3.h>
-#endif
-
 #if defined(__USE_BOOST__)
 #include <boost/polygon/voronoi.hpp>
-//#include "boost/polygon/voronoi.hpp"
 using boost::polygon::voronoi_builder;
 using boost::polygon::voronoi_diagram;
 #endif //__USE_BOOST__
+
+#if defined(__USE_CGAL3D__)
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/point_generators_3.h>
+#include <CGAL/algorithm.h>
+#include <CGAL/Polyhedron_3.h>
+#include <CGAL/convex_hull_3.h>
+#include <CGAL/Delaunay_triangulation_3.h>
+#include <CGAL/convex_hull_3_to_polyhedron_3.h>
+
+typedef CGAL::Exact_predicates_inexact_constructions_kernel  K;
+typedef CGAL::Polyhedron_3<K>                     Polyhedron_3;
+typedef K::Segment_3                              Segment_3;
+typedef K::Point_3                                Point_3;
+typedef CGAL::Creator_uniform_3<double, Point_3>  PointCreator;
+typedef CGAL::Delaunay_triangulation_3<K>         Delaunay;
+
+#endif //__USE_CGAL3D__
 
 #include <assert.h>
 #include <iostream>
@@ -27,14 +28,6 @@ using boost::polygon::voronoi_diagram;
 
 using namespace Math;
 using namespace std;
-
-#if defined(__USE_CGAL2D__)
-typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
-typedef K::Point_2 Point_2;
-typedef CGAL::Delaunay_triangulation_2<K> Delaunay;
-typedef Delaunay::Face_iterator FaceIterator;
-typedef Delaunay::Vertex_handle VertexHandle;
-#endif //__USE_CGAL__
 
 Triangulation2D::Triangulation2D() { vertices = NULL; }
 
@@ -96,7 +89,6 @@ void Triangulation2D::delaunay_boost()
     points.push_back(vp);
   }
 
-
   construct_voronoi(points.begin(), points.end(), &vd);
 
   voronoi_diagram<double>::const_cell_iterator cit = vd.cells().begin();
@@ -124,30 +116,7 @@ void Triangulation2D::delaunay_boost()
 #if defined(__USE_CGAL2D__)
 void Triangulation2D::delaunay_cgal()
 {
-  Delaunay dt;
-  for(int i = 0; i < vertices->size(); i++)
-  {
-    Float2 vert = (*vertices)[i];
-    Point_2 p(vert[0], vert[1]);
-    cout<<"cgal - adding vertex "<<vert<<endl;
-    dt.push_back(p);
-  }
-  FaceIterator fi = dt.faces_begin();
 
-  cout<<"foo"<<endl;
-  for(; fi != dt.faces_end(); fi++)
-  {
-    Triangle2D tri;
-    for(int i = 0; i < 3; i++)
-    {
-      VertexHandle vh = (*fi).vertex(i);
-      tri.indices[i] = (*fi).index(vh);
-
-      cout<<tri.indices[i]<<endl;
-    }
-    //tri.indices[0] = fi[0];
-    triangles.push_back(tri);
-  }
 }
 #endif //__USE_CGAL__
 
@@ -336,19 +305,7 @@ std::vector<Edge2D> *Triangulation2D::get_edges()
 }
 
 #if defined(__USE_CGAL3D__)
-typedef CGAL::Exact_predicates_inexact_constructions_kernel         K;
-typedef CGAL::Triangulation_vertex_base_with_info_3<unsigned, K>    Vb;
-typedef CGAL::Triangulation_data_structure_3<Vb>                    Tds;
 
-typedef CGAL::Delaunay_triangulation_3<K, Tds, CGAL::Fast_location> CGALTriangulation;
-
-
-typedef CGALTriangulation::Cell_handle                              Cell_handle;
-typedef CGALTriangulation::Vertex_handle                            Vertex_handle;
-typedef CGALTriangulation::Locate_type                              Locate_type;
-typedef CGALTriangulation::Point                                    CGALPoint3;
-typedef CGALTriangulation::Edge_iterator                            Edge_iterator;
-//typedef CGALTriangulation::Face                               CGALFace;
 #endif
 
 
@@ -367,26 +324,37 @@ void Triangulation3D::set_vertices(std::vector<Float3> *verts)
 
 void Triangulation3D::generate_delaunay_triangulation()
 {
-  std::vector<std::pair<CGALPoint3, unsigned> > cgal_verts;
+  generate_convex_hull();
+}
+
+void Triangulation3D::generate_convex_hull()
+{
+#if defined(__USE_CGAL3D__)
+
+  std::list<Point_3> points;
   for(int i = 0; i < vertices->size(); i++)
   {
     Float3 v = (*vertices)[i];
-    cgal_verts.push_back(std::make_pair(CGALPoint3(v[0], v[1], v[2]), i));
+    Point_3 p(v[0], v[1], v[2]);
+    points.push_back(p);
   }
 
-  CGALTriangulation tri(cgal_verts.begin(), cgal_verts.end());
-  //CGALTriangulation::size_type n = T.number_of_vertices();
+  Delaunay dt;
+  dt.insert(points.begin(), points.end());
 
-  Edge_iterator ei;
-  //for(ei = tri.all_edges_begin(); ei != tri.all_edges_end(); ei++)
-  for(ei = tri.edges_begin(); ei != tri.edges_end(); ei++)
+  //get only the surface
+  /*CGAL::Polyhedron_3<K> poly;
+  convex_hull_3_to_polyhedron_3(dt, poly);
+
+  //add all the convex hull edges to the edge list
+  edges.clear();
+  Polyhedron_3::Edge_iterator ei;
+  for(ei = poly.edges_begin(); ei != poly.edges_end(); ei++)
   {
-    CGALTriangulation::Segment seg = tri.segment(*ei);
-    CGALPoint3 p0 = seg.point(0);
-    CGALPoint3 p1 = seg.point(1);
+    std::cout<<ei->vertex()->index();
+  }*/
 
-    //cout<<p0[0]<<endl;
-  }
+#endif //__USE_CGAL3D__
 }
 
 std::vector<Edge3D> *Triangulation3D::get_edges()

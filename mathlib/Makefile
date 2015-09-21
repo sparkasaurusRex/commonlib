@@ -1,7 +1,7 @@
 CC=g++
 LIB_PATH=
 CFLAGS=-I./include -I../game/include  -I../game/include/cinematics -I/usr/local/include
-CFLAGS+=-I../graphics/include
+CFLAGS+=-I../graphics/include -I../ui/include
 CFLAGS+=$(shell pkg-config --cflags freetype2)
 CFLAGS+=-D__USE_BOOST__ #use boost library for voronoi triangulation
 CFLAGS+=-D__USE_CGAL3D__
@@ -22,6 +22,7 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	LIB_PATH+=-Lbin/osx
 	LIB_PATH+=-L../game/bin/osx
 	LIB_PATH+=-L../graphics/bin/osx
+	LIB_PATH+=-L../ui/bin/osx
 	LIB_PATH+=-L/usr/local/Cellar/cgal/4.6.1/lib/
 	BINPATH=bin/osx/
 
@@ -83,7 +84,7 @@ $(BINPATH)libmath.a: $(OBJS_BIN) $(BINPATH)
 	ar -cvq $(BINPATH)libmath.a $(OBJS_BIN)
 
 test: test.cpp $(BINPATH)libmath.a
-	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lmath -lgame -lgraphics $(LDFLAGS)
+	$(CC) $(CFLAGS) test.cpp -o test $(LIB_PATH) -lmath -lgame -lgraphics -lui $(LDFLAGS)
 
 clean:
 	rm -f $(BINPATH)*.o

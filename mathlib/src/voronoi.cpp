@@ -43,8 +43,6 @@ Triangulation2D *Voronoi2D::get_triangulation()
   return &delaunay;
 }
 
-
-
 Voronoi3D::Voronoi3D()
 {
   delaunay.set_vertices(&pc);

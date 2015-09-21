@@ -231,7 +231,7 @@ void DebugConsole::render_gl()
   char command_line[512];
   sprintf(command_line, "your wish > %s", current_command.c_str());
 
-  float v_pixels = 0.25f * (float)viewport[3];
+  float v_pixels = (float)viewport[3] - 0.25f * (float)viewport[3];
 
   font->print(10, v_pixels, command_line);
 

@@ -64,6 +64,7 @@ namespace Math {
     void set_vertices(std::vector<Float3> *verts);
 
     void generate_delaunay_triangulation();
+    void generate_convex_hull();
 
     //std::vector<Triangle2D> *get_triangles();
     std::vector<Edge3D> *get_edges();
