@@ -13,6 +13,7 @@ public:
 
   void set(const float duration) { time_left = total_time = duration; }
   void activate() { active = true; }
+  void deactivate() { active = false; time_left = 0.0f; }
   void simulate(const float dt) { if(active) time_left -= dt; }
 
   float get_time_left() const { return time_left; }
@@ -36,6 +37,7 @@ public:
   void render_gl() const;
 
   void play();
+  void stop() { fade_in_timer.deactivate(); linger_timer.deactivate(); fade_out_timer.deactivate(); }
   bool is_active() const;
 
   void set_text(std::string t) { text = t; }

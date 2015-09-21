@@ -57,7 +57,7 @@ void SDLGame::init()
 
   widget_font = new Font(font_face.c_str(), 12);
   widget_font->init();
-  
+
   fps_label.set_font(widget_font);
   fps_label.set_text(std::string("fps"));
   fps_label.init();
@@ -130,16 +130,22 @@ void SDLGame::process_events()
   {
     if(event.type == SDL_KEYUP)
     {
+      if(title_screen.is_active())
+      {
+        title_screen.stop();
+        return;
+      }
+
       switch(event.key.keysym.sym)
       {
       case '`':
         console.activate(!console.is_active());
         break;
       case SDLK_UP:
-        console.traverse_command_history(1);
+        if(console.is_active()) { console.traverse_command_history(1); }
         break;
       case SDLK_DOWN:
-        console.traverse_command_history(-1);
+        if(console.is_active()) { console.traverse_command_history(-1); }
         break;
       case SDLK_RETURN:
       //case SDLK_ENTER:
