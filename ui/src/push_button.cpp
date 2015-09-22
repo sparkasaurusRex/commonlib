@@ -24,7 +24,7 @@ void PushButton::set_texture(const int i, Texture *t)
 
 void PushButton::process_event(const SDL_Event &event)
 {
-  if(event.type == SDL_MOUSEBUTTONDOWN)
+  if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
   {
     int mouse_x, mouse_y;
     Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
@@ -33,7 +33,7 @@ void PushButton::process_event(const SDL_Event &event)
       click_capture = true;
     }
   }
-  if(event.type == SDL_MOUSEBUTTONUP)
+  if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT)
   {
     int mouse_x, mouse_y;
     Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
