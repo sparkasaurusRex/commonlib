@@ -22,6 +22,13 @@ Camera::Camera()
   shutter_speed_s = 0.01f;
 }
 
+void Camera::transform(const Matrix3x3 &m)
+{
+  pos = m * pos;
+  up = m * up;
+  lookat = m * lookat;
+}
+
 void Camera::set_camera_parameters(const float fs, const float fd, const float fl, const float ss)
 {
   f_stop = fs;
