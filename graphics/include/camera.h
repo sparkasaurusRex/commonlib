@@ -11,6 +11,7 @@ public:
   ~Camera() {}
 
   void set_pos(const Math::Float3 p)                  { pos = p; }
+  Math::Float3 get_pos() const                        { return pos; }
   void set_up(const Math::Float3 u)                   { up = u; }
   void set_lookat(const Math::Float3 l)               { lookat = l; }
 
