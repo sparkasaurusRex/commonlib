@@ -20,7 +20,11 @@ public:
     pb_tex[0] = new Texture("../graphics/data/test.tga");
     pb_tex[1] = new Texture("../graphics/data/smoke_alpha_01.tga");
   }
-  ~App() {}
+  ~App()
+  {
+    delete pb_tex[0];
+    delete pb_tex[1];
+  }
 
   void randomize_bg_color()
   {
