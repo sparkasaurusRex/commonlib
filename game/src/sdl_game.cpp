@@ -128,7 +128,7 @@ void SDLGame::process_events()
   SDL_Event event;
   while(SDL_PollEvent(&event))
   {
-    if(event.type == SDL_KEYUP)
+    if(event.type == SDL_KEYUP || event.type == SDL_MOUSEBUTTONDOWN)
     {
       if(title_screen.is_active())
       {
