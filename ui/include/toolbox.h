@@ -17,6 +17,8 @@ namespace UI
     virtual void process_event(const SDL_Event &event);
     void add_button(PushButton *pb) { buttons.push_back(pb); }
     void set_button_dim(const Float2 d) { pb_dim = d; }
+    void make_vertical() { horizontal = false; }
+    void make_horizontal() { horizontal = true; }
   protected:
     std::vector<PushButton *> buttons;
     bool horizontal;

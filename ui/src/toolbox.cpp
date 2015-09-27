@@ -13,20 +13,31 @@ ToolBox::ToolBox() : Widget()
 
 void ToolBox::init()
 {
-  dim[0] = margin * (buttons.size() + 1) + buttons.size() * pb_dim[0];
-  dim[1] = margin * 2 + pb_dim[1];
+  //dim[0] = margin * (buttons.size() + 1) + buttons.size() * pb_dim[0];
+  //dim[1] = margin * 2 + pb_dim[1];
 
   float dx = margin;
   for(int i = 0; i < buttons.size(); i++)
   {
-    Float2 pb_pos(dx, margin);
+    Float2 pb_pos;
+    if(horizontal) { pb_pos = Float2(dx, margin); }
+    else { pb_pos = Float2(margin, dx); }
     buttons[i]->translate(pb_pos + pos);
     buttons[i]->scale(pb_dim);
-    dx += margin + pb_dim[0];
+    if(horizontal) { dx += margin + pb_dim[0]; }
+    else { dx += margin + pb_dim[1]; }
   }
 
-  dim[0] = dx;
-  dim[1] = 2.0f * margin + pb_dim[1];
+  if(horizontal)
+  {
+    dim[0] = dx;
+    dim[1] = 2.0f * margin + pb_dim[1];
+  }
+  else
+  {
+    dim[0] = 2.0f * margin + pb_dim[0];
+    dim[1] = dx;
+  }
   //cout<<"dim: "<<dim<<endl;
 }
 

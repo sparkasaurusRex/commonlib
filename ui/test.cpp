@@ -5,7 +5,7 @@
 #include "check_button.h"
 #include "toolbox.h"
 
-#define TOOLBOX_SIZE 1
+#define TOOLBOX_SIZE 4
 
 using namespace UI;
 
@@ -76,6 +76,7 @@ private:
     //ww.add_widget(&pb);
     }
 
+    tb.make_vertical();
     tb.translate(Float2(10.0f, 100.0f));
     tb.set_font(widget_font);
     tb.set_button_dim(Float2(64.0f, 64.0f));
