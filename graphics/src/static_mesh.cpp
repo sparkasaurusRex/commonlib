@@ -39,34 +39,34 @@ bool StaticMesh::read_from_file(const char *filename)
     int file_version = -1;
 
     xmlDocPtr doc;
-	doc = xmlReadFile(filename, NULL, 0);
-	if(doc == NULL)
-	{
-		return false;
-	}
+  doc = xmlReadFile(filename, NULL, 0);
+  if(doc == NULL)
+  {
+    return false;
+  }
 
     //start parsing the xml file
-	xmlNode *xml_node = xmlDocGetRootElement(doc);
-	if(xml_node->type == XML_ELEMENT_NODE)
-	{
-		//cout<<xml_node->name<<endl;
-		if(!xmlStrcmp(xml_node->name, (const xmlChar *)"static_mesh"))
-		{
+  xmlNode *xml_node = xmlDocGetRootElement(doc);
+  if(xml_node->type == XML_ELEMENT_NODE)
+  {
+    //cout<<xml_node->name<<endl;
+    if(!xmlStrcmp(xml_node->name, (const xmlChar *)"static_mesh"))
+    {
             //read the properties
-			xmlAttr *xml_attribute = NULL;
-			for(xml_attribute = xml_node->properties; xml_attribute; xml_attribute = xml_attribute->next)
-			{
-				if(!xmlStrcmp(xml_attribute->name, (const xmlChar *)"version"))
-				{
-					xmlChar* value = xmlNodeListGetString(xml_node->doc, xml_attribute->children, 1);
-  					//do something with value
-					file_version = atoi((char *)value);
-  					xmlFree(value);
-				}
-				xmlNode *node = NULL;
-				for(node = xml_node->children; node; node = node->next)
-				{
-					assert(node);
+      xmlAttr *xml_attribute = NULL;
+      for(xml_attribute = xml_node->properties; xml_attribute; xml_attribute = xml_attribute->next)
+      {
+        if(!xmlStrcmp(xml_attribute->name, (const xmlChar *)"version"))
+        {
+          xmlChar* value = xmlNodeListGetString(xml_node->doc, xml_attribute->children, 1);
+            //do something with value
+          file_version = atoi((char *)value);
+            xmlFree(value);
+        }
+        xmlNode *node = NULL;
+        for(node = xml_node->children; node; node = node->next)
+        {
+          assert(node);
 
                     //material
                     if(!xmlStrcmp(node->name, (const xmlChar *)"material"))
@@ -93,74 +93,74 @@ bool StaticMesh::read_from_file(const char *filename)
                         materials.push_back(mat);
                     }
                     //vertex
-					else if(!xmlStrcmp(node->name, (const xmlChar *)"vertex"))
-					{
-					    xmlNode *vert_node = NULL;
-                        MeshVertex v;
+          else if(!xmlStrcmp(node->name, (const xmlChar *)"vertex"))
+          {
+            xmlNode *vert_node = NULL;
+                      MeshVertex v;
 
-					    for(vert_node = node->children; vert_node; vert_node = vert_node->next)
-					    {
-                            if(!xmlStrcmp(vert_node->name, (const xmlChar *)"vert_pos"))
-                            {
-                                char *val = strtok((char *)vert_node->children->content, " ");
-                                v.pos[0] = atof(val);
-                                val = strtok(NULL, " ");
-                                v.pos[1] = atof(val);
-                                val = strtok(NULL, " ");
-                                v.pos[2] = atof(val);
-                            }
-                            else if(!xmlStrcmp(vert_node->name, (const xmlChar *)"normal"))
-                            {
-                                char *val = strtok((char *)vert_node->children->content, " ");
-                                v.normal[0] = atof(val);
-                                val = strtok(NULL, " ");
-                                v.normal[1] = atof(val);
-                                val = strtok(NULL, " ");
-                                v.normal[2] = atof(val);
-                            }
-                        }
+            for(vert_node = node->children; vert_node; vert_node = vert_node->next)
+            {
+              if(!xmlStrcmp(vert_node->name, (const xmlChar *)"vert_pos"))
+              {
+                char *val = strtok((char *)vert_node->children->content, " ");
+                v.pos[0] = atof(val);
+                val = strtok(NULL, " ");
+                v.pos[1] = atof(val);
+                val = strtok(NULL, " ");
+                v.pos[2] = atof(val);
+              }
+              else if(!xmlStrcmp(vert_node->name, (const xmlChar *)"normal"))
+              {
+                char *val = strtok((char *)vert_node->children->content, " ");
+                v.normal[0] = atof(val);
+                val = strtok(NULL, " ");
+                v.normal[1] = atof(val);
+                val = strtok(NULL, " ");
+                v.normal[2] = atof(val);
+              }
+            }
 
-                        vertices.push_back(v);
-					}
+            vertices.push_back(v);
+          }
 
-					//face
-					if(!xmlStrcmp(node->name, (const xmlChar *)"face"))
-					{
-					    MeshFace f;
-					    f.normal[0] = f.normal[1] = f.normal[2];
-					    xmlNode *face_node = NULL;
-					    for(face_node = node->children; face_node; face_node = face_node->next)
-					    {
-					        if(!xmlStrcmp(face_node->name, (const xmlChar *)"v_idx"))
-					        {
-					            int v_idx = atoi((char *)face_node->children->content);
-					            f.vertex_indices.push_back(v_idx);
-					        }
-					        if(!xmlStrcmp(face_node->name, (const xmlChar *)"mat_idx"))
-					        {
-					            f.mat_id = atoi((char *)face_node->children->content);
-					        }
-					        else if(!xmlStrcmp(face_node->name, (const xmlChar *)"normal"))
-					        {
-					            char *val = strtok((char *)face_node->children->content, " ");
-                                f.normal[0] = atof(val);
-                                val = strtok(NULL, " ");
-                                f.normal[1] = atof(val);
-                                val = strtok(NULL, " ");
-                                f.normal[2] = atof(val);
-					        }
-					    }
-					    faces.push_back(f);
-					}
-				}
-			}
-		}
-	}
-	xmlFreeDoc(doc);
+          //face
+          if(!xmlStrcmp(node->name, (const xmlChar *)"face"))
+          {
+              MeshFace f;
+              f.normal[0] = f.normal[1] = f.normal[2];
+              xmlNode *face_node = NULL;
+              for(face_node = node->children; face_node; face_node = face_node->next)
+              {
+                  if(!xmlStrcmp(face_node->name, (const xmlChar *)"v_idx"))
+                  {
+                    int v_idx = atoi((char *)face_node->children->content);
+                    f.vertex_indices.push_back(v_idx);
+                  }
+                  if(!xmlStrcmp(face_node->name, (const xmlChar *)"mat_idx"))
+                  {
+                    f.mat_id = atoi((char *)face_node->children->content);
+                  }
+                  else if(!xmlStrcmp(face_node->name, (const xmlChar *)"normal"))
+                  {
+                    char *val = strtok((char *)face_node->children->content, " ");
+                                        f.normal[0] = atof(val);
+                                        val = strtok(NULL, " ");
+                                        f.normal[1] = atof(val);
+                                        val = strtok(NULL, " ");
+                                        f.normal[2] = atof(val);
+                  }
+              }
+              faces.push_back(f);
+          }
+        }
+      }
+    }
+  }
+  xmlFreeDoc(doc);
 
-	//make_render_data();
+  //make_render_data();
 
-	return true;
+  return true;
 }
 
 bool StaticMesh::read_from_file_data(StaticMeshFileData *smfd)
@@ -226,21 +226,21 @@ bool StaticMesh::read_from_file_data(StaticMeshFileData *smfd)
 
 bool StaticMesh::fixup_materials(World *world)
 {
-    std::vector<Material *>::iterator mi;
-    for(mi = materials.begin(); mi != materials.end(); mi++)
+  std::vector<Material *>::iterator mi;
+  for(mi = materials.begin(); mi != materials.end(); mi++)
+  {
+    Material *m = *mi;
+
+    std::vector<int>::iterator ti;
+    /*for(ti = texture_ids.begin(); ti != texture_ids.end(); ti++)
     {
-        Material *m = *mi;
+        int tex_id = *ti;
 
-        std::vector<int>::iterator ti;
-        /*for(ti = texture_ids.begin(); ti != texture_ids.end(); ti++)
-        {
-            int tex_id = *ti;
-
-            assert(world);
-            world->texture_list;
-        }*/
-    }
-    return true;
+        assert(world);
+        world->texture_list;
+    }*/
+  }
+  return true;
 }
 
 bool StaticMesh::make_render_data()

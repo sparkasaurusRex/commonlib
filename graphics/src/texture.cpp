@@ -45,7 +45,7 @@ Texture::Texture(const char *n)
 
 Texture::~Texture()
 {
-    glDeleteTextures(1, &gl_texture);
+  glDeleteTextures(1, &gl_texture);
 }
 
 void Texture::init()

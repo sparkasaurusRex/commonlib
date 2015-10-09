@@ -23,6 +23,7 @@ class Material {
     void init();
 
     void set_shader_filenames(std::string vs_name, std::string fs_name);
+    Shader *get_shader() { return shader; }
 
     void enable_lighting(const bool l);
     void enable_blending(const bool b);
@@ -55,7 +56,7 @@ class Material {
 
     std::string vs_fname;
     std::string fs_fname;
-    
+
     Shader *shader;
 };
 
