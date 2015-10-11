@@ -40,12 +40,12 @@ void Camera::set_camera_parameters(const float fs, const float fd, const float f
 void Camera::render_setup()
 {
   glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
+  //glPushMatrix();
     glLoadIdentity();
     gluPerspective(32, window_dimensions[0] / window_dimensions[1], 0.05f, 1000.0f);
 
     glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
+    //glPushMatrix();
       glLoadIdentity();
 
       Float3 lookat_pos = pos + lookat;
@@ -56,6 +56,6 @@ void Camera::render_setup()
 
 void Camera::render_cleanup()
 {
-    glPopMatrix();
-  glPopMatrix();
+    //glPopMatrix();
+  //glPopMatrix();
 }

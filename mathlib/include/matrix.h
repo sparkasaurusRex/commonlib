@@ -38,6 +38,7 @@ namespace Math {
       Matrix3x3(const float _00, const float _01, const float _02,
                 const float _10, const float _11, const float _12,
                 const float _20, const float _21, const float _22);
+      Matrix3x3(const Float3 &a, const Float3 &b, const Float3 &c);
 
       ~Matrix3x3() {};
 
@@ -50,6 +51,7 @@ namespace Math {
 
       void identity();
       void invert();
+      void transpose();
       void rotation_from_quaternion(const Quaternion &q);
     private:
       float m[3][3];
