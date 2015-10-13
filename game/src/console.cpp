@@ -10,6 +10,7 @@
 #define EXPOSE_PERCENT_RATE 5.0f
 
 using namespace Math;
+using namespace std;
 
 DebugConsole::DebugConsole()
 {
@@ -30,6 +31,8 @@ DebugConsole::DebugConsole()
   text_color = Float3(0.0f, 0.0f, 0.0f);
   float3_var_names.push_back("console.text_color");
   float3_vars.push_back(&text_color);
+
+  last_tab_complete_idx = -1;
 }
 
 DebugConsole::~DebugConsole()
@@ -62,6 +65,8 @@ void DebugConsole::init()
 
   current_command.clear();
   command_history.clear();
+  tab_complete_string.clear();
+  last_tab_complete_idx = -1;
 }
 
 void DebugConsole::simulate(const float dt)
@@ -89,6 +94,8 @@ void DebugConsole::receive_char(const char c)
       current_command.push_back(c);
       break;
   }
+  tab_complete_string = current_command;
+  last_tab_complete_idx = -1;
 }
 
 void DebugConsole::backspace()
@@ -97,6 +104,8 @@ void DebugConsole::backspace()
   {
     current_command.pop_back();
   }
+  tab_complete_string = current_command;
+  last_tab_complete_idx = -1;
 }
 
 void DebugConsole::execute()
@@ -146,11 +155,11 @@ void DebugConsole::execute()
     }
   }
 
-  i = std::find(boolean_switch_names.begin(), boolean_switch_names.end(), words[0]);
-  if(i != boolean_switch_names.end())
+  i = std::find(boolean_var_names.begin(), boolean_var_names.end(), words[0]);
+  if(i != boolean_var_names.end())
   {
-    int idx = std::distance(boolean_switch_names.begin(), i);
-    bool *b = boolean_switches[idx];
+    int idx = std::distance(boolean_var_names.begin(), i);
+    bool *b = boolean_vars[idx];
 
     if(words.size() == 2)
     {
@@ -160,7 +169,7 @@ void DebugConsole::execute()
     else if(words.size() == 1)
     {
       //*b = !(*b);
-      cout<<boolean_switch_names[idx].c_str()<<": ";
+      cout<<boolean_var_names[idx].c_str()<<": ";
       if(*b) { cout<<"true"; } else { cout<<"false"; }
       cout<<endl;
     }
@@ -169,6 +178,8 @@ void DebugConsole::execute()
   command_history.push_back(current_command);
   command_history_idx = command_history.size();
   current_command.clear();
+  tab_complete_string.clear();
+  last_tab_complete_idx = -1;
 }
 
 void DebugConsole::render_gl()
@@ -180,13 +191,6 @@ void DebugConsole::render_gl()
 
   glUseProgramObjectARB(0);
 
-  glPushAttrib(GL_DEPTH_BUFFER_BIT);
-
-  //first render the backdrop
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-
   glDisable(GL_LIGHTING);
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_DEPTH_TEST);
@@ -195,17 +199,15 @@ void DebugConsole::render_gl()
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+  //first render the backdrop
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+
   glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
   glLoadIdentity();
 
   glTranslatef(0.0f, v_offset, 0.0f);
-
-  //glColor4f(0.6f, 0.4f, 1.0f, 0.55f);
   glColor4f(bg_color[0], bg_color[1], bg_color[2], bg_opacity);
-
-  GLint viewport[4];
-  glGetIntegerv(GL_VIEWPORT, viewport);
 
   glBegin(GL_QUADS);
     glVertex2f(-1.0f, -0.4f);              // Top Left
@@ -213,37 +215,29 @@ void DebugConsole::render_gl()
     glVertex2f( 1.0f, -1.0f);              // Bottom Right
     glVertex2f(-1.0f, -1.0f);              // Bottom Left
   glEnd();
-  glPopMatrix();
-
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
 
   //now render the text
-  //glColor3f(0.2f, 0.0f, 0.0f);
   glColor3f(text_color[0], text_color[1], text_color[2]);
 
-  glPushMatrix();
+  glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-
   glTranslatef(0.0f, v_offset * 256, 0.0f);
 
   char command_line[512];
   sprintf(command_line, "your wish > %s", current_command.c_str());
 
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+
   float v_pixels = (float)viewport[3] - 0.25f * (float)viewport[3];
-
   font->print(10, v_pixels, command_line);
-
-  glPopMatrix();
-  glPopAttrib();
 }
 
-void DebugConsole::register_switch(bool *b, const char *name)
+void DebugConsole::register_variable(bool *b, const char *name)
 {
   std::string n(name);
-  boolean_switch_names.push_back(n);
-  boolean_switches.push_back(b);
+  boolean_var_names.push_back(n);
+  boolean_vars.push_back(b);
 }
 
 void DebugConsole::register_variable(float *f, const char *name)
@@ -276,4 +270,62 @@ void DebugConsole::traverse_command_history(const int dir)
     }
     current_command = command_history[command_history_idx];
   }
+}
+
+void DebugConsole::tab_complete(int depth)
+{
+  if(tab_complete_string.size() <= 0 || last_tab_complete_idx < -1)
+  {
+    return;
+  }
+
+  cout<<"tab_complete_string: "<<tab_complete_string.c_str()<<endl;
+  cout<<"last_tab_complete_idx: "<<last_tab_complete_idx<<endl;
+  if((last_tab_complete_idx + 1) < float_var_names.size())
+  {
+    for(int i = last_tab_complete_idx + 1; i < float_var_names.size(); i++)
+    {
+      if(float_var_names[i].find(tab_complete_string) != std::string::npos)
+      {
+        current_command = float_var_names[i] + " ";
+        last_tab_complete_idx = i;
+        return;
+      }
+    }
+  }
+
+  if(last_tab_complete_idx < float_var_names.size())
+  {
+    last_tab_complete_idx = float_var_names.size();
+  }
+
+  for(int i = float_var_names.size() - last_tab_complete_idx; i < float3_var_names.size(); i++)
+  {
+    if(float3_var_names[i].find(tab_complete_string) != std::string::npos)
+    {
+      current_command = float3_var_names[i] + " ";
+      last_tab_complete_idx = i + float_var_names.size() + 1;
+      return;
+    }
+  }
+
+  int idx_offset = float3_var_names.size() + float_var_names.size();
+  if(last_tab_complete_idx < idx_offset)
+  {
+    last_tab_complete_idx = idx_offset;
+  }
+  for(int i = idx_offset - last_tab_complete_idx; i < boolean_var_names.size(); i++)
+  {
+    if(boolean_var_names[i].find(tab_complete_string) != std::string::npos)
+    {
+      cout<<"i:"<<i<<endl;
+      current_command = boolean_var_names[i] + " ";
+      last_tab_complete_idx = i + idx_offset + 1;
+      return;
+    }
+  }
+
+  //didn't find anything.... :(
+  last_tab_complete_idx = -1;
+  if(depth == 0) { tab_complete(depth + 1); }
 }

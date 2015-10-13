@@ -18,8 +18,6 @@
 
 #define DEFAULT_CONSOLE_FONT_SIZE   10
 
-using namespace std;
-using namespace Math;
 
 class DebugConsole
 {
@@ -36,37 +34,42 @@ class DebugConsole
     void simulate(const float dt);
     void render_gl();
 
-    void set_bg_color(Float3 c) { bg_color = c; }
-    void set_text_color(Float3 c) { text_color = c; }
+    void set_bg_color(Math::Float3 c) { bg_color = c; }
+    void set_text_color(Math::Float3 c) { text_color = c; }
 
-    void register_switch(bool *b, const char *name);
+    void register_variable(bool *b, const char *name);
     void register_variable(float *f, const char *name);
-    void register_variable(Float3 *f, const char *name);
+    void register_variable(Math::Float3 *f, const char *name);
 
     void traverse_command_history(const int dir);
+    void tab_complete(int depth = 0);
+
   private:
+    float                       pct_exposed;
+    bool                        active;
 
-    float                   pct_exposed;
-    bool                    active;
+    Font                        *font;
+    Math::Float3                bg_color;
+    float                       bg_opacity;
+    Math::Float3                text_color;
 
-    Font                    *font;
-    Float3                  bg_color;
-    float                   bg_opacity;
-    Float3                  text_color;
+    std::string                 current_command;
 
-    string                  current_command;
+    int                         command_history_idx;
+    std::vector<std::string>    command_history;
 
-    int                     command_history_idx;
-    std::vector<string>     command_history;
+    std::vector<std::string>    boolean_var_names;
+    std::vector<bool *>         boolean_vars;
 
-    std::vector<string>     boolean_switch_names;
-    std::vector<bool *>     boolean_switches;
+    std::vector<std::string>    float_var_names;
+    std::vector<float *>        float_vars;
 
-    std::vector<string>     float_var_names;
-    std::vector<float *>    float_vars;
+    std::vector<std::string>    float3_var_names;
+    std::vector<Math::Float3 *> float3_vars;
 
-    std::vector<string>     float3_var_names;
-    std::vector<Float3 *>   float3_vars;
+    //tab completion
+    std::string                 tab_complete_string;
+    int                         last_tab_complete_idx;
 };
 
 #endif // __CONSOLE_H__

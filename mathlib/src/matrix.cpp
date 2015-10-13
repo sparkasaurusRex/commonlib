@@ -61,6 +61,16 @@ Matrix3x3::Matrix3x3(const float _00, const float _01, const float _02,
     m[2][0] = _20;  m[2][1] = _21;  m[2][2] = _22;
 }
 
+Matrix3x3::Matrix3x3(const Float3 &a, const Float3 &b, const Float3 &c)
+{
+  for(int i = 0; i < 3; i++)
+  {
+    m[0][i] = a[i];
+    m[1][i] = b[i];
+    m[2][i] = c[i];
+  }
+}
+
 Matrix3x3 &Matrix3x3::operator=(const Matrix3x3 &r)
 {
   for(int i = 0; i < 3; i++)
@@ -111,6 +121,21 @@ void Matrix3x3::invert()
   ret.m[2][2] = m[0][0] * m[1][1] - m[0][1] * m[1][0];
 
   *this = ret;
+}
+
+void Matrix3x3::transpose()
+{
+  Matrix3x3 temp(m[0][0], m[0][1], m[0][2],
+                 m[1][0], m[1][1], m[1][2],
+                 m[2][0], m[2][1], m[2][2]);
+
+  for(int i = 0; i < 3; i++)
+  {
+    for(int j = 0; j < 3; j++)
+    {
+      m[i][j] = temp.m[j][i];
+    }
+  }
 }
 
 void Matrix3x3::rotation_from_quaternion(const Quaternion &q)

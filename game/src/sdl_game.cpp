@@ -6,6 +6,7 @@
 #include "label.h"
 
 using namespace std;
+using namespace Math;
 
 SDLGame::SDLGame(const int w, const int h,
                  std::string title,
@@ -150,6 +151,9 @@ void SDLGame::process_events()
       case SDLK_RETURN:
       //case SDLK_ENTER:
         if(console.is_active()) { console.execute(); }
+        break;
+      case SDLK_TAB:
+        if(console.is_active()) { console.tab_complete(); }
         break;
       case SDLK_BACKSPACE:
         if(console.is_active()) { console.backspace(); }
