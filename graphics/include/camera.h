@@ -13,7 +13,9 @@ public:
   void set_pos(const Math::Float3 p)                  { pos = p; }
   Math::Float3 get_pos() const                        { return pos; }
   void set_up(const Math::Float3 u)                   { up = u; }
+  Math::Float3 get_up() const                         { return up; }
   void set_lookat(const Math::Float3 l)               { lookat = l; }
+  Math::Float3 get_lookat() const                     { return lookat; }
 
   void transform(const Math::Matrix3x3 &m);
 
