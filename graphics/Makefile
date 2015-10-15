@@ -16,38 +16,38 @@ LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 LDFLAGS+=-lmath
 SRCPATH=src/
 SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
-SRCS+=src/camera.cpp
+SRCS+=src/camera.cpp src/draw_call.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
 ifneq (,$(findstring Darwin,$(UNAME)))
-	#osx
-	#CFLAGS+=-I/opt/X11/include/freetype2/
-	CFLAGS+=-Wno-deprecated-declarations
-	#CFLAGS+=-I$(shell xcrun --show-sdk-path)/System/Library/Frameworks/
+  #osx
+  #CFLAGS+=-I/opt/X11/include/freetype2/
+  CFLAGS+=-Wno-deprecated-declarations
+  #CFLAGS+=-I$(shell xcrun --show-sdk-path)/System/Library/Frameworks/
 
-	LIB_PATH+=-Lbin/osx
-	LIB_PATH+=-L../mathlib/bin/osx
-	LIB_PATH+=-L../fluids/bin/osx
+  LIB_PATH+=-Lbin/osx
+  LIB_PATH+=-L../mathlib/bin/osx
+  LIB_PATH+=-L../fluids/bin/osx
 
-	#LDFLAGS+=-framework SDL2
-	#LDFLAGS+=-framework SDL2_image
-	LDFLAGS+=-framework OpenGL
+  #LDFLAGS+=-framework SDL2
+  #LDFLAGS+=-framework SDL2_image
+  LDFLAGS+=-framework OpenGL
 
-	BINPATH=bin/osx/
+  BINPATH=bin/osx/
 else
-	#generic link flags
-	LIB_PATH += -Lbin/linux
-	LIB_PATH += -L../mathlib/bin/linux
-	LIB_PATH += -L../fluids/bin/linux
+  #generic link flags
+  LIB_PATH += -Lbin/linux
+  LIB_PATH += -L../mathlib/bin/linux
+  LIB_PATH += -L../fluids/bin/linux
 
-	BINPATH=bin/linux/
-	#CFLAGS+=-I/usr/include/freetype2/
-	CFLAGS+=$(shell pkg-config --cflags sdl2)
+  BINPATH=bin/linux/
+  #CFLAGS+=-I/usr/include/freetype2/
+  CFLAGS+=$(shell pkg-config --cflags sdl2)
 
-#	LDFLAGS+=$(shell pkg-config --libs sdl2)
-	#LDFLAGS+=$(shell pkg-config --libs SDL2_image)
-	LDFLAGS+=-lGL
+#  LDFLAGS+=$(shell pkg-config --libs sdl2)
+  #LDFLAGS+=$(shell pkg-config --libs SDL2_image)
+  LDFLAGS+=-lGL
 endif
 
 OBJS_BIN=$(addprefix $(BINPATH), $(notdir $(OBJS)))
@@ -60,8 +60,8 @@ $(BINPATH):
 	mkdir -p $(BINPATH)
 
 #$(OBJS): $(SRCS)
-#	$(CC) $(CFLAGS) -c $< -o $@
-#	mv $@ $(BINPATH)
+#  $(CC) $(CFLAGS) -c $< -o $@
+#  mv $@ $(BINPATH)
 
 $(BINPATH)font.o: $(SRCPATH)font.cpp
 	$(CC) $(CFLAGS) -c src/font.cpp -o $(BINPATH)font.o
@@ -76,13 +76,16 @@ $(BINPATH)shader.o: $(SRCPATH)shader.cpp
 	$(CC) $(CFLAGS) -c src/shader.cpp -o $(BINPATH)shader.o
 
 #$(BINPATH)static_mesh.o: $(SRCPATH)static_mesh.cpp
-#	$(CC) $(CFLAGS) -c src/static_mesh.cpp -o $(BINPATH)static_mesh.o
+#  $(CC) $(CFLAGS) -c src/static_mesh.cpp -o $(BINPATH)static_mesh.o
 
 $(BINPATH)texture.o: $(SRCPATH)texture.cpp
 	$(CC) $(CFLAGS) -c src/texture.cpp -o $(BINPATH)texture.o
 
 $(BINPATH)camera.o: $(SRCPATH)camera.cpp
-		$(CC) $(CFLAGS) -c src/camera.cpp -o $(BINPATH)camera.o
+	$(CC) $(CFLAGS) -c src/camera.cpp -o $(BINPATH)camera.o
+
+$(BINPATH)draw_call.o: $(SRCPATH)draw_call.cpp
+	$(CC) $(CFLAGS) -c src/draw_call.cpp -o $(BINPATH)draw_call.o
 
 $(BINPATH)libgraphics.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgraphics.a $(OBJS_BIN)
