@@ -5,6 +5,7 @@ DrawCall::DrawCall()
   num_indices = 0;
   vbo = -1;
   ibo = -1;
+  mat = NULL;
 }
 
 void DrawCall::set_buffer_objects(const GLuint _vbo, const GLuint _ibo)
