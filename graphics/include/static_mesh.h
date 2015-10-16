@@ -12,6 +12,7 @@
 #include "math_utility.h"
 
 #include "material.h"
+#include "draw_call.h"
 
 class World;
 
@@ -76,6 +77,7 @@ typedef struct {
     Float3 normal;
 } MeshFace;
 
+/*
 typedef struct {
     Material *m;
 
@@ -87,6 +89,7 @@ typedef struct {
     //actual index data
     //GLushort *index_buffer;
 } DrawCall;
+*/
 
 class StaticMesh
 {

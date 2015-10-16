@@ -6,3 +6,9 @@ DrawCall::DrawCall()
   vbo = -1;
   ibo = -1;
 }
+
+void DrawCall::set_buffer_objects(const GLuint _vbo, const GLuint _ibo)
+{
+  vbo = _vbo;
+  ibo = _ibo;
+}
