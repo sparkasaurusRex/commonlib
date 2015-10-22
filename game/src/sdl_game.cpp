@@ -85,9 +85,15 @@ void SDLGame::run()
 
     float fps = 1.0f / frame_time;
 
-    user_run();
+    if(!title_screen.is_active())
+    {
+      user_run();
+    }
     process_events();
-    game_loop(game_time, frame_time);
+    if(!title_screen.is_active())
+    {
+      game_loop(game_time, frame_time);
+    }
 
     std::string fps_text = std::string("fps: ") + std::to_string(fps);
     fps_label.set_text(fps_text);

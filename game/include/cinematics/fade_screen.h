@@ -41,6 +41,8 @@ public:
   void stop() { fade_in_timer.deactivate(); linger_timer.deactivate(); fade_out_timer.deactivate(); }
   bool is_active() const;
 
+  void set_linger_seconds(const float ls) { linger_timer.set(ls); }
+
   void set_text(std::string t) { text = t; }
   void set_backdrop_texture(Texture *tex) { backdrop_texture = tex; }
 private:
