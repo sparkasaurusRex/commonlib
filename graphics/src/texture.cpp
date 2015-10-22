@@ -85,7 +85,6 @@ bool Texture::load()
     }*/
 
     int width, height, channels;
-    //char fname[] = "/home/chandra/brick/game/data/textures/cf_wtr_drop01.tga";
 
 #if defined(__USE_SOIL__)
     unsigned char *image = SOIL_load_image(fname, &width, &height, &channels, SOIL_LOAD_RGBA);
@@ -94,7 +93,7 @@ bool Texture::load()
     dim[1] = height;
 #else
     //SDL2 way of loading
-    cout<<"SDL Surface image load"<<endl;
+    cout<<"IMG_Load("<<fname<<")"<<endl;
     SDL_Surface *image = IMG_Load(fname);
 
     assert(image);

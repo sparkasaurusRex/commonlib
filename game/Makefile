@@ -8,6 +8,7 @@ CFLAGS+=$(shell pkg-config --cflags freetype2)
 CFLAGS+=-Ofast
 
 LDFLAGS=$(shell pkg-config --libs sdl2)
+LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 LDFLAGS+=$(shell pkg-config --libs freetype2)
 LDFLAGS+=$(shell pkg-config --libs glew)
 LDFLAGS+=-lmath -lui

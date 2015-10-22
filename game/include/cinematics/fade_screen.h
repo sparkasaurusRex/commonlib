@@ -3,6 +3,7 @@
 
 #include <font.h>
 #include <string>
+#include "texture.h"
 
 //TODO: find a better home for this
 class Timer
@@ -41,6 +42,7 @@ public:
   bool is_active() const;
 
   void set_text(std::string t) { text = t; }
+  void set_backdrop_texture(Texture *tex) { backdrop_texture = tex; }
 private:
   Font *font;
 
@@ -50,6 +52,7 @@ private:
 
   float fade_opacity;
   std::string text;
+  Texture *backdrop_texture;
 };
 
 #endif //__FADE_SCREEN_H__

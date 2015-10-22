@@ -14,6 +14,7 @@ FadeScreen::FadeScreen()
   font = NULL;
 
   fade_opacity = 0.0f;
+  backdrop_texture = NULL;
 }
 
 void FadeScreen::set_font(Font *f)
@@ -79,16 +80,36 @@ void FadeScreen::render_gl() const
 
   glColor4f(1.0f, 1.0f, 1.0f, fade_opacity);
 
-  GLint viewport[4];
-  glGetIntegerv(GL_VIEWPORT, viewport);
+  //render backdrop Texture
+  if(backdrop_texture)
+  {
+    backdrop_texture->render_gl();
 
-  float h = font->get_height();
-  char foo[256];
-  strcpy(foo, text.c_str());
-  float w = font->get_string_width(foo);
-  //cout<<"font width: "<<w<<endl;
-  font->print((viewport[2] - w) / 2.0f, (viewport[3] - h) / 2.0f, text.c_str());
+    glBegin(GL_TRIANGLE_STRIP);
+      glTexCoord2f(0.0f, 1.0f);
+      glVertex3f(-1.0f, -1.0f, 0.0f);
+      glTexCoord2f(0.0f, 0.0f);
+      glVertex3f(-1.0f, 1.0f, 0.0f);
+      glTexCoord2f(1.0f, 1.0f);
+      glVertex3f(1.0f, -1.0f, 0.0f);
+      glTexCoord2f(1.0f, 0.0f);
+      glVertex3f(1.0f, 1.0f, 0.0f);
+    glEnd();
+    //backdrop_texture->render_cleanup();
+  }
+  else
+  {
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
 
+    float h = font->get_height();
+    char foo[256];
+    strcpy(foo, text.c_str());
+    float w = font->get_string_width(foo);
+    //cout<<"font width: "<<w<<endl;
+    font->print((viewport[2] - w) / 2.0f, (viewport[3] - h) / 2.0f, text.c_str());
+
+  }
   glPopMatrix();
   glPopMatrix();
   glPopAttrib();
