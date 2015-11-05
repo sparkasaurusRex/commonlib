@@ -58,7 +58,7 @@ namespace Structures
   class KDTree3D
   {
   public:
-    KDTree3D() { root = NULL; }
+    KDTree3D() { root = NULL; elements = NULL; num_elements = 0; }
     ~KDTree3D() {}
 
     void add_element(T &data, Float3 pt)
@@ -66,7 +66,14 @@ namespace Structures
       KDData3D<T> new_element;
       new_element.p = pt;
       new_element.d = data;
-      elements.push_back(new_element);
+      elements[num_elements++] = new_element;
+    }
+
+    void resize_elements(const int new_size)
+    {
+      if(elements) { delete elements; }
+      elements = new KDData3D<T>[new_size];
+      num_elements = 0;
     }
 
     //tear down the tree and deallocate memory
@@ -76,27 +83,24 @@ namespace Structures
       {
         reset_helper(root);
       }
-      elements.clear();
+      num_elements = 0;
     }
 
     void build_tree()
     {
-      root = build_tree_helper(0, elements.begin(), elements.end());
-      assert(tree_size() == elements.size());
+      root = build_tree_helper(0, 0, num_elements);
     }
 
-    KDData3D<T> find_nearest_neighbor(const Float3 p, float &best_d2)
+    KDData3D<T> *find_nearest_neighbor(const Float3 p, float &best_d2)
     {
       best_d2 = dist_squared(p, root->data.p);
       KDNode3D<T> *nearest = NULL;
       find_nearest_neighbor_helper(0, root, p, &nearest, best_d2);
       if(nearest)
       {
-        return nearest->data;
+        return &(nearest->data);
       }
-
-      KDData3D<T> empty;
-      return empty;
+      return NULL;
     }
 
     /*void find_n_nearest_neighbors(int n, const Float3 p, KDData3D<t> *nearest, float *best_d2)
@@ -122,43 +126,115 @@ namespace Structures
         return tree_size(root);
       }
     }
+
+    void print_tree(KDNode3D<T> *r = NULL, std::string prefix = std::string("")) const
+    {
+      if(r)
+      {
+        prefix = "..." + prefix;
+        cout<<prefix.c_str()<<"pos:  "<<r->data.p<<endl;
+        cout<<prefix.c_str()<<"data: "<<r->data.d<<endl;
+        if(r->left) { print_tree(r->left, prefix); }
+        if(r->right) { print_tree(r->right, prefix); }
+      }
+      else
+      {
+        print_tree(root, std::string(">"));
+      }
+    }
+
+    void test_quicksort()
+    {
+      quicksort_along_axis(1, 0, num_elements - 1);
+
+      for(int i = 0; i < num_elements; i++)
+      {
+        cout<<elements[i].p<<endl;
+      }
+    }
 private:
+    void swap(int a, int b)
+    {
+      KDData3D<T> t = elements[a];
+      elements[a] = elements[b];
+      elements[b] = t;
+    }
+
+    int partition(const int axis, int l, int h)
+    {
+      KDData3D<T> x = elements[h];
+      int i = (l - 1);
+
+      for(int j = l; j <= h- 1; j++)
+      {
+        if(elements[j].p[axis] < x.p[axis])
+        {
+          i++;
+          swap(i, j);
+        }
+      }
+      swap(i + 1, h);
+      return (i + 1);
+    }
+
+    void quicksort_along_axis(const int axis, int l, int h)
+    {
+      // Create an auxiliary stack
+      int stack[h - l + 1];
+      int top = -1;
+
+      // push initial values of l and h to stack
+      stack[++top] = l;
+      stack[++top] = h;
+
+      // Keep popping from stack while is not empty
+      while(top >= 0)
+      {
+        // Pop h and l
+        h = stack[top--];
+        l = stack[top--];
+
+        // Set pivot element at its correct position in sorted array
+        int p = partition(axis, l, h);
+
+        // If there are elements on left side of pivot, then push left
+        // side to stack
+        if(p - 1 > l)
+        {
+          stack[++top] = l;
+          stack[++top] = p - 1;
+        }
+
+        // If there are elements on right side of pivot, then push right
+        // side to stack
+        if(p + 1 < h)
+        {
+          stack[++top] = p + 1;
+          stack[++top] = h;
+        }
+      }
+    }
+
     void reset_helper(KDNode3D<T> *r)
     {
-        if(r->left) { reset_helper(r->left); }
-        if(r->right) { reset_helper(r->right); }
+      if(r->left) { reset_helper(r->left); }
+      if(r->right) { reset_helper(r->right); }
 
-        delete r;
-        return;
+      delete r;
+      return;
     }
 
     KDNode3D<T> *build_tree_helper(const int axis,
-                                   typename vector<KDData3D<T> >::iterator a,
-                                   typename vector<KDData3D<T> >::iterator b)
+                                   const int a,
+                                   const int b)
     {
       if(a == b) { return NULL; }
       //sort the elements by the current axis and find the median index
-      KDCompare<T> kdc;
-      kdc.axis = axis;
-      std::sort(a, b, kdc);
-      typename vector<KDData3D<T> >::iterator median = a + (b - a) / 2;
-
-      /*
-        cout<<"build_tree_helper()"<<endl;
-        cout<<"a: "<<a - elements.begin()<<endl;
-        cout<<"b: "<<b - elements.begin()<<endl;
-        //cout<<"b - a: "<<(b-a)<<endl;
-        cout<<"axis: "<<axis<<endl;
-      */
+      quicksort_along_axis(axis, a, b - 1);
+      int median = a + (b - a) / 2;
 
       KDNode3D<T> *new_node = new KDNode3D<T>;
-      new_node->data = *median;
-
-      /*
-        cout<<"new node: "<<endl;
-        cout<<"\t"<<new_node->data.d<<endl;
-        cout<<"\t"<<new_node->data.p<<endl;
-      */
+      new_node->data = elements[median];
 
       if(b - a <= 1) { return new_node; } //leaf
 
@@ -174,22 +250,16 @@ private:
       if(!r) { return; }
       int new_axis = (axis + 1) % 3;
 
-      /*{
-        std::string indentation = "";
-        for(int i = 0; i < depth; i++) { indentation += "\t"; }
-
-        cout<<indentation.c_str()<<"---------"<<endl;
-        cout<<indentation.c_str()<<"idx: "<<r->data.d<<endl;
-
-        cout<<indentation.c_str()<<"best_d2: "<<best_d2<<endl;
-      }*/
-
       float d2 = dist_squared(r->data.p, p);
       float dx = r->data.p[axis] - p[axis];
       float dx2 = dx * dx;
 
-      if(!best || d2 < best_d2)
+      //cout<<"best_d2: "<<best_d2<<endl;
+      //cout<<"my_d2:   "<<d2<<endl;
+
+      if(!best || d2 <= best_d2)
       {
+        //cout<<"new bestie!"<<endl;
         best_d2 = d2;
         *best = r;
       }
@@ -200,7 +270,9 @@ private:
       if(dx2 >= best_d2) { return; }
       find_nearest_neighbor_helper(new_axis, dx > 0 ? r->right : r->left, p, best, best_d2, depth + 1);
     }
-    std::vector<KDData3D<T> > elements;
+    KDData3D<T> *elements;
+    int num_elements;
+
     KDNode3D<T> *root;
   };
 }

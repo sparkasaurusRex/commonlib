@@ -19,6 +19,7 @@ int main(int argc, char **argv)
 
   int nearest = -1;
   float min_d = -1.0f;
+  kd.resize_elements(num_pts);
   for(int i = 0; i < num_pts; i++)
   {
     Float3 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
@@ -33,6 +34,8 @@ int main(int argc, char **argv)
     kd.add_element(i, p);
   }
 
+  //kd.test_quicksort();
+
   cout<<"nearest brute force: "<<endl;
   cout<<"\t"<<nearest<<endl;
   cout<<"\t"<<min_d<<endl;
@@ -40,13 +43,19 @@ int main(int argc, char **argv)
   kd.build_tree();
   cout<<"tree size: "<<kd.tree_size()<<endl;
 
+  kd.print_tree();
+
   float best_d2 = 0.0f;
-  KDData3D<int> nearest_node = kd.find_nearest_neighbor(q, best_d2);
+  KDData3D<int> *nearest_node = kd.find_nearest_neighbor(q, best_d2);
   cout<<endl<<endl;
-  cout<<"nearest: "<<endl;
-  cout<<"\t"<<nearest_node.d<<endl;
-  cout<<"\t"<<nearest_node.p<<endl;
-  cout<<"\t"<<sqrt(best_d2)<<endl;
+
+  if(nearest_node)
+  {
+    cout<<"nearest: "<<endl;
+    cout<<"\t"<<nearest_node->d<<endl;
+    cout<<"\t"<<nearest_node->p<<endl;
+    cout<<"\t"<<sqrt(best_d2)<<endl;
+  }
 
   kd.reset();
 
