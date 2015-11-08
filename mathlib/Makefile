@@ -3,10 +3,11 @@ LIB_PATH=
 CFLAGS=-I./include -I../game/include  -I../game/include/cinematics -I/usr/local/include
 CFLAGS+=-I../graphics/include -I../ui/include
 CFLAGS+=$(shell pkg-config --cflags freetype2)
-CFLAGS+=-D__USE_BOOST__ #use boost library for voronoi triangulation
+CFLAGS+=-D__USE_BOOST__
 CFLAGS+=-D__USE_CGAL3D__
 CFLAGS+=-Ofast
 LDFLAGS=$(shell pkg-config --libs sdl2)
+LDFLAGS+=$(shell pkg-config --libs SDL2_image)
 LDFLAGS+=$(shell pkg-config --libs freetype2)
 LDFLAGS+=$(shell pkg-config --libs glew)
 LDFLAGS+=-lCGAL -lCGAL_Core -lgmp
@@ -68,13 +69,13 @@ $(BINPATH)triangulation.o: $(SRCPATH)triangulation.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)triangulation.cpp -o $(BINPATH)triangulation.o
 
 $(BINPATH)shapes.o: $(SRCPATH)shapes.cpp
-		$(CC) $(CFLAGS) -c $(SRCPATH)shapes.cpp -o $(BINPATH)shapes.o
+	$(CC) $(CFLAGS) -c $(SRCPATH)shapes.cpp -o $(BINPATH)shapes.o
 
 $(BINPATH)function.o: $(SRCPATH)function.cpp
-		$(CC) $(CFLAGS) -c $(SRCPATH)function.cpp -o $(BINPATH)function.o
+	$(CC) $(CFLAGS) -c $(SRCPATH)function.cpp -o $(BINPATH)function.o
 
 $(BINPATH)curve.o: $(SRCPATH)curve.cpp
-				$(CC) $(CFLAGS) -c $(SRCPATH)curve.cpp -o $(BINPATH)curve.o
+	$(CC) $(CFLAGS) -c $(SRCPATH)curve.cpp -o $(BINPATH)curve.o
 
 #$(OBJS): $(SRCS)
 #	$(CC) $(CFLAGS) -c $< -o $@
