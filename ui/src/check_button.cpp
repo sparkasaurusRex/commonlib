@@ -68,38 +68,23 @@ void CheckButton::render()
   if(textures[0] && !checked)
   {
     textures[0]->render_gl();
-    glDisable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-    glBegin(GL_TRIANGLE_STRIP);
-      glVertex3f(pos[0], pos[1], 0.0f);
-      glTexCoord2f(1.0f, 1.0f);
-      glVertex3f(pos[0] + dim[0], pos[1], 0.0f);
-      glTexCoord2f(0.0f, 0.0f);
-
-      glVertex3f(pos[0], pos[1] - dim[1], 0.0f);
-      glTexCoord2f(1.0f, 0.0f);
-      glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
-      glTexCoord2f(0.0f, 1.0f);
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
   }
-  if(textures[1] && checked)
+  else if(textures[1] && checked)
   {
     textures[1]->render_gl();
-    glDisable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-    glBegin(GL_TRIANGLE_STRIP);
-      glVertex3f(pos[0], pos[1], 0.0f);
-      glTexCoord2f(1.0f, 1.0f);
-      glVertex3f(pos[0] + dim[0], pos[1], 0.0f);
-      glTexCoord2f(0.0f, 0.0f);
-
-      glVertex3f(pos[0], pos[1] - dim[1], 0.0f);
-      glTexCoord2f(1.0f, 0.0f);
-      glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
-      glTexCoord2f(0.0f, 1.0f);
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_BLEND);
   }
+  glDisable(GL_CULL_FACE);
+  glEnable(GL_BLEND);
+  glBegin(GL_TRIANGLE_STRIP);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(pos[0], pos[1], 0.0f);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(pos[0] + dim[0], pos[1], 0.0f);
+
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(pos[0], pos[1] - dim[1], 0.0f);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
+  glEnd();
+  glDisable(GL_TEXTURE_2D);
 }

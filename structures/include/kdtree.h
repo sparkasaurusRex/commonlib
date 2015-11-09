@@ -254,12 +254,8 @@ private:
       float dx = r->data.p[axis] - p[axis];
       float dx2 = dx * dx;
 
-      //cout<<"best_d2: "<<best_d2<<endl;
-      //cout<<"my_d2:   "<<d2<<endl;
-
       if(!best || d2 <= best_d2)
       {
-        //cout<<"new bestie!"<<endl;
         best_d2 = d2;
         *best = r;
       }

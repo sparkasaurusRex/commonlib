@@ -8,6 +8,7 @@
 #define TOOLBOX_SIZE 4
 
 using namespace UI;
+using namespace std;
 
 void pb_callback(const SDL_Event &e);
 
