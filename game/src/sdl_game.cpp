@@ -10,6 +10,7 @@ using namespace Math;
 
 SDLGame::SDLGame(const int w, const int h,
                  std::string title,
+                 const int _gl_context_profile,
                  const int gl_major_version, const int gl_minor_version)
 {
   resolution[0] = w;
@@ -17,6 +18,8 @@ SDLGame::SDLGame(const int w, const int h,
 
   gl_version[0] = gl_major_version;
   gl_version[1] = gl_minor_version;
+
+  gl_context_profile = _gl_context_profile;
 
   win = NULL;
   gl_context = NULL;
@@ -229,7 +232,7 @@ void SDLGame::init_sdl()
       // when I call this function)
       // NOTE: no immediate mode functionality will work with PROFILE_CORE
       //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-      SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, gl_context_profile);
     }
 
     //Create window

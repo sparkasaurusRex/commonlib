@@ -16,7 +16,7 @@ LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 LDFLAGS+=-lmath
 SRCPATH=src/
 SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
-SRCS+=src/camera.cpp src/draw_call.cpp
+SRCS+=src/camera.cpp src/draw_call.cpp src/render_surface.cpp src/hdr_render_surface.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -86,6 +86,12 @@ $(BINPATH)camera.o: $(SRCPATH)camera.cpp
 
 $(BINPATH)draw_call.o: $(SRCPATH)draw_call.cpp
 	$(CC) $(CFLAGS) -c src/draw_call.cpp -o $(BINPATH)draw_call.o
+
+$(BINPATH)render_surface.o: $(SRCPATH)render_surface.cpp
+	$(CC) $(CFLAGS) -c src/render_surface.cpp -o $(BINPATH)render_surface.o
+
+$(BINPATH)hdr_render_surface.o: $(SRCPATH)hdr_render_surface.cpp
+	$(CC) $(CFLAGS) -c src/hdr_render_surface.cpp -o $(BINPATH)hdr_render_surface.o
 
 $(BINPATH)libgraphics.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgraphics.a $(OBJS_BIN)

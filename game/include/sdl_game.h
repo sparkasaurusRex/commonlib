@@ -27,6 +27,7 @@ public:
   SDLGame(const int w = SDL_GAME_DEFAULT_WIDTH,
           const int h = SDL_GAME_DEFAULT_HEIGHT,
           const std::string title = "Game",
+          const int _gl_context_profile = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY,
           const int gl_major_version = -1,
           const int gl_minor_version = -1);
 
@@ -62,6 +63,7 @@ protected:
   SDL_Window *win;
   SDL_GLContext gl_context;
   int gl_version[2];
+  int gl_context_profile;
   std::string window_title;
 
   double last_game_time;

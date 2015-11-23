@@ -11,7 +11,7 @@ using namespace Math;
 class MySDLGame : public SDLGame
 {
 public:
-  MySDLGame() : SDLGame(640, 480, "Game Test") {}
+  MySDLGame() : SDLGame(640, 480, "Game Test", SDL_GL_CONTEXT_PROFILE_CORE) {}
   ~MySDLGame() {}
 
 private:
