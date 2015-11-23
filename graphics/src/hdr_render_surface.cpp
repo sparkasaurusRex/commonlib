@@ -18,7 +18,7 @@ void HDRRenderSurface::init()
   set_shader_names(vs_name, fs_name);
 
   set_internal_format(GL_RGBA16F_ARB);
-  set_filtering_mode(GL_NEAREST);
+  set_filtering_mode(GL_LINEAR);
 
   RenderSurface::init();
 }

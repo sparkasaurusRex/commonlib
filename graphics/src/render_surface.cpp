@@ -84,6 +84,9 @@ void RenderSurface::init()
   glGenTextures(1, &target_tex);
   glBindTexture(GL_TEXTURE_2D, target_tex);
   glTexImage2D(GL_TEXTURE_2D, 0, tex_internal_format, fbo_res[0], fbo_res[1], 0, GL_RGB, tex_type, 0);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);//GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);//GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, tex_filter);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, tex_filter);
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -147,8 +150,8 @@ void RenderSurface::render()
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glDisable(GL_TEXTURE_2D);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  //glDisable(GL_TEXTURE_2D);
+  //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
   glBindTexture(GL_TEXTURE_2D, target_tex);
 
   mat.render_gl();
