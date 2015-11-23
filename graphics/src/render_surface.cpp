@@ -69,7 +69,6 @@ void RenderSurface::set_shader_names(std::string &vs, std::string &fs)
 
 void RenderSurface::init()
 {
-  cout<<"RenderSurface::init()"<<endl;
   mat.set_shader_filenames(vertex_shader_name, fragment_shader_name);
   mat.init();
 
@@ -122,16 +121,18 @@ void RenderSurface::deinit()
 void RenderSurface::capture()
 {
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, target_fbo);
+  glGetIntegerv(GL_VIEWPORT, win_viewport);
+  glViewport(0, 0, fbo_res[0], fbo_res[1]);
 }
 
 void RenderSurface::release()
 {
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);
 }
 
 void RenderSurface::render()
 {
-  cout<<"RenderSurface::render()"<<endl;
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
   glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -139,8 +140,6 @@ void RenderSurface::render()
   glDisable(GL_DEPTH_TEST);
 
   //render the HDR render surface to a full-screen quad
-  glViewport(0.0f, 0.0f, fbo_res[0], fbo_res[1]);
-
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f);
