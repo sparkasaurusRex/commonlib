@@ -2,6 +2,10 @@
 #define __RENDER_SURFACE_H__
 
 #include "material.h"
+#include <vector>
+
+using namespace std;
+using namespace Math;
 
 struct RenderSurfaceVert
 {
@@ -19,6 +23,8 @@ public:
   void set_internal_format(GLenum f) { tex_internal_format = f; }
   void set_filtering_mode(GLenum f) { tex_filter = f; }
   void set_shader_names(std::string &vs, std::string &fs);
+
+  void add_uniform_ptr(Float2 *u, std::string &name);
 
   virtual void init();
   virtual void deinit();
@@ -48,6 +54,8 @@ protected:
   Material               mat;
   std::string            vertex_shader_name;
   std::string            fragment_shader_name;
+
+  vector<pair<Float2 *, string> > uniforms;
 };
 
 #endif //__RENDER_SURFACE_H__

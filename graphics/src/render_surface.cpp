@@ -67,6 +67,12 @@ void RenderSurface::set_shader_names(std::string &vs, std::string &fs)
   fragment_shader_name = fs;
 }
 
+void RenderSurface::add_uniform_ptr(Float2 *u, std::string &name)
+{
+  std::pair<Float2 *, std::string> uniform_pair(u, name);
+  uniforms.push_back(uniform_pair);
+}
+
 void RenderSurface::init()
 {
   mat.set_shader_filenames(vertex_shader_name, fragment_shader_name);
@@ -136,7 +142,7 @@ void RenderSurface::release()
 
 void RenderSurface::render()
 {
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 
   glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -155,6 +161,15 @@ void RenderSurface::render()
   glBindTexture(GL_TEXTURE_2D, target_tex);
 
   mat.render_gl();
+
+  Shader *shader = mat.get_shader();
+  for(int i = 0; i < uniforms.size(); i++)
+  {
+    Float2 *uval = uniforms[i].first;
+    std::string uname = uniforms[i].second;
+    GLint uloc = glGetUniformLocation(shader->gl_shader_program, uname.c_str());
+    glUniform2f(uloc, (*uval)[0], (*uval)[1]);
+  }
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
