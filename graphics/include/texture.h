@@ -17,6 +17,7 @@ public:
 
   ~Texture();
 
+  GLuint get_tex_id() const { return gl_texture; }
   void get_dim(int &w, int &h) const { w = dim[0]; h = dim[1]; }
   void set_dim(const int w, const int h) { dim[0] = w; dim[1] = h; }
   GLuint get_pixel_mode() { return gl_mode; }

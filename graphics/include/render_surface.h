@@ -25,6 +25,10 @@ public:
   void set_shader_names(std::string &vs, std::string &fs);
 
   void add_uniform_ptr(Float2 *u, std::string &name);
+  void add_uniform_tex(GLuint t, std::string &name);
+
+  GLuint get_tex() const { return target_tex; }
+  Material *get_mat() { return &mat; }
 
   virtual void init();
   virtual void deinit();
@@ -56,6 +60,7 @@ protected:
   std::string            fragment_shader_name;
 
   vector<pair<Float2 *, string> > uniforms;
+  vector<pair<GLuint, string> > tex_uniforms;
 };
 
 #endif //__RENDER_SURFACE_H__

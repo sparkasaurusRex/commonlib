@@ -4,6 +4,8 @@
 #include <GL/gl.h>
 #endif
 
+#include <assert.h>
+
 #include "render_surface.h"
 
 using namespace std;
@@ -73,6 +75,12 @@ void RenderSurface::add_uniform_ptr(Float2 *u, std::string &name)
   uniforms.push_back(uniform_pair);
 }
 
+void RenderSurface::add_uniform_tex(GLuint t, std::string &name)
+{
+  std::pair<GLuint, std::string> tex_pair(t, name);
+  tex_uniforms.push_back(tex_pair);
+}
+
 void RenderSurface::init()
 {
   mat.set_shader_filenames(vertex_shader_name, fragment_shader_name);
@@ -91,11 +99,14 @@ void RenderSurface::init()
   glBindTexture(GL_TEXTURE_2D, target_tex);
   glTexImage2D(GL_TEXTURE_2D, 0, tex_internal_format, fbo_res[0], fbo_res[1], 0, GL_RGB, tex_type, 0);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);//GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);//GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, tex_filter);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, tex_filter);
   glBindTexture(GL_TEXTURE_2D, 0);
+
+  std::string tex_name("surface_tex");
+  add_uniform_tex(target_tex, tex_name);
 
   // create depth renderbuffer
   if(use_depth)
@@ -142,8 +153,6 @@ void RenderSurface::release()
 
 void RenderSurface::render()
 {
-  //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-
   glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
@@ -156,10 +165,6 @@ void RenderSurface::render()
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  //glDisable(GL_TEXTURE_2D);
-  //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-  glBindTexture(GL_TEXTURE_2D, target_tex);
-
   mat.render_gl();
 
   Shader *shader = mat.get_shader();
@@ -171,11 +176,22 @@ void RenderSurface::render()
     glUniform2f(uloc, (*uval)[0], (*uval)[1]);
   }
 
+  for(int i = 0; i < tex_uniforms.size(); i++)
+  {
+    GLuint tex_id = tex_uniforms[i].first;
+    std::string uname = tex_uniforms[i].second;
+
+    GLint uloc = glGetUniformLocation(shader->gl_shader_program, uname.c_str());
+    glUniform1i(uloc, i);
+
+    glClientActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, tex_id);
+  }
+
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)0);
 
-  glClientActiveTexture(GL_TEXTURE0);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)(sizeof(float) * 3));
 
