@@ -72,9 +72,6 @@ void RenderSurfaceCombiner::deinit()
 
 void RenderSurfaceCombiner::render()
 {
-  // glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-  // glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);
-
   glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
@@ -87,39 +84,26 @@ void RenderSurfaceCombiner::render()
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  mat.render_gl();
+
 
   Shader *shader = mat.get_shader();
-  // for(int i = 0; i < uniforms.size(); i++)
-  // {
-  //   Float2 *uval = uniforms[i].first;
-  //   std::string uname = uniforms[i].second;
-  //   GLint uloc = glGetUniformLocation(shader->gl_shader_program, uname.c_str());
-  //   glUniform2f(uloc, (*uval)[0], (*uval)[1]);
-  // }
 
-  // for(int i = 0; i < tex_uniforms.size(); i++)
-  // {
-  //   GLuint tex_id = tex_uniforms[i].first;
-  //   std::string uname = tex_uniforms[i].second;
-  //
-  //   GLint uloc = glGetUniformLocation(shader->gl_shader_program, uname.c_str());
-  //   glUniform1i(uloc, i);
-  //
-  //   glClientActiveTexture(GL_TEXTURE0 + i);
-  //   glBindTexture(GL_TEXTURE_2D, tex_id);
-  // }
+  mat.render_gl();
 
   GLint aloc = glGetUniformLocation(shader->gl_shader_program, "tex_a");
   glUniform1i(aloc, 0);
   GLint bloc = glGetUniformLocation(shader->gl_shader_program, "tex_b");
   glUniform1i(bloc, 1);
 
+  //glActiveTexture(GL_TEXTURE0);
   glClientActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, a->get_tex());
+  glEnable(GL_TEXTURE_2D);
 
+  //glActiveTexture(GL_TEXTURE1);
   glClientActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, b->get_tex());
+  glEnable(GL_TEXTURE_2D);
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);

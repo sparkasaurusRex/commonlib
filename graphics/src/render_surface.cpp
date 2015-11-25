@@ -188,6 +188,8 @@ void RenderSurface::render()
     glBindTexture(GL_TEXTURE_2D, tex_id);
   }
 
+  //mat.render_gl();
+
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, sizeof(RenderSurfaceVert), (void *)0);
