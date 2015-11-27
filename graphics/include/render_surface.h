@@ -22,7 +22,7 @@ public:
   void set_fbo_res(const int w, const int h) { fbo_res[0] = w; fbo_res[1] = h; }
   void set_internal_format(GLenum f) { tex_internal_format = f; }
   void set_filtering_mode(GLenum f) { tex_filter = f; }
-  void set_shader_names(std::string &vs, std::string &fs);
+  void set_shader_names(std::string vs, std::string fs);
 
   void add_uniform_ptr(Float2 *u, std::string &name);
   void add_uniform_tex(GLuint t, std::string &name);

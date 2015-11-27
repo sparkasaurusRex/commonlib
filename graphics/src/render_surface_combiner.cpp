@@ -48,12 +48,15 @@ void RenderSurfaceCombiner::set_surfaces(RenderSurface *_a, RenderSurface *_b)
   b = _b;
 }
 
+void RenderSurfaceCombiner::set_shader_names(std::string vs, std::string fs)
+{
+  vertex_shader_name = vs;
+  fragment_shader_name = fs;
+}
+
 void RenderSurfaceCombiner::init()
 {
-  std::string vs_name("../data/shaders/passthrough.vs");
-  std::string fs_name("../data/shaders/fb_additive_combine.fs");
-
-  mat.set_shader_filenames(vs_name, fs_name);
+  mat.set_shader_filenames(vertex_shader_name, fragment_shader_name);
   mat.init();
 
   glGenBuffers(1, &vbo);
@@ -84,8 +87,6 @@ void RenderSurfaceCombiner::render()
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-
-
   Shader *shader = mat.get_shader();
 
   mat.render_gl();
@@ -95,15 +96,20 @@ void RenderSurfaceCombiner::render()
   GLint bloc = glGetUniformLocation(shader->gl_shader_program, "tex_b");
   glUniform1i(bloc, 1);
 
-  //glActiveTexture(GL_TEXTURE0);
+  glActiveTexture(GL_TEXTURE0);
   glClientActiveTexture(GL_TEXTURE0);
+  glEnable(GL_TEXTURE_2D);
+  cout<<"binding texture a: texID "<<a->get_tex()<<endl;
   glBindTexture(GL_TEXTURE_2D, a->get_tex());
-  glEnable(GL_TEXTURE_2D);
 
-  //glActiveTexture(GL_TEXTURE1);
+  glActiveTexture(GL_TEXTURE1);
   glClientActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, b->get_tex());
   glEnable(GL_TEXTURE_2D);
+  cout<<"binding texture b: texID "<<b->get_tex()<<endl;
+  glBindTexture(GL_TEXTURE_2D, b->get_tex());
+
+
+  //mat.render_gl();
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);

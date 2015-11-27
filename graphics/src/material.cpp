@@ -89,12 +89,15 @@ void Material::render_gl() const
 {
   shader->render_gl();
 
+  /*
   //set up uniforms
   GLint diff_loc = glGetUniformLocationARB(shader->gl_shader_program, "diff_rgb");
   glUniform3fARB(diff_loc, diff_rgb[0], diff_rgb[1], diff_rgb[2]);
 
   GLint amb_loc = glGetUniformLocationARB(shader->gl_shader_program, "amb_rgb");
   glUniform3fARB(amb_loc, 0.2f, 0.5f, 0.1f);
+  */
+
 
   //set up textures
   for(int i = 0; i < texture_ids.size(); i++)

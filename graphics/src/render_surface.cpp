@@ -50,9 +50,9 @@ RenderSurface::RenderSurface(const int w, const int h)
   use_depth = true;
   depth_fbo = 0;
 
-  tex_internal_format = GL_RGBA16F_ARB;
-  tex_type = GL_HALF_FLOAT_ARB; //GL_FLOAT;
-  tex_filter = GL_NEAREST;
+  tex_internal_format = GL_RGB;//GL_RGBA16F_ARB;
+  tex_type = GL_UNSIGNED_BYTE;//GL_HALF_FLOAT_ARB; //GL_FLOAT;
+  tex_filter = GL_LINEAR;
 
   fbo_res[0] = w;
   fbo_res[1] = h;
@@ -63,7 +63,7 @@ RenderSurface::~RenderSurface()
   deinit();
 }
 
-void RenderSurface::set_shader_names(std::string &vs, std::string &fs)
+void RenderSurface::set_shader_names(std::string vs, std::string fs)
 {
   vertex_shader_name = vs;
   fragment_shader_name = fs;
@@ -184,7 +184,9 @@ void RenderSurface::render()
     GLint uloc = glGetUniformLocation(shader->gl_shader_program, uname.c_str());
     glUniform1i(uloc, i);
 
+    glActiveTexture(GL_TEXTURE0 + i);
     glClientActiveTexture(GL_TEXTURE0 + i);
+    glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, tex_id);
   }
 

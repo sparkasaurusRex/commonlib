@@ -1,8 +1,12 @@
+#include <GL/glew.h>
+
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
 #endif
+
+
 
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -12,6 +16,8 @@
 #include "perlin.h"
 #include "fluid2d.h"
 #include "font.h"
+#include "render_surface.h"
+#include "render_surface_combiner.h"
 
 using namespace std;
 
@@ -27,6 +33,9 @@ Texture *fluid_tex = NULL;
 Font *font = NULL;
 
 Fluid2D *fluid = NULL;
+
+RenderSurface rsa, rsb;
+RenderSurfaceCombiner rsc;
 
 void quit_app()
 {
@@ -57,7 +66,22 @@ void init_sdl()
 
 void init_gl()
 {
+  glewInit();
 
+  std::string vs_name("data/shaders/passthrough.vs");
+  std::string fs_name("data/shaders/downsample.fs");
+
+  rsa.set_fbo_res(WIN_WIDTH, WIN_HEIGHT);
+  rsa.set_shader_names(vs_name, fs_name);
+  rsa.init();
+
+  rsb.set_fbo_res(WIN_WIDTH, WIN_HEIGHT);
+  rsb.set_shader_names(vs_name, fs_name);
+  rsb.init();
+
+  rsc.set_shader_names(vs_name, std::string("data/shaders/fb_additive_combine.fs"));
+  rsc.set_surfaces(&rsa, &rsb);
+  rsc.init();
 }
 
 void process_events()
@@ -161,6 +185,8 @@ void game_loop()
   fill_dynamic_texture(game_time);
   fill_fluid_texture(game_time);
 
+  rsa.capture();
+
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
@@ -210,6 +236,15 @@ void game_loop()
   glEnd();
 
   render_font_test();
+
+  rsa.release();
+
+  //rsb.capture();
+  //rsa.render();
+  //rsb.release();
+
+  //rsc.render();
+  rsa.render();
 
 	glFlush();
 	SDL_GL_SwapWindow(sdl_window);

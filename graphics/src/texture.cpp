@@ -199,6 +199,9 @@ bool Texture::load_from_file_data(TextureFileData &tfd)
 //set up the texture for rendering
 bool Texture::render_gl() const
 {
+  //return true;
+  glActiveTexture(GL_TEXTURE0);
+  glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
 
   //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);

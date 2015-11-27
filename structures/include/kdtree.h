@@ -40,11 +40,11 @@ namespace Structures
     KDNode3D() : data() { left = right = NULL; }
     ~KDNode3D() {}
   //private:
-    KDNode3D<T> *left, *right;
+    KDNode3D<T> *left, *right, *parent;
     KDData3D<T> data;
   };
 
-  template <class T>
+  /*template <class T>
   struct KDCompare
   {
     inline bool operator()(KDData3D<T> &a, KDData3D<T> &b)
@@ -52,7 +52,7 @@ namespace Structures
       return a.p[axis] < b.p[axis];
     }
     int axis;
-  };
+  };*/
 
   template <class T>
   class KDTree3D
@@ -89,7 +89,30 @@ namespace Structures
     void build_tree()
     {
       root = build_tree_helper(0, 0, num_elements);
+      root->parent = NULL;
     }
+
+    /*void insert_at_position(const Float3 p, T &data)
+    {
+      float best_d2 = dist_squared(p, root->data.p);
+      KDNode3D<T> *nearest = NULL;
+      find_nearest_neighbor_helper(0, root, p, &nearest, best_d2);
+      if(nearest)
+      {
+        //return &(nearest->data);
+
+      }
+    }
+
+    void delete_nearest(const Float3 p)
+    {
+      float best_d2 = dist_squared(p, root->data.p);
+      KDNode3D<T> *nearest = NULL;
+      find_nearest_neighbor_helper(0, root, p, &nearest, best_d2);
+      if(nearest)
+      {
+      }
+    }*/
 
     KDData3D<T> *find_nearest_neighbor(const Float3 p, float &best_d2)
     {
@@ -240,7 +263,9 @@ private:
 
       int new_axis = (axis + 1) % 3;
       new_node->left = build_tree_helper(new_axis, a, median);
+      if(new_node->left) { new_node->left->parent = new_node; }
       new_node->right = build_tree_helper(new_axis, median + 1, b);
+      if(new_node->right) { new_node->right->parent = new_node; }
 
       return new_node;
     }

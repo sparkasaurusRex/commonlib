@@ -117,7 +117,7 @@ bool Shader::load_link_and_compile()
     }
     else
     {
-      cout<<"could not load vertex shader file!"<<endl;
+      cout<<"could not open vertex shader file! (no file handle)"<<endl;
     }
 
     cout<<"loading fragment shader "<<gl_fragment_shader_fname<<endl;
@@ -152,5 +152,5 @@ bool Shader::load_link_and_compile()
 //apply the shader before rendering
 void Shader::render_gl()
 {
-    glUseProgramObjectARB(gl_shader_program);
+  glUseProgram(gl_shader_program);
 }
