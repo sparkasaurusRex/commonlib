@@ -123,4 +123,13 @@ void RenderSurfaceCombiner::render()
 
   //reset shader
   glUseProgramObjectARB(0);
+  glActiveTexture(GL_TEXTURE0);
+  glClientActiveTexture(GL_TEXTURE0);
+  glDisable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  glActiveTexture(GL_TEXTURE1);
+  glClientActiveTexture(GL_TEXTURE1);
+  glDisable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, 0);
 }

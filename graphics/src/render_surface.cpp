@@ -204,4 +204,12 @@ void RenderSurface::render()
 
   //reset shader
   glUseProgramObjectARB(0);
+
+  for(int i = 0; i < tex_uniforms.size(); i++)
+  {
+    glActiveTexture(GL_TEXTURE0 + i);
+    glClientActiveTexture(GL_TEXTURE0 + i);
+    glDisable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+  }
 }
