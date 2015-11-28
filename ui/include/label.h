@@ -2,11 +2,11 @@
 #define __LABEL_H__
 
 #include "math_utility.h"
-#include "widget.h"
+#include "rectangular_widget.h"
 
 namespace UI
 {
-  class Label : public Widget
+  class Label : public RectangularWidget
   {
   public:
     Label(Font *f = NULL);
@@ -15,9 +15,11 @@ namespace UI
     void set_text(const std::string t) { text = t; }
     void set_color(const Math::Float3 c) { rgb = c; }
 
-    void init() { }
-    void simulate(const float dt) {}
-    void render();
+    virtual void process_event(const SDL_Event &e) {}
+
+    virtual void init() {}
+    virtual void simulate(const float dt) {}
+    virtual void render();
   protected:
     std::string text;
     Math::Float3 rgb;

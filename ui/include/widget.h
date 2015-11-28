@@ -17,13 +17,10 @@ namespace UI
 
     void show(const bool d = true) { visible = d; }
     void set_font(Font *f) { font = f; }
-    void translate(Math::Float2 p) { pos = p; }
-    void scale(Math::Float2 s) { dim = s; }
-    Math::Float2 get_dim() const { return dim; }
 
-    bool hit_test(const int x, const int y) const;
+    virtual bool hit_test(const int x, const int y) const = 0;
 
-    virtual void process_event(const SDL_Event &e) { std::cout<<"Widget::process_event()"<<std::endl; }
+    virtual void process_event(const SDL_Event &e) = 0;
 
     virtual void init() = 0;
     virtual void simulate(const float dt) = 0;
@@ -35,9 +32,6 @@ namespace UI
 
     bool visible;
     Font *font;
-
-    Math::Float2 pos;
-    Math::Float2 dim;
   };
 };
 

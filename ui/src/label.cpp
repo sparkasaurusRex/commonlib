@@ -5,7 +5,7 @@ using namespace UI;
 using namespace std;
 using namespace Math;
 
-Label::Label(Font *f) : Widget(f)
+Label::Label(Font *f) : RectangularWidget(f)
 {
   text = std::string("Label Text");
   rgb = Float3(1.0f, 1.0f, 1.0f);

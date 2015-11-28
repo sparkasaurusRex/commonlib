@@ -3,7 +3,7 @@
 
 namespace UI
 {
-  class ToolBox : public Widget
+  class ToolBox : public RectangularWidget
   {
   public:
     ToolBox();

@@ -16,7 +16,8 @@ LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 LDFLAGS+=-lmath -lgame -lgraphics
 SRCPATH=src/
 SRCS=src/label.cpp src/widget.cpp src/push_button.cpp src/widget_wrangler.cpp
-SRCS+=src/toolbox.cpp src/check_button.cpp
+SRCS+=src/toolbox.cpp src/check_button.cpp src/rectangular_widget.cpp
+SRCS+=src/radial_widget.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -64,10 +65,14 @@ $(BINPATH):
 #	$(CC) $(CFLAGS) -c $< -o $@
 #	mv $@ $(BINPATH)
 
-
-
 $(BINPATH)widget.o: $(SRCPATH)widget.cpp
 	$(CC) $(CFLAGS) -c src/widget.cpp -o $(BINPATH)widget.o
+
+$(BINPATH)rectangular_widget.o: $(SRCPATH)rectangular_widget.cpp
+	$(CC) $(CFLAGS) -c src/rectangular_widget.cpp -o $(BINPATH)rectangular_widget.o
+
+$(BINPATH)radial_widget.o: $(SRCPATH)radial_widget.cpp
+	$(CC) $(CFLAGS) -c src/radial_widget.cpp -o $(BINPATH)radial_widget.o
 
 $(BINPATH)widget_wrangler.o: $(SRCPATH)widget_wrangler.cpp
 		$(CC) $(CFLAGS) -c src/widget_wrangler.cpp -o $(BINPATH)widget_wrangler.o

@@ -4,7 +4,7 @@
 using namespace UI;
 using namespace std;
 
-ToolBox::ToolBox() : Widget()
+ToolBox::ToolBox() : RectangularWidget()
 {
   horizontal = true;    //horizontal alignment by default
   margin = 4.0f;        //5 pixels betwixt each button
