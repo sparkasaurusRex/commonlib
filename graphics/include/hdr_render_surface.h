@@ -15,9 +15,11 @@ public:
   virtual void init();
   virtual void deinit();
   virtual void render();
+  void render_method_2();
 private:
   float                  exposure;
   float                  bloom_threshold;
+  Material               mat2;
 };
 
 #endif //__HDR_RENDER_SURFACE_H__

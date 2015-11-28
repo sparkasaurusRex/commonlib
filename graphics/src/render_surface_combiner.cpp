@@ -99,17 +99,12 @@ void RenderSurfaceCombiner::render()
   glActiveTexture(GL_TEXTURE0);
   glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
-  cout<<"binding texture a: texID "<<a->get_tex()<<endl;
   glBindTexture(GL_TEXTURE_2D, a->get_tex());
 
   glActiveTexture(GL_TEXTURE1);
   glClientActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
-  cout<<"binding texture b: texID "<<b->get_tex()<<endl;
   glBindTexture(GL_TEXTURE_2D, b->get_tex());
-
-
-  //mat.render_gl();
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);

@@ -29,6 +29,7 @@ public:
 
   GLuint get_tex() const { return target_tex; }
   Material *get_mat() { return &mat; }
+  //void set_mat(Material *m) { mat = m; }
 
   virtual void init();
   virtual void deinit();
