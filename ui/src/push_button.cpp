@@ -4,7 +4,7 @@
 using namespace std;
 using namespace UI;
 
-PushButton::PushButton() : Label()
+PushButton::PushButton(Font *f) : Label(f)
 {
   click_capture = false;
   click_callback = NULL;
@@ -102,7 +102,7 @@ void PushButton::render()
     glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
   glEnd();
   glDisable(GL_TEXTURE_2D);
-  
+
   if(text.size() > 0)
   {
     Label::render();

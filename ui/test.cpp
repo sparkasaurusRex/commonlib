@@ -4,11 +4,14 @@
 #include "push_button.h"
 #include "check_button.h"
 #include "toolbox.h"
+#include "radial_push_button.h"
 
 #define TOOLBOX_SIZE 4
+#define NUM_RPB 12
 
 using namespace UI;
 using namespace std;
+using namespace Math;
 
 void pb_callback(const SDL_Event &e);
 
@@ -83,6 +86,19 @@ private:
     tb.set_button_dim(Float2(64.0f, 64.0f));
     tb.init();
     ww.add_widget(&tb);
+
+    for(int i = 0; i < NUM_RPB; i++)
+    {
+      rpb[i].set_radii(Float2(30.0f, 90.0f));
+
+      float arc_offset = 0.0f;
+      float arc_width = 2.0f * M_PI / (float)NUM_RPB;
+      rpb[i].set_arc(Float2(i * arc_width + 0.05f + arc_offset, (i + 1) * arc_width - 0.05f + arc_offset));
+      rpb[i].set_center(Float2(150.0f, 250.0f));
+      rpb[i].set_click_callback(pb_callback);
+      rpb[i].init();
+      ww.add_widget(&rpb[i]);
+    }
   }
 
   void user_run()
@@ -90,12 +106,22 @@ private:
     //label.show();
     //pb.show();
     tb.show();
+
+    for(int i = 0; i < NUM_RPB; i++)
+    {
+      rpb[i].show();
+    }
   }
 
   void user_process_event(const SDL_Event &e)
   {
     //pb.process_event(e);
     tb.process_event(e);
+
+    for(int i = 0; i < NUM_RPB; i++)
+    {
+      rpb[i].process_event(e);
+    }
   }
 
   Float3 bg_color;
@@ -103,6 +129,8 @@ private:
   Label label;
   CheckButton pb[TOOLBOX_SIZE];
   ToolBox tb;
+
+  RadialPushButton rpb[NUM_RPB];
 
   Texture *pb_tex[2];
 };

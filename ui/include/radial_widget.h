@@ -11,7 +11,12 @@ namespace UI
     RadialWidget(Font *f = NULL) : Widget(f) {}
     ~RadialWidget() {}
 
+    void set_radii(const Math::Float2 r) { radii = r; }
+    void set_arc(const Math::Float2 a) { arc = a; }
+    void set_center(const Math::Float2 c) { center = c; }
+
     virtual bool hit_test(const int x, const int y) const;
+    virtual void simulate(const float dt) {}
   protected:
     Math::Float2 radii;
     Math::Float2 arc;
