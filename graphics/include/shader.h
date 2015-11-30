@@ -7,6 +7,16 @@
 #include <GL/gl.h>
 #endif
 
+/*
+class ShaderUniform
+{
+public:
+  ShaderUniform();
+  ~ShaderUniform();
+protected:
+  GLuint loc;
+};*/
+
 class Shader
 {
 public:

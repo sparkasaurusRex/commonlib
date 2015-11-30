@@ -69,16 +69,30 @@ void RenderSurface::set_shader_names(std::string vs, std::string fs)
   fragment_shader_name = fs;
 }
 
-void RenderSurface::add_uniform_ptr(Float2 *u, std::string &name)
+void RenderSurface::add_uniform_ptr(Float2 *u, std::string name)
 {
   std::pair<Float2 *, std::string> uniform_pair(u, name);
   uniforms.push_back(uniform_pair);
 }
 
-void RenderSurface::add_uniform_tex(GLuint t, std::string &name)
+void RenderSurface::add_uniform_tex(GLuint t, std::string name)
 {
   std::pair<GLuint, std::string> tex_pair(t, name);
   tex_uniforms.push_back(tex_pair);
+}
+
+void RenderSurface::add_uniform(Float2 &v, std::string name)
+{
+  f2_uni_const.push_back(v);
+  Float2 *f2_ptr = &(f2_uni_const[f2_uni_const.size() - 1]);
+  std::pair<Float2 *, std::string> f2_pair(f2_ptr, name);
+  uniforms.push_back(f2_pair);
+}
+
+void RenderSurface::add_uniform(Float3 &v, std::string name)
+{
+  std::pair<Float3, std::string> f3_pair(v, name);
+  float3_uniforms.push_back(f3_pair);
 }
 
 void RenderSurface::init()
@@ -174,6 +188,14 @@ void RenderSurface::render()
     std::string uname = uniforms[i].second;
     GLint uloc = glGetUniformLocation(shader->gl_shader_program, uname.c_str());
     glUniform2f(uloc, (*uval)[0], (*uval)[1]);
+  }
+
+  for(int i = 0; i < float3_uniforms.size(); i++)
+  {
+    Float3 uval = float3_uniforms[i].first;
+    std::string uname = float3_uniforms[i].second;
+    GLint uloc = glGetUniformLocation(shader->gl_shader_program, uname.c_str());
+    glUniform3f(uloc, uval[0], uval[1], uval[2]);
   }
 
   for(int i = 0; i < tex_uniforms.size(); i++)

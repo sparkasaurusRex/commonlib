@@ -10,7 +10,7 @@ public:
   RenderSurfaceCombiner();
   ~RenderSurfaceCombiner();
 
-  void set_surfaces(RenderSurface *_a, RenderSurface *_b);
+  void set_surfaces(RenderSurface *_a, RenderSurface *_b, RenderSurface *_c, RenderSurface *_d);
   void set_shader_names(std::string vs, std::string fs);
 
   void init();
@@ -20,7 +20,7 @@ public:
   Texture *foo_a, *foo_b;
 
 private:
-  RenderSurface *a, *b;
+  RenderSurface *a, *b, *c, *d;
   std::string vertex_shader_name;
   std::string fragment_shader_name;
 

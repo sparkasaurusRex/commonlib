@@ -80,7 +80,7 @@ void init_gl()
   rsb.init();
 
   rsc.set_shader_names(vs_name, std::string("data/shaders/fb_additive_combine.fs"));
-  rsc.set_surfaces(&rsa, &rsb);
+  rsc.set_surfaces(&rsa, &rsb, &rsa, &rsb);
   rsc.init();
 }
 

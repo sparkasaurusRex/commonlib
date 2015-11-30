@@ -4,9 +4,6 @@
 #include "material.h"
 #include <vector>
 
-using namespace std;
-using namespace Math;
-
 struct RenderSurfaceVert
 {
   float x, y, z;
@@ -24,8 +21,10 @@ public:
   void set_filtering_mode(GLenum f) { tex_filter = f; }
   void set_shader_names(std::string vs, std::string fs);
 
-  void add_uniform_ptr(Float2 *u, std::string &name);
-  void add_uniform_tex(GLuint t, std::string &name);
+  void add_uniform_ptr(Math::Float2 *u, std::string name);
+  void add_uniform_tex(GLuint t, std::string name);
+  void add_uniform(Math::Float2 &u, std::string name);
+  void add_uniform(Math::Float3 &u, std::string name);
 
   GLuint get_tex() const { return target_tex; }
   Material *get_mat() { return &mat; }
@@ -60,8 +59,12 @@ protected:
   std::string            vertex_shader_name;
   std::string            fragment_shader_name;
 
-  vector<pair<Float2 *, string> > uniforms;
-  vector<pair<GLuint, string> > tex_uniforms;
+  //TODO: clean all this uniform BS up
+  std::vector<Math::Float2> f2_uni_const;
+
+  std::vector<std::pair<Float2 *, std::string> > uniforms;
+  std::vector<std::pair<Float3, std::string> > float3_uniforms;
+  std::vector<std::pair<GLuint, std::string> > tex_uniforms;
 };
 
 #endif //__RENDER_SURFACE_H__
