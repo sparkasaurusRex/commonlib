@@ -57,14 +57,14 @@ void Texture::init()
   assert(glIsTexture(gl_texture) == GL_TRUE);
 
   glTexImage2D(GL_TEXTURE_2D,
-              0,
-              gl_mode,
-              dim[0],
-              dim[1],
-              0,
-              gl_mode,
-              GL_UNSIGNED_BYTE,
-              NULL);
+               0,
+               gl_mode,
+               dim[0],
+               dim[1],
+               0,
+               gl_mode,
+               GL_UNSIGNED_BYTE,
+               NULL);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);

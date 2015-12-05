@@ -17,7 +17,7 @@ LDFLAGS+=-lmath
 SRCPATH=src/
 SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
 SRCS+=src/camera.cpp src/draw_call.cpp src/render_surface.cpp src/hdr_render_surface.cpp
-SRCS+=src/render_surface_combiner.cpp
+SRCS+=src/render_surface_combiner.cpp src/gpu_hair_sim.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -96,6 +96,9 @@ $(BINPATH)hdr_render_surface.o: $(SRCPATH)hdr_render_surface.cpp
 
 $(BINPATH)render_surface_combiner.o: $(SRCPATH)render_surface_combiner.cpp
 	$(CC) $(CFLAGS) -c src/render_surface_combiner.cpp -o $(BINPATH)render_surface_combiner.o
+
+$(BINPATH)gpu_hair_sim.o: $(SRCPATH)gpu_hair_sim.cpp
+	$(CC) $(CFLAGS) -c src/gpu_hair_sim.cpp -o $(BINPATH)gpu_hair_sim.o
 
 $(BINPATH)libgraphics.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgraphics.a $(OBJS_BIN)
