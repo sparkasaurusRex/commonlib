@@ -1,6 +1,6 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I../mathlib/include  -g #-Ofast
+CFLAGS=-I./include -I../mathlib/include  -g -Ofast
 SRCPATH=src/
 SRCS=src/kdtree.cpp
 OBJS=$(SRCS:.cpp=.o)

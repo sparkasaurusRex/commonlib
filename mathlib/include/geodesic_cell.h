@@ -77,7 +77,7 @@ class GeodesicCell
     Float3 get_color() const { return color; }
     void set_color(const Float3 c) { color = c; }
 
-    T *get_data() { return &data; }
+    inline T *get_data() { return &data; }
     void set_data(T d) { data = d; }
 
     void add_neighbor(GeodesicCell *n)
