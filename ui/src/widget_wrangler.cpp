@@ -16,6 +16,12 @@ void WidgetWrangler::render() const
   glLoadIdentity();
   gluOrtho2D(viewport[0],viewport[2],viewport[3],viewport[1]);
 
+  glEnable(GL_BLEND);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_LIGHTING);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //glDepthMask(GL_FALSE);
+
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
