@@ -14,14 +14,24 @@ enum RenderMode
 class GraphicsApp : public SDLGame
 {
 public:
-  GraphicsApp() : SDLGame(512, 512, "Graphics Test") {}
+  GraphicsApp() : SDLGame(512, 512, "Graphics Test") { rot_angle = 0.0f; }
   ~GraphicsApp() {}
 private:
   void render_hair()
   {
-    cam.render_setup();
-    gpu_hair.render();
-    cam.render_cleanup();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+      glLoadIdentity();
+      glRotatef(45.0f, 1.0f, 0.0f, 0.0f);
+      glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
+      rot_angle += 0.1f;
+
+
+      //cam.render_setup();
+      gpu_hair.render();
+      //cam.render_cleanup();
+
+    glPopMatrix();
   }
 
   void render_texture()
@@ -54,7 +64,7 @@ private:
   void render_gl()
   {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     switch(render_mode)
     {
@@ -74,9 +84,14 @@ private:
 
   void user_init()
   {
-    gpu_hair.set_num_hairs(4);
-    gpu_hair.set_num_segments(4);
+    gpu_hair.set_num_hairs(10000);
+    gpu_hair.set_num_segments(12);
     gpu_hair.init();
+
+    Float3 cam_pos(0.0f, 0.5f, -10.0f);
+    cam.set_pos(cam_pos);
+    cam.set_lookat(Float3(0.0f, 0.0f, 0.0f) - cam_pos);
+    cam.set_up(Float3(0.0f, 1.0f, 0.0f));
   }
   void user_run() {}
   void user_process_event(const SDL_Event &event) {}
@@ -84,6 +99,7 @@ private:
   GPUHairSim gpu_hair;
   RenderMode render_mode;
   Camera cam;
+  float rot_angle;
 };
 
 int main(int argc, char **argv)

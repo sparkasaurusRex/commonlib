@@ -101,17 +101,22 @@ void GPUHairSim::init()
 
   //let's make a spiral for now
   Float3 root_pos(0.0f, 0.0f, 0.0f);
-  float angle_offset = 0.1f;
+  float angle_offset = 0.2f;
   for(int i = 0; i < num_hairs; i++)
   {
-    Float3 new_pos = root_pos + Float3(0.05f, 0.0f, 0.0f);
+    Float3 new_pos = root_pos + Float3(0.1f, 0.0f, 0.0f);
     float s = sin(angle_offset);
     float c = cos(angle_offset);
 
     root_pos[0] = new_pos[0] * c - new_pos[2] * s;
     root_pos[2] = new_pos[0] * s + new_pos[2] * c;
 
-    float height = 1.0f;
+    float height = 0.2f;
+
+    Float3 col_a(0.1f, 0.1f, 0.05f);
+    Float3 col_b(0.1f, 1.0f, 0.3f);
+
+    root_pos = Float3(random(-1.0f, 1.0f), 0.0f, random(-1.0f, 1.0f));
 
     for(int j = 1; j < num_segments + 1; j++)
     {
@@ -119,11 +124,11 @@ void GPUHairSim::init()
       {
         float segment_pct = (float)(k) / (float)num_segments;
         verts[v_idx].x = root_pos[0];
-        verts[v_idx].y = root_pos[1] + height * segment_pct;
+        verts[v_idx].y = height * segment_pct;
         verts[v_idx].z = root_pos[2];
-        verts[v_idx].r = 1.0f;
-        verts[v_idx].g = 1.0f;
-        verts[v_idx].b = 1.0f;
+        verts[v_idx].r = lerp(col_a[0], col_b[0], segment_pct);
+        verts[v_idx].g = lerp(col_a[1], col_b[1], segment_pct);
+        verts[v_idx].b = lerp(col_a[2], col_b[2], segment_pct);
         verts[v_idx].u = segment_pct;
         verts[v_idx].v = 0.0f;
 
@@ -139,6 +144,10 @@ void GPUHairSim::init()
   glGenBuffers(1, &ibo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_indices, indices, GL_STATIC_DRAW);
+
+  //load textures and shaders
+  render_mat.set_shader_filenames(std::string("data/shaders/hair_render.vs"), std::string("data/shaders/hair_render.fs"));
+  render_mat.init();
 }
 
 void GPUHairSim::deinit()
@@ -167,6 +176,26 @@ void GPUHairSim::simulate(const float dt)
 
 void GPUHairSim::render()
 {
+  glLineWidth(1.0f);
+
+  render_mat.render_gl();
+
+  Shader *shader = render_mat.get_shader();
+
+  //set up uniforms
+  GLint uloc = glGetUniformLocation(shader->gl_shader_program, "hair_tex");
+  glUniform1i(uloc, 0);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthMask(GL_TRUE);
+
+  //glDepthRange(0.0f, 1.0f);
+
+  glActiveTexture(GL_TEXTURE0);
+  glClientActiveTexture(GL_TEXTURE0);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, pos_tex[0]);
+
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, sizeof(HairVert), (void *)0);

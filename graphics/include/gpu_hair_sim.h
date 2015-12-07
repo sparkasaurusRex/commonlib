@@ -7,6 +7,8 @@
 #include <GL/gl.h>
 #endif
 
+#include "material.h"
+
 namespace Graphics {
 
   struct HairVert
@@ -41,6 +43,8 @@ namespace Graphics {
     //texture names where we store hair data (prev & curr)
     GLuint        pos_tex[2];
     GLuint        force_tex;
+
+    Material      render_mat;
 
     //vertex and index buffers for the geo
     GLuint        vbo;
