@@ -2,6 +2,7 @@
 #define __FLUID_GEOSPHERE_H__
 
 #include "geodesic_grid.h"
+#include "fluid_channels.h"
 
 class FluidGeodesicSphere
 {

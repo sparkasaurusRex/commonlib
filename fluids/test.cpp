@@ -185,11 +185,11 @@ private:
 
         for(int oct = 0; oct < 3; oct++)
         {
-          pixels[((i * w + j) * num_bytes) + oct] = (GLubyte)final_color[oct];//(val * 255.0f);
+          pixels[((i * h + j) * num_bytes) + oct] = (GLubyte)final_color[oct];//(val * 255.0f);
         }
         if(num_bytes == 4)
         {
-          pixels[((i * w + j) * 4) + 3] = (GLubyte)255.0f;//(GLubyte)(val * 255.0f);
+          pixels[((i * h + j) * 4) + 3] = (GLubyte)255.0f;//(GLubyte)(val * 255.0f);
         }
       }
     }

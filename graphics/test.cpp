@@ -1,3 +1,100 @@
+#include "sdl_game.h"
+#include "camera.h"
+#include "gpu_hair_sim.h"
+
+using namespace Graphics;
+
+enum RenderMode
+{
+  RENDER_HAIR,
+  RENDER_HAIR_TEXTURES,
+  NUM_RENDER_MODES
+};
+
+class GraphicsApp : public SDLGame
+{
+public:
+  GraphicsApp() : SDLGame(512, 512, "Graphics Test") {}
+  ~GraphicsApp() {}
+private:
+  void render_hair()
+  {
+    cam.render_setup();
+    gpu_hair.render();
+    cam.render_cleanup();
+  }
+
+  void render_texture()
+  {
+    //render the gpu_hair Texture
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glActiveTexture(GL_TEXTURE0);
+    glClientActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glBindTexture(GL_TEXTURE_2D, gpu_hair.get_pos_tex(0));
+    glBegin(GL_QUADS);
+      glColor3f(1.0f, 1.0f, 1.0f);
+      glTexCoord2f(0.0f, 0.0f);
+      glVertex3f(-1.0f, 0.0f, 0.0f);
+      glTexCoord2f(1.0f, 0.0f);
+      glVertex3f(0.0f, 0.0f, 0.0f);
+      glTexCoord2f(1.0f, 1.0f);
+      glVertex3f(0.0f, 1.0f, 0.0f);
+      glTexCoord2f(0.0f, 1.0f);
+      glVertex3f(-1.0f, 1.0f, 0.0f);
+    glEnd();
+  }
+
+  void render_gl()
+  {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    switch(render_mode)
+    {
+      case RENDER_HAIR_TEXTURES:
+        render_texture();
+        break;
+      default:
+        render_hair();
+        break;
+    }
+  }
+
+  void game_loop(const float game_time, const float frame_time)
+  {
+    gpu_hair.simulate(frame_time);
+  }
+
+  void user_init()
+  {
+    gpu_hair.set_num_hairs(4);
+    gpu_hair.set_num_segments(4);
+    gpu_hair.init();
+  }
+  void user_run() {}
+  void user_process_event(const SDL_Event &event) {}
+
+  GPUHairSim gpu_hair;
+  RenderMode render_mode;
+  Camera cam;
+};
+
+int main(int argc, char **argv)
+{
+  GraphicsApp app;
+  app.init();
+  app.run();
+  return 0;
+}
+
+/*
 #include <GL/glew.h>
 
 #if defined(__APPLE__)
@@ -5,8 +102,6 @@
 #else
 #include <GL/gl.h>
 #endif
-
-
 
 #include <SDL2/SDL.h>
 #include <iostream>
@@ -285,3 +380,4 @@ int main(int argc, char **argv)
 
 	return 0;
 }
+*/

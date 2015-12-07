@@ -12,6 +12,7 @@ namespace Graphics {
   struct HairVert
   {
     float x, y, z;
+    float r, g, b;
     float u, v;
   };
 
@@ -39,11 +40,15 @@ namespace Graphics {
 
     //texture names where we store hair data (prev & curr)
     GLuint        pos_tex[2];
+    GLuint        force_tex;
 
     //vertex and index buffers for the geo
     GLuint        vbo;
     GLuint        ibo;
     HairVert      *verts;
+    int           num_verts;
+    unsigned int  *indices;
+    int           num_indices;
   };
 };
 
