@@ -308,6 +308,7 @@ void GPUHairSim::simulate(const float game_time, const float dt)
     delete pixels;
     glBindTexture(GL_TEXTURE_3D, 0);
 
+    //set the render target to the "current" position texture (0)
     GLint win_viewport[4];
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pos_fbo[0]);
     glGetIntegerv(GL_VIEWPORT, win_viewport);
@@ -326,6 +327,21 @@ void GPUHairSim::simulate(const float game_time, const float dt)
     glLoadIdentity();
 
     sim_mat.render_gl();
+    Shader *shader = sim_mat.get_shader();
+
+    //set uniforms + textures
+    //dt
+    GLuint dt_loc = glGetUniformLocation(shader->gl_shader_program, "dt");
+    glUniform1f(dt_loc, game_time * 0.001f);//dt);
+
+    //force tex
+    //prev pos tex (1)
+    GLuint prev_tex_loc = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
+    glUniform1i(prev_tex_loc, 0);
+    glActiveTexture(GL_TEXTURE0);
+    glClientActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
 
     //draw calls
     glBindBuffer(GL_ARRAY_BUFFER, fbo_vbo);
@@ -349,6 +365,9 @@ void GPUHairSim::simulate(const float game_time, const float dt)
     GLuint temp = pos_tex[0];
     pos_tex[0] = pos_tex[1];
     pos_tex[1] = temp;
+    temp = pos_fbo[0];
+    pos_fbo[0] = pos_fbo[1];
+    pos_fbo[1] = temp;
   }
 
   //TEMP
