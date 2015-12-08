@@ -51,6 +51,7 @@ RenderSurface::RenderSurface(const int w, const int h)
   depth_fbo = 0;
 
   tex_internal_format = GL_RGB;//GL_RGBA16F_ARB;
+  tex_format = GL_RGB;
   tex_type = GL_UNSIGNED_BYTE;//GL_HALF_FLOAT_ARB; //GL_FLOAT;
   tex_filter = GL_LINEAR;
 
@@ -111,7 +112,7 @@ void RenderSurface::init()
   // create a color texture
   glGenTextures(1, &target_tex);
   glBindTexture(GL_TEXTURE_2D, target_tex);
-  glTexImage2D(GL_TEXTURE_2D, 0, tex_internal_format, fbo_res[0], fbo_res[1], 0, GL_RGB, tex_type, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, tex_internal_format, fbo_res[0], fbo_res[1], 0, tex_format, tex_type, 0);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

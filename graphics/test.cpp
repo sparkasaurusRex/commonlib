@@ -22,10 +22,10 @@ private:
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
       glLoadIdentity();
-      glRotatef(45.0f, 1.0f, 0.0f, 0.0f);
+      glRotatef(-25.0f, 1.0f, 0.0f, 0.0f);
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
-      rot_angle += 0.1f;
-
+      glTranslatef(0.0f, -0.5f, 0.0f);
+      glScalef(0.7, 0.7, 0.7);
 
       //cam.render_setup();
       gpu_hair.render();
@@ -79,13 +79,17 @@ private:
 
   void game_loop(const float game_time, const float frame_time)
   {
-    gpu_hair.simulate(frame_time);
+    gpu_hair.simulate(game_time, frame_time);
+    if(!paused)
+    {
+      rot_angle += 10.0f * frame_time;
+    }
   }
 
   void user_init()
   {
     gpu_hair.set_num_hairs(10000);
-    gpu_hair.set_num_segments(12);
+    gpu_hair.set_num_segments(128);
     gpu_hair.init();
 
     Float3 cam_pos(0.0f, 0.5f, -10.0f);
@@ -94,12 +98,33 @@ private:
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));
   }
   void user_run() {}
-  void user_process_event(const SDL_Event &event) {}
+  void user_process_event(const SDL_Event &event)
+  {
+    switch(event.type)
+    {
+      case SDL_KEYUP:
+        switch(event.key.keysym.sym)
+        {
+          case ' ':
+            paused = !paused;
+            break;
+          case '1':
+            render_mode = RENDER_HAIR;
+            break;
+          case '2':
+            render_mode = RENDER_HAIR_TEXTURES;
+            break;
+        }
+        break;
+    }
+  }
 
   GPUHairSim gpu_hair;
   RenderMode render_mode;
   Camera cam;
   float rot_angle;
+
+  bool paused;
 };
 
 int main(int argc, char **argv)

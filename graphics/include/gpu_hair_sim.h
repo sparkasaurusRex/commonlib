@@ -8,6 +8,7 @@
 #endif
 
 #include "material.h"
+#include "render_surface.h"
 
 namespace Graphics {
 
@@ -15,6 +16,12 @@ namespace Graphics {
   {
     float x, y, z;
     float r, g, b;
+    float u, v;
+  };
+
+  struct FBOVert
+  {
+    float x, y, z;
     float u, v;
   };
 
@@ -26,7 +33,7 @@ namespace Graphics {
 
     void init();
     void deinit();
-    void simulate(const float dt);
+    void simulate(const float game_time, const float dt);
     void render();
 
     //only allowed to call these *before* init!!!
@@ -41,10 +48,14 @@ namespace Graphics {
     int           num_segments;
 
     //texture names where we store hair data (prev & curr)
+    GLuint        pos_fbo[2];
     GLuint        pos_tex[2];
+    //RenderSurface pos[2];
     GLuint        force_tex;
+    int           force_tex_dim[3];
 
     Material      render_mat;
+    Material      sim_mat;
 
     //vertex and index buffers for the geo
     GLuint        vbo;
@@ -53,6 +64,14 @@ namespace Graphics {
     int           num_verts;
     unsigned int  *indices;
     int           num_indices;
+
+    //vertex and index buffers for the FBOs
+    GLuint        fbo_vbo;
+    GLuint        fbo_ibo;
+    FBOVert       fbo_verts[4];
+    int           num_fbo_verts;
+    unsigned int  fbo_indices[4];
+    int           num_fbo_indices;
   };
 };
 
