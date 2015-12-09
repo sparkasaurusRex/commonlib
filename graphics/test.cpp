@@ -22,7 +22,7 @@ private:
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
       glLoadIdentity();
-      glRotatef(-25.0f, 1.0f, 0.0f, 0.0f);
+      glRotatef(25.0f, 1.0f, 0.0f, 0.0f);
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
       glTranslatef(0.0f, -0.5f, 0.0f);
       glScalef(0.7, 0.7, 0.7);
