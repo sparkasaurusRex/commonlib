@@ -73,6 +73,8 @@ namespace Graphics {
     int           num_fbo_verts;
     unsigned int  fbo_indices[4];
     int           num_fbo_indices;
+
+    GLuint        internal_format;
   };
 };
 
