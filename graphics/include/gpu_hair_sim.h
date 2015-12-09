@@ -43,6 +43,7 @@ namespace Graphics {
     int get_num_hairs() const { return num_hairs; }
     int get_num_segments() const { return num_segments; }
     GLuint get_pos_tex(const int i) { return pos_tex[i]; }
+    GLuint get_force_tex() { return force_tex; }
   private:
     int           num_hairs;
     int           num_segments;

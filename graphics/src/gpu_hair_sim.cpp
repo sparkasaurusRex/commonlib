@@ -74,7 +74,7 @@ void GPUHairSim::init()
   assert(glIsTexture(force_tex) == GL_TRUE);
   glTexImage2D(GL_TEXTURE_2D,
                0,
-               GL_RGBA16F_ARB,
+               GL_RGBA_FLOAT32_ATI,//GL_RGBA16F_ARB,
                force_tex_dim[0],
                force_tex_dim[1],
                0,
@@ -108,7 +108,7 @@ void GPUHairSim::init()
 
     glTexImage2D(GL_TEXTURE_2D,
                  0,
-                 GL_RGBA16F_ARB,
+                 GL_RGBA_FLOAT32_ATI,//GL_RGBA16F_ARB,
                  num_hairs,           //u axis = hair index
                  num_segments,        //v axis = hair segment index
                  0,
@@ -275,6 +275,7 @@ void GPUHairSim::simulate(const float game_time, const float dt)
 
   //update the force texture
   glBindTexture(GL_TEXTURE_2D, force_tex);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   int num_bytes = 3;
   GLfloat *pixels = new GLfloat[force_tex_dim[0] *
                                 force_tex_dim[1] *

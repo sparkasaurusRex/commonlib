@@ -8,7 +8,8 @@ using namespace Graphics;
 enum RenderMode
 {
   RENDER_HAIR,
-  RENDER_HAIR_TEXTURES,
+  RENDER_HAIR_TEXTURE,
+  RENDER_FORCE_TEXTURE,
   NUM_RENDER_MODES
 };
 
@@ -25,8 +26,8 @@ private:
       glLoadIdentity();
       glRotatef(25.0f, 1.0f, 0.0f, 0.0f);
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
-      glTranslatef(0.0f, -0.5f, 0.0f);
-      glScalef(0.7, 0.7, 0.7);
+      glTranslatef(0.0f, -0.3f, 0.0f);
+      //glScalef(0.8, 0.8, 0.8);
 
       //cam.render_setup();
       gpu_hair.render();
@@ -35,9 +36,23 @@ private:
     glPopMatrix();
   }
 
-  void render_texture()
+  void render_fullscreen_quad()
   {
-    //render the gpu_hair Texture
+    glBegin(GL_QUADS);
+      glColor3f(1.0f, 1.0f, 1.0f);
+      glTexCoord2f(0.0f, 0.0f);
+      glVertex3f(-1.0f, -1.0f, 0.0f);
+      glTexCoord2f(1.0f, 0.0f);
+      glVertex3f(1.0f, -1.0f, 0.0f);
+      glTexCoord2f(1.0f, 1.0f);
+      glVertex3f(1.0f, 1.0f, 0.0f);
+      glTexCoord2f(0.0f, 1.0f);
+      glVertex3f(-1.0f, 1.0f, 0.0f);
+    glEnd();
+  }
+
+  void setup_textured_quad_state()
+  {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glActiveTexture(GL_TEXTURE0);
@@ -47,19 +62,20 @@ private:
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+  }
 
+  void render_pos_texture()
+  {
+    setup_textured_quad_state();
     glBindTexture(GL_TEXTURE_2D, gpu_hair.get_pos_tex(0));
-    glBegin(GL_QUADS);
-      glColor3f(1.0f, 1.0f, 1.0f);
-      glTexCoord2f(0.0f, 0.0f);
-      glVertex3f(-1.0f, 0.0f, 0.0f);
-      glTexCoord2f(1.0f, 0.0f);
-      glVertex3f(0.0f, 0.0f, 0.0f);
-      glTexCoord2f(1.0f, 1.0f);
-      glVertex3f(0.0f, 1.0f, 0.0f);
-      glTexCoord2f(0.0f, 1.0f);
-      glVertex3f(-1.0f, 1.0f, 0.0f);
-    glEnd();
+    render_fullscreen_quad();
+  }
+
+  void render_force_texture()
+  {
+    setup_textured_quad_state();
+    glBindTexture(GL_TEXTURE_2D, gpu_hair.get_force_tex());
+    render_fullscreen_quad();
   }
 
   void render_gl()
@@ -69,8 +85,11 @@ private:
 
     switch(render_mode)
     {
-      case RENDER_HAIR_TEXTURES:
-        render_texture();
+      case RENDER_HAIR_TEXTURE:
+        render_pos_texture();
+        break;
+      case RENDER_FORCE_TEXTURE:
+        render_force_texture();
         break;
       default:
         render_hair();
@@ -89,7 +108,7 @@ private:
 
   void user_init()
   {
-    gpu_hair.set_num_hairs(1000);
+    gpu_hair.set_num_hairs(10000);
     gpu_hair.set_num_segments(4);
     gpu_hair.init();
 
@@ -113,7 +132,10 @@ private:
             render_mode = RENDER_HAIR;
             break;
           case '2':
-            render_mode = RENDER_HAIR_TEXTURES;
+            render_mode = RENDER_HAIR_TEXTURE;
+            break;
+          case '3':
+            render_mode = RENDER_FORCE_TEXTURE;
             break;
         }
         break;
