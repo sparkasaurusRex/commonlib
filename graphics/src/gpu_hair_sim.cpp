@@ -69,6 +69,7 @@ void GPUHairSim::init()
 
   //create a 3D force texture
   glGenTextures(1, &force_tex);
+  cout<<"force tex id: "<<force_tex<<endl;
   glBindTexture(GL_TEXTURE_2D, force_tex);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   assert(glIsTexture(force_tex) == GL_TRUE);
@@ -78,18 +79,22 @@ void GPUHairSim::init()
                force_tex_dim[0],
                force_tex_dim[1],
                0,
-               GL_RGB,
+               GL_RGBA,
                GL_FLOAT,
                NULL);
-  /*glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);*/
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  assert(glIsTexture(force_tex) == GL_TRUE);
 
   Float3 *hair_pos = new Float3[num_hairs];
   for(int i = 0; i < num_hairs; i++)
   {
     hair_pos[i] = Float3(random(-1.0f, 1.0f), 0.0f, random(-1.0f, 1.0f));
+    //float mag = hair_pos[i].magnitude();
+    //if(mag > 1.0f) { hair_pos[i] = hair_pos[i] / mag; }
+    //hair_pos[i].normalize();
   }
 
   //create 2 2D displacement textures to represet current and previous
@@ -133,11 +138,6 @@ void GPUHairSim::init()
       float seg_pct = (float)k / (float)num_segments;
       for(int j = 0; j < num_hairs; j++)
       {
-        /*Float3 root_pos((float)j / (float)num_hairs, seg_pct, 0.0f);
-        pixels[pixel_idx++] = (GLubyte)(root_pos[0] * 255.0f);
-        pixels[pixel_idx++] = (GLubyte)(root_pos[1] * 255.0f);
-        pixels[pixel_idx++] = (GLubyte)(root_pos[2] * 255.0f);
-        */
         pixels[pixel_idx++] = hair_pos[j][0];
         pixels[pixel_idx++] = height * seg_pct;
         pixels[pixel_idx++] = hair_pos[j][2];
@@ -147,27 +147,6 @@ void GPUHairSim::init()
         }
       }
     }
-
-    /*for(int j = 0; j < num_hairs; j++)
-    {
-      Float3 root_pos(0.0f, 0.0f, (float)j / (float)num_hairs);
-      for(int k = 0; k < num_segments; k++)
-      {
-        float x_val = 1.0f * (float)j / (float)num_hairs;
-        float y_val = 1.0f * (float)k / (float)num_segments;
-        float z_val = 0.0f;
-        float val = 0.0f;//0.5f * PerlinNoise::octave_noise_3d(2, 1.0f, 4.0f, x_val, y_val, z_val) + 0.5f;
-
-        for(int oct = 0; oct < 3; oct++)
-        {
-          pixels[((j * num_segments + k) * num_bytes) + oct] = (GLubyte)(root_pos[oct] * 255.0f);
-        }
-        if(num_bytes == 4)
-        {
-          pixels[((j * num_segments + k) * 4) + 3] = (GLubyte)255.0f;
-        }
-      }
-    }*/
 
     glTexSubImage2D(GL_TEXTURE_2D,
                     0,                //mip level
@@ -270,19 +249,20 @@ void GPUHairSim::deinit()
 
 void GPUHairSim::simulate(const float game_time, const float dt)
 {
-  float speed = 1.0f;
+  float speed = 0.0001f;
   float scale = 1.0f;
 
   //update the force texture
-  glBindTexture(GL_TEXTURE_2D, force_tex);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  int num_bytes = 3;
+  int num_bytes = 4;
   GLfloat *pixels = new GLfloat[force_tex_dim[0] *
                                 force_tex_dim[1] *
                                 num_bytes];
 
 
   int pix_idx = 0;
+  //cout<<force_tex_dim[0]<<endl;
+  //cout<<force_tex_dim[1]<<endl;
   for(int i = 0; i < force_tex_dim[0]; i++)
   {
     for(int j = 0; j < force_tex_dim[1]; j++)
@@ -290,20 +270,22 @@ void GPUHairSim::simulate(const float game_time, const float dt)
       float x = (float)i / (float)force_tex_dim[0];
       float y = (float)j / (float)force_tex_dim[1];
       pixels[pix_idx++] = scaled_octave_noise_3d(2, 1.0f, scale, -1.0f, 1.0f, x, y, game_time * speed);
-      pixels[pix_idx++] = 0;//(GLubyte)(scaled_octave_noise_4d(2, 1.0f, scale * 0.9f, -255.0f, 255.0f, x + 12.43f, y + 9.13f, z + 4.13f, game_time * speed));
+      pixels[pix_idx++] = 0.0f;//(GLubyte)(scaled_octave_noise_4d(2, 1.0f, scale * 0.9f, -255.0f, 255.0f, x + 12.43f, y + 9.13f, z + 4.13f, game_time * speed));
       pixels[pix_idx++] = scaled_octave_noise_3d(2, 1.0f, scale * 1.2f, -1.0f, 1.0f, x + 3.12f, y + 67.12f, game_time * speed);
+      pixels[pix_idx++] = 1.0f;
     }
   }
 
+  glBindTexture(GL_TEXTURE_2D, force_tex);
   glTexSubImage2D(GL_TEXTURE_2D,
-                  0,                //mip level
-                  0,                //starting u coord
-                  0,                //starting v coord
+                  0,                    //mip level
+                  0,                    //starting u coord
+                  0,                    //starting v coord
                   force_tex_dim[0],     //width of update rect
                   force_tex_dim[1],     //height of update rect
-                  GL_RGB,               //pixel format
+                  GL_RGBA,               //pixel format
                   GL_FLOAT,
-                  pixels);          //pointer to pixel data
+                  pixels);              //pointer to pixel data
 
   delete pixels;
 
@@ -363,7 +345,7 @@ void GPUHairSim::simulate(const float game_time, const float dt)
   //reset shader
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE1);
-  glDisable(GL_TEXTURE_3D);
+  glDisable(GL_TEXTURE_2D);
 
   //release fbo
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
