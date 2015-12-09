@@ -16,7 +16,7 @@ namespace Graphics {
   {
     float x, y, z;
     float r, g, b;
-    float u, v;
+    float u0, v0;       //index into pos tex
   };
 
   struct FBOVert
@@ -52,7 +52,7 @@ namespace Graphics {
     GLuint        pos_tex[2];
     //RenderSurface pos[2];
     GLuint        force_tex;
-    int           force_tex_dim[3];
+    int           force_tex_dim[2];
 
     Material      render_mat;
     Material      sim_mat;

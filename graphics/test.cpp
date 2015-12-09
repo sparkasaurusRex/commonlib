@@ -1,3 +1,4 @@
+#include <time.h>
 #include "sdl_game.h"
 #include "camera.h"
 #include "gpu_hair_sim.h"
@@ -24,7 +25,7 @@ private:
       glLoadIdentity();
       glRotatef(25.0f, 1.0f, 0.0f, 0.0f);
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
-      glTranslatef(0.0f, 0.5f, 0.0f);
+      glTranslatef(0.0f, -0.5f, 0.0f);
       glScalef(0.7, 0.7, 0.7);
 
       //cam.render_setup();
@@ -88,7 +89,7 @@ private:
 
   void user_init()
   {
-    gpu_hair.set_num_hairs(10000);
+    gpu_hair.set_num_hairs(1000);
     gpu_hair.set_num_segments(4);
     gpu_hair.init();
 
@@ -129,6 +130,8 @@ private:
 
 int main(int argc, char **argv)
 {
+  srand(time(NULL));
+
   GraphicsApp app;
   app.init();
   app.run();
