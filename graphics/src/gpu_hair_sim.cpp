@@ -87,6 +87,12 @@ void GPUHairSim::init()
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);*/
 
+  Float3 *hair_pos = new Float3[num_hairs];
+  for(int i = 0; i < num_hairs; i++)
+  {
+    hair_pos[i] = Float3(random(0.0f, 1.0f), 0.0f, random(0.0f, 1.0f));
+  }
+
   //create 2 2D displacement textures to represet current and previous
   //frame displacement per hair
   glGenTextures(2, pos_tex);
@@ -105,7 +111,7 @@ void GPUHairSim::init()
                  num_hairs,           //u axis = hair index
                  num_segments,        //v axis = hair segment index
                  0,
-                 pixel_mode,          //RGB = xyz (pos), A = ?
+                 pixel_mode, //GL_RGBA16F_ARB,      //RGB = xyz (pos), A = ?
                  GL_UNSIGNED_BYTE,
                  NULL);
 
@@ -116,12 +122,34 @@ void GPUHairSim::init()
 
     assert(glIsTexture(pos_tex[i]) == GL_TRUE);
 
-    //fill textures w/ initial values
+    //fill textures w/ initial values (random points in [-1, 1], [-1, 1])
+    int pixel_idx = 0;
+    float height = 0.2f;
     int num_bytes = (pixel_mode == GL_RGBA) ? 4 : 3;
     GLubyte *pixels = new GLubyte[num_hairs * num_segments * num_bytes];
-
-    for(int j = 0; j < num_hairs; j++)
+    for(int k = 0; k < num_segments; k++)
     {
+      float seg_pct = (float)k / (float)num_segments;
+      for(int j = 0; j < num_hairs; j++)
+      {
+        /*Float3 root_pos((float)j / (float)num_hairs, seg_pct, 0.0f);
+        pixels[pixel_idx++] = (GLubyte)(root_pos[0] * 255.0f);
+        pixels[pixel_idx++] = (GLubyte)(root_pos[1] * 255.0f);
+        pixels[pixel_idx++] = (GLubyte)(root_pos[2] * 255.0f);
+        */
+        pixels[pixel_idx++] = (GLubyte)(hair_pos[j][0] * 255.0f);
+        pixels[pixel_idx++] = (GLubyte)(height * seg_pct * 255.0f);
+        pixels[pixel_idx++] = (GLubyte)(hair_pos[j][2] * 255.0f);
+        if(num_bytes == 4)
+        {
+          pixels[pixel_idx++] = (GLubyte)255.0f;
+        }
+      }
+    }
+
+    /*for(int j = 0; j < num_hairs; j++)
+    {
+      Float3 root_pos(0.0f, 0.0f, (float)j / (float)num_hairs);
       for(int k = 0; k < num_segments; k++)
       {
         float x_val = 1.0f * (float)j / (float)num_hairs;
@@ -131,14 +159,14 @@ void GPUHairSim::init()
 
         for(int oct = 0; oct < 3; oct++)
         {
-          pixels[((j * num_segments + k) * num_bytes) + oct] = (GLubyte)(val * 255.0f);
+          pixels[((j * num_segments + k) * num_bytes) + oct] = (GLubyte)(root_pos[oct] * 255.0f);
         }
         if(num_bytes == 4)
         {
           pixels[((j * num_segments + k) * 4) + 3] = (GLubyte)255.0f;
         }
       }
-    }
+    }*/
 
     glTexSubImage2D(GL_TEXTURE_2D,
                     0,                //mip level
@@ -178,6 +206,8 @@ void GPUHairSim::init()
     pos[i].init();*/
   }
 
+  delete hair_pos;
+
   //create our geometry buffers
   num_verts = num_hairs * (num_segments) * 2;
   num_indices = num_verts;
@@ -198,26 +228,26 @@ void GPUHairSim::init()
     root_pos[0] = new_pos[0] * c - new_pos[2] * s;
     root_pos[2] = new_pos[0] * s + new_pos[2] * c;
 
-    float height = 0.5f;
+    float height = 1.0f;
 
     Float3 col_a(0.1f, 0.1f, 0.05f);
     Float3 col_b(0.15f, 0.7f, 0.35f);
 
-    root_pos = Float3(random(-1.0f, 1.0f), 0.0f, random(-1.0f, 1.0f));
+    root_pos = Float3(0.0f, 0.0f, 0.0f);//Float3(random(-1.0f, 1.0f), 0.0f, random(-1.0f, 1.0f));
 
     for(int j = 1; j < num_segments + 1; j++)
     {
       for(int k = j - 1; k <= j; k++)
       {
         float segment_pct = (float)(k) / (float)num_segments;
-        verts[v_idx].x = root_pos[0];
-        verts[v_idx].y = height * segment_pct;
-        verts[v_idx].z = root_pos[2];
+        verts[v_idx].x = 0.0f;
+        verts[v_idx].y = 0.0f;//height * segment_pct;
+        verts[v_idx].z = 0.0f;
         verts[v_idx].r = lerp(col_a[0], col_b[0], segment_pct);
         verts[v_idx].g = lerp(col_a[1], col_b[1], segment_pct);
         verts[v_idx].b = lerp(col_a[2], col_b[2], segment_pct);
-        verts[v_idx].u = segment_pct;
-        verts[v_idx].v = 0.0f;
+        verts[v_idx].u = (float)i / (float)num_hairs;
+        verts[v_idx].v = segment_pct;
 
         indices[i_idx++] = v_idx++;
       }
@@ -260,15 +290,11 @@ void GPUHairSim::simulate(const float game_time, const float dt)
 {
   float speed = 0.1f;
   float scale = 1.0f;
-  //TODO
-  //glTexSubImage3D - to update forces
-  //set uniform variable (dt)
-  //render pos + force -> new pos texture
 
   if(true)
   {
     //update the force texture
-    glBindTexture(GL_TEXTURE_3D, force_tex);
+    /*glBindTexture(GL_TEXTURE_3D, force_tex);
     int num_bytes = 3;
     GLubyte *pixels = new GLubyte[force_tex_dim[0] *
                                   force_tex_dim[1] *
@@ -307,6 +333,7 @@ void GPUHairSim::simulate(const float game_time, const float dt)
 
     delete pixels;
     glBindTexture(GL_TEXTURE_3D, 0);
+    */
 
     //set the render target to the "current" position texture (0)
     GLint win_viewport[4];
@@ -334,7 +361,6 @@ void GPUHairSim::simulate(const float game_time, const float dt)
     GLuint dt_loc = glGetUniformLocation(shader->gl_shader_program, "dt");
     glUniform1f(dt_loc, game_time * 0.001f);//dt);
 
-    //force tex
     //prev pos tex (1)
     GLuint prev_tex_loc = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
     glUniform1i(prev_tex_loc, 0);
@@ -342,6 +368,13 @@ void GPUHairSim::simulate(const float game_time, const float dt)
     glClientActiveTexture(GL_TEXTURE0);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
+
+    //force tex
+    /*GLuint force_tex_loc = glGetUniformLocation(shader->gl_shader_program, "force_tex");
+    glUniform1i(force_tex_loc, 1);
+    glActiveTexture(GL_TEXTURE1);
+    glEnable(GL_TEXTURE_3D);
+    glBindTexture(GL_TEXTURE_3D, force_tex);*/
 
     //draw calls
     glBindBuffer(GL_ARRAY_BUFFER, fbo_vbo);
@@ -420,15 +453,14 @@ void GPUHairSim::render()
 
   Shader *shader = render_mat.get_shader();
 
-  //set up uniforms
-  GLint uloc = glGetUniformLocation(shader->gl_shader_program, "hair_tex");
-  glUniform1i(uloc, 0);
-
   glEnable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);
 
   //glDepthRange(0.0f, 1.0f);
 
+  //set up uniforms
+  GLint uloc = glGetUniformLocation(shader->gl_shader_program, "hair_tex");
+  glUniform1i(uloc, 0);
   glActiveTexture(GL_TEXTURE0);
   glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
