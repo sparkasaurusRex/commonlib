@@ -89,7 +89,7 @@ private:
   void user_init()
   {
     gpu_hair.set_num_hairs(10000);
-    gpu_hair.set_num_segments(8);
+    gpu_hair.set_num_segments(4);
     gpu_hair.init();
 
     Float3 cam_pos(0.0f, 0.5f, -10.0f);

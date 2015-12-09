@@ -105,6 +105,8 @@ void GPUHairSim::init()
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     assert(glIsTexture(pos_tex[i]) == GL_TRUE);
 
+    //pixel_mode = GL_RGBA_FLOAT32_ATI;//GL_RGBA16F_ARB;
+
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  pixel_mode,
@@ -288,13 +290,13 @@ void GPUHairSim::deinit()
 
 void GPUHairSim::simulate(const float game_time, const float dt)
 {
-  float speed = 0.1f;
+  float speed = 10.0f;
   float scale = 1.0f;
 
   if(true)
   {
     //update the force texture
-    /*glBindTexture(GL_TEXTURE_3D, force_tex);
+    glBindTexture(GL_TEXTURE_3D, force_tex);
     int num_bytes = 3;
     GLubyte *pixels = new GLubyte[force_tex_dim[0] *
                                   force_tex_dim[1] *
@@ -312,9 +314,9 @@ void GPUHairSim::simulate(const float game_time, const float dt)
           float x = (float)i / (float)force_tex_dim[0];
           float y = (float)j / (float)force_tex_dim[1];
           float z = (float)k / (float)force_tex_dim[2];
-          pixels[pix_idx++] = (GLubyte)(scaled_octave_noise_4d(2, 1.0f, scale, -255.0f, 255.0f, x, y, z, game_time * speed));
-          pixels[pix_idx++] = (GLubyte)(scaled_octave_noise_4d(2, 1.0f, scale * 0.9f, -255.0f, 255.0f, x + 12.43f, y + 9.13f, z + 4.13f, game_time * speed));
-          pixels[pix_idx++] = (GLubyte)(scaled_octave_noise_4d(2, 1.0f, scale * 1.2f, -255.0f, 255.0f, x + 3.12f, y + 67.12f, z + 7.915f, game_time * speed));
+          pixels[pix_idx++] = (GLubyte)(scaled_octave_noise_4d(2, 1.0f, scale, 0.0f, 255.0f, x, y, z, game_time * speed));
+          pixels[pix_idx++] = 0;//(GLubyte)(scaled_octave_noise_4d(2, 1.0f, scale * 0.9f, -255.0f, 255.0f, x + 12.43f, y + 9.13f, z + 4.13f, game_time * speed));
+          pixels[pix_idx++] = (GLubyte)(scaled_octave_noise_4d(2, 1.0f, scale * 1.2f, 0.0f, 255.0f, x + 3.12f, y + 67.12f, z + 7.915f, game_time * speed));
         }
       }
     }
@@ -333,7 +335,6 @@ void GPUHairSim::simulate(const float game_time, const float dt)
 
     delete pixels;
     glBindTexture(GL_TEXTURE_3D, 0);
-    */
 
     //set the render target to the "current" position texture (0)
     GLint win_viewport[4];
@@ -370,11 +371,12 @@ void GPUHairSim::simulate(const float game_time, const float dt)
     glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
 
     //force tex
-    /*GLuint force_tex_loc = glGetUniformLocation(shader->gl_shader_program, "force_tex");
+    GLuint force_tex_loc = glGetUniformLocation(shader->gl_shader_program, "force_tex");
     glUniform1i(force_tex_loc, 1);
     glActiveTexture(GL_TEXTURE1);
+    //glClientActiveTexture(GL_TEXTURE1);
     glEnable(GL_TEXTURE_3D);
-    glBindTexture(GL_TEXTURE_3D, force_tex);*/
+    glBindTexture(GL_TEXTURE_3D, force_tex);
 
     //draw calls
     glBindBuffer(GL_ARRAY_BUFFER, fbo_vbo);
@@ -389,6 +391,8 @@ void GPUHairSim::simulate(const float game_time, const float dt)
 
     //reset shader
     glUseProgramObjectARB(0);
+    glActiveTexture(GL_TEXTURE1);
+    glDisable(GL_TEXTURE_3D);
 
     //release fbo
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
