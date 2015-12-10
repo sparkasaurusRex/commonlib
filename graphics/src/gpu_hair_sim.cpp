@@ -14,7 +14,7 @@ GPUHairSim::GPUHairSim()
 {
   num_hairs = 4;
   num_segments = 4;
-  hair_height = 1.0f;
+  hair_height = 0.5f;
 
   pos_fbo[0] = pos_fbo[1] = 0;
   pos_tex[0] = pos_tex[1] = 0;
@@ -59,7 +59,7 @@ GPUHairSim::GPUHairSim()
   num_fbo_verts = num_fbo_indices = 4;
   fbo_vbo = fbo_ibo = 0;
 
-  k = 1.0f;
+  k = 60.0f;
 }
 
 GPUHairSim::~GPUHairSim()

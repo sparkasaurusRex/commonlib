@@ -10,9 +10,11 @@ uniform float texel_size;
 void main()
 {
   float dt = constants.x;
-  float k = 50.0;//constants.y;
+  float k = constants.y;
   float texel_size = constants.z;
   float spring_length = constants.w;
+	float wind_strength = 0.8;
+	float drag = 0.1;
 
 	//use the position of root segment's xy coordinates as our uvs (TEMP)
 	vec2 force_uvs = texture2D(prev_pos_tex, vec2(gl_TexCoord[0].s, 0.0)).rb;
@@ -20,12 +22,12 @@ void main()
 
   vec4 prev_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st);
   vec4 parent_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st - vec2(0.0, texel_size));
-  vec3 external_force = texture2D(force_tex, force_uvs).rgb;
+  vec3 external_force = wind_strength * texture2D(force_tex, force_uvs).rgb;
 
   vec3 v_spring = prev_pos.xyz - parent_pos.xyz;
   float r = length(v_spring);
 
-	vec3 up_force = vec3(0.0, 1.0, 0.0);
+	vec3 up_force = vec3(0.0, 0.2, 0.0);	//TODO - hair surface normal?
   vec3 spring_force = -k * (v_spring / r) * (r - spring_length);
 	vec3 final_force = dt * (external_force + spring_force + up_force);
 

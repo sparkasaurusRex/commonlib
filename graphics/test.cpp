@@ -27,7 +27,7 @@ private:
       glRotatef(25.0f, 1.0f, 0.0f, 0.0f);
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
       glTranslatef(0.0f, -0.3f, 0.0f);
-      //glScalef(0.8, 0.8, 0.8);
+      glScalef(1.2, 1.2, 1.2);
 
       //cam.render_setup();
       gpu_hair.render();
@@ -109,7 +109,7 @@ private:
   void user_init()
   {
     gpu_hair.set_num_hairs(10000);
-    gpu_hair.set_num_segments(8);
+    gpu_hair.set_num_segments(12);
     gpu_hair.init();
 
     Float3 cam_pos(0.0f, 0.5f, -10.0f);
