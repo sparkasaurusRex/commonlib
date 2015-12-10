@@ -47,6 +47,7 @@ namespace Graphics {
   private:
     int           num_hairs;
     int           num_segments;
+    float         hair_height;
 
     //texture names where we store hair data (prev & curr)
     GLuint        pos_fbo[2];
@@ -75,6 +76,8 @@ namespace Graphics {
     int           num_fbo_indices;
 
     GLuint        internal_format;
+
+    float         k;
   };
 };
 
