@@ -14,9 +14,13 @@ void main()
   float texel_size = constants.z;
   float spring_length = constants.w;
 
+	//use the position of root segment's xy coordinates as our uvs (TEMP)
+	vec2 force_uvs = texture2D(prev_pos_tex, vec2(gl_TexCoord[0].s, 0.0)).rb;
+	force_uvs = vec2(0.5 * force_uvs.x + 0.5, 0.5 * force_uvs.y + 0.5);
+
   vec4 prev_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st);
   vec4 parent_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st - vec2(0.0, texel_size));
-  vec3 external_force = texture2D(force_tex, vec2(prev_pos.x, prev_pos.z)).rgb;
+  vec3 external_force = texture2D(force_tex, force_uvs).rgb;
 
   vec3 v_spring = prev_pos.xyz - parent_pos.xyz;
   float r = length(v_spring);
@@ -25,7 +29,7 @@ void main()
   vec3 spring_force = -k * (v_spring / r) * (r - spring_length);
 	vec3 final_force = dt * (external_force + spring_force + up_force);
 
-	if(gl_TexCoord[0].t < 0.1)
+	if(gl_TexCoord[0].t < texel_size)
 	{
 		final_force = vec3(0.0, 0.0, 0.0);
 	}

@@ -251,7 +251,7 @@ void GPUHairSim::deinit()
 void GPUHairSim::simulate(const float game_time, const float dt)
 {
   float speed = 0.0001f;
-  float scale = 1.0f;
+  float scale = 2.0f;
 
   //update the force texture
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
