@@ -8,6 +8,7 @@
 #endif
 
 #include "material.h"
+#include "texture.h"
 #include "render_surface.h"
 
 namespace Graphics {
@@ -39,11 +40,13 @@ namespace Graphics {
     //only allowed to call these *before* init!!!
     void set_num_hairs(const int h) { num_hairs = h; }
     void set_num_segments(const int s) { num_segments = s; }
+    void set_color_tex(Texture *t) { color_tex = t; }
 
     int get_num_hairs() const { return num_hairs; }
     int get_num_segments() const { return num_segments; }
     GLuint get_pos_tex(const int i) { return pos_tex[i]; }
     GLuint get_force_tex() { return force_tex; }
+    GLuint get_uv_tex() { return uv_tex; }
   private:
     int           num_hairs;
     int           num_segments;
@@ -52,10 +55,12 @@ namespace Graphics {
     //texture names where we store hair data (prev & curr)
     GLuint        pos_fbo[2];
     GLuint        pos_tex[2];
-    //RenderSurface pos[2];
     GLuint        uv_tex;
+
     GLuint        force_tex;
     int           force_tex_dim[2];
+
+    Texture       *color_tex;
 
     Material      render_mat;
     Material      sim_mat;

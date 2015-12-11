@@ -27,7 +27,7 @@ public:
 
   bool load();
   bool load_from_file_data(TextureFileData &tfd);
-  bool render_gl() const;
+  bool render_gl(GLuint tex_stage = GL_TEXTURE0) const;
 
   bool update_pixels_from_mem(void *pixels);
 

@@ -10,14 +10,23 @@ enum RenderMode
   RENDER_HAIR,
   RENDER_HAIR_TEXTURE,
   RENDER_FORCE_TEXTURE,
+  RENDER_UV_TEXTURE,
   NUM_RENDER_MODES
 };
 
 class GraphicsApp : public SDLGame
 {
 public:
-  GraphicsApp() : SDLGame(512, 512, "Graphics Test") { rot_angle = 0.0f; }
-  ~GraphicsApp() {}
+  GraphicsApp() : SDLGame(512, 512, "Graphics Test")
+  {
+    rot_angle = 0.0f;
+    color_tex = NULL;
+    render_mode = RENDER_HAIR;
+  }
+  ~GraphicsApp()
+  {
+    delete color_tex;
+  }
 private:
   void render_hair()
   {
@@ -78,6 +87,13 @@ private:
     render_fullscreen_quad();
   }
 
+  void render_uv_texture()
+  {
+    setup_textured_quad_state();
+    glBindTexture(GL_TEXTURE_2D, gpu_hair.get_uv_tex());
+    render_fullscreen_quad();
+  }
+
   void render_gl()
   {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -90,6 +106,9 @@ private:
         break;
       case RENDER_FORCE_TEXTURE:
         render_force_texture();
+        break;
+      case RENDER_UV_TEXTURE:
+        render_uv_texture();
         break;
       default:
         render_hair();
@@ -111,6 +130,10 @@ private:
     gpu_hair.set_num_hairs(10000);
     gpu_hair.set_num_segments(12);
     gpu_hair.init();
+
+    color_tex = new Texture("data/grass.jpg");
+    color_tex->load();
+    gpu_hair.set_color_tex(color_tex);
 
     Float3 cam_pos(0.0f, 0.5f, -10.0f);
     cam.set_pos(cam_pos);
@@ -137,6 +160,9 @@ private:
           case '3':
             render_mode = RENDER_FORCE_TEXTURE;
             break;
+          case '4':
+            render_mode = RENDER_UV_TEXTURE;
+            break;
         }
         break;
     }
@@ -148,6 +174,8 @@ private:
   float rot_angle;
 
   bool paused;
+
+  Texture *color_tex;
 };
 
 int main(int argc, char **argv)

@@ -25,6 +25,7 @@ GPUHairSim::GPUHairSim()
   indices = NULL;
   num_indices = 0;
   force_tex_dim[0] = force_tex_dim[1] = 128;
+  color_tex = NULL;
   internal_format = GL_RGBA_FLOAT32_ATI; //GL_RGBA32F;//
 
   fbo_indices[0] = 0;
@@ -241,8 +242,8 @@ void GPUHairSim::init()
 
   for(int i = 0; i < num_hairs; i++)
   {
-    Float3 col_a(0.1f, 0.1f, 0.05f);
-    Float3 col_b(0.15f, 0.7f, 0.35f);
+    Float3 col_a(0.3f, 0.3f, 0.3f);
+    Float3 col_b(1.0f, 1.0f, 1.0f);
 
 
     for(int j = 1; j < num_segments + 1; j++)
@@ -405,6 +406,8 @@ void GPUHairSim::simulate(const float game_time, const float dt)
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE2);
+  glDisable(GL_TEXTURE_2D);
 
   //release fbo
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -433,12 +436,24 @@ void GPUHairSim::render()
   //glDepthRange(0.0f, 1.0f);
 
   //set up uniforms
-  GLint uloc = glGetUniformLocation(shader->gl_shader_program, "hair_tex");
+  GLuint uloc = glGetUniformLocation(shader->gl_shader_program, "hair_tex");
   glUniform1i(uloc, 0);
   glActiveTexture(GL_TEXTURE0);
-  glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[0]);
+
+  uloc = glGetUniformLocation(shader->gl_shader_program, "uv_tex");
+  glUniform1i(uloc, 1);
+  glActiveTexture(GL_TEXTURE1);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, uv_tex);
+
+  if(color_tex)
+  {
+    uloc = glGetUniformLocation(shader->gl_shader_program, "color_tex");
+    glUniform1i(uloc, 2);
+    color_tex->render_gl(GL_TEXTURE2);
+  }
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -447,6 +462,7 @@ void GPUHairSim::render()
   glEnableClientState(GL_COLOR_ARRAY);
   glColorPointer(3, GL_FLOAT, sizeof(HairVert), (void *)(sizeof(float) * 3));
 
+  glClientActiveTexture(GL_TEXTURE0);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(HairVert), (void *)(sizeof(float) * 6));
 
@@ -455,4 +471,10 @@ void GPUHairSim::render()
 
   //reset shader
   glUseProgramObjectARB(0);
+  glActiveTexture(GL_TEXTURE0);
+  glDisable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE1);
+  glDisable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE2);
+  glDisable(GL_TEXTURE_2D);
 }
