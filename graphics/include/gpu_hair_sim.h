@@ -53,6 +53,7 @@ namespace Graphics {
     GLuint        pos_fbo[2];
     GLuint        pos_tex[2];
     //RenderSurface pos[2];
+    GLuint        uv_tex;
     GLuint        force_tex;
     int           force_tex_dim[2];
 

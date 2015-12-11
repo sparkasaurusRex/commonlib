@@ -69,13 +69,73 @@ GPUHairSim::~GPUHairSim()
 
 void GPUHairSim::init()
 {
+  Float3 *hair_pos = new Float3[num_hairs];
+  Float2 *hair_uvs = new Float2[num_hairs];
+  for(int i = 0; i < num_hairs; i++)
+  {
+    hair_pos[i] = Float3(random(-1.0f, 1.0f), 0.0f, random(-1.0f, 1.0f));
+    hair_uvs[i] = Float2(0.5f * hair_pos[i][0] + 0.5f, 0.5f * hair_pos[i][2] + 0.5f);
+    //float mag = hair_pos[i].magnitude();
+    //if(mag > 1.0f) { hair_pos[i] = hair_pos[i] / mag; }
+    //hair_pos[i].normalize();
+  }
+
   //1. create our textures
+
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+  //create uv tex
+  glGenTextures(1, &uv_tex);
+  glBindTexture(GL_TEXTURE_2D, uv_tex);
+  assert(glIsTexture(uv_tex) == GL_TRUE);
+  glTexImage2D(GL_TEXTURE_2D,
+               0,
+               internal_format,//GL_RGBA16F_ARB,
+               num_hairs,           //u axis = hair index
+               num_segments,        //v axis = hair segment index
+               0,
+               GL_RGBA, //GL_RGBA16F_ARB,      //RGB = xyz (pos), A = ?
+               GL_FLOAT,//GL_UNSIGNED_BYTE,
+               NULL);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  assert(glIsTexture(uv_tex) == GL_TRUE);
+
+  //fill uv tex
+  int pixel_idx = 0;
+  GLfloat *pixels = new GLfloat[num_hairs * num_segments * 4];
+  for(int k = 0; k < num_segments; k++)
+  {
+    float seg_pct = (float)k / (float)num_segments;
+    for(int j = 0; j < num_hairs; j++)
+    {
+      pixels[pixel_idx++] = hair_uvs[j][0];
+      pixels[pixel_idx++] = hair_uvs[j][1];
+      pixels[pixel_idx++] = 0.0f;
+      pixels[pixel_idx++] = 0.0f;
+    }
+  }
+
+  glTexSubImage2D(GL_TEXTURE_2D,
+                  0,                //mip level
+                  0,                //starting u coord
+                  0,                //starting v coord
+                  num_hairs,        //width of update rect
+                  num_segments,     //height of update rect
+                  GL_RGBA,       //pixel format
+                  GL_FLOAT,
+                  pixels);          //pointer to pixel data
+
+  delete pixels;
 
   //create a force texture
   glGenTextures(1, &force_tex);
-  cout<<"force tex id: "<<force_tex<<endl;
   glBindTexture(GL_TEXTURE_2D, force_tex);
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
   assert(glIsTexture(force_tex) == GL_TRUE);
   glTexImage2D(GL_TEXTURE_2D,
                0,
@@ -92,15 +152,6 @@ void GPUHairSim::init()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   assert(glIsTexture(force_tex) == GL_TRUE);
 
-  Float3 *hair_pos = new Float3[num_hairs];
-  for(int i = 0; i < num_hairs; i++)
-  {
-    hair_pos[i] = Float3(random(-1.0f, 1.0f), 0.0f, random(-1.0f, 1.0f));
-    //float mag = hair_pos[i].magnitude();
-    //if(mag > 1.0f) { hair_pos[i] = hair_pos[i] / mag; }
-    //hair_pos[i].normalize();
-  }
-
   //create 2 2D displacement textures to represet current and previous
   //frame displacement per hair
   glGenTextures(2, pos_tex);
@@ -110,7 +161,6 @@ void GPUHairSim::init()
     GLuint pixel_mode = GL_RGBA;
 
     glBindTexture(GL_TEXTURE_2D, pos_tex[i]);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     assert(glIsTexture(pos_tex[i]) == GL_TRUE);
 
     //pixel_mode = GL_RGBA_FLOAT32_ATI;//GL_RGBA16F_ARB;
@@ -215,6 +265,7 @@ void GPUHairSim::init()
   }
 
   delete hair_pos;
+  delete hair_uvs;
 
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -250,8 +301,8 @@ void GPUHairSim::deinit()
 
 void GPUHairSim::simulate(const float game_time, const float dt)
 {
-  float speed = 0.0001f;
-  float scale = 2.0f;
+  float speed = 0.0003f;
+  float scale = 0.7f;
 
   //update the force texture
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -331,6 +382,13 @@ void GPUHairSim::simulate(const float game_time, const float dt)
   //glClientActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, force_tex);
+
+  //uv tex
+  GLuint uv_tex_loc = glGetUniformLocation(shader->gl_shader_program, "uv_tex");
+  glUniform1i(uv_tex_loc, 2);
+  glActiveTexture(GL_TEXTURE2);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, uv_tex);
 
   //draw calls
   glBindBuffer(GL_ARRAY_BUFFER, fbo_vbo);
