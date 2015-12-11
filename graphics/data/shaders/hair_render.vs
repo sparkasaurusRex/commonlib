@@ -11,10 +11,10 @@ void main()
   gl_TexCoord[0] = gl_MultiTexCoord0;
 
   vec4 pos_offset = texture2D(hair_tex, gl_TexCoord[0].st);
-  vec4 pos = gl_Vertex + pos_offset;
+  vec3 uvs = texture2D(uv_tex, gl_TexCoord[0].st).rgb;
 
-  vec2 uvs = texture2D(uv_tex, gl_TexCoord[0].st).rg;
-  vec4 tint_color = texture2D(color_tex, uvs);
+  vec4 pos = gl_Vertex + pos_offset;
+  vec4 tint_color = texture2D(color_tex, uvs.xy);
   vertex_color = tint_color * gl_Color;
 
   gl_Position = gl_ModelViewProjectionMatrix * pos;

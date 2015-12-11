@@ -71,11 +71,12 @@ GPUHairSim::~GPUHairSim()
 void GPUHairSim::init()
 {
   Float3 *hair_pos = new Float3[num_hairs];
-  Float2 *hair_uvs = new Float2[num_hairs];
+  Float3 *hair_uvs = new Float3[num_hairs];
   for(int i = 0; i < num_hairs; i++)
   {
     hair_pos[i] = Float3(random(-1.0f, 1.0f), 0.0f, random(-1.0f, 1.0f));
-    hair_uvs[i] = Float2(0.5f * hair_pos[i][0] + 0.5f, 0.5f * hair_pos[i][2] + 0.5f);
+    float height_variance = random(0.5f, 1.0f);
+    hair_uvs[i] = Float3(0.5f * hair_pos[i][0] + 0.5f, 0.5f * hair_pos[i][2] + 0.5f, height_variance);
     //float mag = hair_pos[i].magnitude();
     //if(mag > 1.0f) { hair_pos[i] = hair_pos[i] / mag; }
     //hair_pos[i].normalize();
@@ -116,7 +117,7 @@ void GPUHairSim::init()
     {
       pixels[pixel_idx++] = hair_uvs[j][0];
       pixels[pixel_idx++] = hair_uvs[j][1];
-      pixels[pixel_idx++] = 0.0f;
+      pixels[pixel_idx++] = hair_uvs[j][2]; //height
       pixels[pixel_idx++] = 0.0f;
     }
   }
@@ -321,9 +322,13 @@ void GPUHairSim::simulate(const float game_time, const float dt)
       float x = (float)i / (float)force_tex_dim[0];
       float y = (float)j / (float)force_tex_dim[1];
       pixels[pix_idx++] = scaled_octave_noise_3d(2, 1.0f, scale, -1.0f, 1.0f, x, y, game_time * speed);
-      pixels[pix_idx++] = 0.0f;//(GLubyte)(scaled_octave_noise_4d(2, 1.0f, scale * 0.9f, -255.0f, 255.0f, x + 12.43f, y + 9.13f, z + 4.13f, game_time * speed));
+      pixels[pix_idx++] = 0.0f; //can probably find something useful to stuff in here
       pixels[pix_idx++] = scaled_octave_noise_3d(2, 1.0f, scale * 1.2f, -1.0f, 1.0f, x + 3.12f, y + 67.12f, game_time * speed);
-      pixels[pix_idx++] = 1.0f;
+
+      //hair height multiplier
+      float h = scaled_octave_noise_3d(3, 1.0f, scale * 1.1f, 0.0, 2.0f, x + 7.12f, y + 4.12f, game_time * speed);
+      h = h * h;
+      pixels[pix_idx++] = h;
     }
   }
 

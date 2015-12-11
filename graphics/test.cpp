@@ -131,7 +131,7 @@ private:
     gpu_hair.set_num_segments(12);
     gpu_hair.init();
 
-    color_tex = new Texture("data/grass.jpg");
+    color_tex = new Texture("data/grass.tif");
     color_tex->load();
     gpu_hair.set_color_tex(color_tex);
 
