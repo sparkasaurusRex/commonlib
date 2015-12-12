@@ -24,8 +24,8 @@ public:
     rot_angle = 0.0f;
     color_tex = NULL;
     render_mode = RENDER_HAIR;
-    force_tex_dim[0] = 256;
-    force_tex_dim[1] = 256;
+    force_tex_dim[0] = 64;
+    force_tex_dim[1] = 64;
   }
   ~GraphicsApp()
   {
@@ -151,15 +151,19 @@ private:
 
         Float3 p(x, y, z);
         p.normalize();
-        p = p * 1.0f;
 
-        pixels[pix_idx++] = p[0];// + scaled_octave_noise_4d(2, 1.0f, scale, -1.0f, 1.0f, x + game_time * speed, y, z, game_time * speed * 0.2f);
-        pixels[pix_idx++] = p[1];// + scaled_octave_noise_4d(2, 1.0f, scale * 0.95, -1.0f, 1.0f, x + 7.15f + game_time * speed, y + 13.76f, z + 12.74f, game_time * speed * 0.2f);
-        pixels[pix_idx++] = p[2];// + scaled_octave_noise_4d(2, 1.0f, scale * 1.2f, -1.0f, 1.0f, x + 3.12f + game_time * speed, y + 67.12f, z - 4.1784f, game_time * speed * 0.2f);
+        Float3 wind;
+        wind[0] = scaled_octave_noise_4d(2, 1.0f, scale, -1.0f, 1.0f, p[0] + game_time * speed, p[1], p[2], game_time * speed * 0.3f);
+        wind[1] = scaled_octave_noise_4d(2, 1.0f, scale * 0.95, -1.0f, 1.0f, p[0] + 7.15f + game_time * speed, p[1] + 13.76f, p[2] + 12.74f, game_time * speed * 0.3f);
+        wind[2] = scaled_octave_noise_4d(2, 1.0f, scale * 1.2f, -1.0f, 1.0f, p[0] + 3.12f + game_time * speed, p[2] + 67.12f, p[2] - 4.1784f, game_time * speed * 0.3f);
+
+        pixels[pix_idx++] = p[0] + wind[0];
+        pixels[pix_idx++] = p[1] + wind[1];
+        pixels[pix_idx++] = p[2] + wind[2];
 
         //hair height multiplier
-        float hair_height = 1.0f;
-        float h = scaled_octave_noise_3d(3, 1.0f, scale * 1.1f, 0.0, hair_height, x + 7.12f, y + 4.12f, game_time * speed);
+        float hair_height = 1.25f;
+        float h = scaled_octave_noise_3d(3, 1.0f, scale * 1.1f, 0.0, hair_height, x + 7.12f, y + 4.12f, game_time * speed * 0.24f);
         h = h * h;
         pixels[pix_idx++] = h;
       }
