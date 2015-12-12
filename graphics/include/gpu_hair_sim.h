@@ -41,13 +41,17 @@ namespace Graphics {
     void set_num_hairs(const int h) { num_hairs = h; }
     void set_num_segments(const int s) { num_segments = s; }
     void set_color_tex(Texture *t) { color_tex = t; }
-
+    void set_force_tex_dim(const int w, const int h) { force_tex_dim[0] = w; force_tex_dim[1] = h; }
     int get_num_hairs() const { return num_hairs; }
     int get_num_segments() const { return num_segments; }
     GLuint get_pos_tex(const int i) { return pos_tex[i]; }
     GLuint get_force_tex() { return force_tex; }
     GLuint get_uv_tex() { return uv_tex; }
+
+    void update_forces(const GLfloat *force_data);
   private:
+    GLuint create_texture();
+
     int           num_hairs;
     int           num_segments;
     float         hair_height;

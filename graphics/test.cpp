@@ -2,8 +2,10 @@
 #include "sdl_game.h"
 #include "camera.h"
 #include "gpu_hair_sim.h"
+#include "perlin.h"
 
 using namespace Graphics;
+using namespace PerlinNoise;
 
 enum RenderMode
 {
@@ -22,6 +24,8 @@ public:
     rot_angle = 0.0f;
     color_tex = NULL;
     render_mode = RENDER_HAIR;
+    force_tex_dim[0] = 256;
+    force_tex_dim[1] = 256;
   }
   ~GraphicsApp()
   {
@@ -33,9 +37,9 @@ private:
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
       glLoadIdentity();
-      glRotatef(25.0f, 1.0f, 0.0f, 0.0f);
+      //glRotatef(25.0f, 1.0f, 0.0f, 0.0f);
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
-      glTranslatef(0.0f, -0.3f, 0.0f);
+      //glTranslatef(0.0f, -0.3f, 0.0f);
       glScalef(1.2, 1.2, 1.2);
 
       //cam.render_setup();
@@ -116,8 +120,59 @@ private:
     }
   }
 
+  void update_forces(const float game_time, const float frame_time)
+  {
+    float speed = 0.0003f;
+    float scale = 1.2f;
+
+    //TODO: don't reallocate this every frame!
+    int num_bytes = 4;
+    GLfloat *pixels = new GLfloat[force_tex_dim[0] *
+                                  force_tex_dim[1] *
+                                  num_bytes];
+
+
+    int pix_idx = 0;
+    for(int i = 0; i < force_tex_dim[0]; i++)
+    {
+      for(int j = 0; j < force_tex_dim[1]; j++)
+      {
+        float v = (float)i / (float)force_tex_dim[0];
+        float u = (float)j / (float)force_tex_dim[1];
+
+        float lat = M_PI * u;
+        float lon = 0.5f * M_PI * (2.0f * v - 1.0f);
+
+        //TODO: LUT for (lat, lon) -> (x, y, z)
+        float r = 1.0f;
+        float x =  r * cos(lat) * cos(lon);
+        float y =  r * sin(lon);
+        float z =  r * sin(lat) * cos(lon);
+
+        Float3 p(x, y, z);
+        p.normalize();
+        p = p * 1.0f;
+
+        pixels[pix_idx++] = p[0];// + scaled_octave_noise_4d(2, 1.0f, scale, -1.0f, 1.0f, x + game_time * speed, y, z, game_time * speed * 0.2f);
+        pixels[pix_idx++] = p[1];// + scaled_octave_noise_4d(2, 1.0f, scale * 0.95, -1.0f, 1.0f, x + 7.15f + game_time * speed, y + 13.76f, z + 12.74f, game_time * speed * 0.2f);
+        pixels[pix_idx++] = p[2];// + scaled_octave_noise_4d(2, 1.0f, scale * 1.2f, -1.0f, 1.0f, x + 3.12f + game_time * speed, y + 67.12f, z - 4.1784f, game_time * speed * 0.2f);
+
+        //hair height multiplier
+        float hair_height = 1.0f;
+        float h = scaled_octave_noise_3d(3, 1.0f, scale * 1.1f, 0.0, hair_height, x + 7.12f, y + 4.12f, game_time * speed);
+        h = h * h;
+        pixels[pix_idx++] = h;
+      }
+    }
+
+    gpu_hair.update_forces(pixels);
+
+    delete pixels;
+  }
+
   void game_loop(const float game_time, const float frame_time)
   {
+    update_forces(game_time, frame_time);
     gpu_hair.simulate(game_time, frame_time);
     if(!paused)
     {
@@ -128,7 +183,8 @@ private:
   void user_init()
   {
     gpu_hair.set_num_hairs(10000);
-    gpu_hair.set_num_segments(12);
+    gpu_hair.set_num_segments(6);
+    gpu_hair.set_force_tex_dim(force_tex_dim[0], force_tex_dim[1]);
     gpu_hair.init();
 
     color_tex = new Texture("data/grass.tif");
@@ -176,6 +232,8 @@ private:
   bool paused;
 
   Texture *color_tex;
+
+  unsigned int force_tex_dim[2];
 };
 
 int main(int argc, char **argv)

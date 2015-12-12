@@ -30,9 +30,9 @@ void main()
   vec3 v_spring = prev_pos.xyz - parent_pos.xyz;
   float r = length(v_spring);
 
-  vec3 up_force = vec3(0.0, 0.2, 0.0);  //TODO - hair surface normal?
+  //vec3 up_force = vec3(0.0, 0.2, 0.0);  //TODO - hair surface normal?
   vec3 spring_force = -k * (v_spring / r) * (r - spring_length);
-  vec3 final_force = dt * (external_force.xyz + spring_force + up_force);
+  vec3 final_force = dt * (external_force.xyz + spring_force);
 
   if(gl_TexCoord[0].t < texel_size)
   {

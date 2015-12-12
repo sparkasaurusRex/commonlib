@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <assert.h>
 #include <iostream>
+#include <math.h>
 #include "gpu_hair_sim.h"
 #include "math_utility.h"
 #include "perlin.h"
@@ -14,7 +15,7 @@ GPUHairSim::GPUHairSim()
 {
   num_hairs = 4;
   num_segments = 4;
-  hair_height = 0.5f;
+  hair_height = 1.0f;
 
   pos_fbo[0] = pos_fbo[1] = 0;
   pos_tex[0] = pos_tex[1] = 0;
@@ -70,20 +71,23 @@ GPUHairSim::~GPUHairSim()
 
 void GPUHairSim::init()
 {
+  //TODO: move this out of the GPUHairSim class, so we can start w/ any hair
+  //      distribution the user wants
   Float3 *hair_pos = new Float3[num_hairs];
   Float3 *hair_uvs = new Float3[num_hairs];
   for(int i = 0; i < num_hairs; i++)
   {
-    hair_pos[i] = Float3(random(-1.0f, 1.0f), 0.0f, random(-1.0f, 1.0f));
+    hair_pos[i] = Float3(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
+    hair_pos[i].normalize();
     float height_variance = random(0.5f, 1.0f);
-    hair_uvs[i] = Float3(0.5f * hair_pos[i][0] + 0.5f, 0.5f * hair_pos[i][2] + 0.5f, height_variance);
-    //float mag = hair_pos[i].magnitude();
-    //if(mag > 1.0f) { hair_pos[i] = hair_pos[i] / mag; }
-    //hair_pos[i].normalize();
+
+    float u = 0.5f + (atan2(hair_pos[i][2], hair_pos[i][0]) / M_PI) * 0.5f;
+    float v = asin(hair_pos[i][1]) / (M_PI) + 0.5f;
+
+    hair_uvs[i] = Float3(u, v, height_variance);
   }
 
   //1. create our textures
-
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
   //create uv tex
@@ -94,7 +98,7 @@ void GPUHairSim::init()
                0,
                internal_format,//GL_RGBA16F_ARB,
                num_hairs,           //u axis = hair index
-               num_segments,        //v axis = hair segment index
+               1,//num_segments,        //v axis = hair segment index
                0,
                GL_RGBA, //GL_RGBA16F_ARB,      //RGB = xyz (pos), A = ?
                GL_FLOAT,//GL_UNSIGNED_BYTE,
@@ -110,15 +114,15 @@ void GPUHairSim::init()
   //fill uv tex
   int pixel_idx = 0;
   GLfloat *pixels = new GLfloat[num_hairs * num_segments * 4];
-  for(int k = 0; k < num_segments; k++)
+  for(int k = 0; k < 1/*num_segments*/; k++)
   {
     float seg_pct = (float)k / (float)num_segments;
     for(int j = 0; j < num_hairs; j++)
     {
       pixels[pixel_idx++] = hair_uvs[j][0];
       pixels[pixel_idx++] = hair_uvs[j][1];
-      pixels[pixel_idx++] = hair_uvs[j][2]; //height
-      pixels[pixel_idx++] = 0.0f;
+      pixels[pixel_idx++] = hair_uvs[j][2]; //height variance
+      pixels[pixel_idx++] = 1.0f;           //put something useful here
     }
   }
 
@@ -127,7 +131,7 @@ void GPUHairSim::init()
                   0,                //starting u coord
                   0,                //starting v coord
                   num_hairs,        //width of update rect
-                  num_segments,     //height of update rect
+                  1,//num_segments,     //height of update rect
                   GL_RGBA,       //pixel format
                   GL_FLOAT,
                   pixels);          //pointer to pixel data
@@ -194,7 +198,7 @@ void GPUHairSim::init()
       for(int j = 0; j < num_hairs; j++)
       {
         pixels[pixel_idx++] = hair_pos[j][0];
-        pixels[pixel_idx++] = hair_height * seg_pct;
+        pixels[pixel_idx++] = hair_pos[j][1];//hair_height * seg_pct;
         pixels[pixel_idx++] = hair_pos[j][2];
         if(num_bytes == 4)
         {
@@ -301,11 +305,27 @@ void GPUHairSim::deinit()
   num_verts = num_indices = 0;
 }
 
+void GPUHairSim::update_forces(const GLfloat *force_data)
+{
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glBindTexture(GL_TEXTURE_2D, force_tex);
+  glTexSubImage2D(GL_TEXTURE_2D,
+                  0,                    //mip level
+                  0,                    //starting u coord
+                  0,                    //starting v coord
+                  force_tex_dim[0],     //width of update rect
+                  force_tex_dim[1],     //height of update rect
+                  GL_RGBA,              //pixel format
+                  GL_FLOAT,
+                  force_data);              //pointer to pixel data
+}
+
 void GPUHairSim::simulate(const float game_time, const float dt)
 {
-  float speed = 0.0003f;
-  float scale = 0.7f;
+  /*float speed = 0.0003f;
+  float scale = 1.2f;
 
+  //TODO: move this into the client code
   //update the force texture
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   int num_bytes = 4;
@@ -319,14 +339,27 @@ void GPUHairSim::simulate(const float game_time, const float dt)
   {
     for(int j = 0; j < force_tex_dim[1]; j++)
     {
-      float x = (float)i / (float)force_tex_dim[0];
-      float y = (float)j / (float)force_tex_dim[1];
-      pixels[pix_idx++] = scaled_octave_noise_3d(2, 1.0f, scale, -1.0f, 1.0f, x, y, game_time * speed);
-      pixels[pix_idx++] = 0.0f; //can probably find something useful to stuff in here
-      pixels[pix_idx++] = scaled_octave_noise_3d(2, 1.0f, scale * 1.2f, -1.0f, 1.0f, x + 3.12f, y + 67.12f, game_time * speed);
+      float v = (float)i / (float)force_tex_dim[0];
+      float u = (float)j / (float)force_tex_dim[1];
+
+      float lat = M_PI * u;
+      float lon = 0.5f * M_PI * (2.0f * v - 1.0f);
+
+      float r = 1.0f;
+      float x =  r * cos(lat) * cos(lon);
+      float y =  r * sin(lon);
+      float z =  r * sin(lat) * cos(lon);
+
+      Float3 p(x, y, z);
+      p.normalize();
+      p = p * 1.0f;
+
+      pixels[pix_idx++] = p[0];// + scaled_octave_noise_4d(2, 1.0f, scale, -1.0f, 1.0f, x + game_time * speed, y, z, game_time * speed * 0.2f);
+      pixels[pix_idx++] = p[1];// + scaled_octave_noise_4d(2, 1.0f, scale * 0.95, -1.0f, 1.0f, x + 7.15f + game_time * speed, y + 13.76f, z + 12.74f, game_time * speed * 0.2f);
+      pixels[pix_idx++] = p[2];// + scaled_octave_noise_4d(2, 1.0f, scale * 1.2f, -1.0f, 1.0f, x + 3.12f + game_time * speed, y + 67.12f, z - 4.1784f, game_time * speed * 0.2f);
 
       //hair height multiplier
-      float h = scaled_octave_noise_3d(3, 1.0f, scale * 1.1f, 0.0, 2.0f, x + 7.12f, y + 4.12f, game_time * speed);
+      float h = scaled_octave_noise_3d(3, 1.0f, scale * 1.1f, 0.0, hair_height, x + 7.12f, y + 4.12f, game_time * speed);
       h = h * h;
       pixels[pix_idx++] = h;
     }
@@ -343,7 +376,7 @@ void GPUHairSim::simulate(const float game_time, const float dt)
                   GL_FLOAT,
                   pixels);              //pointer to pixel data
 
-  delete pixels;
+  delete pixels;*/
 
   //set the render target to the "current" position texture (0)
   GLint win_viewport[4];
