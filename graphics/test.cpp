@@ -137,17 +137,17 @@ private:
     {
       for(int j = 0; j < force_tex_dim[1]; j++)
       {
-        float v = (float)i / (float)force_tex_dim[0];
-        float u = (float)j / (float)force_tex_dim[1];
+        float u = (float)i / (float)force_tex_dim[0];
+        float v = (float)j / (float)force_tex_dim[1];
 
-        float lat = M_PI * u;
-        float lon = 0.5f * M_PI * (2.0f * v - 1.0f);
+        float theta = 2.0f * M_PI * v;
+        float phi = (M_PI / 2.0f) + M_PI * (1.0f - u);
 
         //TODO: LUT for (lat, lon) -> (x, y, z)
         float r = 1.0f;
-        float x =  r * cos(lat) * cos(lon);
-        float y =  r * sin(lon);
-        float z =  r * sin(lat) * cos(lon);
+        float x =  r * cos(theta) * cos(phi);
+        float y =  r * sin(phi);
+        float z =  r * sin(theta) * cos(phi);
 
         Float3 p(x, y, z);
         p.normalize();
