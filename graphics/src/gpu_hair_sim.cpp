@@ -69,24 +69,8 @@ GPUHairSim::~GPUHairSim()
   deinit();
 }
 
-void GPUHairSim::init()
+void GPUHairSim::init(Float3 *hair_pos, Float3 *hair_uvs)
 {
-  //TODO: move this out of the GPUHairSim class, so we can start w/ any hair
-  //      distribution the user wants
-  Float3 *hair_pos = new Float3[num_hairs];
-  Float3 *hair_uvs = new Float3[num_hairs];
-  for(int i = 0; i < num_hairs; i++)
-  {
-    hair_pos[i] = Float3(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
-    hair_pos[i].normalize();
-    float height_variance = random(0.5f, 1.0f);
-
-    float u = 0.5f + (atan2(hair_pos[i][2], hair_pos[i][0]) / M_PI) * 0.5f;
-    float v = asin(hair_pos[i][1]) / (M_PI) + 0.5f;
-
-    hair_uvs[i] = Float3(u, v, height_variance);
-  }
-
   //1. create our textures
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -269,9 +253,6 @@ void GPUHairSim::init()
       }
     }
   }
-
-  delete hair_pos;
-  delete hair_uvs;
 
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);

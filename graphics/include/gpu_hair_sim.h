@@ -32,7 +32,7 @@ namespace Graphics {
     GPUHairSim();
     ~GPUHairSim();
 
-    void init();
+    void init(Float3 *hair_pos, Float3 *hair_uvs);
     void deinit();
     void simulate(const float game_time, const float dt);
     void render();

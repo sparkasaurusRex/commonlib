@@ -186,10 +186,30 @@ private:
 
   void user_init()
   {
-    gpu_hair.set_num_hairs(10000);
+    int num_hairs = 10000;
+    //TODO: move this out of the GPUHairSim class, so we can start w/ any hair
+    //      distribution the user wants
+    Float3 *hair_pos = new Float3[num_hairs];
+    Float3 *hair_uvs = new Float3[num_hairs];
+    for(int i = 0; i < num_hairs; i++)
+    {
+      hair_pos[i] = Float3(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
+      hair_pos[i].normalize();
+      float height_variance = random(0.5f, 1.0f);
+
+      float u = 0.5f + (atan2(hair_pos[i][2], hair_pos[i][0]) / M_PI) * 0.5f;
+      float v = asin(hair_pos[i][1]) / (M_PI) + 0.5f;
+
+      hair_uvs[i] = Float3(u, v, height_variance);
+    }
+
+    gpu_hair.set_num_hairs(num_hairs);
     gpu_hair.set_num_segments(6);
     gpu_hair.set_force_tex_dim(force_tex_dim[0], force_tex_dim[1]);
-    gpu_hair.init();
+    gpu_hair.init(hair_pos, hair_uvs);
+
+    delete hair_pos;
+    delete hair_uvs;
 
     color_tex = new Texture("data/grass.tif");
     color_tex->load();
