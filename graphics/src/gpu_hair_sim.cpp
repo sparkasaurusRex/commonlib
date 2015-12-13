@@ -62,6 +62,11 @@ GPUHairSim::GPUHairSim()
   fbo_vbo = fbo_ibo = 0;
 
   k = 60.0f;
+
+  simulation_shader_names[0] = std::string("data/shaders/hair_sim.vs");
+  simulation_shader_names[1] = std::string("data/shaders/hair_sim.fs");
+  render_shader_names[0] = std::string("data/shaders/hair_render.vs");
+  render_shader_names[1] = std::string("data/shaders/hair_render.fs");
 }
 
 GPUHairSim::~GPUHairSim()
@@ -263,10 +268,10 @@ void GPUHairSim::init(Float3 *hair_pos, Float3 *hair_uvs)
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_indices, indices, GL_STATIC_DRAW);
 
   //load textures and shaders
-  render_mat.set_shader_filenames(std::string("data/shaders/hair_render.vs"), std::string("data/shaders/hair_render.fs"));
+  render_mat.set_shader_filenames(render_shader_names[0], render_shader_names[1]);
   render_mat.init();
 
-  sim_mat.set_shader_filenames(std::string("data/shaders/hair_sim.vs"), std::string("data/shaders/hair_sim.fs"));
+  sim_mat.set_shader_filenames(simulation_shader_names[0], simulation_shader_names[1]);
   sim_mat.init();
 }
 
@@ -301,64 +306,20 @@ void GPUHairSim::update_forces(const GLfloat *force_data)
                   force_data);              //pointer to pixel data
 }
 
+void GPUHairSim::set_render_shader_names(std::string vs, std::string fs)
+{
+  render_shader_names[0] = vs;
+  render_shader_names[1] = fs;
+}
+
+void GPUHairSim::set_simulation_shader_names(std::string vs, std::string fs)
+{
+  simulation_shader_names[0] = vs;
+  simulation_shader_names[1] = fs;
+}
+
 void GPUHairSim::simulate(const float game_time, const float dt)
 {
-  /*float speed = 0.0003f;
-  float scale = 1.2f;
-
-  //TODO: move this into the client code
-  //update the force texture
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  int num_bytes = 4;
-  GLfloat *pixels = new GLfloat[force_tex_dim[0] *
-                                force_tex_dim[1] *
-                                num_bytes];
-
-
-  int pix_idx = 0;
-  for(int i = 0; i < force_tex_dim[0]; i++)
-  {
-    for(int j = 0; j < force_tex_dim[1]; j++)
-    {
-      float v = (float)i / (float)force_tex_dim[0];
-      float u = (float)j / (float)force_tex_dim[1];
-
-      float lat = M_PI * u;
-      float lon = 0.5f * M_PI * (2.0f * v - 1.0f);
-
-      float r = 1.0f;
-      float x =  r * cos(lat) * cos(lon);
-      float y =  r * sin(lon);
-      float z =  r * sin(lat) * cos(lon);
-
-      Float3 p(x, y, z);
-      p.normalize();
-      p = p * 1.0f;
-
-      pixels[pix_idx++] = p[0];// + scaled_octave_noise_4d(2, 1.0f, scale, -1.0f, 1.0f, x + game_time * speed, y, z, game_time * speed * 0.2f);
-      pixels[pix_idx++] = p[1];// + scaled_octave_noise_4d(2, 1.0f, scale * 0.95, -1.0f, 1.0f, x + 7.15f + game_time * speed, y + 13.76f, z + 12.74f, game_time * speed * 0.2f);
-      pixels[pix_idx++] = p[2];// + scaled_octave_noise_4d(2, 1.0f, scale * 1.2f, -1.0f, 1.0f, x + 3.12f + game_time * speed, y + 67.12f, z - 4.1784f, game_time * speed * 0.2f);
-
-      //hair height multiplier
-      float h = scaled_octave_noise_3d(3, 1.0f, scale * 1.1f, 0.0, hair_height, x + 7.12f, y + 4.12f, game_time * speed);
-      h = h * h;
-      pixels[pix_idx++] = h;
-    }
-  }
-
-  glBindTexture(GL_TEXTURE_2D, force_tex);
-  glTexSubImage2D(GL_TEXTURE_2D,
-                  0,                    //mip level
-                  0,                    //starting u coord
-                  0,                    //starting v coord
-                  force_tex_dim[0],     //width of update rect
-                  force_tex_dim[1],     //height of update rect
-                  GL_RGBA,               //pixel format
-                  GL_FLOAT,
-                  pixels);              //pointer to pixel data
-
-  delete pixels;*/
-
   //set the render target to the "current" position texture (0)
   GLint win_viewport[4];
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pos_fbo[0]);

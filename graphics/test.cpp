@@ -176,6 +176,7 @@ private:
 
   void game_loop(const float game_time, const float frame_time)
   {
+    cout<<"dt: "<<frame_time<<endl;
     update_forces(game_time, frame_time);
     gpu_hair.simulate(game_time, frame_time);
     if(!paused)

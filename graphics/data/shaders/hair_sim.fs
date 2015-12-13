@@ -10,7 +10,7 @@ uniform float texel_size;
 // F = -k(x - d) (Hooke's Spring Law)
 void main()
 {
-  float dt = constants.x;
+  float dt = clamp(constants.x, 0.0, 0.02);
   float k = constants.y;
   float texel_size = constants.z;
   float spring_length = constants.w;

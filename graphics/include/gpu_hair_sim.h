@@ -49,6 +49,9 @@ namespace Graphics {
     GLuint get_uv_tex() { return uv_tex; }
 
     void update_forces(const GLfloat *force_data);
+
+    void set_render_shader_names(std::string vs, std::string fs);
+    void set_simulation_shader_names(std::string vs, std::string fs);
   private:
     GLuint create_texture();
 
@@ -88,6 +91,9 @@ namespace Graphics {
     GLuint        internal_format;
 
     float         k;
+
+    std::string simulation_shader_names[2];
+    std::string render_shader_names[2];
   };
 };
 
