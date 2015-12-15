@@ -67,6 +67,11 @@ GPUHairSim::GPUHairSim()
   simulation_shader_names[1] = std::string("data/shaders/hair_sim.fs");
   render_shader_names[0] = std::string("data/shaders/hair_render.vs");
   render_shader_names[1] = std::string("data/shaders/hair_render.fs");
+
+  sun_pos_xyz = Float3(10.0f, 10.0f, 0.0f);
+  sun_diff_rgb = Float3(1.0f, 0.0f, 0.0f);
+  sun_spec_rgb = Float3(0.0f, 1.0f, 0.0f);
+  ambient_rgb = Float3(0.05f, 0.05f, 0.05f);
 }
 
 GPUHairSim::~GPUHairSim()
@@ -306,6 +311,15 @@ void GPUHairSim::update_forces(const GLfloat *force_data)
                   force_data);              //pointer to pixel data
 }
 
+void GPUHairSim::update_lighting(Float3 sun_pos, Float3 sun_diff, Float3 sun_spec, Float3 ambient, float cam_dist)
+{
+  sun_pos_xyz = sun_pos;
+  sun_diff_rgb = sun_diff;
+  sun_spec_rgb = sun_spec;
+  ambient_rgb = ambient;
+  cam_distance = cam_dist;
+}
+
 void GPUHairSim::set_render_shader_names(std::string vs, std::string fs)
 {
   render_shader_names[0] = vs;
@@ -434,6 +448,22 @@ void GPUHairSim::render()
     glUniform1i(uloc, 2);
     color_tex->render_gl(GL_TEXTURE2);
   }
+
+  uloc = glGetUniformLocation(shader->gl_shader_program, "sun_pos");
+  glUniform3f(uloc, sun_pos_xyz[0], sun_pos_xyz[1], sun_pos_xyz[2]);
+
+  cout<<"sun_diff_rgb: "<<sun_diff_rgb<<endl;
+  uloc = glGetUniformLocation(shader->gl_shader_program, "sun_diff_rgb");
+  glUniform3f(uloc, sun_diff_rgb[0], sun_diff_rgb[1], sun_diff_rgb[2]);
+
+  uloc = glGetUniformLocation(shader->gl_shader_program, "sun_spec_rgb");
+  glUniform3f(uloc, sun_spec_rgb[0], sun_spec_rgb[1], sun_spec_rgb[2]);
+
+  uloc = glGetUniformLocation(shader->gl_shader_program, "light_amb_rgb");
+  glUniform3f(uloc, ambient_rgb[0], ambient_rgb[1], ambient_rgb[2]);
+
+  uloc = glGetUniformLocation(shader->gl_shader_program, "cam_distance");
+  glUniform1f(uloc, cam_distance);
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);

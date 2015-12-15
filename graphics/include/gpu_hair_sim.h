@@ -42,6 +42,7 @@ namespace Graphics {
     void set_num_segments(const int s) { num_segments = s; }
     void set_color_tex(Texture *t) { color_tex = t; }
     void set_force_tex_dim(const int w, const int h) { force_tex_dim[0] = w; force_tex_dim[1] = h; }
+
     int get_num_hairs() const { return num_hairs; }
     int get_num_segments() const { return num_segments; }
     GLuint get_pos_tex(const int i) { return pos_tex[i]; }
@@ -49,6 +50,7 @@ namespace Graphics {
     GLuint get_uv_tex() { return uv_tex; }
 
     void update_forces(const GLfloat *force_data);
+    void update_lighting(Float3 sun_pos, Float3 sun_diff, Float3 sun_spec, Float3 ambient, float cam_dist);
 
     void set_render_shader_names(std::string vs, std::string fs);
     void set_simulation_shader_names(std::string vs, std::string fs);
@@ -71,6 +73,12 @@ namespace Graphics {
 
     Material      render_mat;
     Material      sim_mat;
+
+    Float3        sun_pos_xyz;
+    Float3        sun_diff_rgb;
+    Float3        sun_spec_rgb;
+    Float3        ambient_rgb;
+    float         cam_distance;
 
     //vertex and index buffers for the geo
     GLuint        vbo;
