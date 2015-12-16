@@ -17,9 +17,6 @@ void main()
   float wind_strength = 0.5;
   float drag = 0.1;
 
-  //use the position of root segment's xy coordinates as our uvs (TEMP)
-  //vec2 force_uvs = texture2D(prev_pos_tex, vec2(gl_TexCoord[0].s, 0.0)).rb;
-  //force_uvs = vec2(0.5 * force_uvs.x + 0.5, 0.5 * force_uvs.y + 0.5);
   vec3 force_uvs = texture2D(uv_tex, gl_TexCoord[0].st).rgb;
   vec4 prev_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st);
   vec4 parent_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st - vec2(0.0, texel_size));

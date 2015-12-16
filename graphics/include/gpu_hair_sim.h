@@ -13,6 +13,25 @@
 
 namespace Graphics {
 
+  enum HairShaderUniforms
+  {
+    UNIFORM_SIM_CONSTANTS,
+    UNIFORM_SIM_POS_TEX,
+    UNIFORM_SIM_FORCE_TEX,
+    UNIFORM_SIM_UV_TEX,
+
+    UNIFORM_RENDER_HAIR_TEX,
+    UNIFORM_RENDER_UV_TEX,
+    UNIFORM_RENDER_COLOR_TEX,
+    UNIFORM_RENDER_SUN_POS,
+    UNIFORM_RENDER_DIFF,
+    UNIFORM_RENDER_SPEC,
+    UNIFORM_RENDER_AMBIENT,
+    UNIFORM_RENDER_CAM_DISTANCE,
+
+    NUM_HAIR_UNIFORMS
+  };
+
   struct HairVert
   {
     float x, y, z;
@@ -102,6 +121,7 @@ namespace Graphics {
 
     std::string simulation_shader_names[2];
     std::string render_shader_names[2];
+    GLuint uniform_locations[NUM_HAIR_UNIFORMS];
   };
 };
 

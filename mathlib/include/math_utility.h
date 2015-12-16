@@ -43,48 +43,48 @@ namespace Math {
   };
 
     class Float3 {
-        public:
-            Float3();
-            Float3(const float _x, const float _y, const float _z);
-            Float3(const Float2 &b, const float _z);
-            Float3(const Float3 &b);
+      public:
+        Float3();
+        Float3(const float _x, const float _y, const float _z);
+        Float3(const Float2 &b, const float _z);
+        Float3(const Float3 &b);
 
-            inline Float3 &operator=(const Float3 &r) { _val[0] = r._val[0]; _val[1] = r._val[1]; _val[2] = r._val[2]; return *this; }
-            inline Float3 operator+(const Float3 &r) const { return Float3(_val[0] + r._val[0], _val[1] + r._val[1], _val[2] + r._val[2]); }
-            inline Float3 operator-(const Float3 &r) const { return Float3(_val[0] - r._val[0], _val[1] - r._val[1], _val[2] - r._val[2]); }
-            inline Float3 operator/(const float &r) const { return Float3(_val[0] / r, _val[1] / r, _val[2] / r); }
-            inline Float3 operator*(const float &r) const { return Float3(r * _val[0], r * _val[1], r * _val[2]); }
+        inline Float3 &operator=(const Float3 &r) { _val[0] = r._val[0]; _val[1] = r._val[1]; _val[2] = r._val[2]; return *this; }
+        inline Float3 operator+(const Float3 &r) const { return Float3(_val[0] + r._val[0], _val[1] + r._val[1], _val[2] + r._val[2]); }
+        inline Float3 operator-(const Float3 &r) const { return Float3(_val[0] - r._val[0], _val[1] - r._val[1], _val[2] - r._val[2]); }
+        inline Float3 operator/(const float &r) const { return Float3(_val[0] / r, _val[1] / r, _val[2] / r); }
+        inline Float3 operator*(const float &r) const { return Float3(r * _val[0], r * _val[1], r * _val[2]); }
 
-            inline float &operator[](const int idx) { return _val[idx]; }
-            inline float operator[](const int idx) const { return _val[idx]; }
+        inline float &operator[](const int idx) { return _val[idx]; }
+        inline float operator[](const int idx) const { return _val[idx]; }
 
-            //dot product
-            inline float operator*(const Float3 &r) const { return _val[0] * r._val[0] + _val[1] * r._val[1] + _val[2] * r._val[2]; }
+        //dot product
+        inline float operator*(const Float3 &r) const { return _val[0] * r._val[0] + _val[1] * r._val[1] + _val[2] * r._val[2]; }
 
-            //cross product
-            inline Float3 operator^(const Float3 &r) const { return Float3(_val[1] * r._val[2] - _val[2] * r._val[1],
-                                                                           _val[2] * r._val[0] - _val[0] * r._val[2],
-                                                                           _val[0] * r._val[1] - _val[1] * r._val[0]); }
+        //cross product
+        inline Float3 operator^(const Float3 &r) const { return Float3(_val[1] * r._val[2] - _val[2] * r._val[1],
+                                                                       _val[2] * r._val[0] - _val[0] * r._val[2],
+                                                                       _val[0] * r._val[1] - _val[1] * r._val[0]); }
 
 
-            inline float x() const { return _val[0]; }
-            inline float y() const { return _val[1]; }
-            inline float z() const { return _val[2]; }
+        inline float x() const { return _val[0]; }
+        inline float y() const { return _val[1]; }
+        inline float z() const { return _val[2]; }
 
-            //swizzle
-            inline Float3 xzy() const { return Float3(_val[0], _val[2], _val[1]); }
-            inline Float3 yxz() const { return Float3(_val[1], _val[0], _val[2]); }
-            inline Float3 yzx() const { return Float3(_val[1], _val[2], _val[0]); }
-            inline Float3 zxy() const { return Float3(_val[2], _val[0], _val[1]); }
-            inline Float3 zyx() const { return Float3(_val[2], _val[1], _val[0]); }
+        //swizzle
+        inline Float3 xzy() const { return Float3(_val[0], _val[2], _val[1]); }
+        inline Float3 yxz() const { return Float3(_val[1], _val[0], _val[2]); }
+        inline Float3 yzx() const { return Float3(_val[1], _val[2], _val[0]); }
+        inline Float3 zxy() const { return Float3(_val[2], _val[0], _val[1]); }
+        inline Float3 zyx() const { return Float3(_val[2], _val[1], _val[0]); }
 
-            //length / normalization
-            inline void normalize() { float m = magnitude(); _val[0] /= m; _val[1] /= m; _val[2] /= m; }
-            inline float magnitude() const { return sqrt(_val[0] * _val[0] + _val[1] * _val[1] + _val[2] * _val[2]); }
-            inline float mag_squared() const { return _val[0] * _val[0] + _val[1] * _val[1] + _val[2] * _val[2]; }
+        //length / normalization
+        inline void normalize() { float m = magnitude(); _val[0] /= m; _val[1] /= m; _val[2] /= m; }
+        inline float magnitude() const { return sqrt(_val[0] * _val[0] + _val[1] * _val[1] + _val[2] * _val[2]); }
+        inline float mag_squared() const { return _val[0] * _val[0] + _val[1] * _val[1] + _val[2] * _val[2]; }
 
-            //data
-            float _val[3];
+        //data
+        float _val[3];
     };
 
   inline Float2 operator*(const float &l, const Float2 &r) { return Float2(l * r[0], l * r[1]); }

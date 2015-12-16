@@ -71,7 +71,7 @@ GPUHairSim::GPUHairSim()
   sun_pos_xyz = Float3(10.0f, 10.0f, 0.0f);
   sun_diff_rgb = Float3(1.0f, 0.0f, 0.0f);
   sun_spec_rgb = Float3(0.0f, 1.0f, 0.0f);
-  ambient_rgb = Float3(0.05f, 0.05f, 0.05f);
+  ambient_rgb = Float3(0.0f, 0.1f, 0.2f);
 }
 
 GPUHairSim::~GPUHairSim()
@@ -278,6 +278,27 @@ void GPUHairSim::init(Float3 *hair_pos, Float3 *hair_uvs)
 
   sim_mat.set_shader_filenames(simulation_shader_names[0], simulation_shader_names[1]);
   sim_mat.init();
+
+  //retrieve shader uniform locations
+  sim_mat.render_gl();
+  Shader *shader = sim_mat.get_shader();
+  uniform_locations[UNIFORM_SIM_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
+  uniform_locations[UNIFORM_SIM_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
+  uniform_locations[UNIFORM_SIM_FORCE_TEX] = glGetUniformLocation(shader->gl_shader_program, "force_tex");
+  uniform_locations[UNIFORM_SIM_UV_TEX] = glGetUniformLocation(shader->gl_shader_program, "uv_tex");
+
+  render_mat.render_gl();
+  shader = render_mat.get_shader();
+  uniform_locations[UNIFORM_RENDER_HAIR_TEX] = glGetUniformLocation(shader->gl_shader_program, "hair_tex");
+  uniform_locations[UNIFORM_RENDER_UV_TEX] = glGetUniformLocation(shader->gl_shader_program, "uv_tex");
+  uniform_locations[UNIFORM_RENDER_COLOR_TEX] = glGetUniformLocation(shader->gl_shader_program, "color_tex");
+  uniform_locations[UNIFORM_RENDER_SUN_POS] = glGetUniformLocation(shader->gl_shader_program, "sun_pos");
+  uniform_locations[UNIFORM_RENDER_DIFF] = glGetUniformLocation(shader->gl_shader_program, "sun_diff_rgb");
+  uniform_locations[UNIFORM_RENDER_SPEC] = glGetUniformLocation(shader->gl_shader_program, "sun_spec_rgb");
+  uniform_locations[UNIFORM_RENDER_AMBIENT] = glGetUniformLocation(shader->gl_shader_program, "light_amb_rgb");
+  uniform_locations[UNIFORM_RENDER_CAM_DISTANCE] = glGetUniformLocation(shader->gl_shader_program, "cam_distance");
+
+  glUseProgramObjectARB(0);
 }
 
 void GPUHairSim::deinit()
@@ -359,28 +380,23 @@ void GPUHairSim::simulate(const float game_time, const float dt)
   //dt, k, texel_size, spring_distance
   float texel_size = 1.0f / (float)num_segments;
   float spring_length = hair_height / (float)num_segments;
-  GLuint dt_loc = glGetUniformLocation(shader->gl_shader_program, "constants");
-  glUniform4f(dt_loc, dt, k, texel_size, spring_length);
+  glUniform4f(uniform_locations[UNIFORM_SIM_CONSTANTS], dt, k, texel_size, spring_length);
 
   //prev pos tex (1)
-  GLuint prev_tex_loc = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
-  glUniform1i(prev_tex_loc, 0);
+  glUniform1i(uniform_locations[UNIFORM_SIM_POS_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
   glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
 
   //force tex
-  GLuint force_tex_loc = glGetUniformLocation(shader->gl_shader_program, "force_tex");
-  glUniform1i(force_tex_loc, 1);
+  glUniform1i(uniform_locations[UNIFORM_SIM_FORCE_TEX], 1);
   glActiveTexture(GL_TEXTURE1);
-  //glClientActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, force_tex);
 
   //uv tex
-  GLuint uv_tex_loc = glGetUniformLocation(shader->gl_shader_program, "uv_tex");
-  glUniform1i(uv_tex_loc, 2);
+  glUniform1i(uniform_locations[UNIFORM_SIM_UV_TEX], 2);
   glActiveTexture(GL_TEXTURE2);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, uv_tex);
@@ -427,43 +443,29 @@ void GPUHairSim::render()
   glEnable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);
 
-  //glDepthRange(0.0f, 1.0f);
-
   //set up uniforms
-  GLuint uloc = glGetUniformLocation(shader->gl_shader_program, "hair_tex");
-  glUniform1i(uloc, 0);
+  glUniform1i(uniform_locations[UNIFORM_RENDER_HAIR_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[0]);
 
-  uloc = glGetUniformLocation(shader->gl_shader_program, "uv_tex");
-  glUniform1i(uloc, 1);
+  glUniform1i(uniform_locations[UNIFORM_RENDER_UV_TEX], 1);
   glActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, uv_tex);
 
   if(color_tex)
   {
-    uloc = glGetUniformLocation(shader->gl_shader_program, "color_tex");
-    glUniform1i(uloc, 2);
+    glUniform1i(uniform_locations[UNIFORM_RENDER_COLOR_TEX], 2);
     color_tex->render_gl(GL_TEXTURE2);
   }
 
-  uloc = glGetUniformLocation(shader->gl_shader_program, "sun_pos");
-  glUniform3f(uloc, sun_pos_xyz[0], sun_pos_xyz[1], sun_pos_xyz[2]);
 
-  cout<<"sun_diff_rgb: "<<sun_diff_rgb<<endl;
-  uloc = glGetUniformLocation(shader->gl_shader_program, "sun_diff_rgb");
-  glUniform3f(uloc, sun_diff_rgb[0], sun_diff_rgb[1], sun_diff_rgb[2]);
-
-  uloc = glGetUniformLocation(shader->gl_shader_program, "sun_spec_rgb");
-  glUniform3f(uloc, sun_spec_rgb[0], sun_spec_rgb[1], sun_spec_rgb[2]);
-
-  uloc = glGetUniformLocation(shader->gl_shader_program, "light_amb_rgb");
-  glUniform3f(uloc, ambient_rgb[0], ambient_rgb[1], ambient_rgb[2]);
-
-  uloc = glGetUniformLocation(shader->gl_shader_program, "cam_distance");
-  glUniform1f(uloc, cam_distance);
+  glUniform3f(uniform_locations[UNIFORM_RENDER_SUN_POS], sun_pos_xyz[0], sun_pos_xyz[1], sun_pos_xyz[2]);
+  glUniform3f(uniform_locations[UNIFORM_RENDER_DIFF], sun_diff_rgb[0], sun_diff_rgb[1], sun_diff_rgb[2]);
+  glUniform3f(uniform_locations[UNIFORM_RENDER_SPEC], sun_spec_rgb[0], sun_spec_rgb[1], sun_spec_rgb[2]);
+  glUniform3f(uniform_locations[UNIFORM_RENDER_AMBIENT], ambient_rgb[0], ambient_rgb[1], ambient_rgb[2]);
+  glUniform1f(uniform_locations[UNIFORM_RENDER_CAM_DISTANCE], cam_distance);
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
