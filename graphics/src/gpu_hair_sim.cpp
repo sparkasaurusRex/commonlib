@@ -460,7 +460,6 @@ void GPUHairSim::render()
     color_tex->render_gl(GL_TEXTURE2);
   }
 
-
   glUniform3f(uniform_locations[UNIFORM_RENDER_SUN_POS], sun_pos_xyz[0], sun_pos_xyz[1], sun_pos_xyz[2]);
   glUniform3f(uniform_locations[UNIFORM_RENDER_DIFF], sun_diff_rgb[0], sun_diff_rgb[1], sun_diff_rgb[2]);
   glUniform3f(uniform_locations[UNIFORM_RENDER_SPEC], sun_spec_rgb[0], sun_spec_rgb[1], sun_spec_rgb[2]);

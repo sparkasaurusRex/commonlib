@@ -81,6 +81,7 @@ class GeodesicGrid
 
       // each vertex of the icosahedron is a cell. So we have 12 cells @ the
       // first subdivision level.
+      dual_cells = NULL;
       selected_cell = 0;
 
       subdivision_levels = 0;
@@ -448,6 +449,15 @@ class GeodesicGrid
       return NULL;
     }
 
+    void generate_dual()
+    {
+      if(dual_cells)
+      {
+        delete[] dual_cells;
+      }
+
+      //dual_cells = new
+    }
   private:
 
     //helper functions
@@ -519,9 +529,7 @@ class GeodesicGrid
       GeodesicFace<T> *new_faces = new GeodesicFace<T>[new_num_faces];
 
       //first, add all existing vertices to the new vertex list
-      //push all the existing vertices into the new vertex list
       int i;
-      //int new_vert_idx = 0;
       int new_vert_idx = 0;
       for(i = 0; i < old_num_verts; i++)
       {
@@ -564,11 +572,8 @@ class GeodesicGrid
         Float3 mid_ca = midpoint(f->c->pos, f->a->pos);
 
         ab = add_unique_cell_at_point(mid_ab, new_cells, new_vert_idx, f->a, f->b);
-        //ab->color = 0.5f * (f->a->color + f->b->color);
         bc = add_unique_cell_at_point(mid_bc, new_cells, new_vert_idx, f->b, f->c);
-        //bc->color = 0.5f * (f->b->color + f->c->color);
         ca = add_unique_cell_at_point(mid_ca, new_cells, new_vert_idx, f->c, f->a);
-        //ca->color = 0.5f * (f->c->color + f->a->color);
         assert(new_vert_idx <= new_num_verts);
 
         ab->add_unique_neighbor(f->b);
@@ -636,6 +641,8 @@ class GeodesicGrid
       num_edges = new_num_edges;
     }
 
+
+
     //TODO: migrate this out of here
     int selected_cell;                  //index of currently selected cell
 
@@ -644,12 +651,15 @@ class GeodesicGrid
     int num_edges;                      //number of edges
     int num_faces;                      //number of faces
 
-    GeodesicCell<T>  *cells;              //the array of cells that store the actual data
+    GeodesicCell<T>    *cells;          //the array of cells that store the actual data
+    GeodesicCell<T>    *dual_cells;     //the array of cells of the dual polyhedron
+
+    //TODO: delete these? necessary?
     GeodesicEdge<T>    *edges;              //the array of cell pairs (edges)
     GeodesicFace<T>    *faces;              //the array of edge triangles (faces)
 
     //obsolete? (could be useful if we ever want to move this to the GPU)
-    GeodesicCell<T> ***adjacency_grid;    //store adjacency information
+    GeodesicCell<T> ***adjacency_grid;  //store adjacency information
     int *adj_dv;                        //vertical offset for adjacency grid
 };
 
