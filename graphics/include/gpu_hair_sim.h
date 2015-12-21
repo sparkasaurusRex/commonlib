@@ -117,7 +117,7 @@ namespace Graphics {
 
     GLuint        internal_format;
 
-    float         k;
+    float         spring_constant;
 
     std::string simulation_shader_names[2];
     std::string render_shader_names[2];

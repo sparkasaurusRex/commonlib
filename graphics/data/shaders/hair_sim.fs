@@ -27,13 +27,17 @@ void main()
   vec3 v_spring = prev_pos.xyz - parent_pos.xyz;
   float r = length(v_spring);
 
-  vec3 spring_force = -k * (v_spring / r) * (r - spring_length);
+  vec3 spring_force = vec3(0.0, 0.0, 0.0);
+  if(r > 0.0)
+  {
+    spring_force = -k * (v_spring / r) * (r - spring_length);
+  }
+  
   vec3 final_force = dt * (external_force.xyz + spring_force);
-
   if(gl_TexCoord[0].t < texel_size)
   {
     final_force = vec3(0.0, 0.0, 0.0);
   }
 
-  gl_FragColor = prev_pos + 1.0 * vec4(final_force, 0.0);// + offset;
+  gl_FragColor = prev_pos + vec4(final_force, 0.0);// + offset;
 }

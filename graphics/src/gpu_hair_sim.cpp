@@ -61,7 +61,7 @@ GPUHairSim::GPUHairSim()
   num_fbo_verts = num_fbo_indices = 4;
   fbo_vbo = fbo_ibo = 0;
 
-  k = 60.0f;
+  spring_constant = 60.0f;
 
   simulation_shader_names[0] = std::string("data/shaders/hair_sim.vs");
   simulation_shader_names[1] = std::string("data/shaders/hair_sim.fs");
@@ -380,7 +380,7 @@ void GPUHairSim::simulate(const float game_time, const float dt)
   //dt, k, texel_size, spring_distance
   float texel_size = 1.0f / (float)num_segments;
   float spring_length = hair_height / (float)num_segments;
-  glUniform4f(uniform_locations[UNIFORM_SIM_CONSTANTS], dt, k, texel_size, spring_length);
+  glUniform4f(uniform_locations[UNIFORM_SIM_CONSTANTS], dt, spring_constant, texel_size, spring_length);
 
   //prev pos tex (1)
   glUniform1i(uniform_locations[UNIFORM_SIM_POS_TEX], 0);

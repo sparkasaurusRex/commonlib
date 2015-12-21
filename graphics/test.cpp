@@ -80,7 +80,7 @@ private:
   void render_pos_texture()
   {
     setup_textured_quad_state();
-    glBindTexture(GL_TEXTURE_2D, gpu_hair.get_pos_tex(0));
+    glBindTexture(GL_TEXTURE_2D, gpu_hair.get_pos_tex(1));
     render_fullscreen_quad();
   }
 
