@@ -72,6 +72,31 @@ namespace Math {
     std::vector<Float3>   *vertices;
     std::vector<Edge3D>   edges;
   };
+
+  class TriangulationSphere
+  {
+  public:
+    TriangulationSphere();
+    ~TriangulationSphere();
+
+    void reset() {}
+    void set_vertices(std::vector<Float3> *verts);
+
+    void generate_delaunay_triangulation();
+
+    void fortune_step();
+
+    float get_beach_line_height() { return beach_line_height; }
+    void advance_beach_line(const float dh);
+
+    std::vector<Edge3D> *get_edges() { return &edges; }
+  private:
+    std::vector<Float3>     *vertices;
+    std::vector<Edge2D>     edges;
+
+    //fortune algorithm variables
+    float                   beach_line_height;
+  };
 };
 
 #endif //__TRIANGULATION_H__

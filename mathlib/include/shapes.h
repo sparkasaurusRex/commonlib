@@ -2,7 +2,6 @@
 #define __SHAPES_H__
 
 #include <vector>
-
 #include "math_utility.h"
 
 namespace Math {

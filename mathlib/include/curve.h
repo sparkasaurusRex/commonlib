@@ -5,7 +5,6 @@
 #include "math_utility.h"
 
 namespace Math {
-
   enum InterpolationMethod
   {
     INTERPOLATE_LERP,

@@ -5,6 +5,7 @@
 // http://www.openblas.net/
 
 using namespace Math;
+using namespace std;
 
 Matrix2x2::Matrix2x2()
 {

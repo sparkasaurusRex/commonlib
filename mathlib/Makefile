@@ -14,7 +14,7 @@ LDFLAGS+=-lCGAL -lCGAL_Core -lgmp
 SRCPATH=src/
 SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp
 SRCS+=src/quaternion.cpp src/voronoi.cpp src/triangulation.cpp src/shapes.cpp
-SRCS+=src/function.cpp src/curve.cpp
+SRCS+=src/function.cpp src/curve.cpp src/voronoi_sphere.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -64,6 +64,9 @@ $(BINPATH)quaternion.o: $(SRCPATH)quaternion.cpp
 
 $(BINPATH)voronoi.o: $(SRCPATH)voronoi.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)voronoi.cpp -o $(BINPATH)voronoi.o
+
+$(BINPATH)voronoi_sphere.o: $(SRCPATH)voronoi_sphere.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)voronoi_sphere.cpp -o $(BINPATH)voronoi_sphere.o
 
 $(BINPATH)triangulation.o: $(SRCPATH)triangulation.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)triangulation.cpp -o $(BINPATH)triangulation.o

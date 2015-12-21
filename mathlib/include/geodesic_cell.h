@@ -3,8 +3,6 @@
 
 #include "math_utility.h"
 
-using namespace Math;
-
 template <class T>
 class GeodesicCell
 {

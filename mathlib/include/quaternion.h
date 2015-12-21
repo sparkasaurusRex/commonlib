@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include "math_utility.h"
-using namespace std;
 
 namespace Math {
   class Quaternion
@@ -73,7 +72,7 @@ namespace Math {
 
   Quaternion operator/(const float &r, const Quaternion &_q);
 
-  ostream& operator<<(ostream &io, const Quaternion &_q);
+  std::ostream& operator<<(std::ostream &io, const Quaternion &_q);
 }
 
 

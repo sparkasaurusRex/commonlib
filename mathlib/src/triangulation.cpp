@@ -361,3 +361,44 @@ std::vector<Edge3D> *Triangulation3D::get_edges()
 {
   return &edges;
 }
+
+
+TriangulationSphere::TriangulationSphere()
+{
+  vertices = NULL;
+}
+
+TriangulationSphere::~TriangulationSphere() {}
+
+void TriangulationSphere::set_vertices(std::vector<Float3> *verts)
+{
+  vertices = verts;
+}
+
+void TriangulationSphere::generate_delaunay_triangulation()
+{
+
+  beach_line_height = 1.0f;
+  return;
+
+  //assume center point of (0, 0, 0), radius of 1.0
+  float dh = 0.02f;
+  for(beach_line_height = 1.0f; beach_line_height > -1.0f; beach_line_height -= dh)
+  {
+    fortune_step();
+  }
+}
+
+void TriangulationSphere::fortune_step()
+{
+  cout<<"beach-line height: "<<beach_line_height<<endl;
+}
+
+void TriangulationSphere::advance_beach_line(const float dh)
+{
+  beach_line_height -= dh;
+  if(beach_line_height < -1.0f)
+  {
+    beach_line_height = 1.0f;
+  }
+}

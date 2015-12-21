@@ -152,7 +152,7 @@ Quaternion Math::operator/(const float &r, const Quaternion &_q)
   return Quaternion(r * _q.q[0] / n, -r * _q.q[1] / n, -r * _q.q[2] / n, -r * _q.q[3] / n);
 }
 
-ostream& Math::operator<<(ostream &io, const Quaternion &_q)
+std::ostream& Math::operator<<(std::ostream &io, const Quaternion &_q)
 {
   io << _q.q[0];
   (_q.q[1] < 0) ? (io << " - " << (-_q.q[1]) << "i") : (io << " + " << _q.q[1] << "i");

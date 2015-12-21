@@ -14,7 +14,7 @@
 #include "matrix.h"
 #include "perlin.h"
 #include "quaternion.h"
-#include "voronoi.h"
+#include "voronoi_sphere.h"
 #include "sdl_game.h"
 #include "curve.h"
 
@@ -76,7 +76,7 @@ private:
     glColor3f(0.7f, 0.1f, 0.0f);
     glBegin(GL_LINES);
 
-      Triangulation3D *tri = point_cloud.get_triangulation();
+      TriangulationSphere *tri = point_cloud.get_triangulation();
 
       std::vector<Edge3D> *edges = tri->get_edges();
       for(int i = 0; i < edges->size(); i++)
@@ -97,12 +97,17 @@ private:
     glEnd();
 
     glPointSize(4.0f);
-    glColor3f(1.0f, 1.0f, 1.0f);
+    //glColor3f(1.0f, 1.0f, 1.0f);
     glBegin(GL_POINTS);
+
+      float bh = point_cloud.get_triangulation()->get_beach_line_height();
 
       for(int i = 0; i < point_cloud.get_num_points(); i++)
       {
         Float3 p = point_cloud.get_point(i);
+        if(p[1] < bh) { glColor3f(1.0f, 0.0f, 0.0f); }
+        else { glColor3f(1.0f, 1.0f, 0.0f); }
+        
         glVertex3f(p[0], p[1], p[2]);
       }
 
@@ -198,11 +203,13 @@ private:
   {
     function_theta += frame_time;
     if(function_theta > M_PI * 2.0f) { function_theta -= M_PI * 2.0f; }
+
+    point_cloud.triangulation_step(0.01f);
   }
 
   void user_init()
   {
-    mode = TEST_MODE_FUNCTIONS;
+    mode = TEST_MODE_VORONOI_3D;
     for(int i = 0; i < Num_starting_points; i++)
     {
       Float3 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
@@ -248,7 +255,7 @@ private:
   }
 
   //variables
-  Voronoi3D point_cloud;
+  VoronoiSphere point_cloud;
   int Num_starting_points;
   float rot_angle;
   TestMode mode;

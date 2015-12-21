@@ -29,7 +29,7 @@ namespace Math {
       float m[2][2];
   };
 
-  ostream& operator<<(ostream &os, const Matrix2x2 &m);
+  std::ostream& operator<<(std::ostream &os, const Matrix2x2 &m);
 
   class Matrix3x3
   {
@@ -57,7 +57,7 @@ namespace Math {
       float m[3][3];
   };
 
-  ostream& operator<<(ostream &os, const Matrix3x3 &m);
+  std::ostream& operator<<(std::ostream &os, const Matrix3x3 &m);
 }
 
 #endif //__MATRIX_H__
