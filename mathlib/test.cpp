@@ -67,6 +67,7 @@ private:
     glPushMatrix();
     glLoadIdentity();
     glScalef(0.7f, 0.7f, 0.7f);
+    glRotatef(15.0f, 1.0f, 0.0f, 0.0f);
 
     glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
     rot_angle += 0.3f;
@@ -96,22 +97,52 @@ private:
 
     glEnd();
 
-    glPointSize(4.0f);
+    glPointSize(6.0f);
     //glColor3f(1.0f, 1.0f, 1.0f);
+    float bh = point_cloud.get_triangulation()->get_beach_line_height();
+
     glBegin(GL_POINTS);
-
-      float bh = point_cloud.get_triangulation()->get_beach_line_height();
-
       for(int i = 0; i < point_cloud.get_num_points(); i++)
       {
         Float3 p = point_cloud.get_point(i);
         if(p[1] < bh) { glColor3f(1.0f, 0.0f, 0.0f); }
         else { glColor3f(1.0f, 1.0f, 0.0f); }
-        
-        glVertex3f(p[0], p[1], p[2]);
+        if(fabs(p[1] - bh) < 0.1f && p[1] >= bh)
+        {
+          glVertex3f(p[0], p[1], p[2]);
+        }
       }
-
     glEnd();
+
+    glPointSize(2.0f);
+    glBegin(GL_POINTS);
+      for(int i = 0; i < point_cloud.get_num_points(); i++)
+      {
+        Float3 p = point_cloud.get_point(i);
+        if(p[1] < bh) { glColor3f(1.0f, 0.0f, 0.0f); }
+        else { glColor3f(1.0f, 1.0f, 0.0f); }
+        if(fabs(p[1] - bh) > 0.1f || p[1] < bh)
+        {
+          glVertex3f(p[0], p[1], p[2]);
+        }
+      }
+    glEnd();
+
+    //render the beach-line
+    int num_segments = 32;
+    //float rad = cos(-(M_PI / 2.0f) + M_PI * (bh + 1.0f) / 2.0f);
+    float dh = (1.0f - bh);// / 2.0f;
+    float rad = sqrt(2.0f * dh - dh * dh);
+    glLineWidth(1.0f);
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glBegin(GL_LINE_STRIP);
+    for(int i = 0; i <= num_segments; i++)
+    {
+      float theta = 2.0f * M_PI * (float)i / (float)num_segments;
+      glVertex3f(cos(theta) * rad, bh, sin(theta) * rad);
+    }
+    glEnd();
+
     glPopMatrix();
   }
 
@@ -204,7 +235,7 @@ private:
     function_theta += frame_time;
     if(function_theta > M_PI * 2.0f) { function_theta -= M_PI * 2.0f; }
 
-    point_cloud.triangulation_step(0.01f);
+    point_cloud.triangulation_step(0.005f);
   }
 
   void user_init()
