@@ -3,12 +3,14 @@ LIB_PATH=
 CFLAGS=-I./include -I../game/include  -I../game/include/cinematics -I/usr/local/include
 CFLAGS+=-I../graphics/include -I../ui/include -I../mathlib/include
 CFLAGS+=$(shell pkg-config --cflags freetype2)
+CFLAGS+=$(shell pkg-config --cflags SDL2_mixer)
 CFLAGS+=-Ofast
 
 LDFLAGS=$(shell pkg-config --libs sdl2)
 LDFLAGS+=$(shell pkg-config --libs SDL2_image)
 LDFLAGS+=$(shell pkg-config --libs freetype2)
 LDFLAGS+=$(shell pkg-config --libs glew)
+LDFLAGS+=$(shell pkg-config --libs SDL2_mixer)
 
 SRCPATH=src/
 SRCS=src/audio.cpp

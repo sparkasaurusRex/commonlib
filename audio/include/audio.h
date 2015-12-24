@@ -1,6 +1,8 @@
 #ifndef __AUDIO_H__
 #define __AUDIO_H__
 
+#include <SDL2/SDL_mixer.h>
+
 namespace Audio
 {
   class AudioImp
@@ -10,6 +12,8 @@ namespace Audio
     ~AudioImp() {}
 
     void init();
+    void simulate(const float game_time, const float frame_time);
+    void deinit();
   private:
 
   };
