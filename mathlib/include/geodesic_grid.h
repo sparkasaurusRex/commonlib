@@ -124,21 +124,21 @@ class GeodesicGrid
       //      way right now. (also, I don't have a matrix class in my math library yet)
       //
 
-      cells[CELL_N].pos = Float3( 0.00000f,  1.00000f,  0.00000f);  // A (N pole)
+      cells[CELL_N].pos = Math::Float3( 0.00000f,  1.00000f,  0.00000f);  // A (N pole)
 
-      cells[CELL_B].pos = Float3( 0.89442f,  0.44721f, 0.00000f);
-      cells[CELL_C].pos = Float3( 0.27639f, 0.44721f, -0.85064f);
-      cells[CELL_D].pos = Float3(-0.72360f, 0.44721f, -0.52572f);
-      cells[CELL_E].pos = Float3(-0.72360f,  0.44721f, 0.52572f);
-      cells[CELL_F].pos = Float3( 0.27639f,  0.44721f, 0.85064f);
+      cells[CELL_B].pos = Math::Float3( 0.89442f,  0.44721f, 0.00000f);
+      cells[CELL_C].pos = Math::Float3( 0.27639f, 0.44721f, -0.85064f);
+      cells[CELL_D].pos = Math::Float3(-0.72360f, 0.44721f, -0.52572f);
+      cells[CELL_E].pos = Math::Float3(-0.72360f,  0.44721f, 0.52572f);
+      cells[CELL_F].pos = Math::Float3( 0.27639f,  0.44721f, 0.85064f);
 
-      cells[CELL_G].pos = Float3( 0.72360f, -0.44721f, -0.52572f);
-      cells[CELL_H].pos = Float3(-0.27639f, -0.44721f, -0.85064f);
-      cells[CELL_I].pos = Float3(-0.89442f, -0.44721f, 0.00000f);
-      cells[CELL_J].pos = Float3(-0.27639f, -0.44721f, 0.85064f);
-      cells[CELL_K].pos = Float3( 0.72360f, -0.44721f, 0.52572f);
+      cells[CELL_G].pos = Math::Float3( 0.72360f, -0.44721f, -0.52572f);
+      cells[CELL_H].pos = Math::Float3(-0.27639f, -0.44721f, -0.85064f);
+      cells[CELL_I].pos = Math::Float3(-0.89442f, -0.44721f, 0.00000f);
+      cells[CELL_J].pos = Math::Float3(-0.27639f, -0.44721f, 0.85064f);
+      cells[CELL_K].pos = Math::Float3( 0.72360f, -0.44721f, 0.52572f);
 
-      cells[CELL_S].pos = Float3( 0.00000f, -1.00000f,  0.00000f);  // F (S pole)
+      cells[CELL_S].pos = Math::Float3( 0.00000f, -1.00000f,  0.00000f);  // F (S pole)q
 
       //add edges
       edges[0].a = &cells[CELL_A];    edges[0].b = &cells[CELL_B];
@@ -296,7 +296,7 @@ class GeodesicGrid
       //assign random colors to each vertex for now
       for(int i = 0; i < 12; i++)
       {
-        cells[i].color = Float3(random(0.0f, 1.0f), random(0.0f, 1.0f), random(0.0f, 1.0f));
+        cells[i].color = Math::Float3(Math::random(0.0f, 1.0f), Math::random(0.0f, 1.0f), Math::random(0.0f, 1.0f));
         //cells[i].make_neighbors_clockwise();
       }
 
@@ -412,7 +412,7 @@ class GeodesicGrid
     int get_num_edges() const { return num_edges; }
     int get_num_faces() const { return num_faces; }
 
-    GeodesicCell<T> *get_cell_by_uv(const Float2 uv, GeodesicCell<T> *start)
+    GeodesicCell<T> *get_cell_by_uv(const Math::Float2 uv, GeodesicCell<T> *start)
     {
       //
       // greedy walk
@@ -461,7 +461,7 @@ class GeodesicGrid
   private:
 
     //helper functions
-    GeodesicCell<T> *add_unique_cell_at_point(Float3 &p, GeodesicCell<T> *_cells, int &cell_count, GeodesicCell<T> *a, GeodesicCell<T> *b)
+    GeodesicCell<T> *add_unique_cell_at_point(Math::Float3 &p, GeodesicCell<T> *_cells, int &cell_count, GeodesicCell<T> *a, GeodesicCell<T> *b)
     {
       float weld_threshold = 0.0001f;
       float weld_threshold_2 = weld_threshold * weld_threshold;
@@ -500,14 +500,14 @@ class GeodesicGrid
       //didn't find any... "allocate" a new one off the end of the array
       _cells[cell_count].init();
       _cells[cell_count].pos = p;
-      _cells[cell_count].color = Float3(1.0f, 0.0f, 0.0f);
+      _cells[cell_count].color = Math::Float3(1.0f, 0.0f, 0.0f);
       return &_cells[cell_count++];
     }
-    GeodesicCell<T> *add_cell_at_point(Float3 &p, GeodesicCell<T> *_cells, int &cell_count)
+    GeodesicCell<T> *add_cell_at_point(Math::Float3 &p, GeodesicCell<T> *_cells, int &cell_count)
     {
       _cells[cell_count].init();
       _cells[cell_count].pos = p;
-      _cells[cell_count].color = Float3(1.0f, 0.0f, 0.0f);
+      _cells[cell_count].color = Math::Float3(1.0f, 0.0f, 0.0f);
       return &_cells[cell_count++];
     }
 
@@ -567,9 +567,9 @@ class GeodesicGrid
         GeodesicCell<T> *ca = NULL;
 
         GeodesicFace<T> *f = &faces[i];
-        Float3 mid_ab = midpoint(f->a->pos, f->b->pos);
-        Float3 mid_bc = midpoint(f->b->pos, f->c->pos);
-        Float3 mid_ca = midpoint(f->c->pos, f->a->pos);
+        Math::Float3 mid_ab = midpoint(f->a->pos, f->b->pos);
+        Math::Float3 mid_bc = midpoint(f->b->pos, f->c->pos);
+        Math::Float3 mid_ca = midpoint(f->c->pos, f->a->pos);
 
         ab = add_unique_cell_at_point(mid_ab, new_cells, new_vert_idx, f->a, f->b);
         bc = add_unique_cell_at_point(mid_bc, new_cells, new_vert_idx, f->b, f->c);

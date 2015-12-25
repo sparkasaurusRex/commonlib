@@ -65,15 +65,15 @@ class GeodesicCell
       wt[1] = 0.5f + 0.5f * wt[1];
     }
 
-    Float3 get_pos() const { return pos; }
-    Float2 get_uv() const { return uv; }
-    Float2 get_wt() const { return wt; }
+    Math::Float3 get_pos() const { return pos; }
+    Math::Float2 get_uv() const { return uv; }
+    Math::Float2 get_wt() const { return wt; }
 
     //float get_height() const { return h; }
     //void set_height(const float _h) { h = _h; }
 
-    Float3 get_color() const { return color; }
-    void set_color(const Float3 c) { color = c; }
+    Math::Float3 get_color() const { return color; }
+    void set_color(const Math::Float3 c) { color = c; }
 
     inline T *get_data() { return &data; }
     void set_data(T d) { data = d; }
@@ -141,11 +141,11 @@ class GeodesicCell
       if(a == c) { return c; }
       if(b == c) { return b; }
 
-      Float3 va = a->pos - pos;
-      Float3 vb = b->pos - pos;
-      Float3 vc = c->pos - pos;
+      Math::Float3 va = a->pos - pos;
+      Math::Float3 vb = b->pos - pos;
+      Math::Float3 vc = c->pos - pos;
 
-      Float3 center = pos;
+      Math::Float3 center = pos;
       center.normalize();
 
       va.normalize();
@@ -153,9 +153,9 @@ class GeodesicCell
       vc.normalize();
 
       // cross products
-      Float3 va_x_vb = va ^ vb;
-      Float3 va_x_vc = va ^ vc;
-      Float3 vb_x_vc = vb ^ vc;
+      Math::Float3 va_x_vb = va ^ vb;
+      Math::Float3 va_x_vc = va ^ vc;
+      Math::Float3 vb_x_vc = vb ^ vc;
 
       // dot products
       float dp_ab = va_x_vb * center;
@@ -177,12 +177,12 @@ class GeodesicCell
       return b;
     }
 
-    Float3 pos;       //cartesian coordinates
-    Float2 uv;        //latitude / longitude
-    Float2 wt;        //winkel-tripel projection coordinates
+    Math::Float3 pos;       //cartesian coordinates
+    Math::Float2 uv;        //latitude / longitude
+    Math::Float2 wt;        //winkel-tripel projection coordinates
     //float h;          //height
 
-    Float3 color;      //temp for debugging
+    Math::Float3 color;      //temp for debugging
     //void *data;        //arbitrary data we want to store
     T data;
 
