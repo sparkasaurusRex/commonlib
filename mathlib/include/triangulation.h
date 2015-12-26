@@ -73,6 +73,19 @@ namespace Math {
     std::vector<Edge3D>   edges;
   };
 
+
+#define FORTUNE_EVENT_CIRCLE  0
+#define FORTUNE_EVENT_SITE    1
+
+  class FortuneEvent
+  {
+  public:
+    FortuneEvent(unsigned int type) { event_type = type; }
+    ~FortuneEvent() {}
+  private:
+    unsigned int event_type;
+  };
+
   class TriangulationSphere
   {
   public:
