@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <iostream>
 #include <assert.h>
+#include <cstring>
 
 #include "material.h"
 
