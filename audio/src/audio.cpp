@@ -28,6 +28,15 @@ void AudioImp::init()
 
   Mix_Init(MIX_INIT_FLAC | MIX_INIT_MP3 | MIX_INIT_OGG);
   int res = Mix_OpenAudio(44100/*MIX_DEFAULT_FREQUENCY*/, MIX_DEFAULT_FORMAT, 2, 4096);//1024);
+  if(res != 0)
+  {
+    valid = false;
+    cout<<"Mix_Init(): "<<Mix_GetError()<<endl;
+  }
+  else
+  {
+    valid = true;
+  }
 }
 
 void AudioImp::simulate(const float game_time, const float frame_time)
@@ -42,6 +51,11 @@ void AudioImp::deinit()
 
 unsigned int AudioImp::load_music(string fname)
 {
+  if(!valid)
+  {
+    cout<<"AudioImp::load_sample(): Audio Context invalid!"<<endl;
+    return -1;
+  }
   Mix_Music *music;
   cout<<"loading music file "<<fname.c_str()<<endl;
   music = Mix_LoadMUS(fname.c_str());
@@ -56,6 +70,12 @@ unsigned int AudioImp::load_music(string fname)
 
 unsigned int AudioImp::load_sample(string fname)
 {
+  if(!valid)
+  {
+    cout<<"AudioImp::load_sample(): Audio Context invalid!"<<endl;
+    return -1;
+  }
+
   Mix_Chunk *sample;
   cout<<"loading "<<fname.c_str()<<endl;
   sample = Mix_LoadWAV(fname.c_str());
@@ -71,6 +91,11 @@ unsigned int AudioImp::load_sample(string fname)
 
 void AudioImp::play_sample(unsigned int sample_id, int num_loops)
 {
+  if(!valid)
+  {
+    cout<<"AudioImp::load_sample(): Audio Context invalid!"<<endl;
+    return;
+  }
   assert(sample_id >= 0 && sample_id < samples.size());
   Mix_Chunk *sample = samples[sample_id];
   Mix_PlayChannel(-1, sample, num_loops);
@@ -78,6 +103,11 @@ void AudioImp::play_sample(unsigned int sample_id, int num_loops)
 
 void AudioImp::play_music(unsigned int music_id, int num_loops)
 {
+  if(!valid)
+  {
+    cout<<"AudioImp::load_sample(): Audio Context invalid!"<<endl;
+    return;
+  }
   assert(music_id >= 0 && music_id < music_tracks.size());
   Mix_Music *music = music_tracks[music_id];
   Mix_PlayMusic(music, num_loops);

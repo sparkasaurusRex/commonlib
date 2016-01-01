@@ -10,7 +10,7 @@ namespace Audio
   class AudioImp
   {
   public:
-    AudioImp() {}
+    AudioImp() { valid = false; }
     ~AudioImp() {}
 
     void init();
@@ -23,6 +23,7 @@ namespace Audio
     void play_sample(unsigned int id, int num_loops);
     void play_music(unsigned int id, int num_loops);
   private:
+    bool valid;
     std::vector<Mix_Chunk *> samples; //unordered_map instead?
     std::vector<Mix_Music *> music_tracks;
   };
