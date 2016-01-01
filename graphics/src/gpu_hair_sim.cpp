@@ -70,8 +70,8 @@ GPUHairSim::GPUHairSim()
 
   sun_pos_xyz = Float3(10.0f, 10.0f, 0.0f);
   sun_diff_rgb = Float3(1.0f, 0.0f, 0.0f);
-  sun_spec_rgb = Float3(0.0f, 1.0f, 0.0f);
-  ambient_rgb = Float3(0.0f, 0.1f, 0.2f);
+  sun_spec_rgb = Float3(1.0f, 1.0f, 0.0f);
+  ambient_rgb = Float3(0.2f, 0.3f, 0.3f);
 }
 
 GPUHairSim::~GPUHairSim()
