@@ -54,6 +54,16 @@ SDLGame::~SDLGame()
 
 void SDLGame::init()
 {
+  //load init file and set resolution
+  FILE *init_file = fopen("init.txt", "r");
+
+  if(init_file)
+  {
+    fscanf(init_file, "%i", &resolution[0]);
+    fscanf(init_file, "%i", &resolution[1]);
+    fclose(init_file);
+  }
+
   init_sdl();
   font = new Font(font_face.c_str(), font_height);
   font->init();
