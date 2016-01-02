@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
     
     srand(time(NULL));
     
-    KDTree3D tree;
+    KDTree3D<int> tree;
     
     Float3 node(0.5f, 0.6f, -0.9f);
     
@@ -28,20 +28,20 @@ int main(int argc, char **argv) {
             nearest = element;
         }
         
-        tree.insertElement(element);
+        tree.insertElement(element, i);
     }
     
     cout << "Node: " << node << endl;
     cout << "Actual nearest: " << nearest << endl;
-    cout << "KDTree nearest: " << tree.findNearestNeighbor(node) << endl;
+    cout << "KDTree nearest: " << tree.findNearestNeighbor(node)->value << endl;
     
     for (int i = 0; i < numPoints / 2; i++) {
-        tree.removeElement(tree.findNearestNeighbor(node));
+        tree.removeElement(tree.findNearestNeighbor(node)->value);
     }
     
-    tree.insertElement(nearest);
+    tree.insertElement(nearest, 0);
     
-    cout << "KDTree nearest: " << tree.findNearestNeighbor(node) << endl;
+    cout << "KDTree nearest: " << tree.findNearestNeighbor(node)->value << endl;
     
     return 0;
 }

@@ -19,16 +19,19 @@ using namespace std;
 
 namespace Structures    {
     
+    template <class T>
     struct Node {
         
-        Node(Float3 v = Float3(0.f, 0.f, 0.f)) : value(v), left(NULL), right(NULL) {}
+        Node(Float3 v = Float3(0.f, 0.f, 0.f), T t = T()) : data(t), value(v), left(NULL), right(NULL) {}
         ~Node() { delete left; delete right; }
         
+        T data;
         Float3 value;
-        Node * left;
-        Node * right;
+        Node<T> * left;
+        Node<T> * right;
     };
     
+    template <class T>
     class KDTree3D {
         
     public:
@@ -37,27 +40,17 @@ namespace Structures    {
         
         ~KDTree3D() { delete root; }
         
-        void insertElement(Float3 element) { insertElementHelper(element, root, 0); }
+        void insertElement(Float3 element, T data) { insertElementHelper(element, data, root, 0); }
         
         void removeElement(Float3 element) { removeElementHelper(element, root, 0); }
         
-        Float3 findNearestNeighbor(Float3 query) {
-            Node * result = findNearestNeighborHelper(query, root, 0);
-            return (result == NULL) ? Float3(-69, -69, -69) : result->value;
+        Node<T> * findNearestNeighbor(Float3 query) {
+            return findNearestNeighborHelper(query, root, 0);
         }
         
     private:
         
-        Node * root;
-        
-        Float3 findMin(Node * cRoot, int searchDimension, int currentDimension);
-        
-        void removeElementHelper(Float3 element, Node * & cRoot, int currentDimension);
-        
-        void insertElementHelper(Float3 value, Node * & cRoot, int currentDimension);
-        
-        Node * findNearestNeighborHelper(Float3 query, Node * cRoot, int currentDimension);
-        
+        Node<T> * root;
         /*
          * epsilon is used to determine if two Float3's are equal.
          * infinity is used in the findMin function
@@ -66,6 +59,139 @@ namespace Structures    {
         float infinity = 99999999999999;
         
         int DIM = 3;
+        
+        
+        Float3 findMin(Node<T> * cRoot, int searchDimension, int currentDimension) {
+            
+            if (cRoot == NULL) {
+                return Float3(infinity, infinity, infinity);
+            }
+            if (cRoot->left == NULL && cRoot->right == NULL) {
+                //Base case
+                return cRoot->value;
+            }
+            
+            int nextDimension = (currentDimension + 1) % DIM;
+            
+            if (currentDimension == searchDimension) {
+                //We only visit the left subtree
+                
+                if (cRoot->left == NULL) {
+                    return cRoot->value;
+                }
+                else {
+                    return findMin(cRoot->left, searchDimension, nextDimension);
+                }
+            }
+            else {
+                Float3 left = findMin(cRoot->left, searchDimension, nextDimension);
+                Float3 right = findMin(cRoot->right, searchDimension, nextDimension);
+                
+                return (left[searchDimension] < right[searchDimension]) ? left : right;
+            }
+        }
+        
+        void removeElementHelper(Float3 element, Node<T> * & cRoot, int currentDimension) {
+            
+            if (cRoot == NULL) {
+                //Our point is not found. Do nothing.
+                return;
+            }
+            
+            int nextDimension = (currentDimension + 1) % DIM;
+            
+            if (dist_squared(cRoot->value, element) < epsilon) {
+                //This is the node we want to delete
+                
+                if (cRoot->right != NULL) {
+                    cRoot->value = findMin(cRoot->right, currentDimension, nextDimension);
+                    removeElementHelper(cRoot->value, cRoot->right, nextDimension);
+                }
+                else if (cRoot->left != NULL) {
+                    cRoot->value = findMin(cRoot->left, currentDimension, nextDimension);
+                    removeElementHelper(cRoot->value, cRoot->left, nextDimension);
+                }
+                else {
+                    delete cRoot;
+                    cRoot = NULL;
+                }
+            }   //else we need to search for our element
+            else if (cRoot->value[currentDimension] > element[currentDimension]) {
+                removeElementHelper(element, cRoot->left, nextDimension);
+            }
+            else {
+                removeElementHelper(element, cRoot->right, nextDimension);
+            }
+        }
+        
+        void insertElementHelper(Float3 value, T data, Node<T> * & cRoot, int currentDimension) {
+            
+            if (cRoot == NULL) {
+                cRoot = new Node<T>(value, data);
+                return;
+            }
+            
+            int nextDimension = (currentDimension + 1) % DIM;
+            
+            if (value[currentDimension] < cRoot->value[currentDimension]) {
+                //Insert left
+                insertElementHelper(value, data, cRoot->left, nextDimension);
+            }
+            else {
+                //Insert right
+                insertElementHelper(value, data, cRoot->right, nextDimension);
+            }
+        }
+        
+        Node<T> * findNearestNeighborHelper(Float3 query, Node<T> * cRoot, int currentDimension) {
+            
+            if (cRoot == NULL || (cRoot->left == NULL && cRoot->right == NULL)) {
+                return cRoot;
+            }
+            
+            Node<T> * currentBestNode;
+            int nextDimension = (currentDimension + 1) % DIM;
+            
+            bool checkedLeftHyperrectangle;
+            
+            if (query[currentDimension] < cRoot->value[currentDimension]) {
+                //Search left
+                currentBestNode = findNearestNeighborHelper(query, cRoot->left, nextDimension);
+                checkedLeftHyperrectangle = true;
+            }
+            else {
+                //Search right
+                currentBestNode = findNearestNeighborHelper(query, cRoot->right, nextDimension);
+                checkedLeftHyperrectangle = false;
+            }
+            
+            if (currentBestNode == NULL || dist_squared(query, cRoot->value) < dist_squared(query, currentBestNode->value)) {
+                currentBestNode = cRoot;
+            }
+            
+            float distSqrdToSplittingPlane = query[currentDimension] - cRoot->value[currentDimension];
+            distSqrdToSplittingPlane *= distSqrdToSplittingPlane;
+            
+            if (distSqrdToSplittingPlane < dist_squared(query, currentBestNode->value)) {
+                //We need to check the other hyperrectangle
+                
+                Node<T> * possibleBest;
+                
+                if (checkedLeftHyperrectangle) {
+                    possibleBest = findNearestNeighborHelper(query, cRoot->right, nextDimension);
+                }
+                else {
+                    possibleBest = findNearestNeighborHelper(query, cRoot->left, nextDimension);
+                }
+                
+                if (possibleBest != NULL && dist_squared(query, possibleBest->value) < dist_squared(query, currentBestNode->value)) {
+                    currentBestNode = possibleBest;
+                }
+            }
+            
+            return currentBestNode;
+
+        }
     };
 }
 
