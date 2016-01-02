@@ -1,63 +1,47 @@
 #include <iostream>
-#include <string>
 #include <vector>
 
 #include "kdtree.h"
-#include "math_utility.h"
 
-//using namespace std;
 using namespace Structures;
-using namespace Math;
 
-int main(int argc, char **argv)
-{
-  KDTree3D<int> kd;
-  Float3 q(0.7f, -0.3f, 1.24f);
-
-  int num_pts = 10;
-  if(argc > 1) { num_pts = atoi(argv[1]); }
-
-  int nearest = -1;
-  float min_d = -1.0f;
-  kd.resize_elements(num_pts);
-  for(int i = 0; i < num_pts; i++)
-  {
-    Float3 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
-    cout<<i<<": "<<p<<endl;
-    float d = distance(p, q);
-    cout<<"\tdist: "<<d<<endl;
-    if(nearest < 0 || d < min_d)
-    {
-      min_d = d;
-      nearest = i;
+int main(int argc, char **argv) {
+    
+    int numPoints = 10;
+    if (argc > 1) {
+        numPoints = atoi(argv[1]);
     }
-    kd.add_element(i, p);
-  }
-
-  //kd.test_quicksort();
-
-  cout<<"nearest brute force: "<<endl;
-  cout<<"\t"<<nearest<<endl;
-  cout<<"\t"<<min_d<<endl;
-
-  kd.build_tree();
-  cout<<"tree size: "<<kd.tree_size()<<endl;
-
-  kd.print_tree();
-
-  float best_d2 = 0.0f;
-  KDData3D<int> *nearest_node = kd.find_nearest_neighbor(q, best_d2);
-  cout<<endl<<endl;
-
-  if(nearest_node)
-  {
-    cout<<"nearest: "<<endl;
-    cout<<"\t"<<nearest_node->d<<endl;
-    cout<<"\t"<<nearest_node->p<<endl;
-    cout<<"\t"<<sqrt(best_d2)<<endl;
-  }
-
-  kd.reset();
-
-  return 0;
+    
+    srand(time(NULL));
+    
+    KDTree3D tree;
+    
+    Float3 node(0.5f, 0.6f, -0.9f);
+    
+    Float3 nearest(1000, 1000, 1000);
+    
+    for (int i = 0; i < numPoints; i++) {
+        
+        Float3 element(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
+        
+        if (dist_squared(node, element) < dist_squared(node, nearest)) {
+            nearest = element;
+        }
+        
+        tree.insertElement(element);
+    }
+    
+    cout << "Node: " << node << endl;
+    cout << "Actual nearest: " << nearest << endl;
+    cout << "KDTree nearest: " << tree.findNearestNeighbor(node) << endl;
+    
+    for (int i = 0; i < numPoints / 2; i++) {
+        tree.removeElement(tree.findNearestNeighbor(node));
+    }
+    
+    tree.insertElement(nearest);
+    
+    cout << "KDTree nearest: " << tree.findNearestNeighbor(node) << endl;
+    
+    return 0;
 }
