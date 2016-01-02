@@ -73,7 +73,6 @@ namespace Math {
     std::vector<Edge3D>   edges;
   };
 
-
 #define FORTUNE_EVENT_CIRCLE  0
 #define FORTUNE_EVENT_SITE    1
 
