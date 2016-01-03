@@ -30,20 +30,20 @@ int main(int argc, char **argv) {
             nearest = element;
         }
 
-        tree.insertElement(element, i);
+        tree.insert_element(element, i);
     }
 
     cout << "Node: " << node << endl;
     cout << "Actual nearest: " << nearest << endl;
-    cout << "KDTree nearest: " << tree.findNearestNeighbor(node)->value << endl;
+    cout << "KDTree nearest: " << tree.find_nearest_neighbor(node)->value << endl;
 
     for (int i = 0; i < numPoints / 2; i++) {
-        tree.removeElement(tree.findNearestNeighbor(node)->value);
+        tree.remove_element(tree.find_nearest_neighbor(node)->value);
     }
 
-    tree.insertElement(nearest, 0);
+    tree.insert_element(nearest, 0);
 
-    cout << "KDTree nearest: " << tree.findNearestNeighbor(node)->value << endl;
+    cout << "KDTree nearest: " << tree.find_nearest_neighbor(node)->value << endl;
 
     return 0;
 }
