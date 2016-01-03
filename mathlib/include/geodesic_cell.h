@@ -1,6 +1,7 @@
 #ifndef __GEODESIC_CELL_H__
 #define __GEODESIC_CELL_H__
 
+#include <assert.h>
 #include "math_utility.h"
 
 template <class T>
