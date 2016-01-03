@@ -155,9 +155,9 @@ private:
         Float3 wind;
         wind[0] = scaled_octave_noise_4d(2, 1.0f, scale, -1.0f, 1.0f, p[0] + game_time * speed, p[1], p[2], game_time * speed * 0.3f);
         wind[1] = scaled_octave_noise_4d(2, 1.0f, scale * 0.95, -1.0f, 1.0f, p[0] + 7.15f + game_time * speed, p[1] + 13.76f, p[2] + 12.74f, game_time * speed * 0.3f);
-        wind[2] = scaled_octave_noise_4d(2, 1.0f, scale * 1.2f, -1.0f, 1.0f, p[0] + 3.12f + game_time * speed, p[2] + 67.12f, p[2] - 4.1784f, game_time * speed * 0.3f);
+        wind[2] = scaled_octave_noise_4d(2, 1.0f, scale * 1.2f, -1.0f, 1.0f, p[0] + 3.12f + game_time * speed, p[1] + 67.12f, p[2] - 4.1784f, game_time * speed * 0.3f);
 
-        pixels[pix_idx++] = p[0] + wind[0];
+        pixels[pix_idx++] = p[0] + wind[0];// + scaled_octave_noise_2d(3, 1.0f, 2.0f, 0.2f, 1.0f, 0.5f * speed * game_time, p[2]);
         pixels[pix_idx++] = p[1] + wind[1];
         pixels[pix_idx++] = p[2] + wind[2];
 
@@ -212,7 +212,7 @@ private:
     delete hair_pos;
     delete hair_uvs;
 
-    color_tex = new Texture("data/grass.tif");
+    color_tex = new Texture("data/planet_blink_1600.png");
     color_tex->load();
     gpu_hair.set_color_tex(color_tex);
 

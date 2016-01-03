@@ -1,6 +1,6 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I../mathlib/include  -g -Ofast -std=c++11
+CFLAGS=-I./include -I../mathlib/include -g -Ofast -std=c++11
 SRCPATH=src/
 SRCS=src/kdtree.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -11,7 +11,7 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	LIB_PATH+=-L../mathlib/bin/osx
 
 	BINPATH=bin/osx/
-	LINK_CMD=g++ -dynamiclib -o $(BINPATH)libstructures.dylib
+	LINK_CMD=ar -cvq $(BINPATH)libstructures.a
 else
 	LIB_PATH += -Lbin/linux
 	LIB_PATH += -L../mathlib/bin/linux
