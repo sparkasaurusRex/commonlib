@@ -36,6 +36,8 @@ SDLGame::SDLGame(const int w, const int h,
   font_face = "/Library/Fonts/Andale Mono.ttf";
 #endif //__APPLE__
   font_height = 24;
+
+  fullscreen_state = false;
 }
 
 SDLGame::~SDLGame()
@@ -49,6 +51,30 @@ SDLGame::~SDLGame()
   {
     SDL_DestroyWindow(win);
     win = NULL;
+  }
+}
+
+void SDLGame::set_resolution(const unsigned int w, const unsigned int h)
+{
+  resolution[0] = w;
+  resolution[1] = h;
+
+  if(win)
+  {
+    SDL_DisplayMode mode;
+    SDL_GetWindowDisplayMode(win, &mode);
+    mode.w = w;
+    mode.h = h;
+    SDL_SetWindowDisplayMode(win, &mode);
+  }
+}
+
+void SDLGame::toggle_fullscreen()
+{
+  if(win)
+  {
+    fullscreen_state = !fullscreen_state;
+    SDL_SetWindowFullscreen(win, fullscreen_state ? SDL_WINDOW_FULLSCREEN : 0);
   }
 }
 
@@ -170,6 +196,7 @@ void SDLGame::process_events()
       case SDLK_RETURN:
       //case SDLK_ENTER:
         if(console.is_active()) { console.execute(); }
+        if(keystate[SDL_SCANCODE_LALT]) { toggle_fullscreen(); }
         break;
       case SDLK_TAB:
         if(console.is_active()) { console.tab_complete(); }
