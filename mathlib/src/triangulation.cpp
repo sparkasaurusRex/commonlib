@@ -96,7 +96,8 @@ void Triangulation2D::delaunay_boost()
   {
     const voronoi_diagram<double>::cell_type& cell = *cit;
     const voronoi_diagram<double>::edge_type* edge = cell.incident_edge();
-    do {
+    do
+    {
       if(edge->is_primary())
       {
         const voronoi_diagram<double>::cell_type *twin_cell = edge->twin()->cell();
