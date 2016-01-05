@@ -45,10 +45,16 @@ private:
   }
 };
 
+void menu_cb(const SDL_Event &e)
+{
+
+}
+
 int main(int argc, char **argv)
 {
   MySDLGame game;
   game.init();
+
   game.run();
   return 0;
 }

@@ -36,6 +36,8 @@ SDLGame::SDLGame(const int w, const int h,
   font_face = "/Library/Fonts/Andale Mono.ttf";
 #endif //__APPLE__
   font_height = 24;
+
+  pause_menu = NULL;
 }
 
 SDLGame::~SDLGame()
@@ -123,6 +125,8 @@ void SDLGame::run()
       fps_label.render();
     }
 
+    if(pause_menu) { pause_menu->render(); }
+
     console.simulate(frame_time);
     console.render_gl();
 
@@ -143,7 +147,14 @@ void SDLGame::process_events()
   //base level of event processing every app should have
   const Uint8 *keystate = SDL_GetKeyboardState(NULL);
   assert(keystate);
-  if(keystate[SDL_SCANCODE_ESCAPE]) quit_app();
+  if(keystate[SDL_SCANCODE_ESCAPE])
+  {
+    if(pause_menu)
+    {
+      pause_menu->show(true);
+    }
+    else { quit_app(); }
+  }
 
   SDL_Event event;
   while(SDL_PollEvent(&event))
@@ -204,6 +215,11 @@ void SDLGame::process_events()
 
     if(event.type == SDL_QUIT) { quit_app(); }
     if(!console.is_active()) { user_process_event(event); }
+  }
+
+  if(pause_menu)
+  {
+    pause_menu->process_event(event);
   }
 }
 

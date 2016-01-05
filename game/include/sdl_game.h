@@ -14,6 +14,7 @@
 #include "console.h"
 #include "cinematics/fade_screen.h"
 #include "label.h"
+#include "menu.h"
 
 //TODO: framerate counter
 
@@ -38,6 +39,8 @@ public:
   void init();
   void run();
   void process_events();
+
+  void set_pause_menu(UI::Menu *menu) { pause_menu = menu; }
 
   void begin_video_capture() { recording_movie = true; movie_frame_counter = 0; }
   void end_video_capture() { recording_movie = false; movie_frame_counter = 0; }
@@ -78,6 +81,9 @@ protected:
   UI::Label fps_label;
 
   FadeScreen title_screen;
+
+  bool paused;
+  UI::Menu *pause_menu;
 };
 
 #endif //__SDL_GAME_H__
