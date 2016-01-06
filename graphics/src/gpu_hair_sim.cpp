@@ -213,23 +213,19 @@ void GPUHairSim::init(Float3 *hair_pos, Float3 *hair_uvs)
 
     delete pixels;
 
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pos_fbo[i]);
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, pos_tex[i], 0);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-
     //create FBOs + buffers for full screen quad
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pos_fbo[i]);
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, pos_tex[i], 0);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-
-    glGenBuffers(1, &fbo_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, fbo_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(fbo_verts), fbo_verts, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &fbo_ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 4, fbo_indices, GL_STATIC_DRAW);
   }
+
+  glGenBuffers(1, &fbo_vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, fbo_vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(fbo_verts), fbo_verts, GL_STATIC_DRAW);
+
+  glGenBuffers(1, &fbo_ibo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 4, fbo_indices, GL_STATIC_DRAW);
 
   //create our geometry buffers
   num_verts = num_hairs * (num_segments) * 2;
