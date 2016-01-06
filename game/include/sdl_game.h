@@ -42,6 +42,9 @@ public:
 
   void set_gl_version(const int major, const int minor) { gl_version[0] = major; gl_version[1] = minor; }
 
+  void set_resolution(const unsigned int w, const unsigned int h);
+  void toggle_fullscreen();
+
   void init();
   void run();
   void process_events();
@@ -93,8 +96,12 @@ protected:
 
   FadeScreen title_screen;
 
+<<<<<<< HEAD
   bool paused;
   UI::Menu *pause_menu;
+=======
+  bool fullscreen_state;
+>>>>>>> 0d2bb9d37282c82ac8816cd08a2029b8dc09d0af
 };
 
 #endif //__SDL_GAME_H__

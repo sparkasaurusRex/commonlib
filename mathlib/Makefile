@@ -15,6 +15,7 @@ SRCPATH=src/
 SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp
 SRCS+=src/quaternion.cpp src/voronoi.cpp src/triangulation.cpp src/shapes.cpp
 SRCS+=src/function.cpp src/curve.cpp src/voronoi_sphere.cpp
+SRCS+=src/gpu_voronoi.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -67,6 +68,9 @@ $(BINPATH)voronoi.o: $(SRCPATH)voronoi.cpp
 
 $(BINPATH)voronoi_sphere.o: $(SRCPATH)voronoi_sphere.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)voronoi_sphere.cpp -o $(BINPATH)voronoi_sphere.o
+
+$(BINPATH)gpu_voronoi.o: $(SRCPATH)gpu_voronoi.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)gpu_voronoi.cpp -o $(BINPATH)gpu_voronoi.o
 
 $(BINPATH)triangulation.o: $(SRCPATH)triangulation.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)triangulation.cpp -o $(BINPATH)triangulation.o

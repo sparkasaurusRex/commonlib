@@ -55,11 +55,15 @@ SDLGame::SDLGame(const int w, const int h,
 #endif //__APPLE__
   font_height = 24;
 
+<<<<<<< HEAD
   pause_menu = NULL;
   if(flags & SDL_GAME_GENERATE_PAUSE_MENU)
   {
     pause_menu = new Menu;
   }
+=======
+  fullscreen_state = false;
+>>>>>>> 0d2bb9d37282c82ac8816cd08a2029b8dc09d0af
 }
 
 SDLGame::~SDLGame()
@@ -77,6 +81,30 @@ SDLGame::~SDLGame()
   if(pause_menu && (flags & SDL_GAME_GENERATE_PAUSE_MENU))
   {
     delete pause_menu;
+  }
+}
+
+void SDLGame::set_resolution(const unsigned int w, const unsigned int h)
+{
+  resolution[0] = w;
+  resolution[1] = h;
+
+  if(win)
+  {
+    SDL_DisplayMode mode;
+    SDL_GetWindowDisplayMode(win, &mode);
+    mode.w = w;
+    mode.h = h;
+    SDL_SetWindowDisplayMode(win, &mode);
+  }
+}
+
+void SDLGame::toggle_fullscreen()
+{
+  if(win)
+  {
+    fullscreen_state = !fullscreen_state;
+    SDL_SetWindowFullscreen(win, fullscreen_state ? SDL_WINDOW_FULLSCREEN : 0);
   }
 }
 
@@ -248,6 +276,7 @@ void SDLGame::process_events()
       case SDLK_RETURN:
       //case SDLK_ENTER:
         if(console.is_active()) { console.execute(); }
+        if(keystate[SDL_SCANCODE_LALT]) { toggle_fullscreen(); }
         break;
       case SDLK_TAB:
         if(console.is_active()) { console.tab_complete(); }
