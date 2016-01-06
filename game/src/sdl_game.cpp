@@ -1,18 +1,31 @@
 #include <assert.h>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <GL/glew.h>
 
 #include "sdl_game.h"
 #include "label.h"
+#include "menu.h"
 
 using namespace std;
 using namespace Math;
+using namespace UI;
+
+void quit_cb(const SDL_Event &e)
+{
+  SDL_Quit();
+  exit(0);
+}
 
 SDLGame::SDLGame(const int w, const int h,
                  std::string title,
+                 const unsigned int _flags,
                  const int _gl_context_profile,
                  const int gl_major_version, const int gl_minor_version)
 {
+  flags = _flags;
+
   resolution[0] = w;
   resolution[1] = h;
 
@@ -27,6 +40,11 @@ SDLGame::SDLGame(const int w, const int h,
   window_title = title;
 
   last_game_time = 0.0f;
+  fps_idx = 0;
+  for(int i = 0; i < SDL_GAME_NUM_FPS_FRAMES; i++)
+  {
+    prev_fps[i] = 30.0f;
+  }
 
   recording_movie = false;
   movie_frame_counter = 0;
@@ -38,6 +56,10 @@ SDLGame::SDLGame(const int w, const int h,
   font_height = 24;
 
   pause_menu = NULL;
+  if(flags & SDL_GAME_GENERATE_PAUSE_MENU)
+  {
+    pause_menu = new Menu;
+  }
 }
 
 SDLGame::~SDLGame()
@@ -51,6 +73,10 @@ SDLGame::~SDLGame()
   {
     SDL_DestroyWindow(win);
     win = NULL;
+  }
+  if(pause_menu && (flags & SDL_GAME_GENERATE_PAUSE_MENU))
+  {
+    delete pause_menu;
   }
 }
 
@@ -80,6 +106,25 @@ void SDLGame::init()
   fps_label.translate(Float2(10.0f, 10.0f));
   fps_label.show();
 
+  if(pause_menu)
+  {
+    pause_menu->translate(Float2(100.0f, 100.0f));
+
+    pause_menu->add_menu_item(std::string("Options"), quit_cb);
+    pause_menu->add_menu_item(std::string("Save"), quit_cb);
+    pause_menu->add_menu_item(std::string("Quite a long string"), quit_cb);
+    pause_menu->add_menu_item(std::string("Quit"), quit_cb);
+
+    pause_menu->set_font(font);
+    pause_menu->init();
+
+    //move to the middle of the screen
+    Float2 dim = pause_menu->get_dim();
+    float x = resolution[0] / 2.0f - dim[0] / 2.0f;
+    float y = resolution[1] / 2.0f - dim[1] / 2.0f;
+    pause_menu->translate(Float2(x, y));
+  }
+
   user_init();
   console.init();
 }
@@ -98,7 +143,16 @@ void SDLGame::run()
     double frame_time = (game_time - last_game_time) / 1000.0f;
     last_game_time = game_time;
 
-    float fps = 1.0f / frame_time;
+    //average the last n frames
+    float actual_fps = 1.0f / frame_time;
+    prev_fps[fps_idx] = actual_fps;
+    fps_idx = (fps_idx + 1) % SDL_GAME_NUM_FPS_FRAMES;
+    float avg_fps = 0.0f;
+    for(int i = 0; i < SDL_GAME_NUM_FPS_FRAMES; i++)
+    {
+      avg_fps += prev_fps[i];
+    }
+    avg_fps /= (float)SDL_GAME_NUM_FPS_FRAMES;
 
     if(!title_screen.is_active())
     {
@@ -110,7 +164,10 @@ void SDLGame::run()
       game_loop(game_time, frame_time);
     }
 
-    std::string fps_text = std::string("fps: ") + std::to_string(fps);
+    std::stringstream ss;
+    ss<<std::fixed<<std::setprecision(2)<<avg_fps;
+
+    std::string fps_text = std::string("fps: ") + ss.str();
     fps_label.set_text(fps_text);
     fps_label.simulate(frame_time);
 
@@ -123,12 +180,16 @@ void SDLGame::run()
     {
       render_gl();
       fps_label.render();
+
+      if(pause_menu)
+      {
+        pause_menu->simulate(frame_time);
+        pause_menu->render();
+      }
+
+      console.simulate(frame_time);
+      console.render_gl();
     }
-
-    if(pause_menu) { pause_menu->render(); }
-
-    console.simulate(frame_time);
-    console.render_gl();
 
     if(recording_movie)
     {
@@ -137,8 +198,6 @@ void SDLGame::run()
 
     glFlush();
     SDL_GL_SwapWindow(win);
-
-    //if(console.is_active()) cout<<"true"<<endl; else cout<<"false"<<endl;
   }
 }
 
@@ -149,16 +208,15 @@ void SDLGame::process_events()
   assert(keystate);
   if(keystate[SDL_SCANCODE_ESCAPE])
   {
-    if(pause_menu)
-    {
-      pause_menu->show(true);
-    }
-    else { quit_app(); }
+    if(!pause_menu) { quit_app(); }
   }
 
   SDL_Event event;
   while(SDL_PollEvent(&event))
   {
+    //pass the game pointer along through the event chain
+    //event.user.data1 = this;
+
     if(event.type == SDL_KEYUP || event.type == SDL_MOUSEBUTTONDOWN)
     {
       if(title_screen.is_active())
@@ -167,10 +225,19 @@ void SDLGame::process_events()
         return;
       }
 
+      if(pause_menu && pause_menu->is_visible())
+      {
+        pause_menu->process_event(event);
+        return;
+      }
+
       switch(event.key.keysym.sym)
       {
       case '`':
         console.activate(!console.is_active());
+        break;
+      case SDLK_ESCAPE:
+        if(pause_menu && !pause_menu->is_visible()) { pause_menu->show(); }
         break;
       case SDLK_UP:
         if(console.is_active()) { console.traverse_command_history(1); }
@@ -215,11 +282,6 @@ void SDLGame::process_events()
 
     if(event.type == SDL_QUIT) { quit_app(); }
     if(!console.is_active()) { user_process_event(event); }
-  }
-
-  if(pause_menu)
-  {
-    pause_menu->process_event(event);
   }
 }
 

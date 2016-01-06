@@ -54,7 +54,7 @@ private:
     label.simulate(frame_time);
     //pb.simulate(frame_time);
     tb.simulate(frame_time);
-    menu.simulate(frame_time);
+    //menu.simulate(frame_time);
   }
 
   void user_init()
@@ -68,6 +68,7 @@ private:
     label.init();
     ww.add_widget(&label);
 
+    /*
     menu.set_font(widget_font);
     menu.add_menu_item(std::string("First Item"), pb_callback);
     menu.add_menu_item(std::string("Second Item"), pb_callback);
@@ -77,6 +78,7 @@ private:
     menu.scale(Float2(100.0f, 100.0f));
     menu.init();
     ww.add_widget(&menu);
+    */
 
     for(int i = 0; i < TOOLBOX_SIZE; i++)
     {
@@ -118,7 +120,7 @@ private:
     //label.show();
     //pb.show();
     tb.show();
-    menu.show();
+    //menu.show();
 
     for(int i = 0; i < NUM_RPB; i++)
     {
@@ -130,7 +132,7 @@ private:
   {
     //pb.process_event(e);
     tb.process_event(e);
-    menu.process_event(e);
+    //menu.process_event(e);
 
     for(int i = 0; i < NUM_RPB; i++)
     {
@@ -143,7 +145,7 @@ private:
   Label label;
   CheckButton pb[TOOLBOX_SIZE];
   ToolBox tb;
-  Menu menu;
+  //Menu menu;
 
   RadialPushButton rpb[NUM_RPB];
 

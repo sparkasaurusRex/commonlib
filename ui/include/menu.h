@@ -16,13 +16,14 @@ namespace UI
 
       void add_menu_item(std::string name, void (*cb)(const SDL_Event &e));
 
-      virtual void init() {}
+      virtual void init();
       virtual void simulate(const float dt) {}
       virtual void process_event(const SDL_Event &event);
       virtual void render();
     private:
       std::vector<std::pair<std::string, void (*)(const SDL_Event &e)> > items;
       int selection;
+      float item_border;
   };
 };
 

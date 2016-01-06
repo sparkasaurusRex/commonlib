@@ -3,7 +3,11 @@
 using namespace UI;
 using namespace std;
 
-Menu::Menu(Font *f) : RectangularWidget(f) {}
+Menu::Menu(Font *f) : RectangularWidget(f)
+{
+  selection = 0;
+  item_border = 10.0f;
+}
 
 Menu::~Menu() {}
 
@@ -11,6 +15,21 @@ void Menu::add_menu_item(string name, void (*cb)(const SDL_Event &e))
 {
   pair<string, void (*)(const SDL_Event &e)>p(name, cb);
   items.push_back(p);
+}
+
+void Menu::init()
+{
+  //update dimensions
+  dim[1] = (float)items.size() * font->get_height() + item_border;
+
+  float widest = 0.0f;
+  for(int i = 0; i < items.size(); i++)
+  {
+    char buffer[256];
+    strcpy(buffer, items[i].first.c_str());
+    widest = max(widest, font->get_string_width(buffer));
+  }
+  dim[0] = widest;
 }
 
 void Menu::process_event(const SDL_Event &event)
@@ -32,7 +51,7 @@ void Menu::process_event(const SDL_Event &event)
           items[selection].second(event);
           break;
         case SDLK_ESCAPE:
-          show(false);
+          visible = false;
           break;
       }
       break;
@@ -50,7 +69,7 @@ void Menu::render()
 {
   if(!visible) { return; }
 
-  float font_height = 15.0f;
+  float font_height = font->get_height() + item_border;
   float height = pos[1];
   for(int i = 0; i < items.size(); i++)
   {
@@ -62,7 +81,13 @@ void Menu::render()
     {
       glColor3f(1.0f, 1.0f, 1.0f);
     }
-    font->print(pos[0], height, items[i].first.c_str());
+
+    char buffer[256];
+    strcpy(buffer, items[i].first.c_str());
+    float width = font->get_string_width(buffer);
+    float x = pos[0] + dim[0] / 2.0f - width / 2.0f;
+
+    font->print(x, height, items[i].first.c_str());
     height += font_height;
   }
 }
