@@ -55,15 +55,12 @@ SDLGame::SDLGame(const int w, const int h,
 #endif //__APPLE__
   font_height = 24;
 
-<<<<<<< HEAD
   pause_menu = NULL;
   if(flags & SDL_GAME_GENERATE_PAUSE_MENU)
   {
     pause_menu = new Menu;
   }
-=======
   fullscreen_state = false;
->>>>>>> 0d2bb9d37282c82ac8816cd08a2029b8dc09d0af
 }
 
 SDLGame::~SDLGame()
