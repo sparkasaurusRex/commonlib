@@ -60,7 +60,8 @@ SDLGame::SDLGame(const int w, const int h,
   {
     pause_menu = new Menu;
   }
-  fullscreen_state = false;
+
+  game_state = 0;
 }
 
 SDLGame::~SDLGame()
@@ -100,8 +101,8 @@ void SDLGame::toggle_fullscreen()
 {
   if(win)
   {
-    fullscreen_state = !fullscreen_state;
-    SDL_SetWindowFullscreen(win, fullscreen_state ? SDL_WINDOW_FULLSCREEN : 0);
+    game_state = game_state ^ SDL_GAME_STATE_FULLSCREEN;
+    SDL_SetWindowFullscreen(win, (game_state & SDL_GAME_STATE_FULLSCREEN) ? SDL_WINDOW_FULLSCREEN : 0);
   }
 }
 
@@ -250,9 +251,14 @@ void SDLGame::process_events()
         return;
       }
 
+      //this bit here is pretty terrible
       if(pause_menu && pause_menu->is_visible())
       {
         pause_menu->process_event(event);
+        if(!pause_menu->is_visible())
+        {
+          game_state &= ~SDL_GAME_STATE_PAUSED;
+        }
         return;
       }
 
@@ -262,7 +268,11 @@ void SDLGame::process_events()
         console.activate(!console.is_active());
         break;
       case SDLK_ESCAPE:
-        if(pause_menu && !pause_menu->is_visible()) { pause_menu->show(); }
+        if(pause_menu && !pause_menu->is_visible())
+        {
+          game_state |= SDL_GAME_STATE_PAUSED;
+          pause_menu->show();
+        }
         break;
       case SDLK_UP:
         if(console.is_active()) { console.traverse_command_history(1); }
