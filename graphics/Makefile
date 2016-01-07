@@ -18,6 +18,7 @@ SRCPATH=src/
 SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
 SRCS+=src/camera.cpp src/draw_call.cpp src/render_surface.cpp src/hdr_render_surface.cpp
 SRCS+=src/render_surface_combiner.cpp src/gpu_hair_sim.cpp
+SRCS+=src/gpu_particle_system.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -103,6 +104,9 @@ $(BINPATH)render_surface_combiner.o: $(SRCPATH)render_surface_combiner.cpp
 
 $(BINPATH)gpu_hair_sim.o: $(SRCPATH)gpu_hair_sim.cpp
 	$(CC) $(CFLAGS) -c src/gpu_hair_sim.cpp -o $(BINPATH)gpu_hair_sim.o
+
+$(BINPATH)gpu_particle_system.o: $(SRCPATH)gpu_particle_system.cpp
+	$(CC) $(CFLAGS) -c src/gpu_particle_system.cpp -o $(BINPATH)gpu_particle_system.o
 
 $(BINPATH)libgraphics.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgraphics.a $(OBJS_BIN)
