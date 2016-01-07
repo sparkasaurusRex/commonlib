@@ -6,13 +6,21 @@ varying vec4 vertex_color;
 
 void main() {
   
-  vec4 pos_offset = texture2D(particle_tex, gl_MultiTexCoord0.st);
+  vec4 pos_center = texture2D(particle_tex, gl_MultiTexCoord0.st);
   
-  vec4 pos = gl_Vertex + vec4(pos_offset.xyz, 1.0);
+  mat4 identityModelView = gl_ModelViewMatrix;
   
-  gl_Position = gl_ModelViewProjectionMatrix * pos;
+  identityModelView[0][0] = 1.0;
+  identityModelView[0][1] = 0.0;
+  identityModelView[0][2] = 0.0;
+  identityModelView[1][0] = 0.0;
+  identityModelView[1][1] = 1.0;
+  identityModelView[1][2] = 0.0;
+  identityModelView[2][0] = 0.0;
+  identityModelView[2][1] = 0.0;
+  identityModelView[2][2] = 1.0;
+  
+  gl_Position = gl_ProjectionMatrix * identityModelView * gl_Position;
   
   vertex_color = vec4(1.0, 0.0, 0.0, 1.0);
-  
-  //gl_Position = gl_ModelViewProjectionMatrix * vec4(0.0, 0.0, 0.0, 1.0);
 }

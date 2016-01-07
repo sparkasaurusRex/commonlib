@@ -14,11 +14,11 @@ void main() {
   
   vec3 netForce = vec3(0.0, 0.0, 0.0);
   
-  vec3 gravity = vec3(0.0, 1.0, 0.0);
+  vec3 gravity = vec3(0.0, 0.0, 0.0);
   
   netForce = netForce + gravity;
   
   vec3 new_velocity = velocity + dt * netForce;
   
-  gl_FragColor = vec4(new_velocity, 0.0);
+  gl_FragColor = vec4(new_velocity, 1.0);
 }

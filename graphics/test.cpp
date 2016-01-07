@@ -243,13 +243,13 @@ private:
     
     for (int i = 0; i < num_particles; i++)
     {
-      particle_pos[i] = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
+      particle_pos[i] = Float3(random(-0.5f, 0.5f), random(-0.5f, 0.5f), 0.f);
       
       //particle_pos[i][2] = -10.0;
       
-      particle_pos[i].normalize();
+      //particle_pos[i].normalize();
       
-      particle_pos[i] = particle_pos[i] * 2;
+      //particle_pos[i] = particle_pos[i] * 2;
       
       //particle_pos[i] = Float3(0.0, 0.0, 0.0);
       
@@ -258,7 +258,7 @@ private:
       
       particle_vel[i].normalize();
       
-      particle_vel[i] = particle_vel[i] * 2;
+      particle_vel[i] = particle_vel[i] * 0.1;
       
       particle_vel[i] = Float3(0.0, 0.0, 0.0);
     }
@@ -269,7 +269,7 @@ private:
     delete particle_pos;
     delete particle_vel;
     
-    Float3 cam_pos(0.0f, 0.5f, -10.0f);
+    Float3 cam_pos(0.0f, 0.0f, -5.0f);
     cam.set_pos(cam_pos);
     cam.set_lookat(Float3(0.0f, 0.0f, 0.0f) - cam_pos);
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));

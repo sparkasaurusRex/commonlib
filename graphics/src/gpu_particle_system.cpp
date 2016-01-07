@@ -171,7 +171,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
       pixels[pixel_idx++] = initial_particle_vel[j][0]; //vx
       pixels[pixel_idx++] = initial_particle_vel[j][1]; //vy
       pixels[pixel_idx++] = initial_particle_vel[j][2]; //vz
-      pixels[pixel_idx++] = 0.f;                        //Something interesting....
+      pixels[pixel_idx++] = 1.f;                        //Something interesting....
     }
     
     glTexSubImage2D(GL_TEXTURE_2D,
@@ -205,19 +205,26 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   
   //Setting up particle data for the render step
   //Mostly we set colors for each particle
-  verts = new ParticleVert[num_particles];
+  verts = new ParticleVert[num_particles * 4];
   
-  indices = new unsigned int[num_particles];
+  indices = new unsigned int[num_particles * 4];
   
-  for (int v_idx = 0; v_idx < num_particles; v_idx++)
+  float billboard_size = 0.3f;
+  
+  float billboard[12] = { -billboard_size, -billboard_size, 0.f,
+                          billboard_size, -billboard_size, 0.f,
+                          billboard_size, billboard_size, 0.f,
+                          -billboard_size, billboard_size, 0.f };
+  
+  for (int v_idx = 0; v_idx < num_particles * 4; v_idx++)
   {
-    verts[v_idx].x = 0.f;
-    verts[v_idx].y = 0.f;
-    verts[v_idx].z = 0.f;
-    verts[v_idx].r = 0.f;
+    verts[v_idx].x = billboard[0 + 3 * (v_idx % 4)];
+    verts[v_idx].y = billboard[1 + 3 * (v_idx % 4)];
+    verts[v_idx].z = billboard[2 + 3 * (v_idx % 4)];
+    verts[v_idx].r = 1.f;
     verts[v_idx].g = 0.f;
     verts[v_idx].b = 0.f;
-    verts[v_idx].u = (float)v_idx / num_particles; //particle texture index
+    verts[v_idx].u = (float)v_idx / (num_particles * 4); //particle texture index
     verts[v_idx].v = 0.f;
     
     indices[v_idx] = v_idx;
@@ -225,11 +232,11 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(ParticleVert) * num_particles, &verts[0].x, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(ParticleVert) * num_particles * 4, &verts[0].x, GL_STATIC_DRAW);
   
   glGenBuffers(1, &ibo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_particles, indices, GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_particles * 4, indices, GL_STATIC_DRAW);
   
   
   //Set up shaders
@@ -432,7 +439,29 @@ void GPUParticleSystem::simulate(const float game_time, const float dt)
 
 void GPUParticleSystem::render()
 {
- 
+  
+  glClearColor(0.f, 0.f, 1.f, 1.f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  //glDisable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
+  glDepthMask(GL_TRUE);
+  glDisable(GL_CULL_FACE);
+  
+  /*glBegin(GL_QUADS);
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glVertex3f(-0.5f, -0.5f, 0.0f);
+  
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glVertex3f(0.5f, -0.5f, 0.0f);
+  
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glVertex3f(0.5f, 0.5f, 0.0f);
+  
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glVertex3f(-0.5f, 0.5f, 0.0f);
+  glEnd();*/
+  
+  
   render_mat.render_gl();
   Shader * shader = render_mat.get_shader();
   
@@ -442,11 +471,6 @@ void GPUParticleSystem::render()
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
   
-  //glClearColor(1.f, 0.f, 0.f, 1.f);
-  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glDisable(GL_DEPTH_TEST);
-  //glEnable(GL_DEPTH_TEST);
-  //glDepthMask(GL_TRUE);
   
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -460,7 +484,7 @@ void GPUParticleSystem::render()
   glTexCoordPointer(2, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 6));
   
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glDrawElements(GL_POINTS, num_particles, GL_FLOAT, (void *) 0);
+  glDrawElements(GL_QUADS, num_particles * 4, GL_FLOAT, (void *) 0);
   
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE0);
