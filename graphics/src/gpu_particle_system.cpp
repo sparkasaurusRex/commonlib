@@ -73,10 +73,8 @@ GPUParticleSystem::~GPUParticleSystem()
   deinit();
 }
 
-void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_particle_vel, int _num_particles)
+void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_particle_vel)
 {
-  num_particles = _num_particles;
-  
   //create textures
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   
@@ -209,6 +207,8 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   //Mostly we set colors for each particle
   verts = new ParticleVert[num_particles];
   
+  indices = new unsigned int[num_particles];
+  
   for (int v_idx = 0; v_idx < num_particles; v_idx++)
   {
     verts[v_idx].x = 0.f;
@@ -326,10 +326,10 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   
   glBindBuffer(GL_ARRAY_BUFFER, fbo_vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(3, GL_FLOAT, sizeof(FBOVert), (void *)0);
+  glVertexPointer(3, GL_FLOAT, sizeof(FBOParticleVert), (void *)0);
   
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(FBOVert), (void*)(sizeof(float) * 3));
+  glTexCoordPointer(2, GL_FLOAT, sizeof(FBOParticleVert), (void*)(sizeof(float) * 3));
   
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
@@ -396,10 +396,10 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   
   glBindBuffer(GL_ARRAY_BUFFER, fbo_vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(3, GL_FLOAT, sizeof(FBOVert), (void *)0);
+  glVertexPointer(3, GL_FLOAT, sizeof(FBOParticleVert), (void *)0);
   
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(FBOVert), (void*)(sizeof(float) * 3));
+  glTexCoordPointer(2, GL_FLOAT, sizeof(FBOParticleVert), (void*)(sizeof(float) * 3));
   
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
@@ -434,8 +434,13 @@ void GPUParticleSystem::render()
 {
  
   render_mat.render_gl();
-  
   Shader * shader = render_mat.get_shader();
+  
+  glUniform1i(uniform_locations[UNIFORM_RENDER_POS_TEX], 0);
+  glActiveTexture(GL_TEXTURE0);
+  glClientActiveTexture(GL_TEXTURE0);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
   
   glEnable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);

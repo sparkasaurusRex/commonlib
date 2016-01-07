@@ -33,7 +33,7 @@ namespace Graphics {
     float u, v;
   };
   
-  struct FBOVert
+  struct FBOParticleVert
   {
     float x, y, z;
     float u, v;
@@ -46,10 +46,12 @@ namespace Graphics {
     GPUParticleSystem();
     ~GPUParticleSystem();
     
-    void init(Float3 * initial_particle_pos, Float3 * initial_particle_vel, int _num_particles);
+    void init(Float3 * initial_particle_pos, Float3 * initial_particle_vel);
     void deinit();
     void simulate(const float game_time, const float dt);
     void render();
+    
+    void set_num_particles(int num) {num_particles = num;}
     
     void set_render_shader_names(std::string vs, std::string fs) {
       update_pos_shader_names[0] = vs;
@@ -63,6 +65,9 @@ namespace Graphics {
       render_shader_names[0] = vs;
       render_shader_names[1] = fs;
     }
+    
+    GLuint get_pos_tex(const int i) { return pos_tex[i]; }
+    GLuint get_vel_tex(const int i) { return vel_tex[i]; }
     
   private:
 
@@ -90,7 +95,7 @@ namespace Graphics {
     
     GLuint fbo_vbo;
     GLuint fbo_ibo;
-    FBOVert fbo_verts[4];
+    FBOParticleVert fbo_verts[4];
     int num_fbo_verts;
     unsigned int fbo_indices[4];
     unsigned int * indices;

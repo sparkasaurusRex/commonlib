@@ -400,10 +400,10 @@ void GPUHairSim::simulate(const float game_time, const float dt)
   //draw calls
   glBindBuffer(GL_ARRAY_BUFFER, fbo_vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(3, GL_FLOAT, sizeof(FBOVert), (void *)0);
+  glVertexPointer(3, GL_FLOAT, sizeof(FBOHairVert), (void *)0);
 
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(FBOVert), (void *)(sizeof(float) * 3));
+  glTexCoordPointer(2, GL_FLOAT, sizeof(FBOHairVert), (void *)(sizeof(float) * 3));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
