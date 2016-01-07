@@ -121,7 +121,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
       pixels[pixel_idx++] = initial_particle_pos[j][0]; //x
       pixels[pixel_idx++] = initial_particle_pos[j][1]; //y
       pixels[pixel_idx++] = initial_particle_pos[j][2]; //z
-      pixels[pixel_idx++] = 0.f;                //age
+      pixels[pixel_idx++] = 0.f;                        //age
     }
     
     glTexSubImage2D(GL_TEXTURE_2D,
@@ -171,7 +171,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
       pixels[pixel_idx++] = initial_particle_vel[j][0]; //vx
       pixels[pixel_idx++] = initial_particle_vel[j][1]; //vy
       pixels[pixel_idx++] = initial_particle_vel[j][2]; //vz
-      pixels[pixel_idx++] = 0.f;                //Something interesting....
+      pixels[pixel_idx++] = 0.f;                        //Something interesting....
     }
     
     glTexSubImage2D(GL_TEXTURE_2D,
@@ -214,7 +214,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
     verts[v_idx].x = 0.f;
     verts[v_idx].y = 0.f;
     verts[v_idx].z = 0.f;
-    verts[v_idx].r = 1.f;
+    verts[v_idx].r = 0.f;
     verts[v_idx].g = 0.f;
     verts[v_idx].b = 0.f;
     verts[v_idx].u = (float)v_idx / num_particles; //particle texture index
@@ -270,7 +270,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
 void GPUParticleSystem::deinit()
 {
   glDeleteTextures(2, pos_tex);
-  glDeleteTextures(1, vel_tex);
+  glDeleteTextures(2, vel_tex);
   
   glDeleteBuffers(1, &vbo);
   glDeleteBuffers(1, &ibo);
@@ -279,7 +279,7 @@ void GPUParticleSystem::deinit()
 
   verts = NULL;
   indices = NULL;
-  pos_tex[0] = pos_tex[1] = vbo = 0;
+  pos_tex[0] = pos_tex[1] = vel_tex[0] = vel_tex[1] = vbo = ibo = 0;
   num_particles = 0;
 }
 
@@ -312,14 +312,14 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
-  glClientActiveTexture(GL_TEXTURE0);
+  //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
   
   //vel_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_VEL_TEX], 1);
   glActiveTexture(GL_TEXTURE1);
-  glClientActiveTexture(GL_TEXTURE1);
+  //glClientActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, vel_tex[1]);
   
@@ -382,14 +382,14 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
-  glClientActiveTexture(GL_TEXTURE0);
+  //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
   
   //vel_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_VEL_TEX], 1);
   glActiveTexture(GL_TEXTURE1);
-  glClientActiveTexture(GL_TEXTURE1);
+  //glClientActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, vel_tex[1]);
   
@@ -438,12 +438,15 @@ void GPUParticleSystem::render()
   
   glUniform1i(uniform_locations[UNIFORM_RENDER_POS_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
-  glClientActiveTexture(GL_TEXTURE0);
+  //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
   
-  glEnable(GL_DEPTH_TEST);
-  glDepthMask(GL_TRUE);
+  //glClearColor(1.f, 0.f, 0.f, 1.f);
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glDisable(GL_DEPTH_TEST);
+  //glEnable(GL_DEPTH_TEST);
+  //glDepthMask(GL_TRUE);
   
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -461,9 +464,5 @@ void GPUParticleSystem::render()
   
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE0);
-  glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE1);
-  glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE2);
   glDisable(GL_TEXTURE_2D);
 }

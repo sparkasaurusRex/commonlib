@@ -245,15 +245,22 @@ private:
     {
       particle_pos[i] = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
       
+      //particle_pos[i][2] = -10.0;
+      
       particle_pos[i].normalize();
       
-      particle_pos[i] = particle_pos[i] * 0.01;
+      particle_pos[i] = particle_pos[i] * 2;
+      
+      //particle_pos[i] = Float3(0.0, 0.0, 0.0);
+      
       
       particle_vel[i] = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
       
       particle_vel[i].normalize();
       
-      particle_vel[i] = particle_vel[i] * 0.01;
+      particle_vel[i] = particle_vel[i] * 2;
+      
+      particle_vel[i] = Float3(0.0, 0.0, 0.0);
     }
     
     gpu_particles.set_num_particles(num_particles);
@@ -262,7 +269,7 @@ private:
     delete particle_pos;
     delete particle_vel;
     
-    Float3 cam_pos(0.0f, 0.0f, -10.0f);
+    Float3 cam_pos(0.0f, 0.5f, -10.0f);
     cam.set_pos(cam_pos);
     cam.set_lookat(Float3(0.0f, 0.0f, 0.0f) - cam_pos);
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));
@@ -351,7 +358,7 @@ private:
 
 int main(int argc, char **argv)
 {
-  srand(time(NULL));
+  //srand(time(NULL));
 
   GraphicsApp app;
   app.init();

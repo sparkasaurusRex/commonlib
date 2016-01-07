@@ -13,3 +13,5 @@ mathlib/test
 structures/bin/*
 structures/test
 ui/test
+
+audio/test
