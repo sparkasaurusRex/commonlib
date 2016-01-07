@@ -236,7 +236,7 @@ private:
   void user_init()
   {
     
-    int num_particles = 100;
+    int num_particles = 10;
     
     Float3 * particle_pos = new Float3[num_particles];
     Float3 * particle_vel = new Float3[num_particles];
@@ -258,9 +258,7 @@ private:
       
       particle_vel[i].normalize();
       
-      particle_vel[i] = particle_vel[i] * 0.1;
-      
-      particle_vel[i] = Float3(0.0, 0.0, 0.0);
+      particle_vel[i] = particle_vel[i] * 0;
     }
     
     gpu_particles.set_num_particles(num_particles);

@@ -209,7 +209,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   
   indices = new unsigned int[num_particles * 4];
   
-  float billboard_size = 0.3f;
+  float billboard_size = 0.5f;
   
   float billboard[12] = { -billboard_size, -billboard_size, 0.f,
                           billboard_size, -billboard_size, 0.f,
@@ -224,7 +224,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
     verts[v_idx].r = 1.f;
     verts[v_idx].g = 0.f;
     verts[v_idx].b = 0.f;
-    verts[v_idx].u = (float)v_idx / (num_particles * 4); //particle texture index
+    verts[v_idx].u = (float)((int)v_idx / 4) / num_particles; //particle texture index
     verts[v_idx].v = 0.f;
     
     indices[v_idx] = v_idx;
@@ -446,6 +446,7 @@ void GPUParticleSystem::render()
   glEnable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);
   glDisable(GL_CULL_FACE);
+  glPointSize(1);
   
   /*glBegin(GL_QUADS);
     glColor3f(1.0f, 1.0f, 0.0f);
@@ -484,7 +485,7 @@ void GPUParticleSystem::render()
   glTexCoordPointer(2, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 6));
   
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glDrawElements(GL_QUADS, num_particles * 4, GL_FLOAT, (void *) 0);
+  glDrawElements(GL_POINTS, num_particles * 4, GL_FLOAT, (void *) 0);
   
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE0);
