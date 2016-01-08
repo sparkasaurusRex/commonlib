@@ -236,30 +236,19 @@ private:
   void user_init()
   {
     
-    int num_particles = 10;
+    int num_particles = 10000;
     
     Float3 * particle_pos = new Float3[num_particles];
     Float3 * particle_vel = new Float3[num_particles];
     
     for (int i = 0; i < num_particles; i++)
     {
-      particle_pos[i] = Float3(random(-0.5f, 0.5f), random(-0.5f, 0.5f), 0.f);
+      particle_pos[i] = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
       
-      //particle_pos[i][2] = -10.0;
+      //particle_vel[i] = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
       
-      //particle_pos[i].normalize();
-      
-      //particle_pos[i] = particle_pos[i] * 2;
-      
-      //particle_pos[i] = Float3(0.0, 0.0, 0.0);
-      
-      
-      particle_vel[i] = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
-      
-      particle_vel[i].normalize();
-      
-      particle_vel[i] = particle_vel[i] * 0;
-    }
+      particle_vel[i] = Float3(0.0, 0.0, 0.0);
+      }
     
     gpu_particles.set_num_particles(num_particles);
     gpu_particles.init(particle_pos, particle_vel);
@@ -356,7 +345,7 @@ private:
 
 int main(int argc, char **argv)
 {
-  //srand(time(NULL));
+  srand(time(NULL));
 
   GraphicsApp app;
   app.init();

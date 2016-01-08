@@ -209,7 +209,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   
   indices = new unsigned int[num_particles * 4];
   
-  float billboard_size = 0.5f;
+  float billboard_size = 0.1f;
   
   float billboard[12] = { -billboard_size, -billboard_size, 0.f,
                           billboard_size, -billboard_size, 0.f,
@@ -439,27 +439,26 @@ void GPUParticleSystem::simulate(const float game_time, const float dt)
 
 void GPUParticleSystem::render()
 {
-  
-  glClearColor(0.f, 0.f, 1.f, 1.f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  //glDisable(GL_DEPTH_TEST);
+
   glEnable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);
   glDisable(GL_CULL_FACE);
-  glPointSize(1);
+  glPointSize(1.f);
   
-  /*glBegin(GL_QUADS);
-    glColor3f(1.0f, 1.0f, 0.0f);
-    glVertex3f(-0.5f, -0.5f, 0.0f);
+  /*glDisable(GL_TEXTURE_2D);
   
+  glBegin(GL_QUADS);
     glColor3f(1.0f, 1.0f, 0.0f);
-    glVertex3f(0.5f, -0.5f, 0.0f);
-  
-    glColor3f(1.0f, 1.0f, 0.0f);
-    glVertex3f(0.5f, 0.5f, 0.0f);
+    glVertex3f(-0.1f, -0.1f, -10.0f);
   
     glColor3f(1.0f, 1.0f, 0.0f);
-    glVertex3f(-0.5f, 0.5f, 0.0f);
+    glVertex3f(0.1f, -0.1f, -10.0f);
+  
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glVertex3f(0.1f, 0.1f, -10.0f);
+  
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glVertex3f(-0.1f, 0.1f, -10.0f);
   glEnd();*/
   
   
@@ -468,7 +467,7 @@ void GPUParticleSystem::render()
   
   glUniform1i(uniform_locations[UNIFORM_RENDER_POS_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
-  //glClientActiveTexture(GL_TEXTURE0);
+  glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
   
@@ -485,7 +484,7 @@ void GPUParticleSystem::render()
   glTexCoordPointer(2, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 6));
   
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glDrawElements(GL_POINTS, num_particles * 4, GL_FLOAT, (void *) 0);
+  glDrawElements(GL_POINTS, num_particles * 4, GL_UNSIGNED_INT, (void *)0);
   
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE0);
