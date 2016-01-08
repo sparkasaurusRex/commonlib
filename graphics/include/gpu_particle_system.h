@@ -15,9 +15,11 @@ namespace Graphics {
   
   enum ParticleSystemUniforms
   {
+    UNIFORM_UPDATEPOS_CONSTANTS,
     UNIFORM_UPDATEPOS_POS_TEX,
     UNIFORM_UPDATEPOS_VEL_TEX,
     
+    UNIFORM_UPDATEVEL_CONSTANTS,
     UNIFORM_UPDATEVEL_POS_TEX,
     UNIFORM_UPDATEVEL_VEL_TEX,
     
@@ -48,7 +50,7 @@ namespace Graphics {
     
     void init(Float3 * initial_particle_pos, Float3 * initial_particle_vel);
     void deinit();
-    void simulate(const float game_time, const float dt);
+    void simulate(const float dt);
     void render();
     
     void set_num_particles(int num) {num_particles = num;}
@@ -70,9 +72,11 @@ namespace Graphics {
     GLuint get_vel_tex(const int i) { return vel_tex[i]; }
     
   private:
+    
+    float billboard_size;
 
-    void update_velocities(const float game_time, const float dt);
-    void update_positions(const float game_time, const float dt);
+    void update_velocities(const float dt);
+    void update_positions(const float dt);
     
     int num_particles;
     

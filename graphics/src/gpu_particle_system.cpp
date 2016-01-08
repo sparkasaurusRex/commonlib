@@ -13,6 +13,8 @@ using namespace Graphics;
 GPUParticleSystem::GPUParticleSystem()
 {
   
+  billboard_size = 0.005;
+  
   num_particles = 0;
   
   pos_fbo[0] = pos_fbo[1] = 0;
@@ -209,8 +211,6 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   
   indices = new unsigned int[num_particles * 4];
   
-  float billboard_size = 0.1f;
-  
   float billboard[12] = { -billboard_size, -billboard_size, 0.f,
                           billboard_size, -billboard_size, 0.f,
                           billboard_size, billboard_size, 0.f,
@@ -222,7 +222,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
     verts[v_idx].y = billboard[1 + 3 * (v_idx % 4)];
     verts[v_idx].z = billboard[2 + 3 * (v_idx % 4)];
     verts[v_idx].r = 1.f;
-    verts[v_idx].g = 0.f;
+    verts[v_idx].g = 1.f;
     verts[v_idx].b = 0.f;
     verts[v_idx].u = (float)((int)v_idx / 4) / num_particles; //particle texture index
     verts[v_idx].v = 0.f;
@@ -257,6 +257,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   
   uniform_locations[UNIFORM_UPDATEPOS_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
   uniform_locations[UNIFORM_UPDATEPOS_VEL_TEX] = glGetUniformLocation(shader->gl_shader_program, "vel_tex");
+  uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
   
   
   update_vel_mat.render_gl();
@@ -264,6 +265,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   
   uniform_locations[UNIFORM_UPDATEVEL_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
   uniform_locations[UNIFORM_UPDATEVEL_VEL_TEX] = glGetUniformLocation(shader->gl_shader_program, "vel_tex");
+  uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
   
   
   render_mat.render_gl();
@@ -290,7 +292,7 @@ void GPUParticleSystem::deinit()
   num_particles = 0;
 }
 
-void GPUParticleSystem::update_velocities(const float game_time, const float dt) {
+void GPUParticleSystem::update_velocities(const float dt) {
 
   //Write to  vel_fbo[0]
   //Read from vel_tex[1]
@@ -315,6 +317,10 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   
   update_vel_mat.render_gl();
   Shader * shader = update_vel_mat.get_shader();
+  
+  //constants
+  //{dt, ..., ..., ...}
+  glUniform4f(uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS], dt, 0, 0, 0);
   
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
@@ -360,7 +366,7 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   vel_fbo[1] = tmp;
 }
 
-void GPUParticleSystem::update_positions(const float game_time, const float dt) {
+void GPUParticleSystem::update_positions(const float dt) {
   
   //Write to  pos_fbo[0]
   //Read from pos_tex[1]
@@ -385,6 +391,10 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   
   update_pos_mat.render_gl();
   Shader * shader = update_pos_mat.get_shader();
+  
+  //constants
+  //{dt, ..., ..., ...}
+  glUniform4f(uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS], dt, 0, 0, 0);
   
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
@@ -431,10 +441,10 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
 
 }
 
-void GPUParticleSystem::simulate(const float game_time, const float dt)
+void GPUParticleSystem::simulate(const float dt)
 {
-  update_velocities(game_time, dt);
-  update_positions(game_time, dt);
+  update_velocities(dt);
+  update_positions(dt);
 }
 
 void GPUParticleSystem::render()
@@ -443,24 +453,6 @@ void GPUParticleSystem::render()
   glEnable(GL_DEPTH_TEST);
   glDepthMask(GL_TRUE);
   glDisable(GL_CULL_FACE);
-  glPointSize(1.f);
-  
-  /*glDisable(GL_TEXTURE_2D);
-  
-  glBegin(GL_QUADS);
-    glColor3f(1.0f, 1.0f, 0.0f);
-    glVertex3f(-0.1f, -0.1f, -10.0f);
-  
-    glColor3f(1.0f, 1.0f, 0.0f);
-    glVertex3f(0.1f, -0.1f, -10.0f);
-  
-    glColor3f(1.0f, 1.0f, 0.0f);
-    glVertex3f(0.1f, 0.1f, -10.0f);
-  
-    glColor3f(1.0f, 1.0f, 0.0f);
-    glVertex3f(-0.1f, 0.1f, -10.0f);
-  glEnd();*/
-  
   
   render_mat.render_gl();
   Shader * shader = render_mat.get_shader();
@@ -484,7 +476,7 @@ void GPUParticleSystem::render()
   glTexCoordPointer(2, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 6));
   
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glDrawElements(GL_POINTS, num_particles * 4, GL_UNSIGNED_INT, (void *)0);
+  glDrawElements(GL_QUADS, num_particles * 4, GL_UNSIGNED_INT, (void *)0);
   
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE0);

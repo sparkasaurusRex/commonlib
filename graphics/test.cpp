@@ -60,7 +60,7 @@ private:
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
       glLoadIdentity();
-      //glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
+      glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
       //glScalef(1.2, 1.2, 1.2);
     
       gpu_particles.render();
@@ -225,7 +225,7 @@ private:
     //update_forces(game_time, frame_time);
     //gpu_hair.simulate(game_time, frame_time);
     
-    gpu_particles.simulate(game_time, frame_time);
+    gpu_particles.simulate(frame_time);
     
     if(!paused)
     {
@@ -244,10 +244,14 @@ private:
     for (int i = 0; i < num_particles; i++)
     {
       particle_pos[i] = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
+      particle_pos[i][2] = 0;
       
-      //particle_vel[i] = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
+      particle_vel[i] = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
       
-      particle_vel[i] = Float3(0.0, 0.0, 0.0);
+      particle_vel[i] = particle_vel[i] * 0.5f;
+      particle_vel[i][2] = 0;
+      
+      //particle_vel[i] = Float3(0.0, 0.0, 0.0);
       }
     
     gpu_particles.set_num_particles(num_particles);
