@@ -9,6 +9,7 @@ GPUVoronoi2D::GPUVoronoi2D(const GLuint num_seg, const GLuint flags)
 {
   behavior_flags = flags;
   num_cone_segments = num_seg;
+  num_cone_verts = 2 + num_cone_segments;
 
   cone_vbo = 0;
   cone_ibo = 0;
@@ -28,23 +29,22 @@ GPUVoronoi2D::~GPUVoronoi2D() {}
 void GPUVoronoi2D::init()
 {
   //allocate vertex data for the cones (GL_TRIANGLE_FAN)
-  int num_cone_verts = 1 + num_cone_segments;
   cone_vertex_data = new ConeVert[num_cone_verts];
   cone_index_data = new unsigned int[num_cone_verts];
 
-  float r = 0.2f;
+  float r = 1.0f;
 
   cone_vertex_data[0].x = 0.0f;
   cone_vertex_data[0].y = 0.0f;
   cone_vertex_data[0].z = 1.0f;
   cone_index_data[0] = 0;
-  for(int i = 0; i < num_cone_segments; i++)
+  for(int i = 0; i < num_cone_verts; i++)
   {
-    float theta = M_PI * (float)i / (float)num_cone_segments;
+    float theta = 2.0f * M_PI * (float)i / (float)num_cone_segments;
     cone_vertex_data[i + 1].x = r * cos(theta);
     cone_vertex_data[i + 1].y = r * sin(theta);
     cone_vertex_data[i + 1].z = 0.0f;
-    cone_index_data[i + 1] = i;
+    cone_index_data[i + 1] = i + 1;
   }
 
   glGenBuffers(1, &cone_vbo);
@@ -99,7 +99,8 @@ void GPUVoronoi2D::add_site(Float2 pt)
 
 void GPUVoronoi2D::build_voronoi_diagram()
 {
-  glEnable(GL_DEPTH);
+  glEnable(GL_DEPTH_TEST);
+  glDisable(GL_CULL_FACE);
 
   //set the render target to the voronoi diagram texture / fbo
   glClearColor(0.3f, 0.2f, 1.0f, 1.0f);
@@ -116,19 +117,22 @@ void GPUVoronoi2D::build_voronoi_diagram()
   //render a cone for each site
   for(int i = 0; i < sites.size(); i++)
   {
-    //Float3 cone_pos(sites[i][0], sites[i][1], -1.0f);
     glLoadIdentity();
     glTranslatef(sites[i][0], sites[i][1], -1.0f);
 
-    //TODO: set color uniform for the cone here
-    glColor3ub((GLubyte)i, 0, 0);
+    //color stores site index, split into a byte for each color channel
+    GLubyte b = i / 65536;
+    GLubyte g = (i - b) / 256;
+    GLubyte r = (i - b) - g;
+
+    glColor3ub(r, g, b);
 
     glBindBuffer(GL_ARRAY_BUFFER, cone_vbo);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, sizeof(ConeVert), (void *)0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cone_ibo);
-    glDrawElements(GL_TRIANGLE_FAN, num_cone_segments + 1, GL_UNSIGNED_INT, (void *)0);
+    glDrawElements(GL_TRIANGLE_FAN, num_cone_verts, GL_UNSIGNED_INT, (void *)0);
   }
 
   // set the FBO back to default

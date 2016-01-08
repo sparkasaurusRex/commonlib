@@ -59,6 +59,7 @@ namespace Math
       std::vector<Math::Float2>     sites;
 
       GLuint                        num_cone_segments;
+      GLuint                        num_cone_verts;
       GLuint                        cone_vbo;
       GLuint                        cone_ibo;
       ConeVert                      *cone_vertex_data;
