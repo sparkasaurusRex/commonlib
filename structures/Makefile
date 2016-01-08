@@ -11,7 +11,7 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	LIB_PATH+=-L../mathlib/bin/osx
 
 	BINPATH=bin/osx/
-	LINK_CMD=ar -cvq $(BINPATH)libstructures.a
+	LINK_CMD=g++ -dynamiclib -o $(BINPATH)libstructures.dylib
 else
 	LIB_PATH += -Lbin/linux
 	LIB_PATH += -L../mathlib/bin/linux

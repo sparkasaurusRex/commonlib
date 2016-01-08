@@ -39,7 +39,7 @@ namespace Graphics {
     float u0, v0;       //index into pos tex
   };
 
-  struct FBOVert
+  struct FBOHairVert
   {
     float x, y, z;
     float u, v;
@@ -110,7 +110,7 @@ namespace Graphics {
     //vertex and index buffers for the FBOs
     GLuint        fbo_vbo;
     GLuint        fbo_ibo;
-    FBOVert       fbo_verts[4];
+    FBOHairVert       fbo_verts[4];
     int           num_fbo_verts;
     unsigned int  fbo_indices[4];
     int           num_fbo_indices;
