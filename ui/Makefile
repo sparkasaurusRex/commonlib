@@ -17,7 +17,7 @@ LDFLAGS+=-lmath -lgame -lgraphics
 SRCPATH=src/
 SRCS=src/label.cpp src/widget.cpp src/push_button.cpp src/widget_wrangler.cpp
 SRCS+=src/toolbox.cpp src/check_button.cpp src/rectangular_widget.cpp
-SRCS+=src/radial_widget.cpp src/radial_push_button.cpp
+SRCS+=src/radial_widget.cpp src/radial_push_button.cpp src/menu.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -91,6 +91,9 @@ $(BINPATH)check_button.o: $(SRCPATH)check_button.cpp
 
 $(BINPATH)toolbox.o: $(SRCPATH)toolbox.cpp
 	$(CC) $(CFLAGS) -c src/toolbox.cpp -o $(BINPATH)toolbox.o
+
+$(BINPATH)menu.o: $(SRCPATH)menu.cpp
+	$(CC) $(CFLAGS) -c src/menu.cpp -o $(BINPATH)menu.o
 
 $(BINPATH)libui.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libui.a $(OBJS_BIN)

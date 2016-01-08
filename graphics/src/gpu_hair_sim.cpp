@@ -240,7 +240,6 @@ void GPUHairSim::init(Float3 *hair_pos, Float3 *hair_uvs)
     Float3 col_a(0.3f, 0.3f, 0.3f);
     Float3 col_b(1.0f, 1.0f, 1.0f);
 
-
     for(int j = 1; j < num_segments + 1; j++)
     {
       for(int k = j - 1; k <= j; k++)

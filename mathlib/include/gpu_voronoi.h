@@ -17,43 +17,57 @@
 // 4. query consists of converting x,y,z to u,v then sampling
 //    the voronoi diagram texture
 
+#define GPU_VORONOI_WRAP_U  (1<<0)
+#define GPU_VORONOI_WRAP_V  (1<<1)
+
 namespace Math
 {
-
   struct ConeVert
   {
     float x, y, z;
-    float r, g, b;
+    //GLubyte r, g, b;
   };
 
+/*
   struct FBOVert
   {
     float x, y, z;
     float u, v;
-  };
+  };*/
 
-  class GPUVoronoiSphere
+  class GPUVoronoi2D
   {
     public:
-      GPUVoronoiSphere(const GLuint num_seg = 24);
-      ~GPUVoronoiSphere();
-
+      GPUVoronoi2D(const GLuint num_seg = 24, const GLuint flags = 0);
+      ~GPUVoronoi2D();
 
       void init();
       void deinit();
       void reset();
 
-      void add_point(Math::Float3 pt);
+      void set_num_segments(const GLuint num_seg) { num_cone_segments = num_seg; }
+      GLuint get_num_segments() const { return num_cone_segments; }
 
+      void set_flags(const GLuint flags) { behavior_flags = flags; }
+      GLuint get_flags() const { return behavior_flags; }
+
+      void add_site(Math::Float2 pt);
+      void build_voronoi_diagram();
+      unsigned int get_nearest_site(const Float2 p);
     private:
-      std::vector<Math::Float3>     sites;
+      GLuint                        behavior_flags;
+      std::vector<Math::Float2>     sites;
 
       GLuint                        num_cone_segments;
+      GLuint                        num_cone_verts;
       GLuint                        cone_vbo;
       GLuint                        cone_ibo;
+      ConeVert                      *cone_vertex_data;
+      unsigned int                  *cone_index_data;
 
-      FBOVert                       fbo_verts[4];
+      //FBOVert                       fbo_verts[4];
       GLuint                        fbo_res[2];
+      GLuint                        depth_fbo;
       GLuint                        voronoi_diagram_fbo;
       GLuint                        voronoi_diagram_tex;
   };

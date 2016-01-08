@@ -16,6 +16,7 @@ namespace UI
     ~Widget() {}
 
     void show(const bool d = true) { visible = d; }
+    bool is_visible() const { return visible; }
     void set_font(Font *f) { font = f; }
 
     virtual bool hit_test(const int x, const int y) const = 0;

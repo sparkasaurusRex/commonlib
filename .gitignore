@@ -8,6 +8,7 @@ game/bin/*
 game/test
 graphics/bin/*
 graphics/test
+graphics/capture
 mathlib/bin/*
 mathlib/test
 structures/bin/*
