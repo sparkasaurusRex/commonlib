@@ -17,6 +17,7 @@
 #include "voronoi_sphere.h"
 #include "sdl_game.h"
 #include "curve.h"
+#include "gpu_voronoi.h"
 
 using namespace std;
 using namespace Math;
@@ -27,13 +28,21 @@ enum TestMode
   TEST_MODE_VORONOI_2D,
   TEST_MODE_VORONOI_3D,
   TEST_MODE_FUNCTIONS,
+  TEST_MODE_GPU_VORONOI,
   NUM_TEST_MODES
 };
 
 class TestApp : public SDLGame
 {
 public:
-  TestApp() : SDLGame(512, 512, "Math Test") { Num_starting_points = 0; rot_angle = 0.0f; function_theta = 0.0f; }
+  TestApp() : SDLGame(512, 512, "Math Test")
+  {
+    Num_starting_points = 1;
+    rot_angle = 0.0f;
+    function_theta = 0.0f;
+    mode = TEST_MODE_GPU_VORONOI;
+  }
+
   ~TestApp() {}
 
   void set_num_verts(int nv) { Num_starting_points = nv; }
@@ -41,7 +50,7 @@ private:
   void render_gl()
   {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     switch(mode)
     {
       case TEST_MODE_VORONOI_3D:
@@ -53,9 +62,20 @@ private:
       case TEST_MODE_FUNCTIONS:
         render_functions();
         break;
+      case TEST_MODE_GPU_VORONOI:
+        render_gpu_voronoi();
+        break;
       default:
         break;
     }
+  }
+
+  void render_gpu_voronoi()
+  {
+    Uint32 ticks = SDL_GetTicks();
+    float game_time = (float)ticks;
+
+    gpu_voronoi.build_voronoi_diagram();
   }
 
   void render_voronoi_3d()
@@ -73,7 +93,6 @@ private:
     rot_angle += 0.3f;
 
     //render stuff here
-
     glColor3f(0.7f, 0.1f, 0.0f);
     glBegin(GL_LINES);
 
@@ -235,12 +254,14 @@ private:
     function_theta += frame_time;
     if(function_theta > M_PI * 2.0f) { function_theta -= M_PI * 2.0f; }
 
-    point_cloud.triangulation_step(0.005f);
+    if(mode == TEST_MODE_VORONOI_3D)
+    {
+      point_cloud.triangulation_step(0.005f);
+    }
   }
 
   void user_init()
   {
-    mode = TEST_MODE_VORONOI_3D;
     for(int i = 0; i < Num_starting_points; i++)
     {
       Float3 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
@@ -248,6 +269,12 @@ private:
       point_cloud.add_point(p);
     }
     point_cloud.triangulate();
+
+    for(int i = 0; i < Num_starting_points; i++)
+    {
+      gpu_voronoi.add_site(Float2(random(0.0f, 1.0f), random(0.0f, 1.0f)));
+    }
+    gpu_voronoi.init();
   }
   void user_run() {}
   void user_process_event(const SDL_Event &event)
@@ -281,12 +308,20 @@ private:
           point_cloud.add_point(new_vertex);
           point_cloud.triangulate();
         }
+        if(mode == TEST_MODE_GPU_VORONOI)
+        {
+          Float2 new_vert;
+          new_vert[0] = (float)event.button.x / (float)resolution[0];
+          new_vert[1] = 1.0f - (float)event.button.y / (float)resolution[1];
+          gpu_voronoi.add_site(new_vert);
+        }
         break;
     }
   }
 
   //variables
   VoronoiSphere point_cloud;
+  GPUVoronoi2D gpu_voronoi;
   int Num_starting_points;
   float rot_angle;
   TestMode mode;

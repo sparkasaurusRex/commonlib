@@ -51,7 +51,7 @@ namespace Math
       void set_flags(const GLuint flags) { behavior_flags = flags; }
       GLuint get_flags() const { return behavior_flags; }
 
-      void add_point(Math::Float2 pt);
+      void add_site(Math::Float2 pt);
       void build_voronoi_diagram();
       unsigned int get_nearest_site(const Float2 p);
     private:
@@ -62,6 +62,7 @@ namespace Math
       GLuint                        cone_vbo;
       GLuint                        cone_ibo;
       ConeVert                      *cone_vertex_data;
+      unsigned int                  *cone_index_data;
 
       //FBOVert                       fbo_verts[4];
       GLuint                        fbo_res[2];
