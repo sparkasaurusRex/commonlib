@@ -4,6 +4,7 @@
 #include <vector>
 #include "math_utility.h"
 
+
 /*
  * KDTree for 3-dimensional points. By Ellis Hoag.
  * TODO: Currently you can insert and remove nodes

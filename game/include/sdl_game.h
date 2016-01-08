@@ -26,6 +26,9 @@
 
 #define SDL_GAME_GENERATE_PAUSE_MENU  (1<<0)
 
+#define SDL_GAME_STATE_PAUSED         (1<<0)
+#define SDL_GAME_STATE_FULLSCREEN     (1<<1)
+
 class SDLGame
 {
 public:
@@ -94,11 +97,10 @@ protected:
   float prev_fps[SDL_GAME_NUM_FPS_FRAMES];
   UI::Label fps_label;
 
-  FadeScreen title_screen;
+  unsigned int game_state; //paused, full-screen, etc...
 
-  bool paused;
   UI::Menu *pause_menu;
-  bool fullscreen_state;
+  FadeScreen title_screen;
 };
 
 #endif //__SDL_GAME_H__
