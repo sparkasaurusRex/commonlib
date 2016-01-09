@@ -17,6 +17,8 @@ GPUParticleSystem::GPUParticleSystem()
   
   num_particles = 0;
   
+  numAttractors = 0;
+  
   pos_fbo[0] = pos_fbo[1] = 0;
   pos_tex[0] = pos_tex[1] = 0;
   
@@ -26,41 +28,9 @@ GPUParticleSystem::GPUParticleSystem()
   vbo = ibo = 0;
   verts = NULL;
   indices = NULL;
-  color_tex = NULL;
   internal_format = GL_RGBA_FLOAT32_ATI;
   
-  //Framebuffer Object data
-  fbo_indices[0] = 0;
-  fbo_indices[1] = 1;
-  fbo_indices[2] = 2;
-  fbo_indices[3] = 3;
-  
-  fbo_verts[0].x =  -1.0f;
-  fbo_verts[0].y =  -1.0f;
-  fbo_verts[0].z =   0.0f;
-  fbo_verts[0].u =   0.0f;
-  fbo_verts[0].v =   0.0f;
-  
-  fbo_verts[1].x =   1.0f;
-  fbo_verts[1].y =  -1.0f;
-  fbo_verts[1].z =   0.0f;
-  fbo_verts[1].u =   1.0f;
-  fbo_verts[1].v =   0.0f;
-  
-  fbo_verts[2].x =   1.0f;
-  fbo_verts[2].y =   1.0f;
-  fbo_verts[2].z =   0.0f;
-  fbo_verts[2].u =   1.0f;
-  fbo_verts[2].v =   1.0f;
-  
-  fbo_verts[3].x =  -1.0f;
-  fbo_verts[3].y =   1.0f;
-  fbo_verts[3].z =   0.0f;
-  fbo_verts[3].u =   0.0f;
-  fbo_verts[3].v =   1.0f;
-  
   fbo_vbo = fbo_ibo = 0;
-  
   
   update_pos_shader_names[0] = std::string("data/shaders/particle_update_pos.vs");
   update_pos_shader_names[1] = std::string("data/shaders/particle_update_pos.fs");
@@ -75,7 +45,7 @@ GPUParticleSystem::~GPUParticleSystem()
   deinit();
 }
 
-void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_particle_vel)
+void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_particle_vel, Float3 * colors, float * age)
 {
   //create textures
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -123,7 +93,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
       pixels[pixel_idx++] = initial_particle_pos[j][0]; //x
       pixels[pixel_idx++] = initial_particle_pos[j][1]; //y
       pixels[pixel_idx++] = initial_particle_pos[j][2]; //z
-      pixels[pixel_idx++] = 0.f;                        //age
+      pixels[pixel_idx++] = age[j]; //age
     }
     
     glTexSubImage2D(GL_TEXTURE_2D,
@@ -194,6 +164,14 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   }
 
   //Generate Framebuffer Objects
+  
+  unsigned int fbo_indices[4] = {0, 1, 2, 3};
+  
+  FBOParticleVert fbo_verts[4] = { {-1.f, -1.f, 0.f, 0.f, 0.f},
+                                   {1.f, -1.f, 0.f, 1.f, 0.f},
+                                   {1.f, 1.f, 0.f, 1.f, 1.f},
+                                   {-1.f, 1.f, 0.f, 0.f, 1.f} };
+  
   //Vertex Buffer
   glGenBuffers(1, &fbo_vbo);
   glBindBuffer(GL_ARRAY_BUFFER, fbo_vbo);
@@ -216,15 +194,19 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
                           billboard_size, billboard_size, 0.f,
                           -billboard_size, billboard_size, 0.f };
   
+  int p_idx = 0;
+  
   for (int v_idx = 0; v_idx < num_particles * 4; v_idx++)
   {
+    p_idx = v_idx / 4;
+    
     verts[v_idx].x = billboard[0 + 3 * (v_idx % 4)];
     verts[v_idx].y = billboard[1 + 3 * (v_idx % 4)];
     verts[v_idx].z = billboard[2 + 3 * (v_idx % 4)];
-    verts[v_idx].r = 1.f;
-    verts[v_idx].g = 1.f;
-    verts[v_idx].b = 0.f;
-    verts[v_idx].u = (float)((int)v_idx / 4) / num_particles; //particle texture index
+    verts[v_idx].r = colors[p_idx][0];
+    verts[v_idx].g = colors[p_idx][1];
+    verts[v_idx].b = colors[p_idx][2];
+    verts[v_idx].u = (float)p_idx / num_particles; //particle texture index
     verts[v_idx].v = 0.f;
     
     indices[v_idx] = v_idx;
@@ -258,6 +240,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   uniform_locations[UNIFORM_UPDATEPOS_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
   uniform_locations[UNIFORM_UPDATEPOS_VEL_TEX] = glGetUniformLocation(shader->gl_shader_program, "vel_tex");
   uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
+  uniform_locations[UNIFORM_UPDATEPOS_EMITTER_LOC] = glGetUniformLocation(shader->gl_shader_program, "emitterLocation");
   
   
   update_vel_mat.render_gl();
@@ -265,7 +248,8 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   
   uniform_locations[UNIFORM_UPDATEVEL_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
   uniform_locations[UNIFORM_UPDATEVEL_VEL_TEX] = glGetUniformLocation(shader->gl_shader_program, "vel_tex");
-  uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
+  uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
+  uniform_locations[UNIFORM_UPDATEVEL_ATTRACTORS] = glGetUniformLocation(shader->gl_shader_program, "attractors");
   
   
   render_mat.render_gl();
@@ -290,6 +274,8 @@ void GPUParticleSystem::deinit()
   indices = NULL;
   pos_tex[0] = pos_tex[1] = vel_tex[0] = vel_tex[1] = vbo = ibo = 0;
   num_particles = 0;
+  
+  forces.clear();
 }
 
 void GPUParticleSystem::update_velocities(const float dt) {
@@ -316,11 +302,35 @@ void GPUParticleSystem::update_velocities(const float dt) {
   
   
   update_vel_mat.render_gl();
-  Shader * shader = update_vel_mat.get_shader();
+  //Shader * shader = update_vel_mat.get_shader();
+  
+  //attractors
+  GLfloat * attractors = new GLfloat[4 * MAX_NUM_ATTRACTORS];
+  
+  int k = 0;
+  
+  for (int i = 0; i < forces.size(); i++) {
+    if (forces[i]->getForceType() == ATTRACTOR) {
+      
+      Attractor * a = static_cast<Attractor *>(forces[i]);
+
+      Float3 loc = a->getLocation();
+      float s = a->getStrength();
+      
+      attractors[k++] = loc[0];
+      attractors[k++] = loc[1];
+      attractors[k++] = loc[2];
+      attractors[k++] = s;
+    }
+  }
+  
+  glUniform4fv(uniform_locations[UNIFORM_UPDATEVEL_ATTRACTORS], MAX_NUM_ATTRACTORS, attractors);
+  
+  delete attractors;
   
   //constants
-  //{dt, ..., ..., ...}
-  glUniform4f(uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS], dt, 0, 0, 0);
+  //{dt, numAttractors, ..., ...}
+  glUniform4f(uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS], dt, k / 4, 0, 0);
   
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
@@ -392,9 +402,12 @@ void GPUParticleSystem::update_positions(const float dt) {
   update_pos_mat.render_gl();
   Shader * shader = update_pos_mat.get_shader();
   
+  //emitterLocation
+  glUniform3f(uniform_locations[UNIFORM_UPDATEPOS_EMITTER_LOC], emitterLocation[0], emitterLocation[1], emitterLocation[2]);
+  
   //constants
-  //{dt, ..., ..., ...}
-  glUniform4f(uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS], dt, 0, 0, 0);
+  //{dt, lifespan, ..., ...}
+  glUniform4f(uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS], dt, particleLifespan, 0, 0);
   
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);

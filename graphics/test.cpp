@@ -61,7 +61,7 @@ private:
     glPushMatrix();
       glLoadIdentity();
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
-      //glScalef(1.2, 1.2, 1.2);
+      //glScalef(0.5, 0.5, 0.5);
     
       gpu_particles.render();
     
@@ -225,10 +225,10 @@ private:
     //update_forces(game_time, frame_time);
     //gpu_hair.simulate(game_time, frame_time);
     
-    gpu_particles.simulate(frame_time);
-    
     if(!paused)
     {
+      gpu_particles.simulate(frame_time);
+
       rot_angle += 10.0f * frame_time;
     }
   }
@@ -240,22 +240,46 @@ private:
     
     Float3 * particle_pos = new Float3[num_particles];
     Float3 * particle_vel = new Float3[num_particles];
+    Float3 * colors = new Float3[num_particles];
+    float * age = new float[num_particles];
+    
+    float bound = 0.5f;
     
     for (int i = 0; i < num_particles; i++)
     {
-      particle_pos[i] = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
-      particle_pos[i][2] = 0;
+
+      particle_pos[i] = Float3(random(-bound, bound), random(-bound, bound), random(-bound, bound));
+      particle_pos[i] = Float3(0.0, -1.f, 0.f);
       
-      particle_vel[i] = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
+      //particle_pos[i][2] = 0;
       
-      particle_vel[i] = particle_vel[i] * 0.5f;
-      particle_vel[i][2] = 0;
       
-      //particle_vel[i] = Float3(0.0, 0.0, 0.0);
+      particle_vel[i] = Float3(random(-bound, bound), random(-bound, bound), random(-bound, bound));
+      //particle_vel[i][2] = 0;
+
+      
+      colors[i] = Float3(random(0.f, 1.f), random(0.f, 1.f), random(0.f, 1.f));
+      //colors[i] = (particle_pos[i][2] < 0) ? Float3(1, 1, 0) : Float3(1, 0, 0);
+      
+      particle_vel[i].normalize();
+      
+      particle_vel[i] = particle_vel[i] * 0.25f;
+      
+      //age[i] = 0;
+      age[i] = random(-5.f, 10.f);
       }
     
+    gpu_particles.setEmitterLocation(Float3(0.0, -1.f, 0.0));
+    gpu_particles.setParticleLifespan(10.f);
+    
+    gpu_particles.addForce(new Attractor(Float3(0.f, 0.f, 0.f), 0.5f));
+    gpu_particles.addForce(new Attractor(Float3(0.5f, 0.f, 0.f), 1.f));
+    gpu_particles.addForce(new Attractor(Float3(0.f, 0.5f, 0.f), 0.5f));
+    gpu_particles.addForce(new Attractor(Float3(0.25f, 0.25f, 0.f), -1.f));
+    gpu_particles.addForce(new Attractor(Float3(-1.f, 0.25f, -1.f), 1.f));
+    
     gpu_particles.set_num_particles(num_particles);
-    gpu_particles.init(particle_pos, particle_vel);
+    gpu_particles.init(particle_pos, particle_vel, colors, age);
     
     delete particle_pos;
     delete particle_vel;

@@ -6,17 +6,31 @@ varying vec4 vertex_color;
 
 void main() {
   
-  vec3 pos_center = texture2D(particle_tex, gl_MultiTexCoord0.st).xyz;
+  //Grab the particle's location
+  vec4 pos_center = texture2D(particle_tex, gl_MultiTexCoord0.st);
   
-  mat4 ModelMatrix = gl_ModelViewMatrix;
-  
-  ModelMatrix[0].xyz = vec3(1.0, 0.0, 0.0);
-  ModelMatrix[1].xyz = vec3(0.0, 1.0, 0.0);
-  ModelMatrix[2].xyz = vec3(0.0, 0.0, 1.0);
-  
-  gl_Position = gl_ProjectionMatrix * ModelMatrix * (gl_Vertex + vec4(pos_center, 1.0));
-  //gl_Position = gl_ModelViewProjectionMatrix * vec4(pos_center, 1.0);
-
-  vertex_color = gl_Color;
-  //vertex_color = vec4(1.0, 1.0, 0.0, 1.0);
+  if (pos_center.w < 0) {
+    //Do not render
+    vertex_color = vec4(0.0, 0.0, 0.0, 0.0);
+  }
+  else {
+    
+    //Translate it to world coordinates
+    vec4 pos_center_worldcoords = gl_ModelViewMatrix * vec4(pos_center.xyz, 1.0);
+    
+    //vec3 camera_pos = gl_ModelViewMatrixInverse[3].xyz / gl_ModelViewMatrixInverse[3].w;
+    
+    //Grab the billboard vertex.
+    //TODO: Scale the billboard with respect to its distance to the camera.
+    vec4 billboard_corner = vec4(gl_Vertex.xy, 0.0, 0.0);// / distance(pos_center_worldcoords.xyz, camera_pos);
+    
+    //The final vertex is the particle position plus the billboard corner.
+    //Then translate it with the projection matrix.
+    gl_Position = gl_ProjectionMatrix * (pos_center_worldcoords + billboard_corner);
+    
+    //vertex_color = gl_Color;
+    
+    //Animate particle age: Green => young, Red => old
+    vertex_color = vec4(pos_center.w / 10.0, 1.0 - (pos_center.w / 10.0), 0, 1);
+  }
 }
