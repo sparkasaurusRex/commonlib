@@ -302,7 +302,6 @@ void GPUParticleSystem::update_velocities(const float dt) {
   
   
   update_vel_mat.render_gl();
-  //Shader * shader = update_vel_mat.get_shader();
   
   //attractors
   GLfloat * attractors = new GLfloat[4 * MAX_NUM_ATTRACTORS];
@@ -400,7 +399,6 @@ void GPUParticleSystem::update_positions(const float dt) {
   
   
   update_pos_mat.render_gl();
-  Shader * shader = update_pos_mat.get_shader();
   
   //emitterLocation
   glUniform3f(uniform_locations[UNIFORM_UPDATEPOS_EMITTER_LOC], emitterLocation[0], emitterLocation[1], emitterLocation[2]);
@@ -468,7 +466,6 @@ void GPUParticleSystem::render()
   glDisable(GL_CULL_FACE);
   
   render_mat.render_gl();
-  Shader * shader = render_mat.get_shader();
   
   glUniform1i(uniform_locations[UNIFORM_RENDER_POS_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
