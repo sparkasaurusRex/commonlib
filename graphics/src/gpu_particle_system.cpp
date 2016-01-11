@@ -13,7 +13,7 @@ using namespace Graphics;
 GPUParticleSystem::GPUParticleSystem()
 {
   
-  billboard_size = 0.005;
+  billboard_size = 0.01;
   
   num_particles = 0;
   
@@ -32,6 +32,8 @@ GPUParticleSystem::GPUParticleSystem()
   
   fbo_vbo = fbo_ibo = 0;
   
+  sprite = NULL;
+  
   update_pos_shader_names[0] = std::string("data/shaders/particle_update_pos.vs");
   update_pos_shader_names[1] = std::string("data/shaders/particle_update_pos.fs");
   update_vel_shader_names[0] = std::string("data/shaders/particle_update_vel.vs");
@@ -47,6 +49,7 @@ GPUParticleSystem::~GPUParticleSystem()
 
 void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_particle_vel, Float3 * colors, float * age)
 {
+  
   //create textures
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   
@@ -194,6 +197,11 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
                           billboard_size, billboard_size, 0.f,
                           -billboard_size, billboard_size, 0.f };
   
+  float uvs[8] = {0.f, 0.f,
+                  1.f, 0.f,
+                  1.f, 1.f,
+                  0.f, 1.f};
+  
   int p_idx = 0;
   
   for (int v_idx = 0; v_idx < num_particles * 4; v_idx++)
@@ -208,6 +216,8 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
     verts[v_idx].b = colors[p_idx][2];
     verts[v_idx].u = (float)p_idx / num_particles; //particle texture index
     verts[v_idx].v = 0.f;
+    verts[v_idx].sprite_u = uvs[0 + 2 * (v_idx % 4)];
+    verts[v_idx].sprite_v = uvs[1 + 2 * (v_idx % 4)];
     
     indices[v_idx] = v_idx;
   }
@@ -256,6 +266,7 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   shader = render_mat.get_shader();
   
   uniform_locations[UNIFORM_RENDER_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "particle_tex");
+  uniform_locations[UNIFORM_RENDER_LIFESPAN] = glGetUniformLocation(shader->gl_shader_program, "lifespan");
   
   glUseProgramObjectARB(0);
 }
@@ -274,6 +285,8 @@ void GPUParticleSystem::deinit()
   indices = NULL;
   pos_tex[0] = pos_tex[1] = vel_tex[0] = vel_tex[1] = vbo = ibo = 0;
   num_particles = 0;
+  
+  delete sprite;
   
   forces.clear();
 }
@@ -328,8 +341,8 @@ void GPUParticleSystem::update_velocities(const float dt) {
   delete attractors;
   
   //constants
-  //{dt, numAttractors, ..., ...}
-  glUniform4f(uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS], dt, k / 4, 0, 0);
+  //{dt, lifespan, numAttractors, ...}
+  glUniform4f(uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS], dt, particleLifespan, k / 4, 0);
   
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
@@ -351,7 +364,7 @@ void GPUParticleSystem::update_velocities(const float dt) {
   glVertexPointer(3, GL_FLOAT, sizeof(FBOParticleVert), (void *)0);
   
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(FBOParticleVert), (void*)(sizeof(float) * 3));
+  glTexCoordPointer(2, GL_FLOAT, sizeof(FBOParticleVert), (void *)(sizeof(float) * 3));
   
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
@@ -427,7 +440,7 @@ void GPUParticleSystem::update_positions(const float dt) {
   glVertexPointer(3, GL_FLOAT, sizeof(FBOParticleVert), (void *)0);
   
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(FBOParticleVert), (void*)(sizeof(float) * 3));
+  glTexCoordPointer(2, GL_FLOAT, sizeof(FBOParticleVert), (void *)(sizeof(float) * 3));
   
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
@@ -469,10 +482,16 @@ void GPUParticleSystem::render()
   
   glUniform1i(uniform_locations[UNIFORM_RENDER_POS_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
-  glClientActiveTexture(GL_TEXTURE0);
+  //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
   
+  glUniform1f(uniform_locations[UNIFORM_RENDER_LIFESPAN], particleLifespan);
+
+  sprite->render_gl(GL_TEXTURE1);
+  glUniform1i(uniform_locations[UNIFORM_RENDER_SPRITE], 1);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, sprite->get_tex_id());
   
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -482,13 +501,79 @@ void GPUParticleSystem::render()
   glColorPointer(3, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 3));
   
   glClientActiveTexture(GL_TEXTURE0);
+  //glActiveTexture(GL_TEXTURE0);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 6));
+  
+  glClientActiveTexture(GL_TEXTURE1);
+  //glActiveTexture(GL_TEXTURE1);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glTexCoordPointer(2, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 8));
   
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glDrawElements(GL_QUADS, num_particles * 4, GL_UNSIGNED_INT, (void *)0);
   
+  
   glUseProgramObjectARB(0);
-  glActiveTexture(GL_TEXTURE0);
+  glClientActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
+  glClientActiveTexture(GL_TEXTURE0);
+  glDisable(GL_TEXTURE_2D);
+}
+
+void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, const char * file) {
+  
+  GPUParticleSystem * ps = new GPUParticleSystem();
+  
+  Float3 * particle_pos = new Float3[numParticles];
+  Float3 * particle_vel = new Float3[numParticles];
+  Float3 * colors = new Float3[numParticles];
+  float * age = new float[numParticles];
+  
+  for (int i = 0; i < numParticles; i++) {
+    
+    Float3 posOffset = Float3(random(-emitterRadius, emitterRadius), random(-emitterRadius, emitterRadius), random(-emitterRadius, emitterRadius));
+    
+    posOffset.normalize();
+    
+    posOffset = posOffset * emitterRadius;
+    
+    particle_pos[i] = emitterLoc + posOffset * random(0.f, 1.f);
+    
+    Float3 velOffset = Float3(random(-emitterRange, emitterRange), random(-emitterRange, emitterRange), random(-emitterRange, emitterRange));
+    
+    velOffset.normalize();
+    
+    velOffset = velOffset * emitterRange * random(0.f, 1.f);
+    
+    particle_vel[i] = emitterDirection + velOffset;
+    
+    particle_vel[i].normalize();
+  
+    particle_vel[i] = particle_vel[i] * emitterStrength;
+    
+    colors[i] = Float3(1.f, 1.f, 0.f);
+
+    age[i] = -emitterDuration * i / numParticles;
+  }
+  
+  //ps->setEmitterLocation(emitterLoc);
+  ps->setParticleLifespan(lifespan);
+  
+  for (int i = 0; i < numForces; i++) {
+    ps->addForce(forces[i]);
+  }
+  
+  ps->set_num_particles(numParticles);
+  ps->init(particle_pos, particle_vel, colors, age);
+  
+  ps->setSpriteTexture(file);
+  
+  delete particle_pos;
+  delete particle_vel;
+  delete colors;
+  delete age;
+  
+  pSystems.push_back(ps);
+
 }
