@@ -15,13 +15,14 @@ void main() {
   vec4 prev_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st);
   vec3 velocity = texture2D(vel_tex, gl_TexCoord[0].st).xyz;
   
-  if (prev_pos.w < 0) {
+  if (prev_pos.w < 0 || prev_pos.w > constants.y) {
     //Update age but do not update position
     gl_FragColor = vec4(prev_pos.xyz, prev_pos.w + dt);
   }
-  else if (prev_pos.w > constants.y) {
-    gl_FragColor = vec4(emitterLocation.xyz, 0);
-  }
+  //else if (prev_pos.w > constants.y) {
+    //Respawn
+    //gl_FragColor = vec4(emitterLocation.xyz, 0);
+  //}
   else {
     //Update new position and update particle age.
     gl_FragColor = vec4(prev_pos.xyz + dt * velocity, prev_pos.w + dt);

@@ -12,6 +12,7 @@
 #include "material.h"
 #include "texture.h"
 #include "render_surface.h"
+#include "texture.h"
 
 #define MAX_NUM_ATTRACTORS 5
 #define MAX_AGE 100.f
@@ -99,6 +100,8 @@ namespace Graphics {
     void setEmitterLocation(Float3 loc) {emitterLocation = loc;}
     void setParticleLifespan(float l) {particleLifespan = l;}
     
+    void setSpriteTexture(const char * file) {sprite = new Texture(file); sprite->load();}
+    
   private:
     
     enum ParticleSystemUniforms
@@ -114,6 +117,8 @@ namespace Graphics {
       UNIFORM_UPDATEVEL_VEL_TEX,
       
       UNIFORM_RENDER_POS_TEX,
+      UNIFORM_RENDER_LIFESPAN,
+      UNIFORM_RENDER_SPRITE,
       
       NUM_PARTICLE_UNIFORMS
     };
@@ -123,6 +128,7 @@ namespace Graphics {
       float x, y, z;
       float r, g, b;
       float u, v;
+      float sprite_u, sprite_v;
     };
     
     struct FBOParticleVert
@@ -156,6 +162,8 @@ namespace Graphics {
     GLuint vel_fbo[2];
     GLuint vel_tex[2];
     
+    Texture * sprite;
+    
     GLuint vbo;
     GLuint ibo;
     
@@ -173,6 +181,39 @@ namespace Graphics {
     std::string render_shader_names[2];
     
     GLuint uniform_locations[NUM_PARTICLE_UNIFORMS];
+  };
+  
+  class GPUParticleSim {
+    
+  public:
+    
+    ~GPUParticleSim() {
+      for (int i = 0; i < pSystems.size(); i++) {
+        delete pSystems[i];
+      }
+      pSystems.clear();
+    }
+    
+    void addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, const char * file);
+    
+    void simulate(const float dt) {
+      for (int i = 0; i < pSystems.size(); i++) {
+        pSystems[i]->simulate(dt);
+      }
+    }
+    
+    void render() {
+      for (int i = 0; i < pSystems.size(); i++) {
+        pSystems[i]->render();
+      }
+    }
+    
+    GLuint get_pos_tex(const int i) { return pSystems[i]->get_pos_tex(1); }
+    GLuint get_vel_tex(const int i) { return pSystems[i]->get_vel_tex(1); }
+    
+  private:
+    
+    std::vector<GPUParticleSystem *> pSystems;
   };
   
 };
