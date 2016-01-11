@@ -7,7 +7,7 @@ uniform sampler2D prev_pos_tex;
 uniform sampler2D vel_tex;
 
 uniform vec4 constants;
-//{dt, num_attractors, ..., ...}
+//{dt, lifespan, num_attractors, ...}
 
 uniform vec4 attractors[MAX_NUM_ATTRACTORS];
 
@@ -18,7 +18,7 @@ void main() {
   vec4 prev_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st);
   vec3 velocity = texture2D(vel_tex, gl_TexCoord[0].st).xyz;
   
-  if (prev_pos.w < 0) {
+  if (prev_pos.w < 0 || prev_pos.w > constants.y) {
     //Do not update velocity.
     gl_FragColor = vec4(velocity, 1.0);
   }
@@ -31,7 +31,7 @@ void main() {
     
     vec3 rVector;
     
-    for (int i = 0; i < int(constants.y); i++) {
+    for (int i = 0; i < int(constants.z); i++) {
       
       rVector = attractors[i].xyz - prev_pos.xyz;
       

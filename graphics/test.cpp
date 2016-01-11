@@ -60,10 +60,11 @@ private:
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
       glLoadIdentity();
-      glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
+      //glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
       //glScalef(0.5, 0.5, 0.5);
     
-      gpu_particles.render();
+      //gpu_particles.render();
+      gpu_particle_sim.render();
     
     glPopMatrix();
   }
@@ -99,14 +100,14 @@ private:
   void render_particle_pos_texture()
   {
     setup_textured_quad_state();
-    glBindTexture(GL_TEXTURE_2D, gpu_particles.get_pos_tex(1));
+    glBindTexture(GL_TEXTURE_2D, gpu_particle_sim.get_pos_tex(0));
     render_fullscreen_quad();
   }
   
   void render_particle_vel_texture()
   {
     setup_textured_quad_state();
-    glBindTexture(GL_TEXTURE_2D, gpu_particles.get_vel_tex(1));
+    glBindTexture(GL_TEXTURE_2D, gpu_particle_sim.get_vel_tex(0));
     render_fullscreen_quad();
   }
 
@@ -227,7 +228,8 @@ private:
     
     if(!paused)
     {
-      gpu_particles.simulate(frame_time);
+      //gpu_particles.simulate(frame_time);
+      gpu_particle_sim.simulate(frame_time);
 
       rot_angle += 10.0f * frame_time;
     }
@@ -236,53 +238,16 @@ private:
   void user_init()
   {
     
-    int num_particles = 10000;
+    ParticleForce * * forces = new ParticleForce *[3];
     
-    Float3 * particle_pos = new Float3[num_particles];
-    Float3 * particle_vel = new Float3[num_particles];
-    Float3 * colors = new Float3[num_particles];
-    float * age = new float[num_particles];
-    
-    float bound = 0.5f;
-    
-    for (int i = 0; i < num_particles; i++)
-    {
+    forces[0] = new Attractor(Float3(0.f, 0.5f, 0.f), 0.25f);
+    forces[1] = new Attractor(Float3(-0.5f, 0.f, 0.f), 0.5f);
+    forces[2] = new Attractor(Float3(0.f, 0.f, 0.f), 0.5f);
 
-      particle_pos[i] = Float3(random(-bound, bound), random(-bound, bound), random(-bound, bound));
-      particle_pos[i] = Float3(0.0, -1.f, 0.f);
-      
-      //particle_pos[i][2] = 0;
-      
-      
-      particle_vel[i] = Float3(random(-bound, bound), random(-bound, bound), random(-bound, bound));
-      //particle_vel[i][2] = 0;
+    gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(0.f, -0.5f, 0.f), 0.1f, Float3(1.f, 1.f, 0.f), 2.f, 0.5f, 10.f, 3.f, "data/particle.jpg");
 
-      
-      colors[i] = Float3(random(0.f, 1.f), random(0.f, 1.f), random(0.f, 1.f));
-      //colors[i] = (particle_pos[i][2] < 0) ? Float3(1, 1, 0) : Float3(1, 0, 0);
-      
-      particle_vel[i].normalize();
-      
-      particle_vel[i] = particle_vel[i] * 0.25f;
-      
-      //age[i] = 0;
-      age[i] = random(-5.f, 10.f);
-      }
-    
-    gpu_particles.setEmitterLocation(Float3(0.0, -1.f, 0.0));
-    gpu_particles.setParticleLifespan(10.f);
-    
-    gpu_particles.addForce(new Attractor(Float3(0.f, 0.f, 0.f), 0.5f));
-    gpu_particles.addForce(new Attractor(Float3(0.5f, 0.f, 0.f), 1.f));
-    gpu_particles.addForce(new Attractor(Float3(0.f, 0.5f, 0.f), 0.5f));
-    gpu_particles.addForce(new Attractor(Float3(0.25f, 0.25f, 0.f), -1.f));
-    gpu_particles.addForce(new Attractor(Float3(-1.f, 0.25f, -1.f), 1.f));
-    
-    gpu_particles.set_num_particles(num_particles);
-    gpu_particles.init(particle_pos, particle_vel, colors, age);
-    
-    delete particle_pos;
-    delete particle_vel;
+    gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(-0.75f, 0.f, 0.f), 0.1f, Float3(0.f, 1.f, 0.f), 2.f, 0.5f, 5.f, 3.f, "data/particle.jpg");
+
     
     Float3 cam_pos(0.0f, 0.0f, -5.0f);
     cam.set_pos(cam_pos);
@@ -358,7 +323,9 @@ private:
 
   //GPUHairSim gpu_hair;
   
-  GPUParticleSystem gpu_particles;
+  //GPUParticleSystem gpu_particles;
+  GPUParticleSim gpu_particle_sim;
+  
   
   RenderMode render_mode;
   Camera cam;
