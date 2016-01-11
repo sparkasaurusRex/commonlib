@@ -29,6 +29,7 @@ enum TestMode
   TEST_MODE_VORONOI_3D,
   TEST_MODE_FUNCTIONS,
   TEST_MODE_GPU_VORONOI,
+  TEST_MODE_GPU_VORONOI_TEX,
   NUM_TEST_MODES
 };
 
@@ -47,6 +48,7 @@ public:
 
   void set_num_verts(int nv) { Num_starting_points = nv; }
 private:
+
   void render_gl()
   {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -65,6 +67,9 @@ private:
       case TEST_MODE_GPU_VORONOI:
         render_gpu_voronoi();
         break;
+      case TEST_MODE_GPU_VORONOI_TEX:
+        render_gpu_voronoi_tex();
+        break;
       default:
         break;
     }
@@ -78,10 +83,59 @@ private:
     gpu_voronoi.build_voronoi_diagram();
   }
 
+  void render_fullscreen_quad()
+  {
+    glBegin(GL_QUADS);
+      glColor3f(1.0f, 1.0f, 1.0f);
+      glTexCoord2f(0.0f, 0.0f);
+      glVertex3f(-1.0f, -1.0f, 0.0f);
+      glTexCoord2f(1.0f, 0.0f);
+      glVertex3f(1.0f, -1.0f, 0.0f);
+      glTexCoord2f(1.0f, 1.0f);
+      glVertex3f(1.0f, 1.0f, 0.0f);
+      glTexCoord2f(0.0f, 1.0f);
+      glVertex3f(-1.0f, 1.0f, 0.0f);
+    glEnd();
+  }
+
+  void setup_textured_quad_state()
+  {
+    glUseProgramObjectARB(0);
+    glDisable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glActiveTexture(GL_TEXTURE0);
+    //glClientActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 10.0f);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+  }
+
+  void render_gpu_voronoi_tex()
+  {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    setup_textured_quad_state();
+    glBindTexture(GL_TEXTURE_2D, gpu_voronoi.get_tex());
+    render_fullscreen_quad();
+
+    glActiveTexture(GL_TEXTURE0);
+    glDisable(GL_TEXTURE_2D);
+  }
+
   void render_voronoi_3d()
   {
     Uint32 ticks = SDL_GetTicks();
     float game_time = (float)ticks;
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 10.0f);
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -308,12 +362,14 @@ private:
           point_cloud.add_point(new_vertex);
           point_cloud.triangulate();
         }
-        if(mode == TEST_MODE_GPU_VORONOI)
+        if(mode == TEST_MODE_GPU_VORONOI || mode == TEST_MODE_GPU_VORONOI_TEX)
         {
           Float2 new_vert;
           new_vert[0] = (float)event.button.x / (float)resolution[0];
           new_vert[1] = 1.0f - (float)event.button.y / (float)resolution[1];
-          gpu_voronoi.add_site(new_vert);
+          //gpu_voronoi.add_site(new_vert);
+           unsigned int idx = gpu_voronoi.get_nearest_site(new_vert);
+           cout<<"idx: "<<idx<<endl;
         }
         break;
     }

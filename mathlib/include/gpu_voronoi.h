@@ -51,6 +51,8 @@ namespace Math
       void set_flags(const GLuint flags) { behavior_flags = flags; }
       GLuint get_flags() const { return behavior_flags; }
 
+      GLuint get_tex() const { return voronoi_diagram_tex; }
+
       void add_site(Math::Float2 pt);
       void build_voronoi_diagram();
       unsigned int get_nearest_site(const Float2 p);
