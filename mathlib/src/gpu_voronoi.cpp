@@ -120,8 +120,6 @@ void GPUVoronoi2D::build_voronoi_diagram()
 
   glUseProgramObjectARB(0);
 
-  //cout<<"viewport: "<<win_viewport[0]<<", "<<win_viewport[1]<<", "<<win_viewport[2]<<", "<<win_viewport[3]<<endl;
-
   glEnable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE);
 
@@ -138,6 +136,7 @@ void GPUVoronoi2D::build_voronoi_diagram()
   glMatrixMode(GL_MODELVIEW);
 
   //render a cone for each site
+  //TODO: optimize by reducing draw calls (1 drawcall for all cones)
   for(int i = 0; i < sites.size(); i++)
   {
     glLoadIdentity();
@@ -163,7 +162,7 @@ void GPUVoronoi2D::build_voronoi_diagram()
   glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);
 }
 
-unsigned int GPUVoronoi2D::get_nearest_site(const Float2 p)
+unsigned int GPUVoronoi2D::query_nearest_site(const Float2 p)
 {
   //TODO: use PBOs for optimization
   glBindTexture(GL_TEXTURE_2D, voronoi_diagram_tex);
@@ -180,11 +179,6 @@ unsigned int GPUVoronoi2D::get_nearest_site(const Float2 p)
   int x = p[0] * (float)fbo_res[0];
   int y = p[1] * (float)fbo_res[1];
 
-  cout<<"x: "<<x<<"y: "<<y<<endl;
-
   GLubyte *pix = &(pixels[3 * (x + fbo_res[0] * y)]);
-
-  cout<<"pix: <"<<(int)pix[0]<<", "<<(int)pix[1]<<", "<<(int)pix[2]<<">"<<endl;
-
   return pix[0] + pix[1] * 256 + pix[2] * (256 * 256);
 }
