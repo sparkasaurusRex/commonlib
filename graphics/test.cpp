@@ -30,6 +30,7 @@ public:
     rot_angle = 0.0f;
     //color_tex = NULL;
     render_mode = RENDER_PARTICLES;
+    //render_mode = RENDER_PARTICLE_POSITION_TEXTURE;
     //force_tex_dim[0] = 64;
     //force_tex_dim[1] = 64;
   }
@@ -238,15 +239,15 @@ private:
   void user_init()
   {
     
-    ParticleForce * * forces = new ParticleForce *[3];
+    ParticleForce * * forces = new ParticleForce*[3];
     
     forces[0] = new Attractor(Float3(0.f, 0.5f, 0.f), 0.25f);
     forces[1] = new Attractor(Float3(-0.5f, 0.f, 0.f), 0.5f);
     forces[2] = new Attractor(Float3(0.f, 0.f, 0.f), 0.5f);
 
-    gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(0.f, -0.5f, 0.f), 0.1f, Float3(1.f, 1.f, 0.f), 2.f, 0.5f, 10.f, 3.f, "data/particle.jpg");
+    gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(0.f, -0.5f, 0.f), 0.1f, Float3(1.f, 1.f, 0.f), 2.f, 0.5f, 10.f, 3.f, "data/particle.tiff");
 
-    gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(-0.75f, 0.f, 0.f), 0.1f, Float3(0.f, 1.f, 0.f), 2.f, 0.5f, 5.f, 3.f, "data/particle.jpg");
+    gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(-0.75f, 0.f, 0.f), 0.1f, Float3(0.f, 1.f, 0.f), 2.f, 0.5f, 5.f, 3.f, "data/smoke_alpha_01.tif");
 
     
     Float3 cam_pos(0.0f, 0.0f, -5.0f);
