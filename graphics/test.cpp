@@ -14,11 +14,11 @@ enum RenderMode
   RENDER_HAIR_TEXTURE,
   RENDER_FORCE_TEXTURE,
   RENDER_UV_TEXTURE,
-  
+
   RENDER_PARTICLES,
   RENDER_PARTICLE_POSITION_TEXTURE,
   RENDER_PARTICLE_VELOCITY_TEXTURE,
-  
+
   NUM_RENDER_MODES
 };
 
@@ -55,7 +55,7 @@ private:
 
     glPopMatrix();
   }*/
-  
+
   void render_particles()
   {
     glMatrixMode(GL_MODELVIEW);
@@ -63,10 +63,10 @@ private:
       glLoadIdentity();
       //glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
       //glScalef(0.5, 0.5, 0.5);
-    
+
       //gpu_particles.render();
       gpu_particle_sim.render();
-    
+
     glPopMatrix();
   }
 
@@ -97,14 +97,14 @@ private:
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
   }
-  
+
   void render_particle_pos_texture()
   {
     setup_textured_quad_state();
     glBindTexture(GL_TEXTURE_2D, gpu_particle_sim.get_pos_tex(0));
     render_fullscreen_quad();
   }
-  
+
   void render_particle_vel_texture()
   {
     setup_textured_quad_state();
@@ -226,7 +226,7 @@ private:
     //cout<<"dt: "<<frame_time<<endl;
     //update_forces(game_time, frame_time);
     //gpu_hair.simulate(game_time, frame_time);
-    
+
     if(!paused)
     {
       //gpu_particles.simulate(frame_time);
@@ -241,6 +241,7 @@ private:
     
     ParticleForce * * forces = new ParticleForce*[3];
     
+
     forces[0] = new Attractor(Float3(0.f, 0.5f, 0.f), 0.25f);
     forces[1] = new Attractor(Float3(-0.5f, 0.f, 0.f), 0.5f);
     forces[2] = new Attractor(Float3(0.f, 0.f, 0.f), 0.5f);
@@ -249,12 +250,12 @@ private:
 
     gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(-0.75f, 0.f, 0.f), 0.1f, Float3(0.f, 1.f, 0.f), 2.f, 0.5f, 5.f, 3.f, "data/smoke_alpha_01.tif");
 
-    
+
     Float3 cam_pos(0.0f, 0.0f, -5.0f);
     cam.set_pos(cam_pos);
     cam.set_lookat(Float3(0.0f, 0.0f, 0.0f) - cam_pos);
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));
-    
+
     /*
     int num_hairs = 10000;
     //TODO: move this out of the GPUHairSim class, so we can start w/ any hair
@@ -323,11 +324,11 @@ private:
   }
 
   //GPUHairSim gpu_hair;
-  
+
   //GPUParticleSystem gpu_particles;
   GPUParticleSim gpu_particle_sim;
-  
-  
+
+
   RenderMode render_mode;
   Camera cam;
   float rot_angle;

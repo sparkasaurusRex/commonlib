@@ -14,8 +14,8 @@ GPUVoronoi2D::GPUVoronoi2D(const GLuint num_seg, const GLuint flags)
   cone_vbo = 0;
   cone_ibo = 0;
 
-  fbo_res[0] = 2048;
-  fbo_res[1] = 1024;
+  fbo_res[0] = 512;
+  fbo_res[1] = 512;
 
   depth_fbo = 0;
   voronoi_diagram_fbo = 0;
@@ -59,7 +59,7 @@ void GPUVoronoi2D::init()
   //delete cone_index_data;
 
   //allocate the voronoi diagram texture and frame buffer object
-  GLuint internal_format = GL_RGBA_FLOAT32_ATI;
+  GLuint internal_format = GL_RGB;//GL_RGBA_FLOAT32_ATI;
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glGenTextures(1, &voronoi_diagram_tex);
   glBindTexture(GL_TEXTURE_2D, voronoi_diagram_tex);
@@ -70,16 +70,29 @@ void GPUVoronoi2D::init()
                fbo_res[0],
                fbo_res[1],
                0,
-               GL_RGBA, //GL_RGBA16F_ARB,
+               GL_RGB, //GL_RGBA16F_ARB,
                GL_UNSIGNED_BYTE,
                NULL);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);//GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//GL_LINEAR);
 
   assert(glIsTexture(voronoi_diagram_tex) == GL_TRUE);
+
+  glGenRenderbuffersEXT(1, &depth_fbo);
+  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_fbo);
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, fbo_res[0], fbo_res[1]);
+
+  glGenFramebuffersEXT(1, &voronoi_diagram_fbo);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, voronoi_diagram_fbo);
+
+  assert(glIsFramebuffer(voronoi_diagram_fbo) == GL_TRUE);
+
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, voronoi_diagram_tex, 0);
+  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth_fbo);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
 void GPUVoronoi2D::deinit()
@@ -99,11 +112,21 @@ void GPUVoronoi2D::add_site(Float2 pt)
 
 void GPUVoronoi2D::build_voronoi_diagram()
 {
+  //set up the render target
+  GLint win_viewport[4];
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, voronoi_diagram_fbo);
+  glGetIntegerv(GL_VIEWPORT, win_viewport);
+  glViewport(0, 0, fbo_res[0], fbo_res[1]);
+
+  glUseProgramObjectARB(0);
+
+  //cout<<"viewport: "<<win_viewport[0]<<", "<<win_viewport[1]<<", "<<win_viewport[2]<<", "<<win_viewport[3]<<endl;
+
   glEnable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE);
 
   //set the render target to the voronoi diagram texture / fbo
-  glClearColor(0.3f, 0.2f, 1.0f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glMatrixMode(GL_PROJECTION);
@@ -136,4 +159,32 @@ void GPUVoronoi2D::build_voronoi_diagram()
   }
 
   // set the FBO back to default
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);
+}
+
+unsigned int GPUVoronoi2D::get_nearest_site(const Float2 p)
+{
+  //TODO: use PBOs for optimization
+  glBindTexture(GL_TEXTURE_2D, voronoi_diagram_tex);
+
+  //int buffer_size = fbo_res[0] * fbo_res[1] * sizeof(GLubyte) * 4;
+
+  GLubyte *pixels = new GLubyte[fbo_res[0] * fbo_res[1] * 4];
+  glGetTexImage(GL_TEXTURE_2D,
+                0,
+                GL_RGB, //GL_BGRA
+                GL_UNSIGNED_BYTE,
+                pixels);
+
+  int x = p[0] * (float)fbo_res[0];
+  int y = p[1] * (float)fbo_res[1];
+
+  cout<<"x: "<<x<<"y: "<<y<<endl;
+
+  GLubyte *pix = &(pixels[3 * (x + fbo_res[0] * y)]);
+
+  cout<<"pix: <"<<(int)pix[0]<<", "<<(int)pix[1]<<", "<<(int)pix[2]<<">"<<endl;
+
+  return pix[0] + pix[1] * 256 + pix[2] * (256 * 256);
 }
