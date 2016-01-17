@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <iostream>
+#include <assert.h>
 #include "gpu_voronoi.h"
 
 using namespace Math;
@@ -18,13 +19,18 @@ GPUVoronoi2D::GPUVoronoi2D(const GLuint num_seg, const GLuint flags)
   fbo_res[1] = 512;
 
   depth_fbo = 0;
+  tex_format = GL_BGRA;
   voronoi_diagram_fbo = 0;
   voronoi_diagram_tex = 0;
 
   cone_vertex_data = NULL;
+  cpu_tex_data = NULL;
 }
 
-GPUVoronoi2D::~GPUVoronoi2D() {}
+GPUVoronoi2D::~GPUVoronoi2D()
+{
+  if(cpu_tex_data) { delete cpu_tex_data; }
+}
 
 void GPUVoronoi2D::init()
 {
@@ -55,22 +61,21 @@ void GPUVoronoi2D::init()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cone_ibo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_cone_verts, cone_index_data, GL_STATIC_DRAW);
 
-  //delete cone_vertex_data;
-  //delete cone_index_data;
+  delete cone_vertex_data;
+  delete cone_index_data;
 
   //allocate the voronoi diagram texture and frame buffer object
-  GLuint internal_format = GL_RGB;//GL_RGBA_FLOAT32_ATI;
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glGenTextures(1, &voronoi_diagram_tex);
   glBindTexture(GL_TEXTURE_2D, voronoi_diagram_tex);
   assert(glIsTexture(voronoi_diagram_tex) == GL_TRUE);
   glTexImage2D(GL_TEXTURE_2D,
                0,
-               internal_format,
+               GL_RGBA,       //internal format
                fbo_res[0],
                fbo_res[1],
                0,
-               GL_RGB, //GL_RGBA16F_ARB,
+               tex_format,
                GL_UNSIGNED_BYTE,
                NULL);
 
@@ -93,6 +98,8 @@ void GPUVoronoi2D::init()
   glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, voronoi_diagram_tex, 0);
   glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth_fbo);
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+  cpu_tex_data = new GLubyte[fbo_res[0] * fbo_res[1] * 4];
 }
 
 void GPUVoronoi2D::deinit()
@@ -120,8 +127,6 @@ void GPUVoronoi2D::build_voronoi_diagram()
 
   glUseProgramObjectARB(0);
 
-  //cout<<"viewport: "<<win_viewport[0]<<", "<<win_viewport[1]<<", "<<win_viewport[2]<<", "<<win_viewport[3]<<endl;
-
   glEnable(GL_DEPTH_TEST);
   glDisable(GL_CULL_FACE);
 
@@ -138,6 +143,7 @@ void GPUVoronoi2D::build_voronoi_diagram()
   glMatrixMode(GL_MODELVIEW);
 
   //render a cone for each site
+  //TODO: optimize by reducing draw calls (1 drawcall for all cones)
   for(int i = 0; i < sites.size(); i++)
   {
     glLoadIdentity();
@@ -161,30 +167,30 @@ void GPUVoronoi2D::build_voronoi_diagram()
   // set the FBO back to default
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
   glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);
-}
 
-unsigned int GPUVoronoi2D::get_nearest_site(const Float2 p)
-{
-  //TODO: use PBOs for optimization
+  //now, copy the texture data from GPU -> CPU for fast queries
+  //TODO: optimize by using a stack of PBOs
+  memset(cpu_tex_data, 0, fbo_res[0] * fbo_res[1] * 4);
   glBindTexture(GL_TEXTURE_2D, voronoi_diagram_tex);
-
-  //int buffer_size = fbo_res[0] * fbo_res[1] * sizeof(GLubyte) * 4;
-
-  GLubyte *pixels = new GLubyte[fbo_res[0] * fbo_res[1] * 4];
   glGetTexImage(GL_TEXTURE_2D,
                 0,
-                GL_RGB, //GL_BGRA
+                tex_format,
                 GL_UNSIGNED_BYTE,
-                pixels);
+                cpu_tex_data);
+}
+
+unsigned int GPUVoronoi2D::query_nearest_site(const Float2 p)
+{
+  assert(p[0] >= 0.0f && p[0] <= 1.0f);
+  assert(p[1] >= 0.0f && p[1] <= 1.0f);
 
   int x = p[0] * (float)fbo_res[0];
   int y = p[1] * (float)fbo_res[1];
 
-  cout<<"x: "<<x<<"y: "<<y<<endl;
+  if(x >= fbo_res[0]) { x = fbo_res[0] - 1; }
+  if(y >= fbo_res[1]) { y = fbo_res[1] - 1; }
 
-  GLubyte *pix = &(pixels[3 * (x + fbo_res[0] * y)]);
-
-  cout<<"pix: <"<<(int)pix[0]<<", "<<(int)pix[1]<<", "<<(int)pix[2]<<">"<<endl;
-
-  return pix[0] + pix[1] * 256 + pix[2] * (256 * 256);
+  GLubyte *pix = &(cpu_tex_data[4 * (x + fbo_res[0] * y)]);
+  //return pix[0] + pix[1] * 256 + pix[2] * (256 * 256); //RGB
+  return pix[2] + pix[1] * 256 + pix[0] * (256 * 256);  //BGR
 }

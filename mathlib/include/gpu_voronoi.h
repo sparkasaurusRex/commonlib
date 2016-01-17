@@ -28,13 +28,6 @@ namespace Math
     //GLubyte r, g, b;
   };
 
-/*
-  struct FBOVert
-  {
-    float x, y, z;
-    float u, v;
-  };*/
-
   class GPUVoronoi2D
   {
     public:
@@ -51,11 +44,13 @@ namespace Math
       void set_flags(const GLuint flags) { behavior_flags = flags; }
       GLuint get_flags() const { return behavior_flags; }
 
+      void set_tex_res(const int w, const int h) { fbo_res[0] = w; fbo_res[1] = h; }
       GLuint get_tex() const { return voronoi_diagram_tex; }
 
       void add_site(Math::Float2 pt);
       void build_voronoi_diagram();
-      unsigned int get_nearest_site(const Float2 p);
+
+      unsigned int query_nearest_site(const Float2 p);
     private:
       GLuint                        behavior_flags;
       std::vector<Math::Float2>     sites;
@@ -67,11 +62,13 @@ namespace Math
       ConeVert                      *cone_vertex_data;
       unsigned int                  *cone_index_data;
 
-      //FBOVert                       fbo_verts[4];
       GLuint                        fbo_res[2];
       GLuint                        depth_fbo;
+      GLuint                        tex_format;
       GLuint                        voronoi_diagram_fbo;
       GLuint                        voronoi_diagram_tex;
+
+      GLubyte                       *cpu_tex_data;
   };
 };
 
