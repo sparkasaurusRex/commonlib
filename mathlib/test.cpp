@@ -338,6 +338,17 @@ private:
       case SDL_KEYUP:
         switch(event.key.keysym.sym)
         {
+          case ' ':
+            {
+              gpu_voronoi.reset();
+              for(int i = 0; i < Num_starting_points; i++)
+              {
+                Float2 new_pt(random(0.0f, 1.0f), random(0.0f, 1.0f));
+                gpu_voronoi.add_site(new_pt);
+              }
+              gpu_voronoi.build_voronoi_diagram();
+            }
+            break;
           case ']':
             mode = (TestMode)((int)mode + 1);
             if(mode >= NUM_TEST_MODES) { mode = TEST_MODE_VORONOI_2D; }
@@ -368,7 +379,7 @@ private:
           new_vert[0] = (float)event.button.x / (float)resolution[0];
           new_vert[1] = 1.0f - (float)event.button.y / (float)resolution[1];
           //gpu_voronoi.add_site(new_vert);
-           unsigned int idx = gpu_voronoi.get_nearest_site(new_vert);
+           unsigned int idx = gpu_voronoi.query_nearest_site(new_vert);
            cout<<"idx: "<<idx<<endl;
         }
         break;

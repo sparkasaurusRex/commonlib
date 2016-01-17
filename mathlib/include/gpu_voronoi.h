@@ -64,8 +64,11 @@ namespace Math
 
       GLuint                        fbo_res[2];
       GLuint                        depth_fbo;
+      GLuint                        tex_format;
       GLuint                        voronoi_diagram_fbo;
       GLuint                        voronoi_diagram_tex;
+
+      GLubyte                       *cpu_tex_data;
   };
 };
 
