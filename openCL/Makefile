@@ -13,7 +13,7 @@ LDFLAGS=$(shell pkg-config freetype2 --libs)
 LDFLAGS+=$(shell pkg-config glew --libs)
 LDFLAGS+=$(shell pkg-config sdl2 --libs)
 LDFLAGS+=$(shell pkg-config SDL2_image --libs)
-LDFLAGS+=-lmath -lgraphics -lgame -lui
+LDFLAGS+=-lmath -lgame -lui
 SRCPATH=src/
 SRCS=src/gpu_compute.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -27,7 +27,6 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 
 	LIB_PATH+=-Lbin/osx
 	LIB_PATH+=-L../mathlib/bin/osx
-	LIB_PATH+=-L../fluids/bin/osx
 	LIB_PATH+=-L../ui/bin/osx
 	LIB_PATH+=-L../game/bin/osx
 
@@ -40,7 +39,6 @@ else
 	#generic link flags
 	LIB_PATH += -Lbin/linux
 	LIB_PATH += -L../mathlib/bin/linux
-	LIB_PATH += -L../fluids/bin/linux
 	LIB_PATH += -L../ui/bin/linux
 	LIB_PATH += -L../game/bin/linux
 
