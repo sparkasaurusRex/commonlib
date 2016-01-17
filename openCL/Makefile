@@ -57,7 +57,7 @@ OBJS_BIN=$(addprefix $(BINPATH), $(notdir $(OBJS)))
 #echo $(OBJS_BIN)
 
 
-all: $(BINPATH) $(OBJS_BIN) $(BINPATH)libgraphics.a test
+all: $(BINPATH) $(OBJS_BIN) $(BINPATH)libgpucompute.a test
 
 $(BINPATH):
 	mkdir -p $(BINPATH)

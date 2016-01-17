@@ -6,12 +6,12 @@
 using namespace GPUCompute;
 using namespace std;
 
-GPUComputeImp::GPUComuteImp()
+GPUComputeImp::GPUComputeImp()
 {
-
+  num_elements = 0;
 }
 
-GPUComuteImp::~GPUComputeImp()
+GPUComputeImp::~GPUComputeImp()
 {
 
 }
@@ -21,7 +21,7 @@ void GPUComputeImp::init()
   bool use_gpu = true;
 
   //connect to compute device
-  err = clGetDeviceIDs(NULL, use_gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
+  int err = clGetDeviceIDs(NULL, use_gpu ? CL_DEVICE_TYPE_GPU : CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
   assert(err == CL_SUCCESS);
 
   //create a compute context
@@ -31,6 +31,8 @@ void GPUComputeImp::init()
 
 void GPUComputeImp::load_and_build_kernel(const char *fname, const char *kernel_name)
 {
+  int err;
+
   //create command queue
   cl_command_queue commands = clCreateCommandQueue(context, device_id, 0, &err);
   assert(commands);
@@ -45,7 +47,7 @@ void GPUComputeImp::load_and_build_kernel(const char *fname, const char *kernel_
 
     char *kernel_src = (char *)malloc(sizeof(char) * (string_size + 1));
     memset(kernel_src, 0, string_size + 1);
-    fread(kernel_src, sizeof(char), string_size, fp);
+    fread(kernel_src, sizeof(char), string_size, f);
 
     //create and build the kernel program executable and check for errors
     cl_program program = clCreateProgramWithSource(context, 1, (const char **) & kernel_src, NULL, &err);
@@ -61,10 +63,13 @@ void GPUComputeImp::load_and_build_kernel(const char *fname, const char *kernel_
       cerr<<buffer<<endl;
     }
 
-    kernel = clCreateKernel(program, kernel_name, &err);
+    cl_kernel kernel = clCreateKernel(program, kernel_name, &err);
     assert(err == CL_SUCCESS && kernel);
 
-    input = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float), )
+    input_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * num_elements, NULL, NULL);
+    output_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * num_elements, NULL, NULL);
+
+    assert(input_buffer && output_buffer);
   }
   else
   {

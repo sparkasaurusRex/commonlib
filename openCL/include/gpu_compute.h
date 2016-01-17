@@ -18,10 +18,14 @@ namespace GPUCompute
       void init();
       void deinit();
 
-      void load_and_build_kernel(const char *fname);
+      void load_and_build_kernel(const char *fname, const char *kernel_name);
     private:
+      int                       num_elements;
       cl_context                context;
       cl_device_id              device_id;
+
+      cl_mem                    input_buffer;
+      cl_mem                    output_buffer;
   };
 };
 
