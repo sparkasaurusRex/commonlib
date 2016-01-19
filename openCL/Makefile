@@ -2,18 +2,18 @@ CC=g++
 LIB_PATH=
 CFLAGS=-I./include -I../mathlib/include
 CFLAGS+=-I/usr/local/include -I../game/include
-CFLAGS+=$(shell pkg-config freetype2 --cflags)
-CFLAGS+=$(shell pkg-config glew --cflags)
-CFLAGS+=$(shell pkg-config sdl2 --cflags)
-CFLAGS+=$(shell pkg-config SDL2_image --cflags)
+#CFLAGS+=$(shell pkg-config freetype2 --cflags)
+#CFLAGS+=$(shell pkg-config glew --cflags)
+#CFLAGS+=$(shell pkg-config sdl2 --cflags)
+#CFLAGS+=$(shell pkg-config SDL2_image --cflags)
 #CFLAGS+=-Ofast
 CFLAGS+= -g3 -O0
 
-LDFLAGS=$(shell pkg-config freetype2 --libs)
-LDFLAGS+=$(shell pkg-config glew --libs)
-LDFLAGS+=$(shell pkg-config sdl2 --libs)
-LDFLAGS+=$(shell pkg-config SDL2_image --libs)
-LDFLAGS+=-lmath -lgame -lui
+#LDFLAGS=$(shell pkg-config freetype2 --libs)
+#LDFLAGS+=$(shell pkg-config glew --libs)
+#LDFLAGS+=$(shell pkg-config sdl2 --libs)
+#LDFLAGS+=$(shell pkg-config SDL2_image --libs)
+#LDFLAGS+=-lmath -lgame -lui
 SRCPATH=src/
 SRCS=src/gpu_compute.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -26,9 +26,9 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	#CFLAGS+=-I$(shell xcrun --show-sdk-path)/System/Library/Frameworks/
 
 	LIB_PATH+=-Lbin/osx
-	LIB_PATH+=-L../mathlib/bin/osx
-	LIB_PATH+=-L../ui/bin/osx
-	LIB_PATH+=-L../game/bin/osx
+	#LIB_PATH+=-L../mathlib/bin/osx
+	#LIB_PATH+=-L../ui/bin/osx
+	#LIB_PATH+=-L../game/bin/osx
 
 	#LDFLAGS+=-framework SDL2
 	#LDFLAGS+=-framework SDL2_image
@@ -38,9 +38,9 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 else
 	#generic link flags
 	LIB_PATH += -Lbin/linux
-	LIB_PATH += -L../mathlib/bin/linux
-	LIB_PATH += -L../ui/bin/linux
-	LIB_PATH += -L../game/bin/linux
+	#LIB_PATH += -L../mathlib/bin/linux
+	#LIB_PATH += -L../ui/bin/linux
+	#LIB_PATH += -L../game/bin/linux
 
 	BINPATH=bin/linux/
 	#CFLAGS+=-I/usr/include/freetype2/

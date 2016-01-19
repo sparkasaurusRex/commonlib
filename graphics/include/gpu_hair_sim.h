@@ -89,6 +89,8 @@ namespace Graphics {
     int           force_tex_dim[2];
 
     Texture       *color_tex;
+    Float3        col_a;
+    Float3        col_b;
 
     Material      render_mat;
     Material      sim_mat;
