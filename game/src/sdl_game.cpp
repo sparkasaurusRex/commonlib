@@ -12,10 +12,15 @@ using namespace std;
 using namespace Math;
 using namespace UI;
 
-void quit_cb(const SDL_Event &e)
+void quit()
 {
   SDL_Quit();
   exit(0);
+}
+
+void quit_cb(const SDL_Event &e)
+{
+  quit();
 }
 
 SDLGame::SDLGame(const int w, const int h,
@@ -62,6 +67,8 @@ SDLGame::SDLGame(const int w, const int h,
   }
 
   game_state = 0;
+
+  sim_lock_dt = 1.0f / 30.0f;
 }
 
 SDLGame::~SDLGame()
@@ -153,6 +160,7 @@ void SDLGame::init()
 
   user_init();
   console.init();
+  console.register_function(quit, "quit");
 }
 
 void SDLGame::run()
@@ -168,6 +176,11 @@ void SDLGame::run()
     double game_time = (double)ticks;
     double frame_time = (game_time - last_game_time) / 1000.0f;
     last_game_time = game_time;
+
+    if(flags & SDL_GAME_STATE_LOCKED_DT)
+    {
+      frame_time = sim_lock_dt;
+    }
 
     //average the last n frames
     float actual_fps = 1.0f / frame_time;

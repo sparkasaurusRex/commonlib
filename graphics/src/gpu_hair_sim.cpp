@@ -71,7 +71,7 @@ GPUHairSim::GPUHairSim()
   render_shader_names[1] = std::string("data/shaders/hair_render.fs");
 
   sun_pos_xyz = Float3(10.0f, 10.0f, 2.0f);
-  sun_diff_rgb = Float3(10.0f, 10.0f, 8.0f);
+  sun_diff_rgb = Float3(3.0f, 2.5f, 1.0f);
   sun_spec_rgb = Float3(1.0f, 1.0f, 0.0f);
   ambient_rgb = Float3(0.2f, 0.3f, 0.3f);
 }

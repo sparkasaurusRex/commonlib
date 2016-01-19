@@ -28,6 +28,7 @@
 
 #define SDL_GAME_STATE_PAUSED         (1<<0)
 #define SDL_GAME_STATE_FULLSCREEN     (1<<1)
+#define SDL_GAME_STATE_LOCKED_DT      (1<<2)
 
 class SDLGame
 {
@@ -101,6 +102,8 @@ protected:
 
   UI::Menu *pause_menu;
   FadeScreen title_screen;
+
+  float sim_lock_dt;
 };
 
 #endif //__SDL_GAME_H__
