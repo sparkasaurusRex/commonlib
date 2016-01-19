@@ -13,7 +13,10 @@ using namespace Graphics;
 GPUParticleSystem::GPUParticleSystem()
 {
   
-  billboard_size = 0.005;
+  billboard_size = 0.035;
+
+  startColor = Float3(1.f, 0.5f, 0.f);
+  endColor = Float3(1.f, 0.f, 0.f);
   
   num_particles = 0;
 
@@ -268,6 +271,8 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   uniform_locations[UNIFORM_RENDER_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "particle_tex");
   uniform_locations[UNIFORM_RENDER_LIFESPAN] = glGetUniformLocation(shader->gl_shader_program, "lifespan");
   uniform_locations[UNIFORM_RENDER_SPRITE] = glGetUniformLocation(shader->gl_shader_program, "sprite_tex");
+  uniform_locations[UNIFORM_RENDER_START_COLOR] = glGetUniformLocation(shader->gl_shader_program, "startColor");
+  uniform_locations[UNIFORM_RENDER_END_COLOR] = glGetUniformLocation(shader->gl_shader_program, "endColor");
   
   glUseProgramObjectARB(0);
 }
@@ -348,14 +353,12 @@ void GPUParticleSystem::update_velocities(const float dt) {
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
-  //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
 
   //vel_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_VEL_TEX], 1);
   glActiveTexture(GL_TEXTURE1);
-  //glClientActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, vel_tex[1]);
 
@@ -365,6 +368,7 @@ void GPUParticleSystem::update_velocities(const float dt) {
   glVertexPointer(3, GL_FLOAT, sizeof(FBOParticleVert), (void *)0);
 
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glClientActiveTexture(GL_TEXTURE0);
   glTexCoordPointer(2, GL_FLOAT, sizeof(FBOParticleVert), (void *)(sizeof(float) * 3));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
@@ -373,7 +377,7 @@ void GPUParticleSystem::update_velocities(const float dt) {
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE2);
+  glActiveTexture(GL_TEXTURE0);
   glDisable(GL_TEXTURE_2D);
 
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -424,14 +428,12 @@ void GPUParticleSystem::update_positions(const float dt) {
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
-  //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
 
   //vel_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_VEL_TEX], 1);
   glActiveTexture(GL_TEXTURE1);
-  //glClientActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, vel_tex[1]);
 
@@ -441,6 +443,7 @@ void GPUParticleSystem::update_positions(const float dt) {
   glVertexPointer(3, GL_FLOAT, sizeof(FBOParticleVert), (void *)0);
 
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glClientActiveTexture(GL_TEXTURE0);
   glTexCoordPointer(2, GL_FLOAT, sizeof(FBOParticleVert), (void *)(sizeof(float) * 3));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
@@ -449,7 +452,7 @@ void GPUParticleSystem::update_positions(const float dt) {
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE2);
+  glActiveTexture(GL_TEXTURE0);
   glDisable(GL_TEXTURE_2D);
 
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -475,23 +478,26 @@ void GPUParticleSystem::simulate(const float dt)
 void GPUParticleSystem::render()
 {
 
-  glEnable(GL_DEPTH_TEST);
-  glDepthMask(GL_TRUE);
   glDisable(GL_CULL_FACE);
-  //glEnable(GL_BLEND);
+  
   //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
   
   render_mat.render_gl();
   
-  glUniform1i(uniform_locations[UNIFORM_RENDER_POS_TEX], 2);
-  glActiveTexture(GL_TEXTURE2);
+  glUniform1i(uniform_locations[UNIFORM_RENDER_POS_TEX], 0);
+  glUniform1i(uniform_locations[UNIFORM_RENDER_SPRITE], 1);
+  glUniform1f(uniform_locations[UNIFORM_RENDER_LIFESPAN], particleLifespan);
+  glUniform3f(uniform_locations[UNIFORM_RENDER_START_COLOR], startColor[0], startColor[1], startColor[2]);
+  glUniform3f(uniform_locations[UNIFORM_RENDER_END_COLOR], endColor[0], endColor[1], endColor[2]);
+
+  
+  glActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
 
-  glUniform1i(uniform_locations[UNIFORM_RENDER_SPRITE], 3);
-  sprite->render_gl(GL_TEXTURE3);
+  sprite->render_gl(GL_TEXTURE1);
   
-  glUniform1f(uniform_locations[UNIFORM_RENDER_LIFESPAN], particleLifespan);
   
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -500,12 +506,11 @@ void GPUParticleSystem::render()
   glEnableClientState(GL_COLOR_ARRAY);
   glColorPointer(3, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 3));
   
-  glClientActiveTexture(GL_TEXTURE2);
+  glClientActiveTexture(GL_TEXTURE0);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 6));
   
-  glClientActiveTexture(GL_TEXTURE3);
-
+  glClientActiveTexture(GL_TEXTURE1);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 8));
 
@@ -514,10 +519,21 @@ void GPUParticleSystem::render()
 
 
   glUseProgramObjectARB(0);
-  glActiveTexture(GL_TEXTURE2);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, 0);
   glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE3);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, 0);
   glDisable(GL_TEXTURE_2D);
+  
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
+  
+  glClientActiveTexture(GL_TEXTURE1);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  
+  glClientActiveTexture(GL_TEXTURE0);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, const char * file) {
