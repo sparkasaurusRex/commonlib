@@ -177,7 +177,7 @@ void SDLGame::run()
     double frame_time = (game_time - last_game_time) / 1000.0f;
     last_game_time = game_time;
 
-    if(flags & SDL_GAME_STATE_LOCKED_DT)
+    if(flags & SDL_GAME_LOCK_SIM_DT)
     {
       frame_time = sim_lock_dt;
     }

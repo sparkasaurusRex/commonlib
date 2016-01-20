@@ -25,10 +25,11 @@
 #define SDL_GAME_DEFAULT_HEIGHT   480
 
 #define SDL_GAME_GENERATE_PAUSE_MENU  (1<<0)
+#define SDL_GAME_LOCK_SIM_DT          (1<<1)
 
 #define SDL_GAME_STATE_PAUSED         (1<<0)
 #define SDL_GAME_STATE_FULLSCREEN     (1<<1)
-#define SDL_GAME_STATE_LOCKED_DT      (1<<2)
+
 
 class SDLGame
 {
@@ -37,7 +38,7 @@ public:
   SDLGame(const int w = SDL_GAME_DEFAULT_WIDTH,
           const int h = SDL_GAME_DEFAULT_HEIGHT,
           const std::string title = "Game",
-          const unsigned int _flags = SDL_GAME_GENERATE_PAUSE_MENU,
+          const unsigned int _flags = SDL_GAME_GENERATE_PAUSE_MENU | SDL_GAME_LOCK_SIM_DT,
           const int _gl_context_profile = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY,
           const int gl_major_version = -1,
           const int gl_minor_version = -1);
