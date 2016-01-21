@@ -10,6 +10,7 @@ using namespace std;
 GPUComputeImp::GPUComputeImp()
 {
   num_elements = 0;
+  max_elements = 1000;
 }
 
 GPUComputeImp::~GPUComputeImp()
@@ -67,8 +68,8 @@ void GPUComputeImp::load_and_build_kernel(const char *fname, const char *kernel_
     cl_kernel kernel = clCreateKernel(program, kernel_name, &err);
     assert(err == CL_SUCCESS && kernel);
 
-    input_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * num_elements, NULL, NULL);
-    output_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * num_elements, NULL, NULL);
+    input_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY, sizeof(float) * max_elements, NULL, NULL);
+    output_buffer = clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(float) * max_elements, NULL, NULL);
 
     assert(input_buffer && output_buffer);
   }

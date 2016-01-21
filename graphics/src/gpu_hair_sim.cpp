@@ -26,6 +26,8 @@ GPUHairSim::GPUHairSim()
   indices = NULL;
   num_indices = 0;
   force_tex_dim[0] = force_tex_dim[1] = 128;
+  col_a = Float3(0.3f, 0.3f, 0.3f);
+  col_b = Float3(1.0f, 1.0f, 1.0f);
   color_tex = NULL;
   internal_format = GL_RGBA_FLOAT32_ATI; //GL_RGBA32F;//
 
@@ -68,8 +70,8 @@ GPUHairSim::GPUHairSim()
   render_shader_names[0] = std::string("data/shaders/hair_render.vs");
   render_shader_names[1] = std::string("data/shaders/hair_render.fs");
 
-  sun_pos_xyz = Float3(10.0f, 10.0f, 0.0f);
-  sun_diff_rgb = Float3(1.0f, 0.0f, 0.0f);
+  sun_pos_xyz = Float3(10.0f, 10.0f, 2.0f);
+  sun_diff_rgb = Float3(3.0f, 2.5f, 1.0f);
   sun_spec_rgb = Float3(1.0f, 1.0f, 0.0f);
   ambient_rgb = Float3(0.2f, 0.3f, 0.3f);
 }
@@ -237,9 +239,6 @@ void GPUHairSim::init(Float3 *hair_pos, Float3 *hair_uvs)
 
   for(int i = 0; i < num_hairs; i++)
   {
-    Float3 col_a(0.3f, 0.3f, 0.3f);
-    Float3 col_b(1.0f, 1.0f, 1.0f);
-
     for(int j = 1; j < num_segments + 1; j++)
     {
       for(int k = j - 1; k <= j; k++)

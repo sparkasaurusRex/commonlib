@@ -28,18 +28,17 @@ public:
   GraphicsApp() : SDLGame(512, 512, "Graphics Test")
   {
     rot_angle = 0.0f;
-    //color_tex = NULL;
-    render_mode = RENDER_PARTICLES;
-    //render_mode = RENDER_PARTICLE_POSITION_TEXTURE;
-    //force_tex_dim[0] = 64;
-    //force_tex_dim[1] = 64;
+    color_tex = NULL;
+    render_mode = RENDER_HAIR;
+    force_tex_dim[0] = 64;
+    force_tex_dim[1] = 64;
   }
   ~GraphicsApp()
   {
-    //delete color_tex;
+    delete color_tex;
   }
 private:
-  /*void render_hair()
+  void render_hair()
   {
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -54,7 +53,7 @@ private:
       //cam.render_cleanup();
 
     glPopMatrix();
-  }*/
+  }
 
   void render_particles()
   {
@@ -112,7 +111,7 @@ private:
     render_fullscreen_quad();
   }
 
-  /*void render_pos_texture()
+  void render_pos_texture()
   {
     setup_textured_quad_state();
     glBindTexture(GL_TEXTURE_2D, gpu_hair.get_pos_tex(1));
@@ -131,7 +130,7 @@ private:
     setup_textured_quad_state();
     glBindTexture(GL_TEXTURE_2D, gpu_hair.get_uv_tex());
     render_fullscreen_quad();
-  }*/
+  }
 
   void render_gl()
   {
@@ -140,7 +139,7 @@ private:
 
     switch(render_mode)
     {
-      /*case RENDER_HAIR:
+      case RENDER_HAIR:
         render_hair();
         break;
       case RENDER_HAIR_TEXTURE:
@@ -151,7 +150,7 @@ private:
         break;
       case RENDER_UV_TEXTURE:
         render_uv_texture();
-        break;*/
+        break;
       case RENDER_PARTICLES:
         render_particles();
         break;
@@ -162,12 +161,12 @@ private:
         render_particle_vel_texture();
         break;
       default:
-        //render_hair();
+        render_hair();
         break;
     }
   }
 
-  /*void update_forces(const float game_time, const float frame_time)
+  void update_forces(const float game_time, const float frame_time)
   {
     float speed = 0.0003f;
     float scale = 1.2f;
@@ -219,13 +218,13 @@ private:
     gpu_hair.update_forces(pixels);
 
     delete pixels;
-  }*/
+  }
 
   void game_loop(const float game_time, const float frame_time)
   {
     //cout<<"dt: "<<frame_time<<endl;
-    //update_forces(game_time, frame_time);
-    //gpu_hair.simulate(game_time, frame_time);
+    update_forces(game_time, frame_time);
+    gpu_hair.simulate(game_time, frame_time);
 
     if(!paused)
     {
@@ -268,12 +267,14 @@ private:
     //gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(-0.75f, 0.f, 0.f), 0.1f, Float3(0.f, 1.f, 0.f), 2.f, 0.5f, 5.f, 3.f, "data/particle.tiff");
 
 
+    /*
     Float3 cam_pos(0.0f, 0.0f, -5.0f);
     cam.set_pos(cam_pos);
     cam.set_lookat(Float3(0.0f, 0.0f, 0.0f) - cam_pos);
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));
+    */
 
-    /*
+
     int num_hairs = 10000;
     //TODO: move this out of the GPUHairSim class, so we can start w/ any hair
     //      distribution the user wants
@@ -299,7 +300,7 @@ private:
     delete hair_pos;
     delete hair_uvs;
 
-    color_tex = new Texture("data/planet_blink_1600.png");
+    color_tex = new Texture("data/grass.jpg");
     color_tex->load();
     gpu_hair.set_color_tex(color_tex);
 
@@ -307,7 +308,6 @@ private:
     cam.set_pos(cam_pos);
     cam.set_lookat(Float3(0.0f, 0.0f, 0.0f) - cam_pos);
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));
-     */
   }
   void user_run() {}
   void user_process_event(const SDL_Event &event)
@@ -321,28 +321,32 @@ private:
             paused = !paused;
             break;
           case '1':
-            render_mode = RENDER_PARTICLES;
-            //render_mode = RENDER_HAIR;
+            render_mode = RENDER_HAIR;
             break;
           case '2':
-            render_mode = RENDER_PARTICLE_POSITION_TEXTURE;
-            //render_mode = RENDER_HAIR_TEXTURE;
+            render_mode = RENDER_HAIR_TEXTURE;
             break;
           case '3':
-            render_mode = RENDER_PARTICLE_VELOCITY_TEXTURE;
-            //render_mode = RENDER_FORCE_TEXTURE;
+            render_mode = RENDER_FORCE_TEXTURE;
             break;
           case '4':
-            //render_mode = RENDER_UV_TEXTURE;
+            render_mode = RENDER_UV_TEXTURE;
+            break;
+          case '5':
+            render_mode = RENDER_PARTICLES;
+            break;
+          case '6':
+            render_mode = RENDER_PARTICLE_POSITION_TEXTURE;
+            break;
+          case '7':
+            render_mode = RENDER_PARTICLE_VELOCITY_TEXTURE;
             break;
         }
         break;
     }
   }
 
-  //GPUHairSim gpu_hair;
-
-  //GPUParticleSystem gpu_particles;
+  GPUHairSim gpu_hair;
   GPUParticleSim gpu_particle_sim;
 
 
@@ -352,9 +356,9 @@ private:
 
   bool paused;
 
-  //Texture *color_tex;
+  Texture *color_tex;
 
-  //unsigned int force_tex_dim[2];
+  unsigned int force_tex_dim[2];
 };
 
 int main(int argc, char **argv)

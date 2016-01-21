@@ -40,6 +40,7 @@ class DebugConsole
     void register_variable(bool *b, const char *name);
     void register_variable(float *f, const char *name);
     void register_variable(Math::Float3 *f, const char *name);
+    void register_function(void (*f)(), const char *name);
 
     void traverse_command_history(const int dir);
     void tab_complete(int depth = 0);
@@ -66,6 +67,9 @@ class DebugConsole
 
     std::vector<std::string>    float3_var_names;
     std::vector<Math::Float3 *> float3_vars;
+
+    std::vector<std::string>    func_var_names;
+    std::vector<void (*)()>     func_vars;
 
     //tab completion
     std::string                 tab_complete_string;
