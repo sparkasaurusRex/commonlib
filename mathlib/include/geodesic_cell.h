@@ -70,9 +70,6 @@ class GeodesicCell
     Math::Float2 get_uv() const { return uv; }
     Math::Float2 get_wt() const { return wt; }
 
-    //float get_height() const { return h; }
-    //void set_height(const float _h) { h = _h; }
-
     Math::Float3 get_color() const { return color; }
     void set_color(const Math::Float3 c) { color = c; }
 
@@ -116,7 +113,7 @@ class GeodesicCell
         {
             if(neighbors[0] != neighbors[j] && neighbors[0] != neighbors[j + 1])
             {
-              GeodesicCell<T> *res = compare_neighbors(neighbors[0], neighbors[i], neighbors[i + 1]);
+              GeodesicCell<T> *res = compare_neighbors_winding_order(neighbors[0], neighbors[i], neighbors[i + 1]);
               if(res == neighbors[i + 1])
               {
                 swapped = true;
@@ -134,9 +131,16 @@ class GeodesicCell
     int get_num_neighbors() const { return num_neighbors; }
     GeodesicCell<T> *get_neighbor(const int i) { return neighbors[i]; }
 
+    void fwrite(FILE *f, GeodesicCell<T> *cells, int num_cells)
+    {
+      fwrite(&pos, sizeof(Math::Float3), 1, f);
+      fwrite(&uv, sizeof(Math::Float2), 1, f);
+      fwrite(&wt, sizeof(Math::Float2), 1, f);
+    }
+
   private:
 
-    GeodesicCell<T> *compare_neighbors(GeodesicCell<T> *a, GeodesicCell<T> *b, GeodesicCell<T> *c)
+    GeodesicCell<T> *compare_neighbors_winding_order(GeodesicCell<T> *a, GeodesicCell<T> *b, GeodesicCell<T> *c)
     {
       if(a == b) { return b; }
       if(a == c) { return c; }
@@ -178,17 +182,15 @@ class GeodesicCell
       return b;
     }
 
-    Math::Float3 pos;       //cartesian coordinates
-    Math::Float2 uv;        //latitude / longitude
-    Math::Float2 wt;        //winkel-tripel projection coordinates
-    //float h;          //height
+    Math::Float3 pos;                 //cartesian coordinates
+    Math::Float2 uv;                  //latitude / longitude
+    Math::Float2 wt;                  //winkel-tripel projection coordinates
 
-    Math::Float3 color;      //temp for debugging
-    //void *data;        //arbitrary data we want to store
+    Math::Float3 color;               //temp for debugging
     T data;
 
-    GeodesicCell<T> *neighbors[6];  //max number of neighbors a cell can have: 6
-    int num_neighbors;            //current number of neighbors (either 4, 5, or 6)
+    GeodesicCell<T> *neighbors[6];    //max number of neighbors a cell can have: 6
+    int num_neighbors;                //current number of neighbors (either 4, 5, or 6)
 };
 
 #endif //__GEODESIC_CELL_H__
