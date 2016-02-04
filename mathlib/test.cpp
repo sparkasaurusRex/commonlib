@@ -68,7 +68,8 @@ private:
         render_gpu_voronoi();
         break;
       case TEST_MODE_GPU_VORONOI_TEX:
-        render_gpu_voronoi_tex();
+        gpu_voronoi.render_voronoi_texture();
+        //render_gpu_voronoi_tex();
         break;
       default:
         break;

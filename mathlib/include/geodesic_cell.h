@@ -190,6 +190,8 @@ class GeodesicCell
     T data;
 
     GeodesicCell<T> *neighbors[6];    //max number of neighbors a cell can have: 6
+    //Float3 neighbor_centroids[6];
+    //Float3 neighbor_normals[6];
     int num_neighbors;                //current number of neighbors (either 4, 5, or 6)
 };
 

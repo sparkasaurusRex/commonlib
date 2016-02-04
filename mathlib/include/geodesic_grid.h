@@ -84,12 +84,12 @@ class GeodesicGrid
 
       // each vertex of the icosahedron is a cell. So we have 12 cells @ the
       // first subdivision level.
-      dual_cells = NULL;
+      //dual_cells = NULL;
       selected_cell = 0;
 
       subdivision_levels = 0;
       num_cells = 12;
-      num_dual_cells = 30;
+      //num_dual_cells = 30;
       num_edges = 30;
       num_faces = 20;
 
@@ -382,7 +382,6 @@ class GeodesicGrid
       {
         sub();
       }
-      generate_dual();
     }
 
     int get_subdivision_levels() const { return subdivision_levels; }
@@ -414,7 +413,7 @@ class GeodesicGrid
 
     GeodesicCell<T> *get_cell_array() { return cells; }
     int get_num_cells() const { return num_cells; }
-    int get_num_dual_cells() const { return num_dual_cells; }
+    //int get_num_dual_cells() const { return num_dual_cells; }
     int get_num_edges() const { return num_edges; }
     int get_num_faces() const { return num_faces; }
 
@@ -455,6 +454,8 @@ class GeodesicGrid
       return NULL;
     }
 
+
+/*
     void generate_dual()
     {
       if(dual_cells)
@@ -468,6 +469,7 @@ class GeodesicGrid
       num_dual_cells = num_edges;
       dual_cells = new GeodesicCell<T>[num_edges];
     }
+    */
 
     void fread_grid(FILE *f)
     {
@@ -477,7 +479,7 @@ class GeodesicGrid
       fread(&subdivision_levels, sizeof(int), 1, f);
 
       fread(&num_cells, sizeof(int), 1, f);
-      fread(&num_dual_cells, sizeof(int), 1, f);
+      //fread(&num_dual_cells, sizeof(int), 1, f);
       fread(&num_edges, sizeof(int), 1, f);
       fread(&num_faces, sizeof(int), 1, f);
 
@@ -488,12 +490,12 @@ class GeodesicGrid
         fread_cell(&cells[i], f);
       }
 
-      delete [] dual_cells;
+      /*delete [] dual_cells;
       dual_cells = new GeodesicCell<T>[num_dual_cells];
       for(int i = 0; i < num_dual_cells; i++)
       {
         fread_cell(&dual_cells[i], f);
-      }
+      }*/
 
       delete [] edges;
       edges = new GeodesicEdge<T>[num_edges];
@@ -516,7 +518,7 @@ class GeodesicGrid
       fwrite(&subdivision_levels, sizeof(int), 1, f);
 
       fwrite(&num_cells, sizeof(int), 1, f);
-      fwrite(&num_dual_cells, sizeof(int), 1, f);
+      //fwrite(&num_dual_cells, sizeof(int), 1, f);
       fwrite(&num_edges, sizeof(int), 1, f);
       fwrite(&num_faces, sizeof(int), 1, f);
 
@@ -526,10 +528,10 @@ class GeodesicGrid
         fwrite_cell(&cells[i], f);
       }
 
-      for(int i = 0; i < num_dual_cells; i++)
+      /*for(int i = 0; i < num_dual_cells; i++)
       {
         fwrite_cell(&dual_cells[i], f);
-      }
+      }*/
 
       for(int i = 0; i < num_edges; i++)
       {
@@ -839,12 +841,12 @@ class GeodesicGrid
 
     int subdivision_levels;             //current subdivision level
     int num_cells;                      //number of geodesic cells
-    int num_dual_cells;                 //number of cells in the geometric dual
+    //int num_dual_cells;                 //number of cells in the geometric dual
     int num_edges;                      //number of edges
     int num_faces;                      //number of faces
 
     GeodesicCell<T>    *cells;          //the array of cells that store the actual data
-    GeodesicCell<T>    *dual_cells;     //the array of cells of the dual polyhedron
+    //GeodesicCell<T>    *dual_cells;     //the array of cells of the dual polyhedron
 
     GeodesicEdge<T>    *edges;          //the array of cell pairs (edges)
     GeodesicFace<T>    *faces;          //the array of edge triangles (faces)

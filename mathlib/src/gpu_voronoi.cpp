@@ -109,6 +109,7 @@ void GPUVoronoi2D::deinit()
 
 void GPUVoronoi2D::reset()
 {
+  cout<<"reset"<<endl;
   sites.clear();
 }
 
@@ -128,7 +129,17 @@ void GPUVoronoi2D::build_voronoi_diagram()
   glUseProgramObjectARB(0);
 
   glEnable(GL_DEPTH_TEST);
+  glDepthRange(0.0f, 1.0f);
+  glDepthMask(GL_TRUE);
+
   glDisable(GL_CULL_FACE);
+  glDisable(GL_BLEND);
+  glDisable(GL_LIGHTING);
+
+  glActiveTexture(GL_TEXTURE0);
+  glDisable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE1);
+  glDisable(GL_TEXTURE_2D);
 
   //set the render target to the voronoi diagram texture / fbo
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -144,6 +155,7 @@ void GPUVoronoi2D::build_voronoi_diagram()
 
   //render a cone for each site
   //TODO: optimize by reducing draw calls (1 drawcall for all cones)
+  cout<<"num sites: "<<sites.size()<<endl;
   for(int i = 0; i < sites.size(); i++)
   {
     glLoadIdentity();
@@ -193,4 +205,50 @@ unsigned int GPUVoronoi2D::query_nearest_site(const Float2 p)
   GLubyte *pix = &(cpu_tex_data[4 * (x + fbo_res[0] * y)]);
   //return pix[0] + pix[1] * 256 + pix[2] * (256 * 256); //RGB
   return pix[2] + pix[1] * 256 + pix[0] * (256 * 256);  //BGR
+}
+
+void GPUVoronoi2D::render_voronoi_texture()
+{
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  setup_textured_quad_state();
+  glBindTexture(GL_TEXTURE_2D, voronoi_diagram_tex);
+  render_fullscreen_quad();
+
+  glActiveTexture(GL_TEXTURE0);
+  glDisable(GL_TEXTURE_2D);
+}
+
+
+void GPUVoronoi2D::render_fullscreen_quad()
+{
+  glBegin(GL_QUADS);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(-1.0f, -1.0f, 0.0f);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(1.0f, -1.0f, 0.0f);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(1.0f, 1.0f, 0.0f);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(-1.0f, 1.0f, 0.0f);
+  glEnd();
+}
+
+void GPUVoronoi2D::setup_textured_quad_state()
+{
+  glUseProgramObjectARB(0);
+  glDisable(GL_BLEND);
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glActiveTexture(GL_TEXTURE0);
+  //glClientActiveTexture(GL_TEXTURE0);
+  glEnable(GL_TEXTURE_2D);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 10.0f);
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
 }
