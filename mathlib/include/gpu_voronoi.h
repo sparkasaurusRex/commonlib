@@ -9,6 +9,7 @@
 
 #include <vector>
 #include "math_utility.h"
+#include <cstring>
 
 // 1. collect points (CPU)
 // 2. render 2D voronoi diagram in lat / lon (w / wrapping) by
