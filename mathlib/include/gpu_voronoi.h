@@ -52,7 +52,12 @@ namespace Math
       void build_voronoi_diagram();
 
       unsigned int query_nearest_site(const Float2 p);
+
+      void render_voronoi_texture();
     private:
+      void render_fullscreen_quad();
+      void setup_textured_quad_state();
+
       GLuint                        behavior_flags;
       std::vector<Math::Float2>     sites;
 

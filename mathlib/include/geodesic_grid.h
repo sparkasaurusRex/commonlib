@@ -2,8 +2,11 @@
 #define __GEODESIC_GRID_H__
 
 #include <assert.h>
+#include <stdio.h>
 #include "math_utility.h"
 #include "geodesic_cell.h"
+
+#define GEODESIC_GRID_FILE_VERSION 1
 
 //a subdividible geodesic grid on the surface of the sphere
 //we can use this data structure to simulate cellular automata
@@ -81,11 +84,12 @@ class GeodesicGrid
 
       // each vertex of the icosahedron is a cell. So we have 12 cells @ the
       // first subdivision level.
-      dual_cells = NULL;
+      //dual_cells = NULL;
       selected_cell = 0;
 
       subdivision_levels = 0;
       num_cells = 12;
+      //num_dual_cells = 30;
       num_edges = 30;
       num_faces = 20;
 
@@ -409,6 +413,7 @@ class GeodesicGrid
 
     GeodesicCell<T> *get_cell_array() { return cells; }
     int get_num_cells() const { return num_cells; }
+    //int get_num_dual_cells() const { return num_dual_cells; }
     int get_num_edges() const { return num_edges; }
     int get_num_faces() const { return num_faces; }
 
@@ -449,6 +454,8 @@ class GeodesicGrid
       return NULL;
     }
 
+
+/*
     void generate_dual()
     {
       if(dual_cells)
@@ -456,7 +463,86 @@ class GeodesicGrid
         delete[] dual_cells;
       }
 
-      //dual_cells = new
+      std::cout<<"num cells: "<<num_cells<<std::endl;
+      std::cout<<"num edges: "<<num_edges<<std::endl;
+
+      num_dual_cells = num_edges;
+      dual_cells = new GeodesicCell<T>[num_edges];
+    }
+    */
+
+    void fread_grid(FILE *f)
+    {
+      assert(f);
+
+      fread(&file_version, sizeof(int), 1, f);
+      fread(&subdivision_levels, sizeof(int), 1, f);
+
+      fread(&num_cells, sizeof(int), 1, f);
+      //fread(&num_dual_cells, sizeof(int), 1, f);
+      fread(&num_edges, sizeof(int), 1, f);
+      fread(&num_faces, sizeof(int), 1, f);
+
+      delete [] cells;
+      cells = new GeodesicCell<T>[num_cells];
+      for(int i = 0; i < num_cells; i++)
+      {
+        fread_cell(&cells[i], f);
+      }
+
+      /*delete [] dual_cells;
+      dual_cells = new GeodesicCell<T>[num_dual_cells];
+      for(int i = 0; i < num_dual_cells; i++)
+      {
+        fread_cell(&dual_cells[i], f);
+      }*/
+
+      delete [] edges;
+      edges = new GeodesicEdge<T>[num_edges];
+      for(int i = 0; i < num_edges; i++)
+      {
+        fread_edge(&edges[i], f);
+      }
+
+      delete [] faces;
+      faces = new GeodesicFace<T>[num_faces];
+    }
+
+    void fwrite_grid(FILE *f)
+    {
+      //assume f is already open
+      assert(f);
+
+      int file_version = GEODESIC_GRID_FILE_VERSION;
+      fwrite(&file_version, sizeof(int), 1, f);
+      fwrite(&subdivision_levels, sizeof(int), 1, f);
+
+      fwrite(&num_cells, sizeof(int), 1, f);
+      //fwrite(&num_dual_cells, sizeof(int), 1, f);
+      fwrite(&num_edges, sizeof(int), 1, f);
+      fwrite(&num_faces, sizeof(int), 1, f);
+
+      //write the actual arrays
+      for(int i = 0; i < num_cells; i++)
+      {
+        fwrite_cell(&cells[i], f);
+      }
+
+      /*for(int i = 0; i < num_dual_cells; i++)
+      {
+        fwrite_cell(&dual_cells[i], f);
+      }*/
+
+      for(int i = 0; i < num_edges; i++)
+      {
+        fwrite_edge(&edges[i], f);
+      }
+
+      /*
+      for(int i = 0; i < num_faces; i++)
+      {
+        fwrite(&faces[i], f);
+      }*/
     }
   private:
 
@@ -516,13 +602,13 @@ class GeodesicGrid
       subdivision_levels++;
 
       // E = F + V - 2 (Euler)
+      int old_num_verts = num_cells;
+      int new_num_verts = num_cells + num_edges;
+      GeodesicCell<T> *new_cells = new GeodesicCell<T>[new_num_verts];
+
       int old_num_edges = num_edges;
       int new_num_edges = num_edges * 2 * 2;
       GeodesicEdge<T> *new_edges = new GeodesicEdge<T>[new_num_edges];
-
-      int old_num_verts = num_cells;
-      int new_num_verts = old_num_verts + old_num_edges;
-      GeodesicCell<T> *new_cells = new GeodesicCell<T>[new_num_verts];
 
       int old_num_faces = num_faces;
       int new_num_faces = new_num_edges + 2 - new_num_verts; //E + 2 - V (Euler)
@@ -628,9 +714,46 @@ class GeodesicGrid
         assert(c->num_neighbors > 4);
       }
 
+      //update edges
+      //brute force: visit every cell, accumulate neighbors,
+      //checking for duplicate edges
+      long int edge_count = 0;
+      for(int i = 0; i < new_num_verts; i++)
+      {
+        GeodesicCell<T> *cell = &new_cells[i];
+
+        for(int j = 0; j < cell->num_neighbors; j++)
+        {
+          GeodesicCell<T> *n = cell->neighbors[j];
+
+          //check for duplicate edges
+          bool found_match = false;
+          for(int k = 0; k < edge_count; k++)
+          {
+            GeodesicEdge<T> *e = &new_edges[k];
+            if((e->a == cell && e->b == n) || (e->a == n && e->b == cell))
+            {
+              found_match = true;
+            }
+          }
+          if(!found_match)
+          {
+            new_edges[edge_count].a = cell;
+            new_edges[edge_count].b = n;
+            edge_count++;
+          }
+        }
+      }
+      std::cout<<"edge_count: "<<edge_count<<std::endl;
+
       delete[] cells;
       cells = new_cells;
       num_cells = new_num_verts;
+
+      std::cout<<"new_vert_idx: "<<new_vert_idx<<std::endl;
+      std::cout<<"new_num_verts: "<<new_num_verts<<std::endl;
+      std::cout<<"num_cells: "<<num_cells<<std::endl;
+      std::cout<<"new_num_edges: "<<new_num_edges<<std::endl;
 
       delete[] faces;
       faces = new_faces;
@@ -641,22 +764,92 @@ class GeodesicGrid
       num_edges = new_num_edges;
     }
 
+    void fread_cell(GeodesicCell<T> *c, FILE *f)
+    {
+      fread(&c->pos, sizeof(Math::Float3), 1, f);
+      fread(&c->uv, sizeof(Math::Float2), 1, f);
+      fread(&c->wt, sizeof(Math::Float2), 1, f);
 
+      fread(&c->color, sizeof(Math::Float3), 1, f);
+      fread(&c->data, sizeof(T), 1, f);
+      fread(&c->num_neighbors, sizeof(int), 1, f);
 
-    //TODO: migrate this out of here
+      for(int i = 0; i < c->num_neighbors; i++)
+      {
+        int cell_idx;
+        fread(&cell_idx, sizeof(int), 1, f);
+        assert(cell_idx >= 0 && cell_idx < num_cells);
+        c->neighbors[i] = &cells[cell_idx];
+      }
+    }
+
+    void fwrite_cell(GeodesicCell<T> *c, FILE *f)
+    {
+      fwrite(&c->pos, sizeof(Math::Float3), 1, f);
+      fwrite(&c->uv, sizeof(Math::Float2), 1, f);
+      fwrite(&c->wt, sizeof(Math::Float2), 1, f);
+
+      fwrite(&c->color, sizeof(Math::Float3), 1, f);
+      fwrite(&c->data, sizeof(T), 1, f);
+      fwrite(&c->num_neighbors, sizeof(int), 1, f);
+      for(int j = 0; j < c->num_neighbors; j++)
+      {
+        for(int k = 0; k < num_cells; k++)
+        {
+          if(&cells[k] == c->neighbors[j])
+          {
+            fwrite(&k, sizeof(int), 1, f);
+            k = num_cells;
+          }
+        }
+      }
+    }
+
+    void fread_edge(GeodesicEdge<T> *e, FILE *f)
+    {
+      int a_idx, b_idx;
+      fread(&a_idx, sizeof(int), 1, f);
+      fread(&b_idx, sizeof(int), 1, f);
+
+      assert(a_idx >= 0 && a_idx < num_cells);
+      assert(b_idx >= 0 && b_idx < num_cells);
+
+      e->a = &cells[a_idx];
+      e->b = &cells[b_idx];
+    }
+
+    void fwrite_edge(GeodesicEdge<T> *e, FILE *f)
+    {
+      for(int i = 0; i < num_cells; i++)
+      {
+        if(&cells[i] == e->a)
+        {
+          fwrite(&i, sizeof(int), 1, f);
+        }
+      }
+      for(int i = 0; i < num_cells; i++)
+      {
+        if(&cells[i] == e->b)
+        {
+          fwrite(&i, sizeof(int), 1, f);
+        }
+      }
+    }
+
+    int file_version;
     int selected_cell;                  //index of currently selected cell
 
     int subdivision_levels;             //current subdivision level
     int num_cells;                      //number of geodesic cells
+    //int num_dual_cells;                 //number of cells in the geometric dual
     int num_edges;                      //number of edges
     int num_faces;                      //number of faces
 
     GeodesicCell<T>    *cells;          //the array of cells that store the actual data
-    GeodesicCell<T>    *dual_cells;     //the array of cells of the dual polyhedron
+    //GeodesicCell<T>    *dual_cells;     //the array of cells of the dual polyhedron
 
-    //TODO: delete these? necessary?
-    GeodesicEdge<T>    *edges;              //the array of cell pairs (edges)
-    GeodesicFace<T>    *faces;              //the array of edge triangles (faces)
+    GeodesicEdge<T>    *edges;          //the array of cell pairs (edges)
+    GeodesicFace<T>    *faces;          //the array of edge triangles (faces)
 
     //obsolete? (could be useful if we ever want to move this to the GPU)
     GeodesicCell<T> ***adjacency_grid;  //store adjacency information
