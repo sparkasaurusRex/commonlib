@@ -34,6 +34,10 @@ GPUVoronoi2D::~GPUVoronoi2D()
 
 void GPUVoronoi2D::init()
 {
+  glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &max_draw_indices);
+  glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &max_draw_verts);
+
+
   //allocate vertex data for the cones (GL_TRIANGLE_FAN)
   cone_vertex_data = new ConeVert[num_cone_verts];
   cone_index_data = new unsigned int[num_cone_verts];
@@ -61,8 +65,8 @@ void GPUVoronoi2D::init()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cone_ibo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_cone_verts, cone_index_data, GL_STATIC_DRAW);
 
-  delete cone_vertex_data;
-  delete cone_index_data;
+  //delete cone_vertex_data;
+  //delete cone_index_data;
 
   //allocate the voronoi diagram texture and frame buffer object
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -104,12 +108,12 @@ void GPUVoronoi2D::init()
 
 void GPUVoronoi2D::deinit()
 {
-
+  delete cone_vertex_data;
+  delete cone_index_data;
 }
 
 void GPUVoronoi2D::reset()
 {
-  cout<<"reset"<<endl;
   sites.clear();
 }
 
@@ -154,11 +158,9 @@ void GPUVoronoi2D::build_voronoi_diagram()
   glMatrixMode(GL_MODELVIEW);
 
   //render a cone for each site
-  //TODO: optimize by reducing draw calls (1 drawcall for all cones)
-  cout<<"num sites: "<<sites.size()<<endl;
   for(int i = 0; i < sites.size(); i++)
   {
-    glLoadIdentity();
+    /*glLoadIdentity();
     glTranslatef(sites[i][0], sites[i][1], -1.0f);
 
     //color stores site index, split into a byte for each color channel
@@ -174,6 +176,7 @@ void GPUVoronoi2D::build_voronoi_diagram()
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cone_ibo);
     glDrawElements(GL_TRIANGLE_FAN, num_cone_verts, GL_UNSIGNED_INT, (void *)0);
+    */
   }
 
   // set the FBO back to default

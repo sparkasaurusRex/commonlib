@@ -25,7 +25,7 @@ namespace Math
   struct ConeVert
   {
     float x, y, z;
-    //GLubyte r, g, b;
+    GLubyte r, g, b;
   };
 
   class GPUVoronoi2D
@@ -60,6 +60,7 @@ namespace Math
       GLuint                        behavior_flags;
       std::vector<Math::Float2>     sites;
 
+      int                           max_num_verts;
       GLuint                        num_cone_segments;
       GLuint                        num_cone_verts;
       GLuint                        cone_vbo;
