@@ -9,5 +9,5 @@ void main() {
   gl_FragColor = texture2D(sprite_tex, gl_TexCoord[1].st) * vertex_color;
   
   //gl_FragColor = vertex_color;
-
+  //gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

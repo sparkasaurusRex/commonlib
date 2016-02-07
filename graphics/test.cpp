@@ -237,16 +237,34 @@ private:
 
   void user_init()
   {
+    
+    ParticleForce * * forces = new ParticleForce*[2];
 
-    ParticleForce * * forces = new ParticleForce *[3];
+    forces[0] = new Attractor(Float3(0.1f, -0.2f, 0.f), 0.25f);
+    forces[1] = new Attractor(Float3(-0.05f, 0.2f, 0.f), 0.25f);
+    
+    /*
+     * addParticleSystem(num_particles,
+     * forces, num_forces,
+     * pos, pos_radius, 
+     * emitter_dir, emitter_range, emitter_strength, emitter_duration,
+     * lifespan, 
+     * sprite_file);
+     */
+    gpu_particle_sim.addParticleSystem(10000,
+                                       forces, 2,
+                                       Float3(0.f, -0.5f, 0.f), 0.15f,
+                                       Float3(0.f, 1.f, 0.f), 0.3f, 1.2f, 7.f,
+                                       0.7f,
+                                       "data/particle.tiff");
 
-    forces[0] = new Attractor(Float3(0.f, 0.5f, 0.f), 0.25f);
-    forces[1] = new Attractor(Float3(-0.5f, 0.f, 0.f), 0.5f);
-    forces[2] = new Attractor(Float3(0.f, 0.f, 0.f), 0.5f);
+    //forces[0] = new Attractor(Float3(0.f, 0.5f, 0.f), 0.25f);
+    //forces[1] = new Attractor(Float3(-0.5f, 0.f, 0.f), 0.5f);
+    //forces[2] = new Attractor(Float3(0.f, 0.f, 0.f), 0.5f);
 
-    gpu_particle_sim.addParticleSystem(12000, forces, 3, Float3(0.f, -0.5f, 0.f), 0.1f, Float3(1.f, 1.f, 0.f), 2.f, 0.5f, 10.f, 3.f, "data/smoke_alpha_01.tif");
+    //gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(0.f, -0.5f, 0.f), 0.1f, Float3(1.f, 1.f, 0.f), 2.f, 0.5f, 10.f, 3.f, "data/particle.tiff");
 
-    gpu_particle_sim.addParticleSystem(12000, forces, 3, Float3(-0.75f, 0.f, 0.f), 0.1f, Float3(0.f, 1.f, 0.f), 2.f, 0.5f, 5.f, 3.f, "data/smoke_alpha_01.tif");
+    //gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(-0.75f, 0.f, 0.f), 0.1f, Float3(0.f, 1.f, 0.f), 2.f, 0.5f, 5.f, 3.f, "data/particle.tiff");
 
 
     /*
