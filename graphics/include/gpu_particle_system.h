@@ -119,6 +119,8 @@ namespace Graphics {
       UNIFORM_RENDER_POS_TEX,
       UNIFORM_RENDER_LIFESPAN,
       UNIFORM_RENDER_SPRITE,
+      UNIFORM_RENDER_START_COLOR,
+      UNIFORM_RENDER_END_COLOR,
       
       NUM_PARTICLE_UNIFORMS
     };
@@ -142,6 +144,9 @@ namespace Graphics {
     int numAttractors;
     
     float billboard_size;
+    
+    Float3 startColor;
+    Float3 endColor;
     
     Float3 emitterLocation;
     

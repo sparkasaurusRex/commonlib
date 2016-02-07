@@ -14,5 +14,6 @@ mathlib/test
 structures/bin/*
 structures/test
 ui/test
+openCL/test
 
 audio/test

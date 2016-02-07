@@ -12,9 +12,12 @@ using namespace Graphics;
 
 GPUParticleSystem::GPUParticleSystem()
 {
+  
+  billboard_size = 0.035;
 
-  billboard_size = 0.003;
-
+  startColor = Float3(1.f, 0.5f, 0.f);
+  endColor = Float3(1.f, 0.f, 0.f);
+  
   num_particles = 0;
 
   numAttractors = 0;
@@ -214,9 +217,9 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
     verts[v_idx].r = colors[p_idx][0];
     verts[v_idx].g = colors[p_idx][1];
     verts[v_idx].b = colors[p_idx][2];
-    verts[v_idx].u = (float)p_idx / num_particles; //particle texture index
+    verts[v_idx].u = (float)p_idx / num_particles; //particle data texture index
     verts[v_idx].v = 0.f;
-    verts[v_idx].sprite_u = uvs[0 + 2 * (v_idx % 4)];
+    verts[v_idx].sprite_u = uvs[0 + 2 * (v_idx % 4)]; //sprite texture uvs
     verts[v_idx].sprite_v = uvs[1 + 2 * (v_idx % 4)];
 
     indices[v_idx] = v_idx;
@@ -267,7 +270,10 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
 
   uniform_locations[UNIFORM_RENDER_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "particle_tex");
   uniform_locations[UNIFORM_RENDER_LIFESPAN] = glGetUniformLocation(shader->gl_shader_program, "lifespan");
-
+  uniform_locations[UNIFORM_RENDER_SPRITE] = glGetUniformLocation(shader->gl_shader_program, "sprite_tex");
+  uniform_locations[UNIFORM_RENDER_START_COLOR] = glGetUniformLocation(shader->gl_shader_program, "startColor");
+  uniform_locations[UNIFORM_RENDER_END_COLOR] = glGetUniformLocation(shader->gl_shader_program, "endColor");
+  
   glUseProgramObjectARB(0);
 }
 
@@ -301,9 +307,9 @@ void GPUParticleSystem::update_velocities(const float dt) {
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, vel_fbo[0]);
   glGetIntegerv(GL_VIEWPORT, win_viewport);
   glViewport(0, 0, num_particles, 1);
+  //glClearColor(0.f, 0.f, 0.f, 0.f);
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  glClearColor(0.f, 0.f, 0.f, 0.f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
@@ -347,14 +353,12 @@ void GPUParticleSystem::update_velocities(const float dt) {
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
-  //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
 
   //vel_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_VEL_TEX], 1);
   glActiveTexture(GL_TEXTURE1);
-  //glClientActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, vel_tex[1]);
 
@@ -364,6 +368,7 @@ void GPUParticleSystem::update_velocities(const float dt) {
   glVertexPointer(3, GL_FLOAT, sizeof(FBOParticleVert), (void *)0);
 
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glClientActiveTexture(GL_TEXTURE0);
   glTexCoordPointer(2, GL_FLOAT, sizeof(FBOParticleVert), (void *)(sizeof(float) * 3));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
@@ -372,7 +377,7 @@ void GPUParticleSystem::update_velocities(const float dt) {
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE2);
+  glActiveTexture(GL_TEXTURE0);
   glDisable(GL_TEXTURE_2D);
 
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -398,9 +403,9 @@ void GPUParticleSystem::update_positions(const float dt) {
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, pos_fbo[0]);
   glGetIntegerv(GL_VIEWPORT, win_viewport);
   glViewport(0, 0, num_particles, 1);
-
-  glClearColor(0.f, 0.f, 0.f, 0.f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  
+  //glClearColor(0.f, 0.f, 0.f, 0.f);
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
@@ -423,14 +428,12 @@ void GPUParticleSystem::update_positions(const float dt) {
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
-  //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
 
   //vel_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_VEL_TEX], 1);
   glActiveTexture(GL_TEXTURE1);
-  //glClientActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, vel_tex[1]);
 
@@ -440,6 +443,7 @@ void GPUParticleSystem::update_positions(const float dt) {
   glVertexPointer(3, GL_FLOAT, sizeof(FBOParticleVert), (void *)0);
 
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glClientActiveTexture(GL_TEXTURE0);
   glTexCoordPointer(2, GL_FLOAT, sizeof(FBOParticleVert), (void *)(sizeof(float) * 3));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fbo_ibo);
@@ -448,7 +452,7 @@ void GPUParticleSystem::update_positions(const float dt) {
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
-  glActiveTexture(GL_TEXTURE2);
+  glActiveTexture(GL_TEXTURE0);
   glDisable(GL_TEXTURE_2D);
 
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -474,39 +478,39 @@ void GPUParticleSystem::simulate(const float dt)
 void GPUParticleSystem::render()
 {
 
-  glEnable(GL_DEPTH_TEST);
-  glDepthMask(GL_TRUE);
   glDisable(GL_CULL_FACE);
-
+  
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+  
   render_mat.render_gl();
-
+  
   glUniform1i(uniform_locations[UNIFORM_RENDER_POS_TEX], 0);
+  glUniform1i(uniform_locations[UNIFORM_RENDER_SPRITE], 1);
+  glUniform1f(uniform_locations[UNIFORM_RENDER_LIFESPAN], particleLifespan);
+  glUniform3f(uniform_locations[UNIFORM_RENDER_START_COLOR], startColor[0], startColor[1], startColor[2]);
+  glUniform3f(uniform_locations[UNIFORM_RENDER_END_COLOR], endColor[0], endColor[1], endColor[2]);
+
+  
   glActiveTexture(GL_TEXTURE0);
-  //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
 
-  glUniform1f(uniform_locations[UNIFORM_RENDER_LIFESPAN], particleLifespan);
-
   sprite->render_gl(GL_TEXTURE1);
-  glUniform1i(uniform_locations[UNIFORM_RENDER_SPRITE], 1);
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, sprite->get_tex_id());
-
+  
+  
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, sizeof(ParticleVert), (void *)0);
 
   glEnableClientState(GL_COLOR_ARRAY);
   glColorPointer(3, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 3));
-
+  
   glClientActiveTexture(GL_TEXTURE0);
-  //glActiveTexture(GL_TEXTURE0);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 6));
-
+  
   glClientActiveTexture(GL_TEXTURE1);
-  //glActiveTexture(GL_TEXTURE1);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(ParticleVert), (void *)(sizeof(float) * 8));
 
@@ -515,10 +519,21 @@ void GPUParticleSystem::render()
 
 
   glUseProgramObjectARB(0);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glDisable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glDisable(GL_TEXTURE_2D);
+  
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_COLOR_ARRAY);
+  
   glClientActiveTexture(GL_TEXTURE1);
-  glDisable(GL_TEXTURE_2D);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  
   glClientActiveTexture(GL_TEXTURE0);
-  glDisable(GL_TEXTURE_2D);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, const char * file) {

@@ -202,6 +202,7 @@ bool Texture::render_gl(GLuint tex_stage) const
   //return true;
   glActiveTexture(tex_stage);
   //glClientActiveTexture(GL_TEXTURE0);
+  glEnable(GL_BLEND);
   glEnable(GL_TEXTURE_2D);
 
   //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
