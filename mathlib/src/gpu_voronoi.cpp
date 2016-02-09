@@ -6,7 +6,7 @@
 using namespace Math;
 using namespace std;
 
-GPUVoronoi2D::GPUVoronoi2D(const GLuint num_seg, const GLuint flags)
+GPUVoronoi2D::GPUVoronoi2D(const GLuint num_seg, const GLuint _max_num_sites, const GLuint flags)
 {
   behavior_flags = flags;
   num_cone_segments = num_seg;
@@ -23,6 +23,8 @@ GPUVoronoi2D::GPUVoronoi2D(const GLuint num_seg, const GLuint flags)
   voronoi_diagram_fbo = 0;
   voronoi_diagram_tex = 0;
 
+  max_num_sites = _max_num_sites;
+
   cone_vertex_data = NULL;
   cpu_tex_data = NULL;
 }
@@ -36,6 +38,7 @@ void GPUVoronoi2D::init()
 {
   glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &max_draw_indices);
   glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &max_draw_verts);
+
 
 
   //allocate vertex data for the cones (GL_TRIANGLE_FAN)
@@ -160,7 +163,7 @@ void GPUVoronoi2D::build_voronoi_diagram()
   //render a cone for each site
   for(int i = 0; i < sites.size(); i++)
   {
-    /*glLoadIdentity();
+    glLoadIdentity();
     glTranslatef(sites[i][0], sites[i][1], -1.0f);
 
     //color stores site index, split into a byte for each color channel
@@ -176,7 +179,7 @@ void GPUVoronoi2D::build_voronoi_diagram()
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cone_ibo);
     glDrawElements(GL_TRIANGLE_FAN, num_cone_verts, GL_UNSIGNED_INT, (void *)0);
-    */
+
   }
 
   // set the FBO back to default
