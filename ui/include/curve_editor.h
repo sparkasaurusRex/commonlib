@@ -4,6 +4,9 @@
 #include "rectangular_widget.h"
 #include "curve.h"
 
+#define CURVE_EDITOR_NUM_DRAW_SEGMENTS 64
+#define CURVE_EDITOR_CLICK_THRESHOLD 0.05f
+
 namespace UI
 {
   class CurveEditor : public RectangularWidget
@@ -23,13 +26,17 @@ namespace UI
     void add_control_point(const float x);
     void delete_control_point();
 
+    void select_control_point(const float x, const float y);
+    void move_selected_control_point(const float x, const float y);
+
     void grab_control_point();
     void release_control_point();
   private:
 
     //curve data
     Math::Curve *curve;
-    Math::CurveEndPoint *selected;
+    Math::CurveEndPoint *selected_endpt;
+    bool tangent_selected;
 
     //curve rendering
     struct CurveVert
