@@ -73,9 +73,53 @@ float CurveSegmentBezier::evaluate(const float _x) const
   return b3[1];
 }
 
+Curve::Curve()
+{
+  create_segment(INTERPOLATE_CERP, Float2(0.0f, 1.0f));
+}
+
+Curve::~Curve()
+{
+  for(int i = 0; i < segments.size(); i++)
+  {
+    delete segments[i];
+  }
+}
+
 void Curve::add_segment(CurveSegment *s)
 {
+  cerr<<"Curve::add_segment(): DANGEROUS!!! DON'T USE!!!"<<endl;
   segments.push_back(s);
+}
+
+CurveSegment *Curve::create_segment(InterpolationMethod m, Math::Float2 range_x)
+{
+  CurveSegment *cs = NULL;
+  switch(m)
+  {
+    case INTERPOLATE_LERP:
+      cs = new CurveSegmentLerp;
+      break;
+    case INTERPOLATE_CERP:
+      cs = new CurveSegmentCerp;
+      break;
+    case INTERPOLATE_BEZIER:
+      cs = new CurveSegmentBezier;
+      break;
+    default:
+      cerr<<"Curve::create_segment(): unknown interpolation method!"<<endl;
+      return NULL;
+      break;
+  }
+
+  if(cs)
+  {
+    cs->end_points[0].p[0] = range_x[0];
+    cs->end_points[1].p[0] = range_x[1];
+    segments.push_back(cs);
+    return cs;
+  }
+  return NULL;
 }
 
 float Curve::evaluate(const float _x)
@@ -88,4 +132,17 @@ float Curve::evaluate(const float _x)
     }
   }
   return 0.0f;
+}
+
+CurveSegment *Curve::get_segment(const float x)
+{
+  for(int i = 0; i < segments.size(); i++)
+  {
+    CurveSegment *cs = segments[i];
+    if(cs->end_points[0].p[0] <= x && cs->end_points[1].p[0] >= x)
+    {
+      return cs;
+    }
+  }
+  return NULL;
 }

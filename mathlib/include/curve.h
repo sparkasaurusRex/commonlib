@@ -32,13 +32,14 @@ namespace Math {
     friend class Curve;
     public:
       CurveSegment();
-      ~CurveSegment() {}
+      ~CurveSegment() {};
 
       virtual float evaluate(const float _x) const = 0;
 
       void set_endpoints(CurveEndPoint &a, CurveEndPoint &b);
+
       bool in_range(const float _x) const;
-    protected:
+    //protected:
       CurveEndPoint end_points[2];
   };
 
@@ -78,12 +79,18 @@ namespace Math {
   class Curve
   {
     public:
-      Curve() {}
-      ~Curve() {}
+      Curve();
+      ~Curve();
 
       void add_segment(CurveSegment *s);
+      CurveSegment *create_segment(InterpolationMethod m, Math::Float2 range_x);
 
       float evaluate(const float _x);
+
+      int get_num_segments() const { return segments.size(); }
+      CurveSegment *get_segment(const int i) { return segments[i]; }
+
+      CurveSegment *get_segment(const float x);
 
     private:
       std::vector<CurveSegment *> segments;

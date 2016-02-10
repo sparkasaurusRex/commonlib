@@ -18,7 +18,7 @@ namespace UI
 
     virtual void process_event(const SDL_Event &e);
 
-    void set_curve(Curve *c) { curve = c; }
+    void set_curve(Math::Curve *c) { curve = c; }
 
     void add_control_point(const float x);
     void delete_control_point();
