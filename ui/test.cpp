@@ -6,6 +6,7 @@
 #include "toolbox.h"
 #include "radial_push_button.h"
 #include "menu.h"
+#include "curve_editor.h"
 
 #define TOOLBOX_SIZE 4
 #define NUM_RPB 12
@@ -54,6 +55,7 @@ private:
     label.simulate(frame_time);
     //pb.simulate(frame_time);
     tb.simulate(frame_time);
+    ce.simulate(frame_time);
     //menu.simulate(frame_time);
   }
 
@@ -67,18 +69,6 @@ private:
     label.translate(Float2(10.0f, 490.0f));
     label.init();
     ww.add_widget(&label);
-
-    /*
-    menu.set_font(widget_font);
-    menu.add_menu_item(std::string("First Item"), pb_callback);
-    menu.add_menu_item(std::string("Second Item"), pb_callback);
-    menu.add_menu_item(std::string("Third Item"), pb_callback);
-    menu.add_menu_item(std::string("Fourth Item"), pb_callback);
-    menu.translate(Float2(80.0f, 70.0f));
-    menu.scale(Float2(100.0f, 100.0f));
-    menu.init();
-    ww.add_widget(&menu);
-    */
 
     for(int i = 0; i < TOOLBOX_SIZE; i++)
     {
@@ -108,11 +98,17 @@ private:
       float arc_offset = 0.0f;
       float arc_width = 2.0f * M_PI / (float)NUM_RPB;
       rpb[i].set_arc(Float2(i * arc_width + 0.05f + arc_offset, (i + 1) * arc_width - 0.05f + arc_offset));
-      rpb[i].set_center(Float2(150.0f, 250.0f));
+      rpb[i].set_center(Float2(180.0f, 380.0f));
       rpb[i].set_click_callback(pb_callback);
       rpb[i].init();
       ww.add_widget(&rpb[i]);
     }
+
+    ce.set_curve(&curve);
+    ce.init();
+    ce.translate(Float2(100.0f, 30.0f));
+    ce.scale(Float2(400.0f, 240.0f));
+    ww.add_widget(&ce);
   }
 
   void user_run()
@@ -120,6 +116,7 @@ private:
     //label.show();
     //pb.show();
     tb.show();
+    ce.show();
     //menu.show();
 
     for(int i = 0; i < NUM_RPB; i++)
@@ -132,6 +129,7 @@ private:
   {
     //pb.process_event(e);
     tb.process_event(e);
+    ce.process_event(e);
     //menu.process_event(e);
 
     for(int i = 0; i < NUM_RPB; i++)
@@ -145,6 +143,9 @@ private:
   Label label;
   CheckButton pb[TOOLBOX_SIZE];
   ToolBox tb;
+
+  CurveEditor ce;
+  Curve curve;
   //Menu menu;
 
   RadialPushButton rpb[NUM_RPB];

@@ -6,8 +6,8 @@ CFLAGS+=$(shell pkg-config freetype2 --cflags)
 CFLAGS+=$(shell pkg-config glew --cflags)
 CFLAGS+=$(shell pkg-config sdl2 --cflags)
 CFLAGS+=$(shell pkg-config SDL2_image --cflags)
-CFLAGS+=-Ofast
-#CFLAGS+= -g3 -O0
+#CFLAGS+=-Ofast
+CFLAGS+= -g3 -O0
 
 LDFLAGS=$(shell pkg-config freetype2 --libs)
 LDFLAGS+=$(shell pkg-config glew --libs)
@@ -18,6 +18,7 @@ SRCPATH=src/
 SRCS=src/label.cpp src/widget.cpp src/push_button.cpp src/widget_wrangler.cpp
 SRCS+=src/toolbox.cpp src/check_button.cpp src/rectangular_widget.cpp
 SRCS+=src/radial_widget.cpp src/radial_push_button.cpp src/menu.cpp
+SRCS+=src/curve_editor.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -94,6 +95,9 @@ $(BINPATH)toolbox.o: $(SRCPATH)toolbox.cpp
 
 $(BINPATH)menu.o: $(SRCPATH)menu.cpp
 	$(CC) $(CFLAGS) -c src/menu.cpp -o $(BINPATH)menu.o
+
+$(BINPATH)curve_editor.o: $(SRCPATH)curve_editor.cpp
+	$(CC) $(CFLAGS) -c src/curve_editor.cpp -o $(BINPATH)curve_editor.o
 
 $(BINPATH)libui.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libui.a $(OBJS_BIN)

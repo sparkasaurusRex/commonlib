@@ -26,13 +26,18 @@ namespace Math
   struct ConeVert
   {
     float x, y, z;
-    //GLubyte r, g, b;
+  };
+
+  struct VoronoiVert
+  {
+    float x, y, z;
+    float r, g, b;
   };
 
   class GPUVoronoi2D
   {
     public:
-      GPUVoronoi2D(const GLuint num_seg = 24, const GLuint flags = 0);
+      GPUVoronoi2D(const GLuint num_seg = 24, const GLuint _max_num_sites = 1000, const GLuint flags = 0);
       ~GPUVoronoi2D();
 
       void init();
@@ -48,6 +53,7 @@ namespace Math
       void set_tex_res(const int w, const int h) { fbo_res[0] = w; fbo_res[1] = h; }
       GLuint get_tex() const { return voronoi_diagram_tex; }
 
+      void set_max_num_sites(const int n) { max_num_sites = n; }
       void add_site(Math::Float2 pt);
       void build_voronoi_diagram();
 
@@ -61,6 +67,11 @@ namespace Math
       GLuint                        behavior_flags;
       std::vector<Math::Float2>     sites;
 
+      int                           max_num_sites;
+
+      int                           max_draw_indices;
+      int                           max_draw_verts;
+      
       GLuint                        num_cone_segments;
       GLuint                        num_cone_verts;
       GLuint                        cone_vbo;
