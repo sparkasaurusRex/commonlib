@@ -1,4 +1,5 @@
 #include <iostream>
+#include <assert.h>
 #include "curve.h"
 
 using namespace Math;
@@ -75,7 +76,19 @@ float CurveSegmentBezier::evaluate(const float _x) const
 
 Curve::Curve()
 {
-  create_segment(INTERPOLATE_CERP, Float2(0.0f, 1.0f));
+  CurveEndPoint a, b;
+  a.p = Float2(0.0f, 0.0f);
+  a.t = Float2(0.1f, 0.0f);
+  b.p = Float2(1.0f, 1.0f);
+  b.t = Float2(0.9f, 1.0f);
+
+  CurveSegment *new_cs = new CurveSegmentCerp;
+  new_cs->end_points[0] = a;
+  new_cs->end_points[1] = b;
+
+  segments.push_back(new_cs);
+
+  //create_segment(INTERPOLATE_CERP, a, b);
 }
 
 Curve::~Curve()
@@ -92,19 +105,19 @@ void Curve::add_segment(CurveSegment *s)
   segments.push_back(s);
 }
 
-CurveSegment *Curve::create_segment(InterpolationMethod m, Math::Float2 range_x)
+CurveSegment *Curve::create_segment(InterpolationMethod m, CurveEndPoint new_a, CurveEndPoint new_b)
 {
-  CurveSegment *cs = NULL;
+  CurveSegment *new_cs = NULL;
   switch(m)
   {
     case INTERPOLATE_LERP:
-      cs = new CurveSegmentLerp;
+      new_cs = new CurveSegmentLerp;
       break;
     case INTERPOLATE_CERP:
-      cs = new CurveSegmentCerp;
+      new_cs = new CurveSegmentCerp;
       break;
     case INTERPOLATE_BEZIER:
-      cs = new CurveSegmentBezier;
+      new_cs = new CurveSegmentBezier;
       break;
     default:
       cerr<<"Curve::create_segment(): unknown interpolation method!"<<endl;
@@ -112,12 +125,32 @@ CurveSegment *Curve::create_segment(InterpolationMethod m, Math::Float2 range_x)
       break;
   }
 
-  if(cs)
+  // Assumptions:
+  //
+  //  1. existing list of segments is already sorted and no segments
+  //     overlap on the x-axis
+  //  2. insertion segment doesn't overlap existing segments, and
+  //     is a valid range to begin with
+  //
+  // Goals:
+  //
+  //  1. insert new segment in correct order
+  //  2. magnet endpoints together
+  //  3. regnerate list of curve handles
+  std::vector<CurveSegment *>::iterator csi;
+  for(csi = segments.begin(); csi != segments.end(); csi++)
   {
-    cs->end_points[0].p[0] = range_x[0];
-    cs->end_points[1].p[0] = range_x[1];
-    segments.push_back(cs);
-    return cs;
+    CurveSegment *old_cs = *csi;
+    CurveEndPoint *end_a = &(old_cs->end_points[0]);
+    CurveEndPoint *end_b = &(old_cs->end_points[1]);
+
+    if(new_a.p[0] >= end_a->p[0] && new_b.p[0] <= end_b->p[0])
+    {
+      new_cs->end_points[0] = new_a;
+      new_cs->end_points[1] = new_b;
+      segments.insert(csi, new_cs);
+      return new_cs;
+    }
   }
   return NULL;
 }
@@ -145,4 +178,21 @@ CurveSegment *Curve::get_segment(const float x)
     }
   }
   return NULL;
+}
+
+void CurveHandle::translate(const Math::Float2 p, bool move_tangents)
+{
+  for(int i = 0; i < end_points.size(); i++)
+  {
+    CurveEndPoint *ep = end_points[i];
+    assert(ep);
+    if(move_tangents)
+    {
+      ep->t = p;
+    }
+    else
+    {
+      ep->p = p;
+    }
+  }
 }

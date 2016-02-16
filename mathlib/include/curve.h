@@ -17,13 +17,11 @@ namespace Math {
   {
     friend class CurveSegment;
     public:
-      CurveEndPoint() { neighbor = NULL; }
+      CurveEndPoint() {}
       ~CurveEndPoint() {}
   //  private:
       Float2 p;   //vertex
       Float2 t;   //tangent handle
-
-      CurveEndPoint *neighbor;
   };
 
   //
@@ -89,7 +87,7 @@ namespace Math {
       ~Curve();
 
       void add_segment(CurveSegment *s);
-      CurveSegment *create_segment(InterpolationMethod m, Math::Float2 range_x);
+      CurveSegment *create_segment(InterpolationMethod m, CurveEndPoint new_a, CurveEndPoint new_b);
 
       float evaluate(const float _x);
 
@@ -100,6 +98,16 @@ namespace Math {
 
     private:
       std::vector<CurveSegment *> segments;
+  };
+
+  class CurveHandle
+  {
+    public:
+      CurveHandle() {}
+      ~CurveHandle() {}
+
+      void translate(const Math::Float2 p, bool move_tangents);
+      std::vector<CurveEndPoint *> end_points;
   };
 };
 
