@@ -149,6 +149,7 @@ CurveSegment *Curve::create_segment(InterpolationMethod m, CurveEndPoint new_a, 
       new_cs->end_points[0] = new_a;
       new_cs->end_points[1] = new_b;
       segments.insert(csi, new_cs);
+      build_handle_list();
       return new_cs;
     }
   }
@@ -178,6 +179,35 @@ CurveSegment *Curve::get_segment(const float x)
     }
   }
   return NULL;
+}
+
+void Curve::build_handle_list()
+{
+  float epsilon = 0.001f;
+  for(int i = 0; i < segments.size(); i++)
+  {
+    CurveSegment *cs = segments[i];
+    CurveHandle left_handle, right_handle;
+    if(i == 0)
+    {
+      left_handle.end_points.push_back(&(cs->end_points[0]));
+      handles.push_back(left_handle);
+    }
+
+    CurveSegment *right_cs = NULL;
+    if(i + 1 < segments.size())
+    {
+      right_cs = segments[i + 1];
+    }
+
+    //left.end_points.push_back(&(cs->end_points[0]));
+    right_handle.end_points.push_back(&(cs->end_points[1]));
+    if(right_cs)
+    {
+      right_handle.end_points.push_back(&(right_cs->end_points[0]));
+    }
+    handles.push_back(right_handle);
+  }
 }
 
 void CurveHandle::translate(const Math::Float2 p, bool move_tangents)

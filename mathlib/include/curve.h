@@ -80,6 +80,16 @@ namespace Math {
     virtual InterpolationMethod get_interpolation_method() const { return INTERPOLATE_BEZIER; }
   };
 
+  class CurveHandle
+  {
+    public:
+      CurveHandle() {}
+      ~CurveHandle() {}
+
+      void translate(const Math::Float2 p, bool move_tangents);
+      std::vector<Math::Float2 *> locations;
+  };
+
   class Curve
   {
     public:
@@ -97,17 +107,10 @@ namespace Math {
       CurveSegment *get_segment(const float x);
 
     private:
-      std::vector<CurveSegment *> segments;
-  };
+      void build_handle_list();
 
-  class CurveHandle
-  {
-    public:
-      CurveHandle() {}
-      ~CurveHandle() {}
-
-      void translate(const Math::Float2 p, bool move_tangents);
-      std::vector<CurveEndPoint *> end_points;
+      std::vector<CurveSegment *>   segments;
+      std::vector<CurveHandle>      handles;
   };
 };
 

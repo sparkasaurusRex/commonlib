@@ -36,7 +36,7 @@ namespace UI
     //curve data
     Math::Curve *curve;
     Math::CurveEndPoint *selected_endpt;
-    bool tangent_select
+    bool tangent_selected;
 
     //curve rendering
     struct CurveVert
