@@ -86,7 +86,7 @@ namespace Math {
       CurveHandle() {}
       ~CurveHandle() {}
 
-      void translate(const Math::Float2 p, bool move_tangents);
+      void translate(const Math::Float2 p);
       std::vector<Math::Float2 *> locations;
   };
 
@@ -103,6 +103,9 @@ namespace Math {
 
       int get_num_segments() const { return segments.size(); }
       CurveSegment *get_segment_by_index(const int i) { return segments[i]; }
+
+      int get_num_handles() const { return handles.size(); }
+      CurveHandle *get_handle_by_index(const int i) { return &handles[i]; }
 
       CurveSegment *get_segment(const float x);
 

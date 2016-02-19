@@ -27,24 +27,6 @@ bool CurveSegment::in_range(const float _x) const
   return false;
 }
 
-//cleaner / faster - use inheritance instead?
-/*float CurveSegment::evaluate(const float _x)
-{
-  float x_pct = _x  / (end_points[1].p[0] - end_points[0].p[0])
-  switch(int_method)
-  {
-    case INTERPOLATE_LERP:
-      return lerp(end_points[0].p[1], end_points[1].p[1], _x);
-      break;
-    case INTERPOLATE_CERP:
-      return cerp(end_points[0].p[1], end_points[1].p[1], _x);
-      break;
-    default:
-      assert(false);
-      break;
-  }
-}*/
-
 float CurveSegmentLerp::evaluate(const float _x) const
 {
   float x_pct = (_x - end_points[0].p[0]) / (end_points[1].p[0] - end_points[0].p[0]);
@@ -54,12 +36,12 @@ float CurveSegmentLerp::evaluate(const float _x) const
 float CurveSegmentCerp::evaluate(const float _x) const
 {
   float x_pct = (_x - end_points[0].p[0]) / (end_points[1].p[0] - end_points[0].p[0]);
-  //cout<<"x_pct: "<<x_pct<<endl;
   return cerp(end_points[0].p[1], end_points[1].p[1], x_pct);
 }
 
 float CurveSegmentBezier::evaluate(const float _x) const
 {
+  //this code is questionable at best
   float x_pct = (_x - end_points[0].p[0]) / (end_points[1].p[0] - end_points[0].p[0]);
 
   float a = (1.0f - x_pct);
@@ -87,8 +69,6 @@ Curve::Curve()
   new_cs->end_points[1] = b;
 
   segments.push_back(new_cs);
-
-  //create_segment(INTERPOLATE_CERP, a, b);
 }
 
 Curve::~Curve()
@@ -148,7 +128,8 @@ CurveSegment *Curve::create_segment(InterpolationMethod m, CurveEndPoint new_a, 
     {
       new_cs->end_points[0] = new_a;
       new_cs->end_points[1] = new_b;
-      segments.insert(csi, new_cs);
+
+      segments.insert(csi + 1, new_cs);
       build_handle_list();
       return new_cs;
     }
@@ -183,14 +164,15 @@ CurveSegment *Curve::get_segment(const float x)
 
 void Curve::build_handle_list()
 {
-  float epsilon = 0.001f;
+  handles.clear();
+
   for(int i = 0; i < segments.size(); i++)
   {
     CurveSegment *cs = segments[i];
     CurveHandle left_handle, right_handle;
     if(i == 0)
     {
-      left_handle.end_points.push_back(&(cs->end_points[0]));
+      left_handle.locations.push_back(&(cs->end_points[0].p));
       handles.push_back(left_handle);
     }
 
@@ -200,29 +182,32 @@ void Curve::build_handle_list()
       right_cs = segments[i + 1];
     }
 
-    //left.end_points.push_back(&(cs->end_points[0]));
-    right_handle.end_points.push_back(&(cs->end_points[1]));
+    right_handle.locations.push_back(&(cs->end_points[1].p));
     if(right_cs)
     {
-      right_handle.end_points.push_back(&(right_cs->end_points[0]));
+      right_handle.locations.push_back(&(right_cs->end_points[0].p));
     }
     handles.push_back(right_handle);
+
+    if(cs->get_interpolation_method() == INTERPOLATE_BEZIER)
+    {
+      CurveHandle t_left, t_right;
+      t_left.locations.push_back(&cs->end_points[0].t);
+      t_right.locations.push_back(&cs->end_points[1].t);
+      handles.push_back(t_left);
+      handles.push_back(t_right);
+    }
   }
 }
 
-void CurveHandle::translate(const Math::Float2 p, bool move_tangents)
+void CurveHandle::translate(const Math::Float2 p)
 {
-  for(int i = 0; i < end_points.size(); i++)
+  cout<<locations.size()<<endl;
+  for(int i = 0; i < locations.size(); i++)
   {
-    CurveEndPoint *ep = end_points[i];
-    assert(ep);
-    if(move_tangents)
-    {
-      ep->t = p;
-    }
-    else
-    {
-      ep->p = p;
-    }
+    Float2 *hp = locations[i];
+    assert(hp);
+
+    *hp = p;
   }
 }

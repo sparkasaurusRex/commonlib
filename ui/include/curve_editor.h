@@ -35,7 +35,7 @@ namespace UI
 
     //curve data
     Math::Curve *curve;
-    Math::CurveEndPoint *selected_endpt;
+    Math::CurveHandle *selected_handle;
     bool tangent_selected;
 
     //curve rendering
