@@ -137,6 +137,17 @@ CurveSegment *Curve::create_segment(InterpolationMethod m, CurveEndPoint new_a, 
   return NULL;
 }
 
+void CurveHandle::translate(const Math::Float2 p)
+{
+  for(int i = 0; i < locations.size(); i++)
+  {
+    Float2 *hp = locations[i];
+    assert(hp);
+
+    *hp = p;
+  }
+}
+
 float Curve::evaluate(const float _x)
 {
   for(int i = 0; i < segments.size(); i++)
@@ -200,14 +211,36 @@ void Curve::build_handle_list()
   }
 }
 
-void CurveHandle::translate(const Math::Float2 p)
+void Curve::enforce_segment_ranges()
 {
-  cout<<locations.size()<<endl;
-  for(int i = 0; i < locations.size(); i++)
-  {
-    Float2 *hp = locations[i];
-    assert(hp);
+  if(segments.size() == 0) { return; }
 
-    *hp = p;
+  //enforce end points
+  segments[0]->end_points[0].p[0] = 0.0f;
+  segments[segments.size() - 1]->end_points[1].p[0] = 1.0f;
+
+  for(int i = 1; i < segments.size(); i++)
+  {
+    CurveSegment *left = segments[i - 1];
+    CurveSegment *right = segments[i];
+
+    cout<<i<<endl;
+    cout<<left->end_points[1].p<<endl;
+    cout<<right->end_points[0].p<<endl;
+
+    if(right->end_points[1].p[0] < left->end_points[1].p[0])
+    {
+      for(int j = 0; j < handles.size(); j++)
+      {
+        for(int k = 0; k < handles[j].locations.size(); k++)
+        {
+          if(handles[j].locations[k] == &right->end_points[1].p)
+          {
+            Float2 p(left->end_points[1].p[0], right->end_points[1].p[1]);
+            handles[j].translate(p);
+          }
+        }
+      }
+    }
   }
 }

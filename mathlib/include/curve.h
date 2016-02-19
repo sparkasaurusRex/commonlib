@@ -109,6 +109,7 @@ namespace Math {
 
       CurveSegment *get_segment(const float x);
 
+      void enforce_segment_ranges();
     private:
       void build_handle_list();
 

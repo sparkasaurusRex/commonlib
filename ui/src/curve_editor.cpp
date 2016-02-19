@@ -207,14 +207,14 @@ void CurveEditor::add_control_point(const float fx)
   CurveEndPoint middle, right;
 
   middle.p = new_curve_pt;
-  middle.t = new_curve_pt + Float2(-0.1f, 0.0f);
+  middle.t = new_curve_pt + Float2(0.1f, 0.0f);
 
   right.p = cs->end_points[1].p;
   right.t = cs->end_points[1].t;
 
   CurveSegment *new_segment = curve->create_segment(INTERPOLATE_BEZIER, middle, right);
   cs->end_points[1].p = middle.p;
-  cs->end_points[1].t = middle.p + Float2(0.1f, 0.0f);
+  cs->end_points[1].t = middle.p + Float2(-0.1f, 0.0f);
 
   for(int i = 0; i < curve->get_num_segments(); i++)
   {
@@ -254,5 +254,6 @@ void CurveEditor::move_selected_control_point(const float fx, const float fy)
   if(selected_handle)
   {
     selected_handle->translate(Math::Float2(fx, fy));
+    curve->enforce_segment_ranges();
   }
 }
