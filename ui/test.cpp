@@ -7,6 +7,7 @@
 #include "radial_push_button.h"
 #include "menu.h"
 #include "curve_editor.h"
+#include "text_edit.h"
 
 #define TOOLBOX_SIZE 4
 #define NUM_RPB 12
@@ -56,6 +57,7 @@ private:
     //pb.simulate(frame_time);
     tb.simulate(frame_time);
     ce.simulate(frame_time);
+    te.simulate(frame_time);
     //menu.simulate(frame_time);
   }
 
@@ -66,9 +68,14 @@ private:
 
     label.set_font(widget_font);
     label.set_text(std::string("label text 1"));
-    label.translate(Float2(10.0f, 490.0f));
+    label.translate(Float2(10.0f, 400.0f));
     label.init();
     ww.add_widget(&label);
+
+    te.set_font(widget_font);
+    te.translate(Float2(300.0f, 300.0f));
+    te.init();
+    ww.add_widget(&te);
 
     for(int i = 0; i < TOOLBOX_SIZE; i++)
     {
@@ -117,6 +124,7 @@ private:
     //pb.show();
     tb.show();
     ce.show();
+    te.show();
     //menu.show();
 
     for(int i = 0; i < NUM_RPB; i++)
@@ -130,6 +138,7 @@ private:
     //pb.process_event(e);
     tb.process_event(e);
     ce.process_event(e);
+    te.process_event(e);
     //menu.process_event(e);
 
     for(int i = 0; i < NUM_RPB; i++)
@@ -143,6 +152,7 @@ private:
   Label label;
   CheckButton pb[TOOLBOX_SIZE];
   ToolBox tb;
+  TextEdit te;
 
   CurveEditor ce;
   Curve curve;

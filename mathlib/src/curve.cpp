@@ -94,7 +94,7 @@ Curve::Curve()
   b.p = Float2(1.0f, 1.0f);
   b.t = Float2(0.9f, 1.0f);
 
-  CurveSegment *new_cs = new CurveSegmentPerlin;
+  CurveSegment *new_cs = new CurveSegmentLerp;
   new_cs->end_points[0] = a;
   new_cs->end_points[1] = b;
 

@@ -18,7 +18,7 @@ SRCPATH=src/
 SRCS=src/label.cpp src/widget.cpp src/push_button.cpp src/widget_wrangler.cpp
 SRCS+=src/toolbox.cpp src/check_button.cpp src/rectangular_widget.cpp
 SRCS+=src/radial_widget.cpp src/radial_push_button.cpp src/menu.cpp
-SRCS+=src/curve_editor.cpp
+SRCS+=src/curve_editor.cpp src/text_edit.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -98,6 +98,9 @@ $(BINPATH)menu.o: $(SRCPATH)menu.cpp
 
 $(BINPATH)curve_editor.o: $(SRCPATH)curve_editor.cpp
 	$(CC) $(CFLAGS) -c src/curve_editor.cpp -o $(BINPATH)curve_editor.o
+
+$(BINPATH)text_edit.o: $(SRCPATH)text_edit.cpp
+	$(CC) $(CFLAGS) -c src/text_edit.cpp -o $(BINPATH)text_edit.o
 
 $(BINPATH)libui.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libui.a $(OBJS_BIN)
