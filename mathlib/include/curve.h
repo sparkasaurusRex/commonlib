@@ -10,6 +10,8 @@ namespace Math {
     INTERPOLATE_LERP,
     INTERPOLATE_CERP,
     INTERPOLATE_BEZIER,
+    INTERPOLATE_COSINE,
+    INTERPOLATE_PERLIN,
     NUM_INTERPOLATION_METHODS
   };
 
@@ -78,6 +80,43 @@ namespace Math {
     ~CurveSegmentBezier() {}
     virtual float evaluate(const float _x) const;
     virtual InterpolationMethod get_interpolation_method() const { return INTERPOLATE_BEZIER; }
+  };
+
+  //
+  // cosine periodic
+  //
+  class CurveSegmentCosine : public CurveSegment
+  {
+  public:
+    CurveSegmentCosine();
+    ~CurveSegmentCosine() {}
+
+    virtual float evaluate(const float _x) const;
+    virtual InterpolationMethod get_interpolation_method() const { return INTERPOLATE_COSINE; }
+
+    float amplitude;
+    float frequency;
+    float phase;
+    float y_offset;
+  };
+
+  //
+  // perlin periodic
+  //
+  class CurveSegmentPerlin : public CurveSegment
+  {
+  public:
+    CurveSegmentPerlin();
+    ~CurveSegmentPerlin() {}
+
+    virtual float evaluate(const float _x) const;
+    virtual InterpolationMethod get_interpolation_method() const { return INTERPOLATE_PERLIN; }
+
+    float amplitude;
+    float frequency;
+    float phase;
+    float y_offset;
+    int octaves;
   };
 
   class CurveHandle

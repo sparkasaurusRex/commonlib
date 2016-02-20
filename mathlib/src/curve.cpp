@@ -1,6 +1,7 @@
 #include <iostream>
 #include <assert.h>
 #include "curve.h"
+#include "perlin.h"
 
 using namespace Math;
 using namespace std;
@@ -56,6 +57,35 @@ float CurveSegmentBezier::evaluate(const float _x) const
   return b3[1];
 }
 
+CurveSegmentCosine::CurveSegmentCosine() : CurveSegment()
+{
+  amplitude = 0.5f;
+  frequency = 0.5f;
+  phase = 0.0f;
+  y_offset = 1.0f;
+}
+
+float CurveSegmentCosine::evaluate(const float _x) const
+{
+  float x_pct = (_x - end_points[0].p[0]) / (end_points[1].p[0] - end_points[0].p[0]);
+  return amplitude * (cos(frequency * x_pct * M_PI * 2.0f + phase) + y_offset);
+}
+
+CurveSegmentPerlin::CurveSegmentPerlin() : CurveSegment()
+{
+  amplitude = 1.0f;
+  frequency = 2.0f;
+  phase = 0.0f;
+  y_offset = 1.0f;
+  octaves = 3;
+}
+
+float CurveSegmentPerlin::evaluate(const float _x) const
+{
+  float x_pct = (_x - end_points[0].p[0]) / (end_points[1].p[0] - end_points[0].p[0]);
+  return amplitude * (PerlinNoise::octave_noise_2d(octaves, 1.0f, frequency, x_pct + phase, 0.0f) + y_offset);
+}
+
 Curve::Curve()
 {
   CurveEndPoint a, b;
@@ -64,7 +94,7 @@ Curve::Curve()
   b.p = Float2(1.0f, 1.0f);
   b.t = Float2(0.9f, 1.0f);
 
-  CurveSegment *new_cs = new CurveSegmentCerp;
+  CurveSegment *new_cs = new CurveSegmentPerlin;
   new_cs->end_points[0] = a;
   new_cs->end_points[1] = b;
 

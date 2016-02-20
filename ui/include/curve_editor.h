@@ -4,7 +4,7 @@
 #include "rectangular_widget.h"
 #include "curve.h"
 
-#define CURVE_EDITOR_NUM_DRAW_SEGMENTS 64
+#define CURVE_EDITOR_NUM_DRAW_SEGMENTS 128
 #define CURVE_EDITOR_CLICK_THRESHOLD 0.05f
 
 namespace UI
