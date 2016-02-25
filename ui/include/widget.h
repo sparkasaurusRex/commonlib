@@ -28,6 +28,7 @@ namespace UI
     virtual void render() = 0;
 
     void set_focus(bool f) { has_focus = f; }
+    bool get_focus() const { return has_focus; }
 
   protected:
     void render_prep();

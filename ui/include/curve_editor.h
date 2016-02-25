@@ -39,6 +39,7 @@ namespace UI
     //curve data
     Math::Curve *curve;
     Math::CurveHandle     *selected_handle;
+    Math::CurveHandle     *last_selected_handle;
     Math::CurveSegment    *selected_segment;
 
     TextEdit handle_pos_te[2];

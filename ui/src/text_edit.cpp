@@ -26,6 +26,18 @@ void TextEdit::process_event(const SDL_Event &e)
   //cout<<"TextEdit::process_event()"<<endl;
   switch(e.type)
   {
+    case SDL_KEYUP:
+    {
+      switch(e.key.keysym.sym)
+      {
+        case SDLK_RETURN:
+          //relinquish focus
+          has_focus = false;
+            //cout<<"TextEdit::process_event(): return pressed!"<<endl;
+          break;
+      }
+      break;
+    }
     case SDL_TEXTINPUT:
       if(selection[0] != -1 && selection[1] != -1)
       {

@@ -12,6 +12,7 @@ CurveEditor::CurveEditor(Font *f) : RectangularWidget(f)
   curve = NULL;
   selected_handle = NULL;
   selected_segment = NULL;
+  last_selected_handle = NULL;
 }
 
 CurveEditor::~CurveEditor()
@@ -179,14 +180,20 @@ void CurveEditor::process_event(const SDL_Event &event)
 
   for(int i = 0; i < 2; i++)
   {
-    if(selected_handle)
+    if(handle_pos_te[i].get_focus())
     {
-      Float2 handle_pos = selected_handle->get_pos();
-      std::stringstream ss;
-      ss<<std::fixed<<std::setprecision(4)<<handle_pos[i];
-      handle_pos_te[i].set_text(ss.str());
+      handle_pos_te[i].process_event(event);
     }
-    handle_pos_te[i].process_event(event);
+    else
+    {
+      if(selected_handle && selected_handle->locations.size() > 0)
+      {
+        Float2 handle_pos = selected_handle->get_pos();
+        std::stringstream ss;
+        ss<<std::fixed<<std::setprecision(4)<<handle_pos[i];
+        handle_pos_te[i].set_text(ss.str());
+      }
+    }
   }
 
   assert(curve);
@@ -212,12 +219,21 @@ void CurveEditor::process_event(const SDL_Event &event)
     //   break;
     case SDL_MOUSEBUTTONUP:
     {
+      int mouse_x, mouse_y;
+      Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+      if(event.button.button == SDL_BUTTON_LEFT)
+      {
+        for(int i = 0; i < 2; i++)
+        {
+          handle_pos_te[i].set_focus(false);
+          if(handle_pos_te[i].hit_test(mouse_x, mouse_y))
+          {
+            handle_pos_te[i].set_focus(true);
+          }
+        }
+      }
       if(event.button.button == SDL_BUTTON_RIGHT)
       {
-        //click capture, etc...
-        int mouse_x, mouse_y;
-        Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-
         //if(hit_test(mouse_x, mouse_y))
         {
           float fx = ((float)mouse_x - pos[0]) / dim[0];
@@ -250,6 +266,18 @@ void CurveEditor::process_event(const SDL_Event &event)
     {
       switch(event.key.keysym.sym)
       {
+        case SDLK_RETURN:
+          if(last_selected_handle)
+          {
+            Float2 pos;
+            std::string x_string = handle_pos_te[0].get_text();
+            std::string y_string = handle_pos_te[1].get_text();
+            pos[0] = atof(x_string.c_str());
+            pos[1] = atof(y_string.c_str());
+            last_selected_handle->translate(pos);
+            cout<<"CurveEditor::process_event(): new_pos: "<<pos<<endl;
+          }
+          break;
         case '=':
           if(selected_segment)
           {
@@ -294,13 +322,13 @@ void CurveEditor::add_control_point(const float fx)
   cs->end_points[1].p = middle.p;
   cs->end_points[1].t = middle.p + Float2(-0.1f, 0.0f);
 
-  for(int i = 0; i < curve->get_num_segments(); i++)
+  /*for(int i = 0; i < curve->get_num_segments(); i++)
   {
     CurveSegment *cs = curve->get_segment_by_index(i);
     cout<<"segment"<<endl;
     cout<<"\t"<<cs->end_points[0].p<<endl;
     cout<<"\t"<<cs->end_points[1].p<<endl;
-  }
+  }*/
 }
 
 void CurveEditor::delete_control_point()
@@ -310,6 +338,7 @@ void CurveEditor::delete_control_point()
 
 void CurveEditor::select_control_point(const float fx, const float fy)
 {
+  if(selected_handle) { last_selected_handle = selected_handle; }
   selected_handle = NULL;
 
   int num_curve_handles = curve->get_num_handles();
@@ -322,6 +351,7 @@ void CurveEditor::select_control_point(const float fx, const float fy)
     if(fabs(hp[0] - fx) < CURVE_EDITOR_CLICK_THRESHOLD &&
        fabs(hp[1] - fy) < CURVE_EDITOR_CLICK_THRESHOLD)
     {
+      last_selected_handle = ch;
       selected_handle = ch;
     }
   }
@@ -334,8 +364,6 @@ void CurveEditor::select_segment(const float fx, const float fy)
   if(cs)
   {
     float cy = cs->evaluate(fx);
-    cout<<"cy: "<<cy<<endl;
-    cout<<"fy: "<<fy<<endl;
     if(fabs(fy - cy) < CURVE_EDITOR_CLICK_THRESHOLD)
     {
       selected_segment = cs;

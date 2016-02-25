@@ -279,6 +279,12 @@ void Curve::build_handle_list()
       handles.push_back(t_right);
     }
   }
+
+  //validate
+  for(int i = 0; i < handles.size(); i++)
+  {
+    cout<<i<<": "<<handles[i].locations.size()<<endl;
+  }
 }
 
 void Curve::enforce_segment_ranges()
