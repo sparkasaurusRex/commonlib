@@ -275,8 +275,12 @@ void CurveEditor::process_event(const SDL_Event &event)
             pos[0] = atof(x_string.c_str());
             pos[1] = atof(y_string.c_str());
             last_selected_handle->translate(pos);
+            curve->enforce_segment_ranges();
             cout<<"CurveEditor::process_event(): new_pos: "<<pos<<endl;
           }
+          break;
+        case SDLK_BACKSPACE:
+          delete_control_point();
           break;
         case '=':
           if(selected_segment)
@@ -333,7 +337,12 @@ void CurveEditor::add_control_point(const float fx)
 
 void CurveEditor::delete_control_point()
 {
-
+  if(selected_handle)
+  {
+    curve->delete_handle(selected_handle);
+  }
+  selected_segment = NULL;
+  selected_handle = last_selected_handle = NULL;
 }
 
 void CurveEditor::select_control_point(const float fx, const float fy)

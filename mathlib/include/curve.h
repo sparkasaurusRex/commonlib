@@ -146,6 +146,7 @@ namespace Math {
 
       int get_num_handles() const { return handles.size(); }
       CurveHandle *get_handle_by_index(const int i) { return &handles[i]; }
+      void delete_handle(const CurveHandle *ch);
 
       CurveSegment *get_segment(const float x);
 

@@ -3,6 +3,18 @@
 #include "curve.h"
 #include "perlin.h"
 
+// TODO: The way I've implemented handles is particularly messy and terrible
+//       The problem is that a control point / handle must be aware of end
+//       points of two different curve segments. Right now a handle can also
+//       be either a tangent or a position.
+//
+//       It seems like maybe we want different types of CurveEndPoints...
+//       Bezier, corner, etc... implemented via inheritence, where each
+//       corner type reports its list of handles to the UI. An endpoint
+//       is more of a segment connection, then. Or maybe we implement
+//       a CurveSegmentConnection container class that is responsible for
+//       its handles
+
 using namespace Math;
 using namespace std;
 
@@ -31,13 +43,13 @@ bool CurveSegment::in_range(const float _x) const
 float CurveSegmentLerp::evaluate(const float _x) const
 {
   float x_pct = (_x - end_points[0].p[0]) / (end_points[1].p[0] - end_points[0].p[0]);
-  return lerp(end_points[0].p[1], end_points[1].p[1], x_pct);
+  return clamp(lerp(end_points[0].p[1], end_points[1].p[1], x_pct), 0.0f, 1.0f);
 }
 
 float CurveSegmentCerp::evaluate(const float _x) const
 {
   float x_pct = (_x - end_points[0].p[0]) / (end_points[1].p[0] - end_points[0].p[0]);
-  return cerp(end_points[0].p[1], end_points[1].p[1], x_pct);
+  return clamp(cerp(end_points[0].p[1], end_points[1].p[1], x_pct), 0.0f, 1.0f);
 }
 
 float CurveSegmentBezier::evaluate(const float _x) const
@@ -54,7 +66,7 @@ float CurveSegmentBezier::evaluate(const float _x) const
               3.0f * a * x_pct * x_pct * end_points[1].t +
               x_pct * x_pct * x_pct * end_points[1].p;
 
-  return b3[1];
+  return clamp(b3[1], 0.0f, 1.0f);
 }
 
 CurveSegmentCosine::CurveSegmentCosine() : CurveSegment()
@@ -68,7 +80,7 @@ CurveSegmentCosine::CurveSegmentCosine() : CurveSegment()
 float CurveSegmentCosine::evaluate(const float _x) const
 {
   float x_pct = (_x - end_points[0].p[0]) / (end_points[1].p[0] - end_points[0].p[0]);
-  return amplitude * (cos(frequency * x_pct * M_PI * 2.0f + phase) + y_offset);
+  return clamp(amplitude * (cos(frequency * x_pct * M_PI * 2.0f + phase) + y_offset), 0.0f, 1.0f);
 }
 
 CurveSegmentPerlin::CurveSegmentPerlin() : CurveSegment()
@@ -83,7 +95,7 @@ CurveSegmentPerlin::CurveSegmentPerlin() : CurveSegment()
 float CurveSegmentPerlin::evaluate(const float _x) const
 {
   float x_pct = (_x - end_points[0].p[0]) / (end_points[1].p[0] - end_points[0].p[0]);
-  return amplitude * (PerlinNoise::octave_noise_2d(octaves, 1.0f, frequency, x_pct + phase, 0.0f) + y_offset);
+  return clamp(amplitude * (PerlinNoise::octave_noise_2d(octaves, 1.0f, frequency, x_pct + phase, 0.0f) + y_offset), 0.0f, 1.0f);
 }
 
 Curve::Curve()
@@ -190,6 +202,60 @@ float Curve::evaluate(const float _x)
   return 0.0f;
 }
 
+void Curve::delete_handle(const CurveHandle *ch)
+{
+  //TODO: this is so ugly
+
+  //need to find the curve segment(s) this handle belongs to
+  std::vector<CurveSegment *> matching_segments;
+  for(int i = 0; i < segments.size(); i++)
+  {
+    CurveSegment *cs = segments[i];
+    for(int j = 0; j < 2; j++)
+    {
+      CurveEndPoint *cep = &cs->end_points[j];
+      for(int k = 0; k < ch->locations.size(); k++)
+      {
+        Float2 *loc = ch->locations[k];
+        if(loc == &cep->p || loc == &cep->t)
+        {
+          matching_segments.push_back(cs);
+        }
+      }
+    }
+  }
+
+  //should always be 1 or 2. If not, something is wrong
+  if(matching_segments.size() == 2)
+  {
+    CurveSegment *left = matching_segments[0];
+    CurveSegment *right = matching_segments[1];
+
+    /*if(left->end_points[0].p[0] >= right->end_points[1].p[0])
+    {
+      CurveSegment *tmp = left;
+      left = right;
+      right = tmp;
+    }*/
+
+
+    //delete the right one
+    left->end_points[1].p = right->end_points[0].p;
+    left->end_points[1].t = right->end_points[0].t;
+    for(int i = 0; i < segments.size(); i++)
+    {
+      if(segments[i] == right)
+      {
+        segments.erase(segments.begin() + i);
+      }
+    }
+    delete right;
+  }
+
+  enforce_segment_ranges();
+  build_handle_list();
+}
+
 CurveSegment *Curve::get_segment(const float x)
 {
   for(int i = 0; i < segments.size(); i++)
@@ -281,10 +347,10 @@ void Curve::build_handle_list()
   }
 
   //validate
-  for(int i = 0; i < handles.size(); i++)
+  /*for(int i = 0; i < handles.size(); i++)
   {
     cout<<i<<": "<<handles[i].locations.size()<<endl;
-  }
+  }*/
 }
 
 void Curve::enforce_segment_ranges()
@@ -300,9 +366,16 @@ void Curve::enforce_segment_ranges()
     CurveSegment *left = segments[i - 1];
     CurveSegment *right = segments[i];
 
-    cout<<i<<endl;
-    cout<<left->end_points[1].p<<endl;
-    cout<<right->end_points[0].p<<endl;
+    for(int j = 0; j < 2; j++)
+    {
+      for(int k = 0; k < 2; k++)
+      {
+        left->end_points[j].p[k] = clamp(left->end_points[j].p[k], 0.0f, 1.0f);
+        left->end_points[j].t[k] = clamp(left->end_points[j].t[k], 0.0f, 1.0f);
+        right->end_points[j].p[k] = clamp(right->end_points[j].p[k], 0.0f, 1.0f);
+        right->end_points[j].t[k] = clamp(right->end_points[j].t[k], 0.0f, 1.0f);
+      }
+    }
 
     if(right->end_points[1].p[0] < left->end_points[1].p[0])
     {
