@@ -53,12 +53,7 @@ private:
   }
   void game_loop(const float game_time, const float frame_time)
   {
-    label.simulate(frame_time);
-    //pb.simulate(frame_time);
-    tb.simulate(frame_time);
-    ce.simulate(frame_time);
-    te.simulate(frame_time);
-    //menu.simulate(frame_time);
+    ww.simulate(frame_time);
   }
 
   void user_init()
@@ -70,25 +65,23 @@ private:
     label.set_text(std::string("label text 1"));
     label.translate(Float2(10.0f, 400.0f));
     label.init();
-    ww.add_widget(&label);
+    //ww.add_widget(&label);
 
     te.set_font(widget_font);
     te.translate(Float2(300.0f, 300.0f));
     te.init();
-    ww.add_widget(&te);
+    //ww.add_widget(&te);
 
     for(int i = 0; i < TOOLBOX_SIZE; i++)
     {
       pb[i].set_font(widget_font);
       pb[i].set_text(std::string(""));
-      //pb[i].scale(Float2(60.0f, 60.0f));
-      //pb[i].translate(Float2(10.0f, 450.0f));
       pb[i].set_click_callback(pb_callback);
       pb[i].set_texture(0, pb_tex[0]);
       pb[i].set_texture(1, pb_tex[1]);
       pb[i].init();
       tb.add_button(&pb[i]);
-    //ww.add_widget(&pb);
+      //ww.add_widget(&pb[i]);
     }
 
     tb.make_vertical();
@@ -96,7 +89,7 @@ private:
     tb.set_font(widget_font);
     tb.set_button_dim(Float2(64.0f, 64.0f));
     tb.init();
-    ww.add_widget(&tb);
+    //ww.add_widget(&tb);
 
     for(int i = 0; i < NUM_RPB; i++)
     {
@@ -108,7 +101,7 @@ private:
       rpb[i].set_center(Float2(180.0f, 380.0f));
       rpb[i].set_click_callback(pb_callback);
       rpb[i].init();
-      ww.add_widget(&rpb[i]);
+      //ww.add_widget(&rpb[i]);
     }
 
     ce.set_curve(&curve);
@@ -135,16 +128,7 @@ private:
 
   void user_process_event(const SDL_Event &e)
   {
-    //pb.process_event(e);
-    tb.process_event(e);
-    ce.process_event(e);
-    te.process_event(e);
-    //menu.process_event(e);
-
-    for(int i = 0; i < NUM_RPB; i++)
-    {
-      rpb[i].process_event(e);
-    }
+    ww.process_event(e);
   }
 
   Float3 bg_color;

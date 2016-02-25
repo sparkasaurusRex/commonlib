@@ -9,7 +9,7 @@ CurveEditor::CurveEditor(Font *f) : RectangularWidget(f)
 {
   curve = NULL;
   selected_handle = NULL;
-  tangent_selected = false;
+  selected_segment = NULL;
 }
 
 CurveEditor::~CurveEditor()
@@ -68,13 +68,22 @@ void CurveEditor::render()
     int num_segments = CURVE_EDITOR_NUM_DRAW_SEGMENTS;
     glLineWidth(1.0f);
     glBegin(GL_LINE_STRIP);
-    glColor3f(1.0f, 1.0f, 1.0f);
     for(int i = 0; i <= num_segments; i++)
     {
       float x_pct = (float)i / (float)num_segments;
       CurveSegment *cs = curve->get_segment(x_pct);
       if(cs)
       {
+        if(cs == selected_segment)
+        {
+          glLineWidth(3.0f);
+          glColor3f(1.0f, 0.0f, 0.0f);
+        }
+        else
+        {
+          glLineWidth(1.0f);
+          glColor3f(1.0f, 1.0f, 1.0f);
+        }
 
         float y = 1.0f - cs->evaluate(x_pct);
 
@@ -154,6 +163,8 @@ void CurveEditor::process_event(const SDL_Event &event)
 {
   assert(curve);
 
+  //cout<<"CurveEditor::process_event"<<endl;
+
   if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
   {
     int mouse_x, mouse_y;
@@ -162,6 +173,7 @@ void CurveEditor::process_event(const SDL_Event &event)
     float fx = ((float)mouse_x - pos[0]) / dim[0];
     float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
     select_control_point(fx, fy);
+    select_segment(fx, fy);
   }
 
   if(event.type == SDL_MOUSEMOTION)
@@ -245,6 +257,22 @@ void CurveEditor::select_control_point(const float fx, const float fy)
        fabs(hp[1] - fy) < CURVE_EDITOR_CLICK_THRESHOLD)
     {
       selected_handle = ch;
+    }
+  }
+}
+
+void CurveEditor::select_segment(const float fx, const float fy)
+{
+  selected_segment = NULL;
+  CurveSegment *cs = curve->get_segment(fx);
+  if(cs)
+  {
+    float cy = cs->evaluate(fx);
+    cout<<"cy: "<<cy<<endl;
+    cout<<"fy: "<<fy<<endl;
+    if(fabs(fy - cy) < CURVE_EDITOR_CLICK_THRESHOLD)
+    {
+      selected_segment = cs;
     }
   }
 }

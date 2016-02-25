@@ -9,13 +9,16 @@ namespace UI
   class WidgetWrangler
   {
   public:
-    WidgetWrangler() {}
+    WidgetWrangler();
     ~WidgetWrangler() {}
 
     void add_widget(Widget *w) { widgets.push_back(w); }
     void render() const;
+    void process_event(const SDL_Event &e);
+    void simulate(const float dt);
   private:
     std::vector<Widget *> widgets;
+    int focus_idx;
   };
 };
 

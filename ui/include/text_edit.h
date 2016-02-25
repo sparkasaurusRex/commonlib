@@ -19,6 +19,7 @@ namespace UI
     std::string get_text() const { return text; }
   protected:
     std::string text;
+    int selection[2];
   };
 };
 
