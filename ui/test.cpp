@@ -105,9 +105,10 @@ private:
     }
 
     ce.set_curve(&curve);
-    ce.init();
+    ce.set_font(widget_font);
     ce.translate(Float2(100.0f, 30.0f));
     ce.scale(Float2(400.0f, 240.0f));
+    ce.init();
     ww.add_widget(&ce);
   }
 

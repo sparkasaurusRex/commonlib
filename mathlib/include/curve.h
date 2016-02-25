@@ -126,6 +126,7 @@ namespace Math {
       ~CurveHandle() {}
 
       void translate(const Math::Float2 p);
+      Float2 get_pos() { return *(locations[0]); }
       std::vector<Math::Float2 *> locations;
   };
 
@@ -147,6 +148,8 @@ namespace Math {
       CurveHandle *get_handle_by_index(const int i) { return &handles[i]; }
 
       CurveSegment *get_segment(const float x);
+
+      void change_segment_type(const int i, const InterpolationMethod m);
 
       void enforce_segment_ranges();
     private:

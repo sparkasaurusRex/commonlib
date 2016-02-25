@@ -203,6 +203,46 @@ CurveSegment *Curve::get_segment(const float x)
   return NULL;
 }
 
+void Curve::change_segment_type(const int i, const InterpolationMethod m)
+{
+  CurveSegment *old_segment = segments[i];
+  assert(old_segment);
+
+  CurveSegment *new_segment = NULL;
+
+  switch(m)
+  {
+    case INTERPOLATE_LERP:
+      new_segment = new CurveSegmentLerp;
+      break;
+    case INTERPOLATE_CERP:
+      new_segment = new CurveSegmentCerp;
+      break;
+    case INTERPOLATE_BEZIER:
+      new_segment = new CurveSegmentBezier;
+      break;
+    case INTERPOLATE_COSINE:
+      new_segment = new CurveSegmentCosine;
+      break;
+    case INTERPOLATE_PERLIN:
+      new_segment = new CurveSegmentPerlin;
+      break;
+    default:
+      cerr<<"Curve::change_segment_type(): unknown Interpolation Method!"<<endl;
+      break;
+  }
+
+  assert(new_segment);
+  new_segment->end_points[0] = old_segment->end_points[0];
+  new_segment->end_points[1] = old_segment->end_points[1];
+
+  segments[i] = new_segment;
+
+  build_handle_list();
+
+  delete old_segment;
+}
+
 void Curve::build_handle_list()
 {
   handles.clear();

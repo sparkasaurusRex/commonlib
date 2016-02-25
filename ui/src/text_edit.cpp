@@ -59,7 +59,7 @@ void TextEdit::render()
 {
   //first, draw a rectangle background
   glBegin(GL_TRIANGLE_STRIP);
-    glColor3f(0.6f, 0.6f, 1.0f);
+    glColor3f(0.7f, 0.7f, 0.85f);
     glVertex3f(pos[0], pos[1], 0.0f);
     glVertex3f(pos[0] + dim[0], pos[1], 0.0f);
     glVertex3f(pos[0], pos[1] - dim[1], 0.0f);

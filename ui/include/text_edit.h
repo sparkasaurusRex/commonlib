@@ -17,6 +17,7 @@ namespace UI
     virtual void render();
 
     std::string get_text() const { return text; }
+    void set_text(const std::string t) { text = t; }
   protected:
     std::string text;
     int selection[2];

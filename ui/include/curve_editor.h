@@ -2,6 +2,8 @@
 #define __CURVE_EDITOR_H__
 
 #include "rectangular_widget.h"
+#include "text_edit.h"
+
 #include "curve.h"
 
 #define CURVE_EDITOR_NUM_DRAW_SEGMENTS 128
@@ -38,6 +40,8 @@ namespace UI
     Math::Curve *curve;
     Math::CurveHandle     *selected_handle;
     Math::CurveSegment    *selected_segment;
+
+    TextEdit handle_pos_te[2];
 
     //curve rendering
     struct CurveVert

@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <sstream>
+#include <iomanip>
 #include "curve_editor.h"
 
 using namespace UI;
@@ -19,13 +21,26 @@ CurveEditor::~CurveEditor()
 
 void CurveEditor::init()
 {
-
+  for(int i = 0; i < 2; i++)
+  {
+    float w = 80.0f;
+    handle_pos_te[i].set_font(font);
+    handle_pos_te[i].translate(Float2(pos[0] + (w + 10.0f) * (float)i, pos[1] + dim[1] + 40.0f));
+    handle_pos_te[i].scale(Float2(w, 25.0f));
+    handle_pos_te[i].init();
+    handle_pos_te[i].show();
+    handle_pos_te[i].set_text("pos");
+  }
 }
 
 void CurveEditor::render()
 {
-  //TODO: programmable pipeline?
+  for(int i = 0; i < 2; i++)
+  {
+    handle_pos_te[i].render();
+  }
 
+  //TODO: programmable pipeline?
   //draw the border
   glLineWidth(2.0f);
   glBegin(GL_LINE_STRIP);
@@ -161,51 +176,102 @@ void CurveEditor::render()
 
 void CurveEditor::process_event(const SDL_Event &event)
 {
+
+  for(int i = 0; i < 2; i++)
+  {
+    if(selected_handle)
+    {
+      Float2 handle_pos = selected_handle->get_pos();
+      std::stringstream ss;
+      ss<<std::fixed<<std::setprecision(4)<<handle_pos[i];
+      handle_pos_te[i].set_text(ss.str());
+    }
+    handle_pos_te[i].process_event(event);
+  }
+
   assert(curve);
 
   //cout<<"CurveEditor::process_event"<<endl;
-
-  if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
+  switch(event.type)
   {
-    int mouse_x, mouse_y;
-    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-
-    float fx = ((float)mouse_x - pos[0]) / dim[0];
-    float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
-    select_control_point(fx, fy);
-    select_segment(fx, fy);
-  }
-
-  if(event.type == SDL_MOUSEMOTION)
-  {
-    int mouse_x, mouse_y;
-    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    if(button_state & SDL_BUTTON_LEFT)
+    case SDL_MOUSEMOTION:
     {
-      float fx = ((float)mouse_x - pos[0]) / dim[0];
-      float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
-
-      move_selected_control_point(fx, fy);
-    }
-  }
-
-  if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT)
-  {
-    //click capture, etc...
-    int mouse_x, mouse_y;
-    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-
-    //if(hit_test(mouse_x, mouse_y))
-    {
-      float fx = ((float)mouse_x - pos[0]) / dim[0];
-      float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
-
-      float curve_y = curve->evaluate(fx);
-      if(fabs(curve_y - fy) < CURVE_EDITOR_CLICK_THRESHOLD)
+      int mouse_x, mouse_y;
+      Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+      if(button_state & SDL_BUTTON_LEFT)
       {
-        add_control_point(fx);
+        float fx = ((float)mouse_x - pos[0]) / dim[0];
+        float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
+
+        move_selected_control_point(fx, fy);
       }
+      break;
     }
+    // case SDL_MOUSEWHEEL:
+    //   scale_ui_vel += (float)event.wheel.y * 0.08f;
+    //   break;
+    case SDL_MOUSEBUTTONUP:
+    {
+      if(event.button.button == SDL_BUTTON_RIGHT)
+      {
+        //click capture, etc...
+        int mouse_x, mouse_y;
+        Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+
+        //if(hit_test(mouse_x, mouse_y))
+        {
+          float fx = ((float)mouse_x - pos[0]) / dim[0];
+          float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
+
+          float curve_y = curve->evaluate(fx);
+          if(fabs(curve_y - fy) < CURVE_EDITOR_CLICK_THRESHOLD)
+          {
+            add_control_point(fx);
+          }
+        }
+      }
+      break;
+    }
+    case SDL_MOUSEBUTTONDOWN:
+    {
+      if(event.button.button == SDL_BUTTON_LEFT)
+      {
+        int mouse_x, mouse_y;
+        Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+
+        float fx = ((float)mouse_x - pos[0]) / dim[0];
+        float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
+        select_control_point(fx, fy);
+        select_segment(fx, fy);
+      }
+      break;
+    }
+    case SDL_KEYUP:
+    {
+      switch(event.key.keysym.sym)
+      {
+        case '=':
+          if(selected_segment)
+          {
+            for(int i = 0; i < curve->get_num_segments(); i++)
+            {
+              CurveSegment *cs = curve->get_segment_by_index(i);
+              if(cs == selected_segment)
+              {
+                InterpolationMethod m = cs->get_interpolation_method();
+                InterpolationMethod new_m = (InterpolationMethod)(((int)m + 1) % (int)NUM_INTERPOLATION_METHODS);
+                curve->change_segment_type(i, new_m);
+                cs = curve->get_segment_by_index(i);
+                selected_segment = cs;
+              }
+            }
+          }
+          break;
+        case '-':
+          break;
+        }
+      }
+      break;
   }
 }
 
