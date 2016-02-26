@@ -12,7 +12,7 @@ namespace UI
   class Widget
   {
   public:
-    Widget(Font *f = NULL) { font = f; visible = false; }
+    Widget(Font *f = NULL) { font = f; visible = false; has_focus = false; }
     ~Widget() {}
 
     void show(const bool d = true) { visible = d; }
@@ -27,13 +27,18 @@ namespace UI
     virtual void simulate(const float dt) = 0;
     virtual void render() = 0;
 
+    void set_focus(bool f) { has_focus = f; }
+    bool get_focus() const { return has_focus; }
+
   protected:
     void render_prep();
     void render_cleanup();
 
     bool visible;
     Font *font;
+
+    bool has_focus;
   };
 };
 
-#endif //__MCGUFFIN_H__
+#endif //__WIDGET_H__

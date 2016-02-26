@@ -10,6 +10,8 @@ namespace Math {
     INTERPOLATE_LERP,
     INTERPOLATE_CERP,
     INTERPOLATE_BEZIER,
+    INTERPOLATE_COSINE,
+    INTERPOLATE_PERLIN,
     NUM_INTERPOLATION_METHODS
   };
 
@@ -17,13 +19,11 @@ namespace Math {
   {
     friend class CurveSegment;
     public:
-      CurveEndPoint() { neighbor = NULL; }
+      CurveEndPoint() {}
       ~CurveEndPoint() {}
   //  private:
       Float2 p;   //vertex
       Float2 t;   //tangent handle
-
-      CurveEndPoint *neighbor;
   };
 
   //
@@ -82,6 +82,54 @@ namespace Math {
     virtual InterpolationMethod get_interpolation_method() const { return INTERPOLATE_BEZIER; }
   };
 
+  //
+  // cosine periodic
+  //
+  class CurveSegmentCosine : public CurveSegment
+  {
+  public:
+    CurveSegmentCosine();
+    ~CurveSegmentCosine() {}
+
+    virtual float evaluate(const float _x) const;
+    virtual InterpolationMethod get_interpolation_method() const { return INTERPOLATE_COSINE; }
+
+    float amplitude;
+    float frequency;
+    float phase;
+    float y_offset;
+  };
+
+  //
+  // perlin periodic
+  //
+  class CurveSegmentPerlin : public CurveSegment
+  {
+  public:
+    CurveSegmentPerlin();
+    ~CurveSegmentPerlin() {}
+
+    virtual float evaluate(const float _x) const;
+    virtual InterpolationMethod get_interpolation_method() const { return INTERPOLATE_PERLIN; }
+
+    float amplitude;
+    float frequency;
+    float phase;
+    float y_offset;
+    int octaves;
+  };
+
+  class CurveHandle
+  {
+    public:
+      CurveHandle() {}
+      ~CurveHandle() {}
+
+      void translate(const Math::Float2 p);
+      Float2 get_pos() { return *(locations[0]); }
+      std::vector<Math::Float2 *> locations;
+  };
+
   class Curve
   {
     public:
@@ -89,17 +137,27 @@ namespace Math {
       ~Curve();
 
       void add_segment(CurveSegment *s);
-      CurveSegment *create_segment(InterpolationMethod m, Math::Float2 range_x);
+      CurveSegment *create_segment(InterpolationMethod m, CurveEndPoint new_a, CurveEndPoint new_b);
 
       float evaluate(const float _x);
 
       int get_num_segments() const { return segments.size(); }
       CurveSegment *get_segment_by_index(const int i) { return segments[i]; }
 
+      int get_num_handles() const { return handles.size(); }
+      CurveHandle *get_handle_by_index(const int i) { return &handles[i]; }
+      void delete_handle(const CurveHandle *ch);
+
       CurveSegment *get_segment(const float x);
 
+      void change_segment_type(const int i, const InterpolationMethod m);
+
+      void enforce_segment_ranges();
     private:
-      std::vector<CurveSegment *> segments;
+      void build_handle_list();
+
+      std::vector<CurveSegment *>   segments;
+      std::vector<CurveHandle>      handles;
   };
 };
 

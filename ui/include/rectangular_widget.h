@@ -16,6 +16,7 @@ namespace UI
     void translate(Math::Float2 p) { pos = p; }
     void scale(Math::Float2 s) { dim = s; }
     Math::Float2 get_dim() const { return dim; }
+    Math::Float2 get_pos() const { return pos; }
 
     virtual void process_event(const SDL_Event &e) = 0;
 

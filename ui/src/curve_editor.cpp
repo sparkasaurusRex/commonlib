@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <sstream>
+#include <iomanip>
 #include "curve_editor.h"
 
 using namespace UI;
@@ -8,8 +10,9 @@ using namespace std;
 CurveEditor::CurveEditor(Font *f) : RectangularWidget(f)
 {
   curve = NULL;
-  selected_endpt = NULL;
-  tangent_selected = false;
+  selected_handle = NULL;
+  selected_segment = NULL;
+  last_selected_handle = NULL;
 }
 
 CurveEditor::~CurveEditor()
@@ -19,13 +22,26 @@ CurveEditor::~CurveEditor()
 
 void CurveEditor::init()
 {
-
+  for(int i = 0; i < 2; i++)
+  {
+    float w = 80.0f;
+    handle_pos_te[i].set_font(font);
+    handle_pos_te[i].translate(Float2(pos[0] + (w + 10.0f) * (float)i, pos[1] + dim[1] + 40.0f));
+    handle_pos_te[i].scale(Float2(w, 25.0f));
+    handle_pos_te[i].init();
+    handle_pos_te[i].show();
+    handle_pos_te[i].set_text("pos");
+  }
 }
 
 void CurveEditor::render()
 {
-  //TODO: programmable pipeline?
+  for(int i = 0; i < 2; i++)
+  {
+    handle_pos_te[i].render();
+  }
 
+  //TODO: programmable pipeline?
   //draw the border
   glLineWidth(2.0f);
   glBegin(GL_LINE_STRIP);
@@ -68,13 +84,22 @@ void CurveEditor::render()
     int num_segments = CURVE_EDITOR_NUM_DRAW_SEGMENTS;
     glLineWidth(1.0f);
     glBegin(GL_LINE_STRIP);
-    glColor3f(1.0f, 1.0f, 1.0f);
     for(int i = 0; i <= num_segments; i++)
     {
       float x_pct = (float)i / (float)num_segments;
       CurveSegment *cs = curve->get_segment(x_pct);
       if(cs)
       {
+        if(cs == selected_segment)
+        {
+          glLineWidth(3.0f);
+          glColor3f(1.0f, 0.0f, 0.0f);
+        }
+        else
+        {
+          glLineWidth(1.0f);
+          glColor3f(1.0f, 1.0f, 1.0f);
+        }
 
         float y = 1.0f - cs->evaluate(x_pct);
 
@@ -96,14 +121,14 @@ void CurveEditor::render()
       {
         float screen_x = pos[0] + cs->end_points[j].p[0] * dim[0];
         float screen_y = pos[1] + (1.0f - cs->end_points[j].p[1]) * dim[1];
-        if(&(cs->end_points[j]) == selected_endpt)
+        /*if(&(cs->end_points[j]) == selected_endpt)
         {
           glColor3f(1.0f, 1.0f, 0.0f);
         }
         else
-        {
+        {*/
           glColor3f(1.0f, 0.0f, 0.0f);
-        }
+        //}
         glVertex3f(screen_x, screen_y, 0.0f);
       }
 
@@ -111,10 +136,13 @@ void CurveEditor::render()
       {
         for(int j = 0; j < 2; j++)
         {
-          float screen_x = pos[0] + cs->end_points[j].t[0] * dim[0];
-          float screen_y = pos[1] + (1.0f - cs->end_points[j].t[1]) * dim[1];
-          glColor3f(0.0f, 1.0f, 1.0f);
-          glVertex3f(screen_x, screen_y, 0.0f);
+          if(true)//selected_endpt == &(cs->end_points[j]) || selected_endpt == cs->end_points[j].neighbor)
+          {
+            float screen_x = pos[0] + cs->end_points[j].t[0] * dim[0];
+            float screen_y = pos[1] + (1.0f - cs->end_points[j].t[1]) * dim[1];
+            glColor3f(0.0f, 1.0f, 1.0f);
+            glVertex3f(screen_x, screen_y, 0.0f);
+          }
         }
       }
     }
@@ -130,13 +158,16 @@ void CurveEditor::render()
       {
         for(int j = 0; j < 2; j++)
         {
-          float screen_x = pos[0] + cs->end_points[j].p[0] * dim[0];
-          float screen_y = pos[1] + (1.0f - cs->end_points[j].p[1]) * dim[1];
-          glVertex3f(screen_x, screen_y, 0.0f);
+          if(true) //selected_endpt == &(cs->end_points[j]) || selected_endpt == cs->end_points[j].neighbor)
+          {
+            float screen_x = pos[0] + cs->end_points[j].p[0] * dim[0];
+            float screen_y = pos[1] + (1.0f - cs->end_points[j].p[1]) * dim[1];
+            glVertex3f(screen_x, screen_y, 0.0f);
 
-          screen_x = pos[0] + cs->end_points[j].t[0] * dim[0];
-          screen_y = pos[1] + (1.0f - cs->end_points[j].t[1]) * dim[1];
-          glVertex3f(screen_x, screen_y, 0.0f);
+            screen_x = pos[0] + cs->end_points[j].t[0] * dim[0];
+            screen_y = pos[1] + (1.0f - cs->end_points[j].t[1]) * dim[1];
+            glVertex3f(screen_x, screen_y, 0.0f);
+          }
         }
       }
     }
@@ -146,132 +177,214 @@ void CurveEditor::render()
 
 void CurveEditor::process_event(const SDL_Event &event)
 {
-  assert(curve);
 
-  if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
+  for(int i = 0; i < 2; i++)
   {
-    int mouse_x, mouse_y;
-    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-
-    float fx = ((float)mouse_x - pos[0]) / dim[0];
-    float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
-    select_control_point(fx, fy);
-  }
-
-  if(event.type == SDL_MOUSEMOTION)
-  {
-    int mouse_x, mouse_y;
-    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    if(button_state & SDL_BUTTON_LEFT)
+    if(handle_pos_te[i].get_focus())
     {
-      float fx = ((float)mouse_x - pos[0]) / dim[0];
-      float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
-
-      move_selected_control_point(fx, fy);
+      handle_pos_te[i].process_event(event);
     }
-  }
-
-  if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT)
-  {
-    //click capture, etc...
-    int mouse_x, mouse_y;
-    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-
-    //if(hit_test(mouse_x, mouse_y))
+    else
     {
-      float fx = ((float)mouse_x - pos[0]) / dim[0];
-      float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
-
-      float curve_y = curve->evaluate(fx);
-      if(fabs(curve_y - fy) < CURVE_EDITOR_CLICK_THRESHOLD)
+      if(selected_handle && selected_handle->locations.size() > 0)
       {
-        cout<<"hit!"<<endl;
-        add_control_point(fx);
+        Float2 handle_pos = selected_handle->get_pos();
+        std::stringstream ss;
+        ss<<std::fixed<<std::setprecision(4)<<handle_pos[i];
+        handle_pos_te[i].set_text(ss.str());
       }
     }
+  }
+
+  assert(curve);
+
+  //cout<<"CurveEditor::process_event"<<endl;
+  switch(event.type)
+  {
+    case SDL_MOUSEMOTION:
+    {
+      int mouse_x, mouse_y;
+      Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+      if(button_state & SDL_BUTTON_LEFT)
+      {
+        float fx = ((float)mouse_x - pos[0]) / dim[0];
+        float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
+
+        move_selected_control_point(fx, fy);
+      }
+      break;
+    }
+    // case SDL_MOUSEWHEEL:
+    //   scale_ui_vel += (float)event.wheel.y * 0.08f;
+    //   break;
+    case SDL_MOUSEBUTTONUP:
+    {
+      int mouse_x, mouse_y;
+      Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+      if(event.button.button == SDL_BUTTON_LEFT)
+      {
+        for(int i = 0; i < 2; i++)
+        {
+          handle_pos_te[i].set_focus(false);
+          if(handle_pos_te[i].hit_test(mouse_x, mouse_y))
+          {
+            handle_pos_te[i].set_focus(true);
+          }
+        }
+      }
+      if(event.button.button == SDL_BUTTON_RIGHT)
+      {
+        //if(hit_test(mouse_x, mouse_y))
+        {
+          float fx = ((float)mouse_x - pos[0]) / dim[0];
+          float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
+
+          float curve_y = curve->evaluate(fx);
+          if(fabs(curve_y - fy) < CURVE_EDITOR_CLICK_THRESHOLD)
+          {
+            add_control_point(fx);
+          }
+        }
+      }
+      break;
+    }
+    case SDL_MOUSEBUTTONDOWN:
+    {
+      if(event.button.button == SDL_BUTTON_LEFT)
+      {
+        int mouse_x, mouse_y;
+        Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+
+        float fx = ((float)mouse_x - pos[0]) / dim[0];
+        float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
+        select_control_point(fx, fy);
+        select_segment(fx, fy);
+      }
+      break;
+    }
+    case SDL_KEYUP:
+    {
+      switch(event.key.keysym.sym)
+      {
+        case SDLK_RETURN:
+          if(last_selected_handle)
+          {
+            Float2 pos;
+            std::string x_string = handle_pos_te[0].get_text();
+            std::string y_string = handle_pos_te[1].get_text();
+            pos[0] = atof(x_string.c_str());
+            pos[1] = atof(y_string.c_str());
+            last_selected_handle->translate(pos);
+            curve->enforce_segment_ranges();
+            cout<<"CurveEditor::process_event(): new_pos: "<<pos<<endl;
+          }
+          break;
+        case SDLK_BACKSPACE:
+          delete_control_point();
+          break;
+        case '=':
+          if(selected_segment)
+          {
+            for(int i = 0; i < curve->get_num_segments(); i++)
+            {
+              CurveSegment *cs = curve->get_segment_by_index(i);
+              if(cs == selected_segment)
+              {
+                InterpolationMethod m = cs->get_interpolation_method();
+                InterpolationMethod new_m = (InterpolationMethod)(((int)m + 1) % (int)NUM_INTERPOLATION_METHODS);
+                curve->change_segment_type(i, new_m);
+                cs = curve->get_segment_by_index(i);
+                selected_segment = cs;
+              }
+            }
+          }
+          break;
+        case '-':
+          break;
+        }
+      }
+      break;
   }
 }
 
 void CurveEditor::add_control_point(const float fx)
 {
-  float curve_y = curve->evaluate(fx);
-
   CurveSegment *cs = curve->get_segment(fx);
   assert(cs);
 
-  float new_x = cs->end_points[1].p[0];
-  float new_y = cs->end_points[1].p[1];
+  Float2 new_curve_pt(fx, curve->evaluate(fx));
 
-  cs->end_points[1].p[0] = fx;
-  cs->end_points[1].p[1] = curve_y;
+  CurveEndPoint middle, right;
 
-  CurveSegment *new_seg = curve->create_segment(INTERPOLATE_BEZIER, Float2(fx, new_x));
-  assert(new_seg);
-  new_seg->end_points[0].p[1] = curve_y;
-  new_seg->end_points[1].p[1] = new_y;
+  middle.p = new_curve_pt;
+  middle.t = new_curve_pt + Float2(0.1f, 0.0f);
 
-  new_seg->end_points[0].t[0] = fx - 0.2f;
-  new_seg->end_points[0].t[1] = curve_y;
+  right.p = cs->end_points[1].p;
+  right.t = cs->end_points[1].t;
 
-  new_seg->end_points[1].t[0] = new_seg->end_points[1].p[0] - 0.2f;
-  new_seg->end_points[1].t[1] = new_y;
+  CurveSegment *new_segment = curve->create_segment(INTERPOLATE_BEZIER, middle, right);
+  cs->end_points[1].p = middle.p;
+  cs->end_points[1].t = middle.p + Float2(-0.1f, 0.0f);
 
-  new_seg->end_points[0].neighbor = &(cs->end_points[1]);
-  cs->end_points[1].neighbor = &(new_seg->end_points[0]);
+  /*for(int i = 0; i < curve->get_num_segments(); i++)
+  {
+    CurveSegment *cs = curve->get_segment_by_index(i);
+    cout<<"segment"<<endl;
+    cout<<"\t"<<cs->end_points[0].p<<endl;
+    cout<<"\t"<<cs->end_points[1].p<<endl;
+  }*/
 }
 
 void CurveEditor::delete_control_point()
 {
-
+  if(selected_handle)
+  {
+    curve->delete_handle(selected_handle);
+  }
+  selected_segment = NULL;
+  selected_handle = last_selected_handle = NULL;
 }
 
 void CurveEditor::select_control_point(const float fx, const float fy)
 {
-  selected_endpt = NULL;
-  tangent_selected = false;
-  int num_curve_segments = curve->get_num_segments();
-  for(int ci = 0; ci < num_curve_segments; ci++)
+  if(selected_handle) { last_selected_handle = selected_handle; }
+  selected_handle = NULL;
+
+  int num_curve_handles = curve->get_num_handles();
+  for(int i = 0; i < num_curve_handles; i++)
   {
-    CurveSegment *cs = curve->get_segment_by_index(ci);
-    for(int i = 0; i < 2; i++)
+    CurveHandle *ch = curve->get_handle_by_index(i);
+    assert(ch->locations.size() > 0);
+    Float2 hp = *(ch->locations[0]);
+
+    if(fabs(hp[0] - fx) < CURVE_EDITOR_CLICK_THRESHOLD &&
+       fabs(hp[1] - fy) < CURVE_EDITOR_CLICK_THRESHOLD)
     {
-      if(fabs(cs->end_points[i].p[0] - fx) < CURVE_EDITOR_CLICK_THRESHOLD &&
-         fabs(cs->end_points[i].p[1] - fy) < CURVE_EDITOR_CLICK_THRESHOLD)
-       {
-         selected_endpt = &(cs->end_points[i]);
-         tangent_selected = false;
-       }
-       else if(fabs(cs->end_points[i].t[0] - fx) < CURVE_EDITOR_CLICK_THRESHOLD &&
-               fabs(cs->end_points[i].t[1] - fy) < CURVE_EDITOR_CLICK_THRESHOLD)
-       {
-         selected_endpt = &(cs->end_points[i]);
-         tangent_selected = true;
-       }
-     }
-   }
+      last_selected_handle = ch;
+      selected_handle = ch;
+    }
+  }
+}
+
+void CurveEditor::select_segment(const float fx, const float fy)
+{
+  selected_segment = NULL;
+  CurveSegment *cs = curve->get_segment(fx);
+  if(cs)
+  {
+    float cy = cs->evaluate(fx);
+    if(fabs(fy - cy) < CURVE_EDITOR_CLICK_THRESHOLD)
+    {
+      selected_segment = cs;
+    }
+  }
 }
 
 void CurveEditor::move_selected_control_point(const float fx, const float fy)
 {
-  //ugh this code is sooooo ugly....
-  if(selected_endpt)
+  if(selected_handle)
   {
-    Float2 *handle = NULL;
-    if(tangent_selected)
-    {
-      handle = &(selected_endpt->t);
-    }
-    else
-    {
-      handle = &(selected_endpt->p);
-    }
-    (*handle)[0] = fx;
-    (*handle)[1] = fy;
-
-    if(selected_endpt->neighbor)
-    {
-      selected_endpt->neighbor->p[0] = fx;
-      selected_endpt->neighbor->p[1] = fy;
-    }
+    selected_handle->translate(Math::Float2(fx, fy));
+    curve->enforce_segment_ranges();
   }
 }

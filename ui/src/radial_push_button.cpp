@@ -25,15 +25,18 @@ void RadialPushButton::process_event(const SDL_Event &event)
 {
   if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
   {
+    cout<<"RadialPushButton::process_event(): mouse_down"<<endl;
     int mouse_x, mouse_y;
     Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
     if(hit_test(mouse_x, mouse_y))
     {
+      cout<<"RadialPushButton::process_event(): click capture"<<endl;
       click_capture = true;
     }
   }
   if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT)
   {
+    cout<<"RadialPushButton::process_event(): mouse_up"<<endl;
     int mouse_x, mouse_y;
     Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
 
