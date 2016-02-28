@@ -535,46 +535,39 @@ void GPUParticleSystem::render()
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, const char * file) {
+void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce **forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, const char * file) {
 
-  GPUParticleSystem * ps = new GPUParticleSystem();
+  GPUParticleSystem *ps = new GPUParticleSystem();
 
-  Float3 * particle_pos = new Float3[numParticles];
-  Float3 * particle_vel = new Float3[numParticles];
-  Float3 * colors = new Float3[numParticles];
-  float * age = new float[numParticles];
+  Float3 *particle_pos = new Float3[numParticles];
+  Float3 *particle_vel = new Float3[numParticles];
+  Float3 *colors = new Float3[numParticles];
+  float *age = new float[numParticles];
 
-  for (int i = 0; i < numParticles; i++) {
-
+  for (int i = 0; i < numParticles; i++)
+  {
     Float3 posOffset = Float3(random(-emitterRadius, emitterRadius), random(-emitterRadius, emitterRadius), random(-emitterRadius, emitterRadius));
-
     posOffset.normalize();
-
     posOffset = posOffset * emitterRadius;
 
     particle_pos[i] = emitterLoc + posOffset * random(0.f, 1.f);
-
     Float3 velOffset = Float3(random(-emitterRange, emitterRange), random(-emitterRange, emitterRange), random(-emitterRange, emitterRange));
-
     velOffset.normalize();
-
     velOffset = velOffset * emitterRange * random(0.f, 1.f);
 
     particle_vel[i] = emitterDirection + velOffset;
-
     particle_vel[i].normalize();
-
     particle_vel[i] = particle_vel[i] * emitterStrength;
 
     colors[i] = Float3(1.f, 1.f, 0.f);
-
     age[i] = -emitterDuration * i / numParticles;
   }
 
   //ps->setEmitterLocation(emitterLoc);
   ps->set_particle_lifespan(lifespan);
 
-  for (int i = 0; i < numForces; i++) {
+  for(int i = 0; i < numForces; i++)
+  {
     ps->add_force(forces[i]);
   }
 
