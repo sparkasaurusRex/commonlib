@@ -130,6 +130,7 @@ class GeodesicCell
 
     int get_num_neighbors() const { return num_neighbors; }
     GeodesicCell<T> *get_neighbor(const int i) { return neighbors[i]; }
+    Math::Float3 get_neighbor_centroid(const int i) { return neighbor_centroids[i]; }
 
     void fwrite(FILE *f, GeodesicCell<T> *cells, int num_cells)
     {
@@ -190,7 +191,7 @@ class GeodesicCell
     T data;
 
     GeodesicCell<T> *neighbors[6];    //max number of neighbors a cell can have: 6
-    //Float3 neighbor_centroids[6];
+    Math::Float3 neighbor_centroids[6];
     //Float3 neighbor_normals[6];
     int num_neighbors;                //current number of neighbors (either 4, 5, or 6)
 };
