@@ -42,8 +42,9 @@ namespace Structures    {
 
     KDNode<T> *find_nearest_neighbor(Math::Float3 query)
     {
-      float best_d2;
-      return findNearestNeighborHelper(&best_d2, &query, root, 0);
+      KDNode<T> *closest = NULL;
+      float best_d2 = findNearestNeighborHelper(&closest, &query, root, 0);
+      return closest;
     }
 
   private:
@@ -154,11 +155,17 @@ namespace Structures    {
       }
     }
 
-    KDNode<T> *findNearestNeighborHelper(float *best_d2, Math::Float3 *query, KDNode<T> * cRoot, int currentDimension)
+    float findNearestNeighborHelper(KDNode<T> **closest, Math::Float3 *query, KDNode<T> *cRoot, int currentDimension)
     {
-      if(cRoot == NULL || (cRoot->left == NULL && cRoot->right == NULL))
+      if(cRoot == NULL)
       {
-        return cRoot;
+        *closest = NULL;
+        return -1.0f;
+      }
+      if(cRoot->left == NULL && cRoot->right == NULL)
+      {
+        *closest = cRoot;
+        return dist_squared(*query, cRoot->value);
       }
 
       KDNode<T> *currentBestNode;
@@ -170,16 +177,17 @@ namespace Structures    {
       if(query->_val[currentDimension] < cRoot->value[currentDimension])
       {
         //Search left
-        currentBestNode = findNearestNeighborHelper(&d2_query_cbn, query, cRoot->left, nextDimension);
+        d2_query_cbn = findNearestNeighborHelper(&currentBestNode, query, cRoot->left, nextDimension);
         checkedLeftHyperrectangle = true;
       }
       else
       {
         //Search right
-        currentBestNode = findNearestNeighborHelper(&d2_query_cbn, query, cRoot->right, nextDimension);
+        d2_query_cbn = findNearestNeighborHelper(&currentBestNode, query, cRoot->right, nextDimension);
         checkedLeftHyperrectangle = false;
       }
 
+      float best_d2 = d2_query_cbn;
 
       float x, y, z;
       if(currentBestNode != NULL)
@@ -194,7 +202,7 @@ namespace Structures    {
       x = query->_val[0] - cRoot->value._val[0];
       y = query->_val[1] - cRoot->value._val[1];
       z = query->_val[2] - cRoot->value._val[2];
-      float d2_query_croot = x * x + y * y * z * z;
+      float d2_query_croot = x * x + y * y + z * z;
 
       if(currentBestNode == NULL || d2_query_croot < d2_query_cbn)
       {
@@ -208,25 +216,27 @@ namespace Structures    {
       if(distSqrdToSplittingPlane < d2_query_cbn)
       {
         //We need to check the other hyperrectangle
-        KDNode<T> * possibleBest;
+        KDNode<T> *possibleBest;
         float d2_query_pb = -1.0f;
         if(checkedLeftHyperrectangle)
         {
-          possibleBest = findNearestNeighborHelper(&d2_query_pb, query, cRoot->right, nextDimension);
+          d2_query_pb = findNearestNeighborHelper(&possibleBest, query, cRoot->right, nextDimension);
         }
         else
         {
-          possibleBest = findNearestNeighborHelper(&d2_query_pb, query, cRoot->left, nextDimension);
+          d2_query_pb = findNearestNeighborHelper(&possibleBest, query, cRoot->left, nextDimension);
         }
 
-        if(possibleBest != NULL && (d2_query_pb < d2_query_cbn))//dist_squared(query, possibleBest->value) < d2_query_cbn)
+        if(possibleBest != NULL && (d2_query_pb < d2_query_cbn))
+        //if(possibleBest != NULL && dist_squared(*query, possibleBest->value) < d2_query_cbn)
         {
           currentBestNode = possibleBest;
-          *best_d2 = d2_query_pb;
+          best_d2 = d2_query_pb;
         }
       }
-      *best_d2 = d2_query_cbn;
-      return currentBestNode;
+      best_d2 = d2_query_cbn;
+      *closest = currentBestNode;
+      return best_d2;
     }
   };
 }
