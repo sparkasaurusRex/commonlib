@@ -160,12 +160,12 @@ namespace Structures    {
         return cRoot;
       }
 
-      KDNode<T> * currentBestNode;
+      KDNode<T> *currentBestNode;
       int nextDimension = (currentDimension + 1) % DIM;
 
       bool checkedLeftHyperrectangle;
 
-      if(query[currentDimension] < cRoot->value[currentDimension])
+      if(query._val[currentDimension] < cRoot->value[currentDimension])
       {
         //Search left
         currentBestNode = findNearestNeighborHelper(query, cRoot->left, nextDimension);
@@ -178,15 +178,19 @@ namespace Structures    {
         checkedLeftHyperrectangle = false;
       }
 
-      if(currentBestNode == NULL || dist_squared(query, cRoot->value) < dist_squared(query, currentBestNode->value))
+      float d2_query_cbn = currentBestNode ? dist_squared(query, currentBestNode->value) : -1.0f;
+      float d2_query_croot = dist_squared(query, cRoot->value);
+
+      if(currentBestNode == NULL || d2_query_croot < d2_query_cbn)
       {
         currentBestNode = cRoot;
+        d2_query_cbn = d2_query_croot;
       }
 
       float distSqrdToSplittingPlane = query[currentDimension] - cRoot->value[currentDimension];
       distSqrdToSplittingPlane *= distSqrdToSplittingPlane;
 
-      if(distSqrdToSplittingPlane < dist_squared(query, currentBestNode->value))
+      if(distSqrdToSplittingPlane < d2_query_cbn)
       {
         //We need to check the other hyperrectangle
         KDNode<T> * possibleBest;
@@ -199,7 +203,7 @@ namespace Structures    {
           possibleBest = findNearestNeighborHelper(query, cRoot->left, nextDimension);
         }
 
-        if(possibleBest != NULL && dist_squared(query, possibleBest->value) < dist_squared(query, currentBestNode->value))
+        if(possibleBest != NULL && dist_squared(query, possibleBest->value) < d2_query_cbn)
         {
           currentBestNode = possibleBest;
         }
