@@ -42,7 +42,9 @@ namespace Structures    {
 
     KDNode<T> *find_nearest_neighbor(Math::Float3 query)
     {
-      return findNearestNeighborHelper(query, root, 0);
+      KDNode<T> *closest = NULL;
+      float best_d2 = findNearestNeighborHelper(&closest, &query, root, 0);
+      return closest;
     }
 
   private:
@@ -153,58 +155,88 @@ namespace Structures    {
       }
     }
 
-    KDNode<T> *findNearestNeighborHelper(Math::Float3 query, KDNode<T> * cRoot, int currentDimension)
+    float findNearestNeighborHelper(KDNode<T> **closest, Math::Float3 *query, KDNode<T> *cRoot, int currentDimension)
     {
-      if(cRoot == NULL || (cRoot->left == NULL && cRoot->right == NULL))
+      if(cRoot == NULL)
       {
-        return cRoot;
+        *closest = NULL;
+        return -1.0f;
+      }
+      if(cRoot->left == NULL && cRoot->right == NULL)
+      {
+        *closest = cRoot;
+        return dist_squared(*query, cRoot->value);
       }
 
-      KDNode<T> * currentBestNode;
+      KDNode<T> *currentBestNode;
       int nextDimension = (currentDimension + 1) % DIM;
 
       bool checkedLeftHyperrectangle;
 
-      if(query[currentDimension] < cRoot->value[currentDimension])
+      float d2_query_cbn = -1.0f;
+      if(query->_val[currentDimension] < cRoot->value[currentDimension])
       {
         //Search left
-        currentBestNode = findNearestNeighborHelper(query, cRoot->left, nextDimension);
+        d2_query_cbn = findNearestNeighborHelper(&currentBestNode, query, cRoot->left, nextDimension);
         checkedLeftHyperrectangle = true;
       }
       else
       {
         //Search right
-        currentBestNode = findNearestNeighborHelper(query, cRoot->right, nextDimension);
+        d2_query_cbn = findNearestNeighborHelper(&currentBestNode, query, cRoot->right, nextDimension);
         checkedLeftHyperrectangle = false;
       }
 
-      if(currentBestNode == NULL || dist_squared(query, cRoot->value) < dist_squared(query, currentBestNode->value))
+      float best_d2 = d2_query_cbn;
+
+      float x, y, z;
+      if(currentBestNode != NULL)
+      {
+        x = query->_val[0] - currentBestNode->value._val[0];
+        y = query->_val[1] - currentBestNode->value._val[1];
+        z = query->_val[2] - currentBestNode->value._val[2];
+        d2_query_cbn = x * x + y * y + z * z;
+      }// ? dist_squared(query, currentBestNode->value) : -1.0f;
+
+      //float d2_query_croot = dist_squared(query, cRoot->value);
+      x = query->_val[0] - cRoot->value._val[0];
+      y = query->_val[1] - cRoot->value._val[1];
+      z = query->_val[2] - cRoot->value._val[2];
+      float d2_query_croot = x * x + y * y + z * z;
+
+      if(currentBestNode == NULL || d2_query_croot < d2_query_cbn)
       {
         currentBestNode = cRoot;
+        d2_query_cbn = d2_query_croot;
       }
 
-      float distSqrdToSplittingPlane = query[currentDimension] - cRoot->value[currentDimension];
+      float distSqrdToSplittingPlane = query->_val[currentDimension] - cRoot->value._val[currentDimension];
       distSqrdToSplittingPlane *= distSqrdToSplittingPlane;
 
-      if(distSqrdToSplittingPlane < dist_squared(query, currentBestNode->value))
+      if(distSqrdToSplittingPlane < d2_query_cbn)
       {
         //We need to check the other hyperrectangle
-        KDNode<T> * possibleBest;
+        KDNode<T> *possibleBest;
+        float d2_query_pb = -1.0f;
         if(checkedLeftHyperrectangle)
         {
-          possibleBest = findNearestNeighborHelper(query, cRoot->right, nextDimension);
+          d2_query_pb = findNearestNeighborHelper(&possibleBest, query, cRoot->right, nextDimension);
         }
         else
         {
-          possibleBest = findNearestNeighborHelper(query, cRoot->left, nextDimension);
+          d2_query_pb = findNearestNeighborHelper(&possibleBest, query, cRoot->left, nextDimension);
         }
 
-        if(possibleBest != NULL && dist_squared(query, possibleBest->value) < dist_squared(query, currentBestNode->value))
+        if(possibleBest != NULL && (d2_query_pb < d2_query_cbn))
+        //if(possibleBest != NULL && dist_squared(*query, possibleBest->value) < d2_query_cbn)
         {
           currentBestNode = possibleBest;
+          best_d2 = d2_query_pb;
         }
       }
-      return currentBestNode;
+      best_d2 = d2_query_cbn;
+      *closest = currentBestNode;
+      return best_d2;
     }
   };
 }

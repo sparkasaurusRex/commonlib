@@ -28,36 +28,25 @@ namespace Graphics {
     EMPTY
   };
 
-  class ParticleForce {
-
+  class ParticleForce
+  {
   public:
-
     ParticleForce(int fType) : forceType(fType) {}
-
     int getForceType() {return forceType;}
 
   private:
-
     int forceType;
-
   };
 
   class Attractor : public ParticleForce {
-
   public:
-
     Attractor(Float3 loc, float s) : ParticleForce(ATTRACTOR), location(loc), strength(s) {}
-
     virtual Float3 getLocation() {return location;}
-
     virtual float getStrength() {return strength;}
 
   private:
-
     Float3 location;
-
     float strength;
-
   };
 
 
@@ -92,8 +81,10 @@ namespace Graphics {
     GLuint get_vel_tex(const int i) { return vel_tex[i]; }
     GLuint get_rand_tex() { return rand_tex; }
 
-    void add_force(ParticleForce * f) {
-      if (f->getForceType() == ATTRACTOR && numAttractors < MAX_NUM_ATTRACTORS) {
+    void add_force(ParticleForce *f)
+    {
+      if(f->getForceType() == ATTRACTOR && numAttractors < MAX_NUM_ATTRACTORS)
+      {
         numAttractors++;
         forces.push_back(f);
       }
@@ -205,8 +196,8 @@ namespace Graphics {
     GLint uniform_locations[NUM_PARTICLE_UNIFORMS];
   };
 
-  class GPUParticleSim {
-
+  class GPUParticleSim
+  {
   public:
 
     GPUParticleSim();

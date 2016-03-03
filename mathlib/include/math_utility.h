@@ -87,26 +87,59 @@ namespace Math {
         float _val[3];
     };
 
-  inline Float2 operator*(const float &l, const Float2 &r) { return Float2(l * r[0], l * r[1]); }
-  inline Float3 operator*(const float &l, const Float3 &r) { return Float3(l * r[0], l * r[1], l * r[2]); }
+  inline Float2 operator*(const float &l, const Float2 &r) { return Float2(l * r._val[0], l * r._val[1]); }
+  inline Float3 operator*(const float &l, const Float3 &r) { return Float3(l * r._val[0], l * r._val[1], l * r._val[2]); }
   inline std::ostream &operator<<(std::ostream &os, const Float3 &obj) { os<<"("<<obj[0]<<", "<<obj[1]<<", "<<obj[2]<<")"; return os; }
   inline std::ostream &operator<<(std::ostream &os, const Float2 &obj) { os<<"("<<obj[0]<<", "<<obj[1]<<")"; return os; }
 
   inline Float2 midpoint(Float2 &a, Float2 &b) { return a + 0.5f * (b - a); }
   inline Float3 midpoint(Float3 &a, Float3 &b) { return a + 0.5f * (b - a); }
 
-  inline float distance(const Float2 &a, const Float2 &b) { Float2 v = b - a; return v.magnitude(); }
-  inline float dist_squared(const Float2 &a, const Float2 &b) { Float2 v = b - a; return v.mag_squared(); }
-  inline float distance(const Float3 &a, const Float3 &b) { Float3 v = b - a; return v.magnitude(); }
-  inline float dist_squared(const Float3 &a, const Float3 &b) { Float3 v = b - a; return v.mag_squared(); }
+  inline float distance(const Float2 &a, const Float2 &b)
+  {
+    float x = a._val[0] - b._val[0];
+    float y = a._val[1] - b._val[1];
+    return sqrt(x * x + y * y);
+  }
+  inline float dist_squared(const Float2 &a, const Float2 &b)
+  {
+    float x = a._val[0] - b._val[0];
+    float y = a._val[1] - b._val[1];
+    return x * x + y * y;
+  }
+  inline float distance(const Float3 &a, const Float3 &b)
+  {
+    float x = a._val[0] - b._val[0];
+    float y = a._val[1] - b._val[1];
+    float z = a._val[2] - b._val[2];
+    return sqrt(x * x + y * y + z * z);
+  }
+  inline float dist_squared(const Float3 &a, const Float3 &b)
+  {
+    float x = a._val[0] - b._val[0];
+    float y = a._val[1] - b._val[1];
+    float z = a._val[2] - b._val[2];
+    return x * x + y * y + z * z;
+  }
 
 	inline float lerp(float x, float y, float m) { return (x * (1.0f - m) + y * m); }
 	inline float cerp(float x, float y, float m) { double mu2 = (1.0f - cos(m * M_PI)) / 2.0f; return (x * (1.0f - mu2) + y * mu2); }
 
-	inline Float2 lerp(Float2 &x, Float2 &y, float m) { return Float2(lerp(x._val[0], y._val[0], m), lerp(x._val[1], y._val[1], m)); }
+	inline Float2 lerp(Float2 &x, Float2 &y, float m)
+  {
+    float ret_x = x._val[0] * (1.0f - m) + y._val[0] * m;
+    float ret_y = x._val[1] * (1.0f - m) + y._val[1] * m;
+    return Float2(ret_x, ret_y);
+  }
   inline Float2 cerp(Float2 &x, Float2 &y, float m) { return Float2(cerp(x._val[0], y._val[0], m), cerp(x._val[1], y._val[1], m)); }
 
-  inline Float3 lerp(Float3 &x, Float3 &y, float m) { return Float3(lerp(x._val[0], y._val[0], m), lerp(x._val[1], y._val[1], m), lerp(x._val[2], y._val[2], m)); }
+  inline Float3 lerp(Float3 &x, Float3 &y, float m)
+  {
+    float ret_x = x._val[0] * (1.0f - m) + y._val[0] * m;
+    float ret_y = x._val[1] * (1.0f - m) + y._val[1] * m;
+    float ret_z = x._val[2] * (1.0f - m) + y._val[2] * m;
+    return Float3(ret_x, ret_y, ret_z);
+  }
   inline Float3 cerp(Float3 &x, Float3 &y, float m) { return Float3(cerp(x._val[0], y._val[0], m), cerp(x._val[1], y._val[1], m), cerp(x._val[2], y._val[2], m)); }
 
 	float clamp(float x, float a, float b);
@@ -121,7 +154,7 @@ namespace Math {
 
   inline float ccw(const Float2 a, const Float2 b, const Float2 c)
   {
-    return (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0]);
+    return (b._val[0] - a._val[0]) * (c._val[1] - b._val[1]) - (b._val[1] - a._val[1]) * (c._val[0] - b._val[0]);
   }
 
 	unsigned int hash(unsigned char *str);

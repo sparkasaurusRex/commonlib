@@ -99,7 +99,7 @@ class GeodesicGrid
 
       // fill the 12 vertices with the cartesian coordinates of the icosahedron
       // (0, ±1, ± φ)
-       // (±1, ± φ, 0)
+      // (±1, ± φ, 0)
       // (± φ, 0, ±1)
 
       /*
@@ -743,17 +743,26 @@ class GeodesicGrid
             edge_count++;
           }
         }
+
+        //compute the neighbor centroids
+        for(int j = 0; j < cell->num_neighbors; j++)
+        {
+          GeodesicCell<T> *b = cell->neighbors[j];
+          GeodesicCell<T> *c = cell->neighbors[(j + 1) % cell->num_neighbors];
+
+          cell->neighbor_centroids[j] = (cell->pos + b->pos + c->pos) / 3.0f;
+        }
       }
-      std::cout<<"edge_count: "<<edge_count<<std::endl;
+      //std::cout<<"edge_count: "<<edge_count<<std::endl;
 
       delete[] cells;
       cells = new_cells;
       num_cells = new_num_verts;
 
-      std::cout<<"new_vert_idx: "<<new_vert_idx<<std::endl;
-      std::cout<<"new_num_verts: "<<new_num_verts<<std::endl;
-      std::cout<<"num_cells: "<<num_cells<<std::endl;
-      std::cout<<"new_num_edges: "<<new_num_edges<<std::endl;
+      //std::cout<<"new_vert_idx: "<<new_vert_idx<<std::endl;
+      //std::cout<<"new_num_verts: "<<new_num_verts<<std::endl;
+      //std::cout<<"num_cells: "<<num_cells<<std::endl;
+      //std::cout<<"new_num_edges: "<<new_num_edges<<std::endl;
 
       delete[] faces;
       faces = new_faces;

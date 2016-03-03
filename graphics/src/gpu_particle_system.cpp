@@ -584,35 +584,33 @@ GPUParticleSim::GPUParticleSim() {
 
 void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, bool loop, const char * file) {
 
-  GPUParticleSystem * ps = new GPUParticleSystem();
 
-  Float3 * particle_pos = new Float3[numParticles];
-  Float3 * particle_vel = new Float3[numParticles];
-  Float3 * colors = new Float3[numParticles];
-  float * age = new float[numParticles];
+  GPUParticleSystem *ps = new GPUParticleSystem();
 
-  for (int i = 0; i < numParticles; i++) {
+  Float3 *particle_pos = new Float3[numParticles];
+  Float3 *particle_vel = new Float3[numParticles];
+  Float3 *colors = new Float3[numParticles];
+  float *age = new float[numParticles];
 
+    
+  for (int i = 0; i < numParticles; i++)
+  {
     Float3 posOffset = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
-
+      
     posOffset.normalize();
-
+      
     particle_pos[i] = emitterLoc + emitterRadius * posOffset * random(0.f, 1.f);
-
+      
     Float3 velOffset = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
 
     velOffset.normalize();
-
     velOffset = velOffset * emitterRange * random(0.f, 1.f);
 
     particle_vel[i] = emitterDirection + velOffset;
-
     particle_vel[i].normalize();
-
     particle_vel[i] = particle_vel[i] * emitterStrength;
 
     colors[i] = Float3(1.f, 1.f, 0.f);
-
     age[i] = -emitterDuration * i / numParticles;
   }
 
@@ -623,7 +621,8 @@ void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * force
   ps->set_emitter_location(emitterLoc);
   ps->set_particle_lifespan(lifespan);
 
-  for (int i = 0; i < numForces; i++) {
+  for(int i = 0; i < numForces; i++)
+  {
     ps->add_force(forces[i]);
   }
 
