@@ -13,6 +13,7 @@ using namespace Graphics;
 GPUParticleSystem::GPUParticleSystem()
 {
   billboard_size = 0.035;
+  does_loop = false;
 
   startColor = Float3(1.f, 0.5f, 0.f);
   endColor = Float3(1.f, 0.f, 0.f);
@@ -49,8 +50,13 @@ GPUParticleSystem::~GPUParticleSystem()
   deinit();
 }
 
-void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_particle_vel, Float3 * colors, float * age)
+void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_particle_vel, Float3 * colors, float * age, bool loop, float * rand_data)
 {
+  //cout << GL_MAX_VERTEX_UNIFORM_COMPONENTS_ARB << endl;
+
+  GLuint pixel_mode = GL_RGBA;
+
+  does_loop = loop;
 
   //create textures
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -63,10 +69,42 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   glGenTextures(2, vel_tex);
   glGenFramebuffersEXT(2, vel_fbo);
 
+  //create random texture
+  glGenTextures(1, &rand_tex);
+
+  glBindTexture(GL_TEXTURE_2D, rand_tex);
+  assert(glIsTexture(rand_tex) == GL_TRUE);
+
+  glTexImage2D(GL_TEXTURE_2D,
+               0,
+               internal_format,
+               RANDOM_TEXTURE_SIZE,
+               1,
+               0,
+               pixel_mode,
+               GL_FLOAT,
+               NULL);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  assert(glIsTexture(rand_tex) == GL_TRUE);
+
+  glTexSubImage2D(GL_TEXTURE_2D,
+                  0,
+                  0,
+                  0,
+                  RANDOM_TEXTURE_SIZE,
+                  1,
+                  pixel_mode,
+                  GL_FLOAT,
+                  rand_data);
+
   for (int i = 0; i < 2; i++)
   {
     /* Position Texture */
-    GLuint pixel_mode = GL_RGBA;
 
     glBindTexture(GL_TEXTURE_2D, pos_tex[i]);
     assert(glIsTexture(pos_tex[i]) == GL_TRUE);
@@ -246,13 +284,13 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
 
   //Get shader uniform locations
   update_pos_mat.render_gl();
-
   Shader * shader = update_pos_mat.get_shader();
 
   uniform_locations[UNIFORM_UPDATEPOS_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
   uniform_locations[UNIFORM_UPDATEPOS_VEL_TEX] = glGetUniformLocation(shader->gl_shader_program, "vel_tex");
   uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
   uniform_locations[UNIFORM_UPDATEPOS_EMITTER_LOC] = glGetUniformLocation(shader->gl_shader_program, "emitterLocation");
+  uniform_locations[UNIFORM_UPDATEPOS_RAND_TEX] = glGetUniformLocation(shader->gl_shader_program, "rand_tex");
 
 
   update_vel_mat.render_gl();
@@ -262,7 +300,9 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   uniform_locations[UNIFORM_UPDATEVEL_VEL_TEX] = glGetUniformLocation(shader->gl_shader_program, "vel_tex");
   uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
   uniform_locations[UNIFORM_UPDATEVEL_ATTRACTORS] = glGetUniformLocation(shader->gl_shader_program, "attractors");
-
+  uniform_locations[UNIFORM_UPDATEVEL_RAND_TEX] = glGetUniformLocation(shader->gl_shader_program, "rand_tex");
+  uniform_locations[UNIFORM_UPDATEVEL_EMITTER_DIR] = glGetUniformLocation(shader->gl_shader_program, "emitter_direction");
+  uniform_locations[UNIFORM_UPDATEVEL_MORE_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "more_constants");
 
   render_mat.render_gl();
   shader = render_mat.get_shader();
@@ -272,6 +312,14 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   uniform_locations[UNIFORM_RENDER_SPRITE] = glGetUniformLocation(shader->gl_shader_program, "sprite_tex");
   uniform_locations[UNIFORM_RENDER_START_COLOR] = glGetUniformLocation(shader->gl_shader_program, "startColor");
   uniform_locations[UNIFORM_RENDER_END_COLOR] = glGetUniformLocation(shader->gl_shader_program, "endColor");
+
+  /*cout << glGetError() << endl;
+
+  for (size_t i = 0; i < NUM_PARTICLE_UNIFORMS; i++) {
+    cout << uniform_locations[i] << ", ";
+  }cout << endl;
+  */
+
 
   glUseProgramObjectARB(0);
 }
@@ -345,9 +393,14 @@ void GPUParticleSystem::update_velocities(const float dt) {
 
   delete attractors;
 
+  glUniform3f(uniform_locations[UNIFORM_UPDATEVEL_EMITTER_DIR], emitterDirection[0], emitterDirection[1], emitterDirection[2]);
+
   //constants
-  //{dt, lifespan, numAttractors, ...}
-  glUniform4f(uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS], dt, particleLifespan, k / 4, 0);
+  //{dt, lifespan, numAttractors, does_loop}
+  //more_constants
+  //{emitter_range, emitter_strength, ..., ...}
+  glUniform4f(uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS], dt, particleLifespan, k / 4, does_loop);
+  glUniform4f(uniform_locations[UNIFORM_UPDATEVEL_MORE_CONSTANTS], emitter_range, emitter_strength, 0.f, 0.f);
 
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
@@ -360,6 +413,12 @@ void GPUParticleSystem::update_velocities(const float dt) {
   glActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, vel_tex[1]);
+
+  //rand_tex
+  glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_RAND_TEX], 2);
+  glActiveTexture(GL_TEXTURE2);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, rand_tex);
 
 
   glBindBuffer(GL_ARRAY_BUFFER, fbo_vbo);
@@ -374,6 +433,8 @@ void GPUParticleSystem::update_velocities(const float dt) {
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
 
   glUseProgramObjectARB(0);
+  glActiveTexture(GL_TEXTURE2);
+  glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE0);
@@ -421,8 +482,8 @@ void GPUParticleSystem::update_positions(const float dt) {
   glUniform3f(uniform_locations[UNIFORM_UPDATEPOS_EMITTER_LOC], emitterLocation[0], emitterLocation[1], emitterLocation[2]);
 
   //constants
-  //{dt, lifespan, ..., ...}
-  glUniform4f(uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS], dt, particleLifespan, 0, 0);
+  //{dt, lifespan, does_loop, emitter_radius}
+  glUniform4f(uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS], dt, particleLifespan, does_loop, emitter_radius);
 
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
@@ -436,6 +497,11 @@ void GPUParticleSystem::update_positions(const float dt) {
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, vel_tex[1]);
 
+  //rand_tex
+  glUniform1i(uniform_locations[UNIFORM_UPDATEPOS_RAND_TEX], 2);
+  glActiveTexture(GL_TEXTURE2);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, rand_tex);
 
   glBindBuffer(GL_ARRAY_BUFFER, fbo_vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -449,6 +515,8 @@ void GPUParticleSystem::update_positions(const float dt) {
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
 
   glUseProgramObjectARB(0);
+  glActiveTexture(GL_TEXTURE2);
+  glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE0);
@@ -535,7 +603,18 @@ void GPUParticleSystem::render()
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, const char * file) {
+GPUParticleSim::GPUParticleSim() {
+  // Populate random texture
+
+  rand_data = new float[RANDOM_TEXTURE_SIZE * 4];
+
+  for (int i = 0; i < RANDOM_TEXTURE_SIZE * 4; i++) {
+    rand_data[i] = random(-1.f, 1.f);
+    //cout << rand_data[i] << endl;
+  }
+}
+
+void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, bool loop, const char * file) {
 
   GPUParticleSystem * ps = new GPUParticleSystem();
 
@@ -546,15 +625,13 @@ void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * force
 
   for (int i = 0; i < numParticles; i++) {
 
-    Float3 posOffset = Float3(random(-emitterRadius, emitterRadius), random(-emitterRadius, emitterRadius), random(-emitterRadius, emitterRadius));
+    Float3 posOffset = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
 
     posOffset.normalize();
 
-    posOffset = posOffset * emitterRadius;
+    particle_pos[i] = emitterLoc + emitterRadius * posOffset * random(0.f, 1.f);
 
-    particle_pos[i] = emitterLoc + posOffset * random(0.f, 1.f);
-
-    Float3 velOffset = Float3(random(-emitterRange, emitterRange), random(-emitterRange, emitterRange), random(-emitterRange, emitterRange));
+    Float3 velOffset = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
 
     velOffset.normalize();
 
@@ -571,7 +648,11 @@ void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * force
     age[i] = -emitterDuration * i / numParticles;
   }
 
-  //ps->setEmitterLocation(emitterLoc);
+  ps->set_emitter_radius(emitterRadius);
+  ps->set_emitter_strength(emitterStrength);
+  ps->set_emitter_range(emitterRange);
+  ps->set_emitter_direction(emitterDirection);
+  ps->set_emitter_location(emitterLoc);
   ps->set_particle_lifespan(lifespan);
 
   for (int i = 0; i < numForces; i++) {
@@ -579,7 +660,7 @@ void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * force
   }
 
   ps->set_num_particles(numParticles);
-  ps->init(particle_pos, particle_vel, colors, age);
+  ps->init(particle_pos, particle_vel, colors, age, loop, rand_data);
 
   ps->set_sprite_texture(file);
 

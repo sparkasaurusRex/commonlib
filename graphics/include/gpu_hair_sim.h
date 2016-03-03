@@ -123,7 +123,7 @@ namespace Graphics {
 
     std::string simulation_shader_names[2];
     std::string render_shader_names[2];
-    GLuint uniform_locations[NUM_HAIR_UNIFORMS];
+    GLint uniform_locations[NUM_HAIR_UNIFORMS];
   };
 };
 
