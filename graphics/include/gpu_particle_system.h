@@ -16,7 +16,7 @@
 
 #define MAX_NUM_ATTRACTORS 5
 #define MAX_AGE 100.f
-#define RANDOM_TEXTURE_SIZE 10000
+#define RANDOM_TEXTURE_SIZE 10
 
 
 namespace Graphics {

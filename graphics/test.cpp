@@ -264,9 +264,9 @@ private:
     gpu_particle_sim.addParticleSystem(1000,
                                        forces, 2,
                                        Float3(0.f, -0.5f, 0.f), 0.15f,
-                                       Float3(0.f, -1.f, 0.f), 0.3f, 1.2f, 7.f,
+                                       Float3(0.f, 1.f, 0.f), 0.3f, 1.2f, 7.f,
                                        7.f,
-                                       false,
+                                       true,
                                        "data/particle.tiff");
 
     //forces[0] = new Attractor(Float3(0.f, 0.5f, 0.f), 0.25f);

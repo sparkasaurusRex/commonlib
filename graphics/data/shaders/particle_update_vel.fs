@@ -9,7 +9,7 @@ uniform sampler2D rand_tex;
 
 uniform vec4 constants;
 //{dt, lifespan, num_attractors, does_loop}
-uniform vec4 more_constants;
+//uniform vec4 more_constants;
 //{emitter_range, emitter_strength, ..., ...}
 
 uniform vec3 emitter_direction;
@@ -17,6 +17,10 @@ uniform vec3 emitter_direction;
 uniform vec4 attractors[MAX_NUM_ATTRACTORS];
 
 void main() {
+
+  //vec3 emitter_direction = vec3(0.f, 1.f, 0.f);
+  vec4 more_constants = vec4(0.3f, 1.2f, 0.f, 0.f);
+
 
   vec4 prev_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st);
   vec3 velocity = texture2D(vel_tex, gl_TexCoord[0].st).xyz;
@@ -61,8 +65,6 @@ void main() {
 
     vec3 new_velocity = velocity + dt * netForce;
 
-    //new_velocity = vec3(1.f, 1.f, 0.f);
-
     gl_FragColor = vec4(new_velocity, 1.f);
   }
   else if (does_loop) {
@@ -74,9 +76,13 @@ void main() {
 
     vec3 velOffset = normalize(randVec4.xyz) * emitter_range * randFloat;
 
-    vec3 respawn_vel = normalize(emitter_direction + velOffset) * emitter_strength;
+    //vec3 respawn_vel = normalize(emitter_direction + velOffset) * emitter_strength;
 
-    //respawn_vel = vec3(0.0, 0.0, 0.0);
+    vec3 respawn_vel;
+    //respawn_vel = emitter_direction + velOffset;
+    respawn_vel = velOffset;
+    //respawn_vel = normalize(respawn_vel);
+    //respawn_vel = respawn_vel + emitter_strength;
 
     gl_FragColor = vec4(respawn_vel, 1.0);
   }
