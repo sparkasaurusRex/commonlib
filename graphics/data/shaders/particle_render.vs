@@ -10,14 +10,16 @@ varying vec4 vertex_color;
 
 
 void main() {
-  
+
   gl_TexCoord[1] = gl_MultiTexCoord1; //sprite texture
-  
+
   //Grab the particle's location
   vec4 pos_center = texture2D(particle_tex, gl_MultiTexCoord0.st);
-  
 
-  if (pos_center.w < 0 || pos_center.w > lifespan) {
+  float age = pos_center.w;
+
+
+  if (age < 0 || age > lifespan) {
     //Do not render
     //vertex_color = vec4(0.0, 0.0, 0.0, 0.0);
 
@@ -43,9 +45,9 @@ void main() {
 
     //Animate particle age: Green => young, Red => old
     //vertex_color = vec4(pos_center.w / lifespan, 1.0 - (pos_center.w / lifespan), 0.f, 1.f);
-    
-    float age = pos_center.w / lifespan;
-    
-    vertex_color = vec4(startColor * (1.0 - age) + endColor * age, 1.f);
+
+    float normalized_age = age / lifespan;
+
+    vertex_color = vec4(startColor * (1.0 - normalized_age) + endColor * normalized_age, 1.f);
   }
 }

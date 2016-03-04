@@ -18,6 +18,7 @@ enum RenderMode
   RENDER_PARTICLES,
   RENDER_PARTICLE_POSITION_TEXTURE,
   RENDER_PARTICLE_VELOCITY_TEXTURE,
+  RENDER_PARTICLE_RAND_TEXTURE,
 
   NUM_RENDER_MODES
 };
@@ -29,7 +30,7 @@ public:
   {
     rot_angle = 0.0f;
     color_tex = NULL;
-    render_mode = RENDER_HAIR;
+    render_mode = RENDER_PARTICLES;
     force_tex_dim[0] = 64;
     force_tex_dim[1] = 64;
   }
@@ -110,6 +111,12 @@ private:
     glBindTexture(GL_TEXTURE_2D, gpu_particle_sim.get_vel_tex(0));
     render_fullscreen_quad();
   }
+  void render_particle_rand_texture()
+  {
+    setup_textured_quad_state();
+    glBindTexture(GL_TEXTURE_2D, gpu_particle_sim.get_rand_tex(0));
+    render_fullscreen_quad();
+  }
 
   void render_pos_texture()
   {
@@ -159,6 +166,9 @@ private:
         break;
       case RENDER_PARTICLE_VELOCITY_TEXTURE:
         render_particle_vel_texture();
+        break;
+      case RENDER_PARTICLE_RAND_TEXTURE:
+        render_particle_rand_texture();
         break;
       default:
         render_hair();
@@ -223,13 +233,13 @@ private:
   void game_loop(const float game_time, const float frame_time)
   {
     //cout<<"dt: "<<frame_time<<endl;
-    update_forces(game_time, frame_time);
-    gpu_hair.simulate(game_time, frame_time);
+    //update_forces(game_time, frame_time);
+    //gpu_hair.simulate(game_time, frame_time);
 
     if(!paused)
     {
       //gpu_particles.simulate(frame_time);
-      gpu_particle_sim.simulate(frame_time);
+      gpu_particle_sim.simulate(game_time, frame_time);
 
       rot_angle += 10.0f * frame_time;
     }
@@ -237,34 +247,47 @@ private:
 
   void user_init()
   {
-    
     ParticleForce * * forces = new ParticleForce*[2];
 
     forces[0] = new Attractor(Float3(0.1f, -0.2f, 0.f), 0.25f);
     forces[1] = new Attractor(Float3(-0.05f, 0.2f, 0.f), 0.25f);
-    
+
     /*
      * addParticleSystem(num_particles,
      * forces, num_forces,
-     * pos, pos_radius, 
+     * emitter, emitter_radius,
      * emitter_dir, emitter_range, emitter_strength, emitter_duration,
-     * lifespan, 
+     * lifespan,
+     * loop,
      * sprite_file);
      */
     gpu_particle_sim.addParticleSystem(10000,
                                        forces, 2,
                                        Float3(0.f, -0.5f, 0.f), 0.15f,
-                                       Float3(0.f, 1.f, 0.f), 0.3f, 1.2f, 7.f,
-                                       0.7f,
+                                       Float3(1.f, 1.f, 0.f), 1.f, 0.9f, 10.f,
+                                       10.f,
+                                       true,
                                        "data/particle.tiff");
 
-    //forces[0] = new Attractor(Float3(0.f, 0.5f, 0.f), 0.25f);
-    //forces[1] = new Attractor(Float3(-0.5f, 0.f, 0.f), 0.5f);
-    //forces[2] = new Attractor(Float3(0.f, 0.f, 0.f), 0.5f);
+    /*forces[0] = new Attractor(Float3(0.f, 0.5f, 0.f), 0.25f);
+    forces[1] = new Attractor(Float3(-0.5f, 0.f, 0.f), 0.5f);
+    forces[2] = new Attractor(Float3(0.f, 0.f, 0.f), 0.5f);
 
-    //gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(0.f, -0.5f, 0.f), 0.1f, Float3(1.f, 1.f, 0.f), 2.f, 0.5f, 10.f, 3.f, "data/particle.tiff");
+    gpu_particle_sim.addParticleSystem(10000,
+                                      forces, 3,
+                                      Float3(0.f, -0.5f, 0.f), 0.1f,
+                                      Float3(1.f, 1.f, 0.f), 2.f, 0.5f, 10.f,
+                                      3.f,
+                                      true,
+                                      "data/particle.tiff");
 
-    //gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(-0.75f, 0.f, 0.f), 0.1f, Float3(0.f, 1.f, 0.f), 2.f, 0.5f, 5.f, 3.f, "data/particle.tiff");
+    gpu_particle_sim.addParticleSystem(10000,
+                                      forces, 3,
+                                      Float3(-0.75f, 0.f, 0.f), 0.1f,
+                                      Float3(0.f, 1.f, 0.f), 2.f, 0.5f, 5.f,
+                                      3.f,
+                                      true,
+                                      "data/particle.tiff");*/
 
 
     /*
@@ -274,7 +297,7 @@ private:
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));
     */
 
-
+/*
     int num_hairs = 10000;
     //TODO: move this out of the GPUHairSim class, so we can start w/ any hair
     //      distribution the user wants
@@ -308,6 +331,7 @@ private:
     cam.set_pos(cam_pos);
     cam.set_lookat(Float3(0.0f, 0.0f, 0.0f) - cam_pos);
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));
+    */
   }
   void user_run() {}
   void user_process_event(const SDL_Event &event)
@@ -341,9 +365,13 @@ private:
           case '7':
             render_mode = RENDER_PARTICLE_VELOCITY_TEXTURE;
             break;
+          case '8':
+            render_mode = RENDER_PARTICLE_RAND_TEXTURE;
+            break;
         }
         break;
     }
+
   }
 
   GPUHairSim gpu_hair;
@@ -359,6 +387,7 @@ private:
   Texture *color_tex;
 
   unsigned int force_tex_dim[2];
+
 };
 
 int main(int argc, char **argv)
