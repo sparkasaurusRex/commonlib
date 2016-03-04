@@ -152,7 +152,7 @@ namespace Math {
   inline float degrees_to_radians(float d) { return (d / 180.0f) * M_PI; }
 	inline float radians_to_degrees(float r) { return (r / M_PI) * 180.0f; }
 
-  inline float ccw(const Float2 a, const Float2 b, const Float2 c)
+  inline float ccw(const Float2 &a, const Float2 &b, const Float2 &c)
   {
     return (b._val[0] - a._val[0]) * (c._val[1] - b._val[1]) - (b._val[1] - a._val[1]) * (c._val[0] - b._val[0]);
   }

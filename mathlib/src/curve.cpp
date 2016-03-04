@@ -393,3 +393,116 @@ void Curve::enforce_segment_ranges()
     }
   }
 }
+
+void Curve::fwrite(FILE *f)
+{
+  assert(f);
+  int file_version = CURVE_FILE_VERSION;
+  ::fwrite(&file_version, sizeof(int), 1, f);
+
+  int num_segments = segments.size();
+  ::fwrite(&num_segments, sizeof(int), 1, f);
+  for(int i = 0; i < num_segments; i++)
+  {
+    CurveSegment *cs = segments[i];
+    InterpolationMethod im = cs->get_interpolation_method();
+    ::fwrite(&im, sizeof(InterpolationMethod), 1, f);
+    ::fwrite(cs->end_points, sizeof(CurveEndPoint), 2, f);
+
+    switch(im)
+    {
+      case INTERPOLATE_LERP:
+        break;
+      case INTERPOLATE_CERP:
+        break;
+      case INTERPOLATE_BEZIER:
+        break;
+      case INTERPOLATE_COSINE:
+      {
+        CurveSegmentCosine *csc = (CurveSegmentCosine *)cs;
+        ::fwrite(&csc->amplitude, sizeof(float), 1, f);
+        ::fwrite(&csc->frequency, sizeof(float), 1, f);
+        ::fwrite(&csc->phase, sizeof(float), 1, f);
+        ::fwrite(&csc->y_offset, sizeof(float), 1, f);
+        break;
+      }
+      case INTERPOLATE_PERLIN:
+      {
+        CurveSegmentPerlin *csp = (CurveSegmentPerlin *)cs;
+        ::fwrite(&csp->amplitude, sizeof(float), 1, f);
+        ::fwrite(&csp->frequency, sizeof(float), 1, f);
+        ::fwrite(&csp->phase, sizeof(float), 1, f);
+        ::fwrite(&csp->y_offset, sizeof(float), 1, f);
+        break;
+      }
+      default:
+        cerr<<"Curve::fwrite(): Unknown interpolation method!"<<endl;
+        break;
+    }
+  }
+}
+
+void Curve::fread(FILE *f)
+{
+  assert(f);
+  segments.clear();
+  handles.clear();
+
+  int file_version;
+  ::fread(&file_version, sizeof(int), 1, f);
+  if(file_version == 1)
+  {
+    int num_segments;
+    ::fread(&num_segments, sizeof(int), 1, f);
+    for(int i = 0; i < num_segments; i++)
+    {
+      InterpolationMethod im;
+      ::fread(&im, sizeof(InterpolationMethod), 1, f);
+
+      CurveEndPoint end_points[2];
+      ::fread(end_points, sizeof(CurveEndPoint), 2, f);
+
+      CurveSegment *cs = NULL;
+      switch(im)
+      {
+        case INTERPOLATE_LERP:
+          cs = new CurveSegmentLerp;
+          break;
+        case INTERPOLATE_CERP:
+          cs = new CurveSegmentCerp;
+          break;
+        case INTERPOLATE_BEZIER:
+          cs = new CurveSegmentBezier;
+          break;
+        case INTERPOLATE_COSINE:
+        {
+          CurveSegmentCosine *csc= new CurveSegmentCosine;
+          ::fread(&csc->amplitude, sizeof(float), 1, f);
+          ::fread(&csc->frequency, sizeof(float), 1, f);
+          ::fread(&csc->phase, sizeof(float), 1, f);
+          ::fread(&csc->y_offset, sizeof(float), 1, f);
+          cs = csc;
+          break;
+        }
+        case INTERPOLATE_PERLIN:
+        {
+          CurveSegmentPerlin *csp = new CurveSegmentPerlin;
+          ::fread(&csp->amplitude, sizeof(float), 1, f);
+          ::fread(&csp->frequency, sizeof(float), 1, f);
+          ::fread(&csp->phase, sizeof(float), 1, f);
+          ::fread(&csp->y_offset, sizeof(float), 1, f);
+          cs = csp;
+          break;
+        }
+        default:
+          cerr<<"Curve::fread(): Unknown interpolation method!"<<endl;
+      }
+      assert(cs);
+      cs->end_points[0] = end_points[0];
+      cs->end_points[1] = end_points[1];
+      segments.push_back(cs);
+    }
+  }
+
+  build_handle_list();
+}
