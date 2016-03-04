@@ -4,6 +4,8 @@
 #include <vector>
 #include "math_utility.h"
 
+#define CURVE_FILE_VERSION 1
+
 namespace Math {
   enum InterpolationMethod
   {
@@ -151,8 +153,10 @@ namespace Math {
       CurveSegment *get_segment(const float x);
 
       void change_segment_type(const int i, const InterpolationMethod m);
-
       void enforce_segment_ranges();
+
+      void fwrite(FILE *f);
+      void fread(FILE *f);
     private:
       void build_handle_list();
 

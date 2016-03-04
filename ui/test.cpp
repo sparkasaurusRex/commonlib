@@ -35,7 +35,10 @@ public:
 
   void randomize_bg_color()
   {
-    bg_color = Float3(random(0.0f, 1.0f), random(0.0f, 1.0f), random(0.0f, 1.0f));
+    //bg_color = Float3(random(0.0f, 1.0f), random(0.0f, 1.0f), random(0.0f, 1.0f));
+    FILE *f = fopen("test.curve", "wb");
+    curve.fwrite(f);
+    fclose(f);
   }
 
   void randomize_tb_pos()

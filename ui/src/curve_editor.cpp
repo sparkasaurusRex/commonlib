@@ -280,8 +280,24 @@ void CurveEditor::process_event(const SDL_Event &event)
           }
           break;
         case SDLK_BACKSPACE:
+        {
           delete_control_point();
           break;
+        }
+        case 's':
+        {
+          FILE *f = fopen("test.curve", "wb");
+          curve->fwrite(f);
+          fclose(f);
+          break;
+        }
+        case 'l':
+        {
+          FILE *f = fopen("test.curve", "rb");
+          curve->fread(f);
+          fclose(f);
+          break;
+        }
         case '=':
           if(selected_segment)
           {
