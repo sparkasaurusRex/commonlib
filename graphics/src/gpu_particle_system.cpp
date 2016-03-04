@@ -12,7 +12,7 @@ using namespace Graphics;
 
 GPUParticleSystem::GPUParticleSystem()
 {
-  billboard_size = 0.035;
+  billboard_size = 0.025;
   does_loop = false;
 
   startColor = Float3(1.f, 0.5f, 0.f);
@@ -257,12 +257,11 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
   uniform_locations[UNIFORM_UPDATEPOS_EMITTER_LOC] = glGetUniformLocation(shader->gl_shader_program, "emitterLocation");
   uniform_locations[UNIFORM_UPDATEPOS_RAND_TEX] = glGetUniformLocation(shader->gl_shader_program, "rand_tex");
+  uniform_locations[UNIFORM_UPDATEPOS_MORE_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "more_constants");
 
 
   update_vel_mat.render_gl();
   shader = update_vel_mat.get_shader();
-
-  cout << glIsProgram(shader->gl_shader_program) << endl;
 
   uniform_locations[UNIFORM_UPDATEVEL_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
   uniform_locations[UNIFORM_UPDATEVEL_VEL_TEX] = glGetUniformLocation(shader->gl_shader_program, "vel_tex");
@@ -281,13 +280,9 @@ void GPUParticleSystem::init(Float3 * initial_particle_pos, Float3 * initial_par
   uniform_locations[UNIFORM_RENDER_START_COLOR] = glGetUniformLocation(shader->gl_shader_program, "startColor");
   uniform_locations[UNIFORM_RENDER_END_COLOR] = glGetUniformLocation(shader->gl_shader_program, "endColor");
 
-  cout << glGetError() << endl;
-
-  for (size_t i = 0; i < NUM_PARTICLE_UNIFORMS; i++) {
-    cout << uniform_locations[i] << ", ";
-  }cout << endl;
-
-
+  for (int i = 0; i < NUM_PARTICLE_UNIFORMS; i++) {
+    assert(uniform_locations[i] != -1);
+  }
 
   glUseProgramObjectARB(0);
 }
@@ -312,7 +307,7 @@ void GPUParticleSystem::deinit()
   forces.clear();
 }
 
-void GPUParticleSystem::update_velocities(const float dt) {
+void GPUParticleSystem::update_velocities(const float game_time, const float dt) {
 
   //Write to  vel_fbo[0]
   //Read from vel_tex[1]
@@ -368,7 +363,7 @@ void GPUParticleSystem::update_velocities(const float dt) {
   //more_constants
   //{emitter_range, emitter_strength, ..., ...}
   glUniform4f(uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS], dt, particleLifespan, k / 4, does_loop);
-  //glUniform4f(uniform_locations[UNIFORM_UPDATEVEL_MORE_CONSTANTS], emitter_range, emitter_strength, 0.f, 0.f);
+  glUniform4f(uniform_locations[UNIFORM_UPDATEVEL_MORE_CONSTANTS], emitter_range, emitter_strength, game_time, 0.f);
 
   //prev_pos_tex
   glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
@@ -421,7 +416,7 @@ void GPUParticleSystem::update_velocities(const float dt) {
   vel_fbo[1] = tmp;
 }
 
-void GPUParticleSystem::update_positions(const float dt) {
+void GPUParticleSystem::update_positions(const float game_time, const float dt) {
 
   //Write to  pos_fbo[0]
   //Read from pos_tex[1]
@@ -452,15 +447,18 @@ void GPUParticleSystem::update_positions(const float dt) {
   //constants
   //{dt, lifespan, does_loop, emitter_radius}
   glUniform4f(uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS], dt, particleLifespan, does_loop, emitter_radius);
+  //more_constants
+  //{game_time, ..., ..., ...}
+  glUniform4f(uniform_locations[UNIFORM_UPDATEPOS_MORE_CONSTANTS], game_time, 0.f, 0.f, 0.f);
 
   //prev_pos_tex
-  glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_POS_TEX], 0);
+  glUniform1i(uniform_locations[UNIFORM_UPDATEPOS_POS_TEX], 0);
   glActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, pos_tex[1]);
 
   //vel_tex
-  glUniform1i(uniform_locations[UNIFORM_UPDATEVEL_VEL_TEX], 1);
+  glUniform1i(uniform_locations[UNIFORM_UPDATEPOS_VEL_TEX], 1);
   glActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, vel_tex[1]);
@@ -504,10 +502,10 @@ void GPUParticleSystem::update_positions(const float dt) {
 
 }
 
-void GPUParticleSystem::simulate(const float dt)
+void GPUParticleSystem::simulate(const float game_time, const float dt)
 {
-  update_velocities(dt);
-  update_positions(dt);
+  update_velocities(game_time, dt);
+  update_positions(game_time, dt);
 }
 
 void GPUParticleSystem::render()
@@ -584,33 +582,35 @@ GPUParticleSim::GPUParticleSim() {
 
 void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, bool loop, const char * file) {
 
+  GPUParticleSystem * ps = new GPUParticleSystem();
 
-  GPUParticleSystem *ps = new GPUParticleSystem();
+  Float3 * particle_pos = new Float3[numParticles];
+  Float3 * particle_vel = new Float3[numParticles];
+  Float3 * colors = new Float3[numParticles];
+  float * age = new float[numParticles];
 
-  Float3 *particle_pos = new Float3[numParticles];
-  Float3 *particle_vel = new Float3[numParticles];
-  Float3 *colors = new Float3[numParticles];
-  float *age = new float[numParticles];
+  for (int i = 0; i < numParticles; i++) {
 
-    
-  for (int i = 0; i < numParticles; i++)
-  {
     Float3 posOffset = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
-      
+
     posOffset.normalize();
-      
+
     particle_pos[i] = emitterLoc + emitterRadius * posOffset * random(0.f, 1.f);
-      
+
     Float3 velOffset = Float3(random(-1.f, 1.f), random(-1.f, 1.f), random(-1.f, 1.f));
 
     velOffset.normalize();
-    velOffset = velOffset * emitterRange * random(0.f, 1.f);
+
+    velOffset = velOffset * emitterRange * random(-1.f, 1.f);
 
     particle_vel[i] = emitterDirection + velOffset;
+
     particle_vel[i].normalize();
+
     particle_vel[i] = particle_vel[i] * emitterStrength;
 
     colors[i] = Float3(1.f, 1.f, 0.f);
+
     age[i] = -emitterDuration * i / numParticles;
   }
 
@@ -621,8 +621,7 @@ void GPUParticleSim::addParticleSystem(int numParticles, ParticleForce * * force
   ps->set_emitter_location(emitterLoc);
   ps->set_particle_lifespan(lifespan);
 
-  for(int i = 0; i < numForces; i++)
-  {
+  for (int i = 0; i < numForces; i++) {
     ps->add_force(forces[i]);
   }
 

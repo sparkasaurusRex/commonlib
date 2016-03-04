@@ -16,7 +16,7 @@
 
 #define MAX_NUM_ATTRACTORS 5
 #define MAX_AGE 100.f
-#define RANDOM_TEXTURE_SIZE 10
+#define RANDOM_TEXTURE_SIZE 10000
 
 
 namespace Graphics {
@@ -59,7 +59,7 @@ namespace Graphics {
 
     void init(Float3 * initial_particle_pos, Float3 * initial_particle_vel, Float3 * colors, float * age, bool loop, float * rand_data);
     void deinit();
-    void simulate(const float dt);
+    void simulate(const float game_time, const float dt);
     void render();
 
     void set_num_particles(int num) {num_particles = num;}
@@ -103,27 +103,28 @@ namespace Graphics {
 
     enum ParticleSystemUniforms
     {
-      UNIFORM_UPDATEPOS_EMITTER_LOC = 0,
-      UNIFORM_UPDATEPOS_CONSTANTS = 1,
-      UNIFORM_UPDATEPOS_POS_TEX = 2,
-      UNIFORM_UPDATEPOS_VEL_TEX = 3,
-      UNIFORM_UPDATEPOS_RAND_TEX = 4,
+      UNIFORM_UPDATEPOS_EMITTER_LOC,
+      UNIFORM_UPDATEPOS_CONSTANTS,
+      UNIFORM_UPDATEPOS_POS_TEX,
+      UNIFORM_UPDATEPOS_VEL_TEX,
+      UNIFORM_UPDATEPOS_RAND_TEX,
+      UNIFORM_UPDATEPOS_MORE_CONSTANTS,
 
-      UNIFORM_UPDATEVEL_CONSTANTS = 5,
-      UNIFORM_UPDATEVEL_ATTRACTORS = 6,
-      UNIFORM_UPDATEVEL_POS_TEX = 7,
-      UNIFORM_UPDATEVEL_VEL_TEX = 8,
-      UNIFORM_UPDATEVEL_RAND_TEX = 9,
-      UNIFORM_UPDATEVEL_EMITTER_DIR = 10,
-      UNIFORM_UPDATEVEL_MORE_CONSTANTS = 11,
+      UNIFORM_UPDATEVEL_CONSTANTS,
+      UNIFORM_UPDATEVEL_ATTRACTORS,
+      UNIFORM_UPDATEVEL_POS_TEX,
+      UNIFORM_UPDATEVEL_VEL_TEX,
+      UNIFORM_UPDATEVEL_RAND_TEX,
+      UNIFORM_UPDATEVEL_EMITTER_DIR,
+      UNIFORM_UPDATEVEL_MORE_CONSTANTS,
 
-      UNIFORM_RENDER_POS_TEX = 12,
-      UNIFORM_RENDER_LIFESPAN = 13,
-      UNIFORM_RENDER_SPRITE = 14,
-      UNIFORM_RENDER_START_COLOR = 15,
-      UNIFORM_RENDER_END_COLOR = 16,
+      UNIFORM_RENDER_POS_TEX,
+      UNIFORM_RENDER_LIFESPAN,
+      UNIFORM_RENDER_SPRITE,
+      UNIFORM_RENDER_START_COLOR,
+      UNIFORM_RENDER_END_COLOR,
 
-      NUM_PARTICLE_UNIFORMS = 17
+      NUM_PARTICLE_UNIFORMS
     };
 
     struct ParticleVert
@@ -158,8 +159,8 @@ namespace Graphics {
 
     float particleLifespan;
 
-    void update_velocities(const float dt);
-    void update_positions(const float dt);
+    void update_velocities(const float game_time, const float dt);
+    void update_positions(const float game_time, const float dt);
 
     int num_particles;
 
@@ -214,9 +215,9 @@ namespace Graphics {
 
     void addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, bool loop, const char * file);
 
-    void simulate(const float dt) {
+    void simulate(const float game_time, const float dt) {
       for (int i = 0; i < pSystems.size(); i++) {
-        pSystems[i]->simulate(dt);
+        pSystems[i]->simulate(game_time, dt);
       }
     }
 

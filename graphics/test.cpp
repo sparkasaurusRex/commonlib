@@ -239,7 +239,7 @@ private:
     if(!paused)
     {
       //gpu_particles.simulate(frame_time);
-      gpu_particle_sim.simulate(frame_time);
+      gpu_particle_sim.simulate(game_time, frame_time);
 
       rot_angle += 10.0f * frame_time;
     }
@@ -261,21 +261,33 @@ private:
      * loop,
      * sprite_file);
      */
-    gpu_particle_sim.addParticleSystem(1000,
+    gpu_particle_sim.addParticleSystem(10000,
                                        forces, 2,
                                        Float3(0.f, -0.5f, 0.f), 0.15f,
-                                       Float3(0.f, 1.f, 0.f), 0.3f, 1.2f, 7.f,
-                                       7.f,
+                                       Float3(1.f, 1.f, 0.f), 1.f, 0.9f, 10.f,
+                                       10.f,
                                        true,
                                        "data/particle.tiff");
 
-    //forces[0] = new Attractor(Float3(0.f, 0.5f, 0.f), 0.25f);
-    //forces[1] = new Attractor(Float3(-0.5f, 0.f, 0.f), 0.5f);
-    //forces[2] = new Attractor(Float3(0.f, 0.f, 0.f), 0.5f);
+    /*forces[0] = new Attractor(Float3(0.f, 0.5f, 0.f), 0.25f);
+    forces[1] = new Attractor(Float3(-0.5f, 0.f, 0.f), 0.5f);
+    forces[2] = new Attractor(Float3(0.f, 0.f, 0.f), 0.5f);
 
-    //gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(0.f, -0.5f, 0.f), 0.1f, Float3(1.f, 1.f, 0.f), 2.f, 0.5f, 10.f, 3.f, "data/particle.tiff");
+    gpu_particle_sim.addParticleSystem(10000,
+                                      forces, 3,
+                                      Float3(0.f, -0.5f, 0.f), 0.1f,
+                                      Float3(1.f, 1.f, 0.f), 2.f, 0.5f, 10.f,
+                                      3.f,
+                                      true,
+                                      "data/particle.tiff");
 
-    //gpu_particle_sim.addParticleSystem(10000, forces, 3, Float3(-0.75f, 0.f, 0.f), 0.1f, Float3(0.f, 1.f, 0.f), 2.f, 0.5f, 5.f, 3.f, "data/particle.tiff");
+    gpu_particle_sim.addParticleSystem(10000,
+                                      forces, 3,
+                                      Float3(-0.75f, 0.f, 0.f), 0.1f,
+                                      Float3(0.f, 1.f, 0.f), 2.f, 0.5f, 5.f,
+                                      3.f,
+                                      true,
+                                      "data/particle.tiff");*/
 
 
     /*
