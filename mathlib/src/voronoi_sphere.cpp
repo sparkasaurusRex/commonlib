@@ -20,6 +20,7 @@ Float3 VoronoiSphere::get_point(const int i) const
 
 void VoronoiSphere::triangulate()
 {
+  delaunay.set_vertices(&pc);
   delaunay.generate_delaunay_triangulation();
 }
 

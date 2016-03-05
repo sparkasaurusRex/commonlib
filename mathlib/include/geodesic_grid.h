@@ -504,6 +504,9 @@ class GeodesicGrid
         fread_edge(&edges[i], f);
       }
 
+      generate_neighbor_centroids();
+
+      //....da fuq?!?!
       delete [] faces;
       faces = new GeodesicFace<T>[num_faces];
     }
@@ -743,16 +746,9 @@ class GeodesicGrid
             edge_count++;
           }
         }
-
-        //compute the neighbor centroids
-        for(int j = 0; j < cell->num_neighbors; j++)
-        {
-          GeodesicCell<T> *b = cell->neighbors[j];
-          GeodesicCell<T> *c = cell->neighbors[(j + 1) % cell->num_neighbors];
-
-          cell->neighbor_centroids[j] = (cell->pos + b->pos + c->pos) / 3.0f;
-        }
       }
+
+      generate_neighbor_centroids();
       //std::cout<<"edge_count: "<<edge_count<<std::endl;
 
       delete[] cells;
@@ -771,6 +767,22 @@ class GeodesicGrid
       delete[] edges;
       edges = new_edges;
       num_edges = new_num_edges;
+    }
+
+    void generate_neighbor_centroids()
+    {
+      //compute the neighbor centroids
+      for(int i = 0; i < num_cells; i++)
+      {
+        GeodesicCell<T> *cell = &cells[i];
+        for(int j = 0; j < cell->num_neighbors; j++)
+        {
+          GeodesicCell<T> *b = cell->neighbors[j];
+          GeodesicCell<T> *c = cell->neighbors[(j + 1) % cell->num_neighbors];
+
+          cell->neighbor_centroids[j] = (cell->pos + b->pos + c->pos) / 3.0f;
+        }
+      }
     }
 
     void fread_cell(GeodesicCell<T> *c, FILE *f)
