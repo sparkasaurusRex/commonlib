@@ -1,29 +1,31 @@
 #version 120
 
+#define NUM_CONSTANTS 5
+#define RAND_V_COORD 1.f
+
 uniform sampler2D prev_pos_tex;
 uniform sampler2D vel_tex;
+
 // contains rand floats from -1 to 1
-uniform sampler2D rand_tex;
+uniform sampler2D data_tex;
 
-uniform vec4 constants;
-//{dt, lifespan, does_loop, emitter_radius}
-uniform vec4 more_constants;
-//{game_time, ..., ..., ...}
+//constants
+//{dt, lifespan, does_loop, emitter_radius, game_time}
+uniform float constants[NUM_CONSTANTS];
 
-uniform vec3 emitterLocation;
+uniform vec3 emitter_location;
 
 void main() {
 
   vec4 prev_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st);
   vec3 velocity = texture2D(vel_tex, gl_TexCoord[0].st).xyz;
 
-  float dt = constants.x;
-  float lifespan = constants.y;
-  bool does_loop = (constants.z == 1);
   float age = prev_pos.w;
-  float game_time = more_constants.x;
-  float emitter_radius = constants.w;
-
+  float dt = constants[0];
+  float lifespan = constants[1];
+  bool does_loop = (constants[2] == 1);
+  float emitter_radius = constants[3];
+  float game_time = constants[4];
 
   if (age < 0) {
     //Update age but do not update position
@@ -35,15 +37,15 @@ void main() {
   }
   else if (does_loop) {
     //Respawn
-    float seed = mod(gl_TexCoord[0].s + game_time * dt, 1.f);
+    float seed = mod(gl_TexCoord[0].s + game_time * dt, RAND_V_COORD);
 
-    vec4 randVec4 = texture2D(rand_tex, vec2(seed, 0.f));
+    vec4 randVec4 = texture2D(data_tex, vec2(seed, 0.f));
 
     float randFloat = abs(randVec4.w);
 
     vec3 randVec3 = normalize(randVec4.xyz);
 
-    vec3 respawn_point = emitterLocation.xyz + emitter_radius * randVec3 * randFloat;
+    vec3 respawn_point = emitter_location.xyz + emitter_radius * randVec3 * randFloat;
 
     gl_FragColor = vec4(respawn_point, 0.f);
   }

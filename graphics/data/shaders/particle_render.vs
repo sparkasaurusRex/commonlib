@@ -1,10 +1,12 @@
 #version 120
 
 uniform sampler2D particle_tex;
+uniform sampler2D data_tex;
 
 uniform float lifespan;
-uniform vec3 startColor;
-uniform vec3 endColor;
+
+uniform int color_curve_id;
+uniform int data_tex_height;
 
 varying vec4 vertex_color;
 
@@ -21,7 +23,7 @@ void main() {
 
   if (age < 0 || age > lifespan) {
     //Do not render
-    //vertex_color = vec4(0.0, 0.0, 0.0, 0.0);
+    vertex_color = vec4(0.0, 0.0, 0.0, 0.0);
 
     //position it right behind the camera
     gl_Position = gl_ProjectionMatrix * vec4(0.0, 0.0, 1000.0, 1.0);
@@ -48,6 +50,9 @@ void main() {
 
     float normalized_age = age / lifespan;
 
-    vertex_color = vec4(startColor * (1.0 - normalized_age) + endColor * normalized_age, 1.f);
+    //CHECK FOR ACCURACY
+    vec2 color_curve_uv = vec2(age / lifespan, color_curve_id / (data_tex_height - 1));
+    vertex_color = vec4(texture2D(data_tex, color_curve_uv));
+
   }
 }

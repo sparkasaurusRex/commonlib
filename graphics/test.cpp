@@ -18,7 +18,7 @@ enum RenderMode
   RENDER_PARTICLES,
   RENDER_PARTICLE_POSITION_TEXTURE,
   RENDER_PARTICLE_VELOCITY_TEXTURE,
-  RENDER_PARTICLE_RAND_TEXTURE,
+  RENDER_PARTICLE_DATA_TEXTURE,
 
   NUM_RENDER_MODES
 };
@@ -111,10 +111,10 @@ private:
     glBindTexture(GL_TEXTURE_2D, gpu_particle_sim.get_vel_tex(0));
     render_fullscreen_quad();
   }
-  void render_particle_rand_texture()
+  void render_particle_data_texture()
   {
     setup_textured_quad_state();
-    glBindTexture(GL_TEXTURE_2D, gpu_particle_sim.get_rand_tex(0));
+    glBindTexture(GL_TEXTURE_2D, gpu_particle_sim.get_data_tex());
     render_fullscreen_quad();
   }
 
@@ -167,8 +167,8 @@ private:
       case RENDER_PARTICLE_VELOCITY_TEXTURE:
         render_particle_vel_texture();
         break;
-      case RENDER_PARTICLE_RAND_TEXTURE:
-        render_particle_rand_texture();
+      case RENDER_PARTICLE_DATA_TEXTURE:
+        render_particle_data_texture();
         break;
       default:
         render_hair();
@@ -247,6 +247,13 @@ private:
 
   void user_init()
   {
+
+    gpu_particle_sim.addCurveVec4("Curves/r_color_channal.curve",
+                                  "Curves/g_color_channal.curve",
+                                  "Curves/b_color_channal.curve",
+                                  "Curves/a_color_channal.curve",
+                                  "colors");
+
     ParticleForce * * forces = new ParticleForce*[2];
 
     forces[0] = new Attractor(Float3(0.1f, -0.2f, 0.f), 0.25f);
@@ -267,6 +274,7 @@ private:
                                        Float3(1.f, 1.f, 0.f), 1.f, 0.9f, 10.f,
                                        10.f,
                                        true,
+                                       "colors",
                                        "data/particle.tiff");
 
     /*forces[0] = new Attractor(Float3(0.f, 0.5f, 0.f), 0.25f);
@@ -366,7 +374,7 @@ private:
             render_mode = RENDER_PARTICLE_VELOCITY_TEXTURE;
             break;
           case '8':
-            render_mode = RENDER_PARTICLE_RAND_TEXTURE;
+            render_mode = RENDER_PARTICLE_DATA_TEXTURE;
             break;
         }
         break;
