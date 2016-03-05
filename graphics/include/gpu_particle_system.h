@@ -13,10 +13,11 @@
 #include "texture.h"
 #include "render_surface.h"
 #include "texture.h"
+#include "curve.h"
 
 #define MAX_NUM_ATTRACTORS 5
 #define MAX_AGE 100.f
-#define RANDOM_TEXTURE_SIZE 10000
+#define DATA_TEXTURE_SIZE 10000
 
 
 namespace Graphics {
@@ -57,12 +58,10 @@ namespace Graphics {
     GPUParticleSystem();
     ~GPUParticleSystem();
 
-    void init(Float3 * initial_particle_pos, Float3 * initial_particle_vel, Float3 * colors, float * age, bool loop, float * rand_data);
+    void init(Float3 * initial_particle_pos, Float3 * initial_particle_vel, float * age, float * data);
     void deinit();
     void simulate(const float game_time, const float dt);
     void render();
-
-    void set_num_particles(int num) {num_particles = num;}
 
     void set_render_shader_names(std::string vs, std::string fs) {
       update_pos_shader_names[0] = vs;
@@ -79,7 +78,7 @@ namespace Graphics {
 
     GLuint get_pos_tex(const int i) { return pos_tex[i]; }
     GLuint get_vel_tex(const int i) { return vel_tex[i]; }
-    GLuint get_rand_tex() { return rand_tex; }
+    GLuint get_data_tex() { return data_tex; }
 
     void add_force(ParticleForce *f)
     {
@@ -90,39 +89,46 @@ namespace Graphics {
       }
     }
 
-    void set_emitter_location(Float3 loc) {emitterLocation = loc;}
-    void set_emitter_direction(Float3 dir) {emitterDirection = dir;}
-    void set_particle_lifespan(float l) {particleLifespan = l;}
-    void set_emitter_strength(float s) {emitter_strength = s;}
-    void set_emitter_range(float r) {emitter_range = r;}
-    void set_emitter_radius(float r) {emitter_radius = r;}
-
-    void set_sprite_texture(const char * file) {sprite = new Texture(file); sprite->load();}
+    void set_curve_values(int color_id, int num_curves) {
+      data_tex_height = num_curves + 1;
+      color_curve_id = color_id;
+    }
+    void set_system_values(float eRadius, float eStrength, float eRange, Float3 eDir, Float3 eLoc, int numP, float life, bool loop, const char * sprite_tex_file) {
+      emitter_radius = eRadius;
+      emitter_strength = eStrength;
+      emitter_range = eRange;
+      emitterDirection = eDir;
+      emitterLocation = eLoc;
+      num_particles = numP;
+      particleLifespan = life;
+      does_loop = loop;
+      sprite = new Texture(sprite_tex_file);
+      sprite->load();
+    }
 
   private:
 
     enum ParticleSystemUniforms
     {
       UNIFORM_UPDATEPOS_EMITTER_LOC,
-      UNIFORM_UPDATEPOS_CONSTANTS,
       UNIFORM_UPDATEPOS_POS_TEX,
       UNIFORM_UPDATEPOS_VEL_TEX,
-      UNIFORM_UPDATEPOS_RAND_TEX,
-      UNIFORM_UPDATEPOS_MORE_CONSTANTS,
+      UNIFORM_UPDATEPOS_DATA_TEX,
+      UNIFORM_UPDATEPOS_CONSTANTS,
 
-      UNIFORM_UPDATEVEL_CONSTANTS,
       UNIFORM_UPDATEVEL_ATTRACTORS,
       UNIFORM_UPDATEVEL_POS_TEX,
       UNIFORM_UPDATEVEL_VEL_TEX,
-      UNIFORM_UPDATEVEL_RAND_TEX,
+      UNIFORM_UPDATEVEL_DATA_TEX,
       UNIFORM_UPDATEVEL_EMITTER_DIR,
-      UNIFORM_UPDATEVEL_MORE_CONSTANTS,
+      UNIFORM_UPDATEVEL_CONSTANTS,
 
       UNIFORM_RENDER_POS_TEX,
       UNIFORM_RENDER_LIFESPAN,
       UNIFORM_RENDER_SPRITE,
-      UNIFORM_RENDER_START_COLOR,
-      UNIFORM_RENDER_END_COLOR,
+      UNIFORM_RENDER_DATA_TEX,
+      UNIFORM_RENDER_COLOR_CURVE_ID,
+      UNIFORM_RENDER_DATA_TEX_HEIGHT,
 
       NUM_PARTICLE_UNIFORMS
     };
@@ -130,7 +136,6 @@ namespace Graphics {
     struct ParticleVert
     {
       float x, y, z;
-      float r, g, b;
       float u, v;
       float sprite_u, sprite_v;
     };
@@ -149,13 +154,13 @@ namespace Graphics {
 
     bool does_loop;
 
-    Float3 startColor;
-    Float3 endColor;
 
     Float3 emitterLocation;
     Float3 emitterDirection;
 
     float emitter_range, emitter_strength, emitter_radius;
+    int color_curve_id;
+    int data_tex_height;
 
     float particleLifespan;
 
@@ -174,7 +179,7 @@ namespace Graphics {
     GLuint vel_fbo[2];
     GLuint vel_tex[2];
 
-    GLuint rand_tex;
+    GLuint data_tex;
 
     Texture * sprite;
 
@@ -204,16 +209,17 @@ namespace Graphics {
     GPUParticleSim();
 
     ~GPUParticleSim() {
-
-      delete rand_data;
-
       for (int i = 0; i < pSystems.size(); i++) {
         delete pSystems[i];
       }
       pSystems.clear();
     }
 
-    void addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, bool loop, const char * file);
+    void addCurve(const char * fileName, const char * handle);
+    void addCurveVec4(const char * file_name_r, const char * file_name_g, const char * file_name_b, const char * file_name_a, const char * handle);
+
+
+    void addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, bool loop, const char * color_handle, const char * tex_file);
 
     void simulate(const float game_time, const float dt) {
       for (int i = 0; i < pSystems.size(); i++) {
@@ -229,16 +235,18 @@ namespace Graphics {
 
     GLuint get_pos_tex(const int i) { return pSystems[i]->get_pos_tex(1); }
     GLuint get_vel_tex(const int i) { return pSystems[i]->get_vel_tex(1); }
-    GLuint get_rand_tex(const int i) { return pSystems[i]->get_rand_tex(); }
+    GLuint get_data_tex() { return pSystems[0]->get_data_tex(); }
 
   private:
 
     std::vector<GPUParticleSystem *> pSystems;
 
-    float * rand_data;
+    std::vector<float> rand_data;
+
+    std::vector<const char *> curve_handles;
+
   };
 
 };
-
 
 #endif //__GPU_PARTICLE_SYSTEM_H__

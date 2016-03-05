@@ -2,17 +2,16 @@
 
 #define MAX_NUM_ATTRACTORS 5
 #define MIN_DIST 0.2
+#define NUM_CONSTANTS 7
 
 uniform sampler2D prev_pos_tex;
 uniform sampler2D vel_tex;
-uniform sampler2D rand_tex;
-
-uniform vec4 constants;
-//{dt, lifespan, num_attractors, does_loop}
-uniform vec4 more_constants;
-//{emitter_range, emitter_strength, game_time, ...}
+uniform sampler2D data_tex;
 
 uniform vec3 emitter_direction;
+
+//{dt, lifespan, num_attractors, does_loop, emitter_range, emitter_strength, game_time}
+uniform float constants[NUM_CONSTANTS];
 
 uniform vec4 attractors[MAX_NUM_ATTRACTORS];
 
@@ -21,18 +20,17 @@ void main() {
   vec4 prev_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st);
   vec3 velocity = texture2D(vel_tex, gl_TexCoord[0].st).xyz;
 
-  float dt = constants.x;
-  float lifespan = constants.y;
-  int num_attractors = int(constants.z);
-  bool does_loop = (constants.w == 1);
   float age = prev_pos.w;
-  float emitter_range = more_constants.x;
-  float emitter_strength = more_constants.y;
-  float game_time = more_constants.z;
+  float dt = constants[0];
+  float lifespan = constants[1];
+  int num_attractors = int(constants[2]);
+  bool does_loop = (constants[3] == 1);
+  float emitter_range = constants[4];
+  float emitter_strength = constants[5];
+  float game_time = constants[6];
 
   if (age < 0) {
     //Do not update velocity.
-    //velocity = vec3(1.f, 1.f, 0.f);
     gl_FragColor = vec4(velocity, 1.f);
   }
   else if (age < lifespan) {
@@ -68,7 +66,7 @@ void main() {
     //Respawn
     float seed = mod(gl_TexCoord[0].s + game_time * dt, 1.f);
 
-    vec4 randVec4 = texture2D(rand_tex, vec2(seed, 0.f));
+    vec4 randVec4 = texture2D(data_tex, vec2(seed, 0.f));
 
     float randFloat = randVec4.w;
 
