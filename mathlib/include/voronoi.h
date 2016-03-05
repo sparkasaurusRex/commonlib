@@ -4,6 +4,7 @@
 #include <vector>
 #include "math_utility.h"
 #include "triangulation.h"
+#include "triangulation_3d.h"
 
 namespace Math {
   class Voronoi2D

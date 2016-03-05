@@ -2,7 +2,7 @@
 #define __VORONOI_SPHERE_H__
 
 #include "math_utility.h"
-#include "triangulation.h"
+#include "triangulation_sphere.h"
 
 namespace Math
 {
