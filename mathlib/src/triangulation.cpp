@@ -378,15 +378,22 @@ void TriangulationSphere::set_vertices(std::vector<Float3> *verts)
 
 void TriangulationSphere::generate_delaunay_triangulation()
 {
-
+  cout<<"TriangulationSphere::generate_delaunay_triangulation()"<<endl;
   beach_line_height = 1.0f;
-  return;
 
-  //assume center point of (0, 0, 0), radius of 1.0
-  float dh = 0.02f;
-  for(beach_line_height = 1.0f; beach_line_height > -1.0f; beach_line_height -= dh)
+  //put all the points into a priority_queue sorted by y-coordinate
+  assert(vertices);
+  for(int i = 0; i < vertices->size(); i++)
   {
-    fortune_step();
+    Float3 p = (*vertices)[i];
+    site_events.push(std::pair<Float3, int>(p, i));
+  }
+
+  while(!site_events.empty() || !circle_events.empty())
+  {
+    std::pair<Float3, int> p = site_events.top();
+    cout<<p.second<<": "<<p.first<<endl;
+    site_events.pop();
   }
 }
 

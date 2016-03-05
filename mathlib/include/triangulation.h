@@ -2,6 +2,7 @@
 #define __TRIANGULATION_H__
 
 #include <vector>
+#include <queue>
 #include "math_utility.h"
 #include "topology.h"
 #include "shapes.h"
@@ -73,18 +74,6 @@ namespace Math {
     std::vector<Edge3D>   edges;
   };
 
-#define FORTUNE_EVENT_CIRCLE  0
-#define FORTUNE_EVENT_SITE    1
-
-  class FortuneEvent
-  {
-  public:
-    FortuneEvent(unsigned int type) { event_type = type; }
-    ~FortuneEvent() {}
-  private:
-    unsigned int event_type;
-  };
-
   class TriangulationSphere
   {
   public:
@@ -103,11 +92,35 @@ namespace Math {
 
     std::vector<Edge3D> *get_edges() { return &edges; }
   private:
+
+    void handle_site_event(Float3 *p);
+
     std::vector<Float3>     *vertices;
     std::vector<Edge2D>     edges;
 
     //fortune algorithm variables
     float                   beach_line_height;
+
+    class SiteCompare
+    {
+    public:
+      bool operator()(std::pair<Float3, int> a, std::pair<Float3, int> b)
+      {
+        if(a.first._val[1] < b.first._val[1]) { return true; }
+        if(a.first._val[1] > b.first._val[1]) { return false; }
+
+        //y coords are equal, so sort based on longitude
+        float long_a = 0.5f + (atan2(a.first._val[2], a.first._val[0]) / M_PI) * 0.5f;
+        float long_b = 0.5f + (atan2(b.first._val[2], b.first._val[0]) / M_PI) * 0.5f;
+        return (long_a < long_b);
+      }
+    };
+
+    std::priority_queue<Float3> circle_events;
+    std::priority_queue<std::pair<Float3, int>, std::vector<std::pair<Float3, int> >, SiteCompare> site_events;
+
+    //use skip list / binary tree to store beach line
+    //each node represents an arc (beta) on the beach line
   };
 };
 
