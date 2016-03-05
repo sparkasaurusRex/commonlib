@@ -248,7 +248,11 @@ private:
   void user_init()
   {
 
-    gpu_particle_sim.addCurveVec4("test.curve", "test.curve", "test.curve", "test.curve", "colors");
+    gpu_particle_sim.addCurveVec4("Curves/r_color_channal.curve",
+                                  "Curves/g_color_channal.curve",
+                                  "Curves/b_color_channal.curve",
+                                  "Curves/a_color_channal.curve",
+                                  "colors");
 
     ParticleForce * * forces = new ParticleForce*[2];
 

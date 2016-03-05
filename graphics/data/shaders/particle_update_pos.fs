@@ -1,6 +1,7 @@
 #version 120
 
 #define NUM_CONSTANTS 5
+#define RAND_V_COORD 1.f
 
 uniform sampler2D prev_pos_tex;
 uniform sampler2D vel_tex;
@@ -36,7 +37,7 @@ void main() {
   }
   else if (does_loop) {
     //Respawn
-    float seed = mod(gl_TexCoord[0].s + game_time * dt, 1.f);
+    float seed = mod(gl_TexCoord[0].s + game_time * dt, RAND_V_COORD);
 
     vec4 randVec4 = texture2D(data_tex, vec2(seed, 0.f));
 

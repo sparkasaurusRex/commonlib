@@ -50,9 +50,9 @@ void main() {
 
     float normalized_age = age / lifespan;
 
-    //vertex_color = vec4(startColor * (1.0 - normalized_age) + endColor * normalized_age, 1.f);
-    vec2 color_curve_uv = vec2(age / lifespan, (color_curve_id - 1) / data_tex_height);
-    vertex_color = vec4(texture2D(data_tex, color_curve_uv).x, 1.f, 1.f, 1.f);
+    //CHECK FOR ACCURACY
+    vec2 color_curve_uv = vec2(age / lifespan, color_curve_id / (data_tex_height - 1));
+    vertex_color = vec4(texture2D(data_tex, color_curve_uv));
 
   }
 }

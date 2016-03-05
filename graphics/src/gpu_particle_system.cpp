@@ -582,29 +582,30 @@ void GPUParticleSim::addCurveVec4(const char * file_name_r, const char * file_na
 
   Curve curve_r;
   curve_r.fread(file_r);
-  fclose(file_r);
 
   Curve curve_g;
   curve_g.fread(file_g);
-  fclose(file_g);
 
   Curve curve_b;
   curve_b.fread(file_b);
-  fclose(file_b);
 
   Curve curve_a;
   curve_a.fread(file_a);
-  fclose(file_a);
 
   curve_handles.push_back(handle);
   float x;
   for (int i = 0; i < DATA_TEXTURE_SIZE; i++) {
-    x = i / DATA_TEXTURE_SIZE;
+    x = (float)i / DATA_TEXTURE_SIZE;
     rand_data.push_back(curve_r.evaluate(x));
     rand_data.push_back(curve_g.evaluate(x));
     rand_data.push_back(curve_b.evaluate(x));
     rand_data.push_back(curve_a.evaluate(x));
   }
+
+  fclose(file_r);
+  fclose(file_g);
+  fclose(file_b);
+  fclose(file_a);
 
 }
 
@@ -619,13 +620,14 @@ void GPUParticleSim::addCurve(const char * file_name, const char * handle) {
 
   Curve curve;
   curve.fread(file);
-  fclose(file);
 
   curve_handles.push_back(handle);
 
   for (int i = 0; i < DATA_TEXTURE_SIZE * 4; i++) {
     rand_data.push_back(curve.evaluate(i / (DATA_TEXTURE_SIZE * 4)));
   }
+
+  fclose(file);
 
 }
 
