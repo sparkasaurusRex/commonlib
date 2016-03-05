@@ -8,6 +8,7 @@
 #include "menu.h"
 #include "curve_editor.h"
 #include "text_edit.h"
+#include "meter.h"
 
 #define TOOLBOX_SIZE 4
 #define NUM_RPB 12
@@ -57,6 +58,8 @@ private:
   void game_loop(const float game_time, const float frame_time)
   {
     ww.simulate(frame_time);
+
+    meter.set_percent(0.5f * cos(game_time * 0.001f) + 0.5f);
   }
 
   void user_init()
@@ -113,6 +116,12 @@ private:
     ce.scale(Float2(400.0f, 240.0f));
     ce.init();
     ww.add_widget(&ce);
+
+    meter.set_font(widget_font);
+    meter.translate(Float2(100.0f, 350.0f));
+    meter.scale(Float2(100.0f, 20.0f));
+    meter.init();
+    ww.add_widget(&meter);
   }
 
   void user_run()
@@ -122,6 +131,7 @@ private:
     tb.show();
     ce.show();
     te.show();
+    meter.show();
     //menu.show();
 
     for(int i = 0; i < NUM_RPB; i++)
@@ -145,6 +155,8 @@ private:
   CurveEditor ce;
   Curve curve;
   //Menu menu;
+  Meter meter;
+
 
   RadialPushButton rpb[NUM_RPB];
 

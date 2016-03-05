@@ -36,7 +36,7 @@ void TriangulationSphere::generate_delaunay_triangulation()
   while(!site_events.empty() || !circle_events.empty())
   {
     SiteEvent p = site_events.top();
-    //cout<<p.second<<": "<<p.first<<endl;
+    cout<<p.second<<": "<<p.first<<endl;
 
     //if p.y > sites in circle_events
     if(!circle_events.empty())
@@ -49,7 +49,7 @@ void TriangulationSphere::generate_delaunay_triangulation()
       }
     }
 
-    //site_events.pop();
+    site_events.pop();
   }
 }
 
