@@ -243,6 +243,7 @@ void CurveEditor::process_event(const SDL_Event &event)
           if(fabs(curve_y - fy) < CURVE_EDITOR_CLICK_THRESHOLD)
           {
             add_control_point(fx);
+            select_control_point(fx, fy);
           }
         }
       }
@@ -330,17 +331,23 @@ void CurveEditor::add_control_point(const float fx)
 
   Float2 new_curve_pt(fx, curve->evaluate(fx));
 
+
   CurveEndPoint middle, right;
 
   middle.p = new_curve_pt;
   middle.t = new_curve_pt + Float2(0.1f, 0.0f);
-
+/*
   right.p = cs->end_points[1].p;
   right.t = cs->end_points[1].t;
 
   CurveSegment *new_segment = curve->create_segment(INTERPOLATE_BEZIER, middle, right);
   cs->end_points[1].p = middle.p;
   cs->end_points[1].t = middle.p + Float2(-0.1f, 0.0f);
+*/
+
+  CurveSegment *new_segment = curve->insert_end_point(INTERPOLATE_LERP, middle);
+  selected_handle = NULL;
+  selected_segment = NULL;
 
   /*for(int i = 0; i < curve->get_num_segments(); i++)
   {

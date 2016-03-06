@@ -138,8 +138,14 @@ namespace Math {
       Curve();
       ~Curve();
 
+      void init();
+      void reset();
+
+      void bell_curve_cerp(const float x0, const float x1);
+
       void add_segment(CurveSegment *s);
       CurveSegment *create_segment(InterpolationMethod m, CurveEndPoint new_a, CurveEndPoint new_b);
+      CurveSegment *insert_end_point(InterpolationMethod m, CurveEndPoint new_p);
 
       float evaluate(const float _x);
 
