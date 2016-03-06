@@ -7,9 +7,6 @@
 #include "topology.h"
 #include "shapes.h"
 
-//#define USE_CGAL 0
-//#define USE_BOOST
-
 namespace Math {
   class Triangulation2D
   {
@@ -53,74 +50,6 @@ namespace Math {
     std::vector<Float2>     *vertices;
     std::vector<Triangle2D> triangles;
     std::vector<Edge2D>     edges;
-  };
-
-  class Triangulation3D
-  {
-  public:
-    Triangulation3D();
-    ~Triangulation3D();
-
-    void reset() {}
-    void set_vertices(std::vector<Float3> *verts);
-
-    void generate_delaunay_triangulation();
-    void generate_convex_hull();
-
-    //std::vector<Triangle2D> *get_triangles();
-    std::vector<Edge3D> *get_edges();
-  private:
-    std::vector<Float3>   *vertices;
-    std::vector<Edge3D>   edges;
-  };
-
-  class TriangulationSphere
-  {
-  public:
-    TriangulationSphere();
-    ~TriangulationSphere();
-
-    void reset() {}
-    void set_vertices(std::vector<Float3> *verts);
-
-    void generate_delaunay_triangulation();
-
-    void fortune_step();
-
-    float get_beach_line_height() { return beach_line_height; }
-    void advance_beach_line(const float dh);
-
-    std::vector<Edge3D> *get_edges() { return &edges; }
-  private:
-
-    void handle_site_event(Float3 *p);
-
-    std::vector<Float3>     *vertices;
-    std::vector<Edge2D>     edges;
-
-    //fortune algorithm variables
-    float                   beach_line_height;
-
-    class SiteCompare
-    {
-    public:
-      bool operator()(std::pair<Float3, int> a, std::pair<Float3, int> b)
-      {
-        if(a.first._val[1] < b.first._val[1]) { return true; }
-        if(a.first._val[1] > b.first._val[1]) { return false; }
-
-        //y coords are equal, so sort based on longitude
-        float long_a = 0.5f + (atan2(a.first._val[2], a.first._val[0]) / M_PI) * 0.5f;
-        float long_b = 0.5f + (atan2(b.first._val[2], b.first._val[0]) / M_PI) * 0.5f;
-        return (long_a < long_b);
-      }
-    };
-
-    std::priority_queue<Float3> circle_events;
-    std::priority_queue<std::pair<Float3, int>, std::vector<std::pair<Float3, int> >, SiteCompare> site_events;
-
-    //use skip list / binary tree to store beach line
-    //each node represents an arc (beta) on the beach line
   };
 };
 

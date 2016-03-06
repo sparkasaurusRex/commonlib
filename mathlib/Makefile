@@ -5,8 +5,8 @@ CFLAGS+=-I../graphics/include -I../ui/include
 CFLAGS+=$(shell pkg-config --cflags freetype2)
 CFLAGS+=-D__USE_BOOST__
 CFLAGS+=-D__USE_CGAL3D__
-#CFLAGS+=-Ofast
-CFLAGS+= -g3 -O0
+CFLAGS+=-Ofast
+#CFLAGS+= -g3 -O0
 LDFLAGS=$(shell pkg-config --libs sdl2)
 LDFLAGS+=$(shell pkg-config --libs SDL2_image)
 LDFLAGS+=$(shell pkg-config --libs freetype2)
@@ -14,7 +14,8 @@ LDFLAGS+=$(shell pkg-config --libs glew)
 LDFLAGS+=-lCGAL -lCGAL_Core -lgmp
 SRCPATH=src/
 SRCS=src/math_utility.cpp src/perlin.cpp src/matrix.cpp src/aabb.cpp
-SRCS+=src/quaternion.cpp src/voronoi.cpp src/triangulation.cpp src/shapes.cpp
+SRCS+=src/triangulation.cpp src/triangulation_3d.cpp src/triangulation_sphere.cpp
+SRCS+=src/quaternion.cpp src/voronoi.cpp src/shapes.cpp
 SRCS+=src/function.cpp src/curve.cpp src/voronoi_sphere.cpp
 SRCS+=src/gpu_voronoi.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -75,6 +76,12 @@ $(BINPATH)gpu_voronoi.o: $(SRCPATH)gpu_voronoi.cpp
 
 $(BINPATH)triangulation.o: $(SRCPATH)triangulation.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)triangulation.cpp -o $(BINPATH)triangulation.o
+
+$(BINPATH)triangulation_3d.o: $(SRCPATH)triangulation_3d.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)triangulation_3d.cpp -o $(BINPATH)triangulation_3d.o
+
+$(BINPATH)triangulation_sphere.o: $(SRCPATH)triangulation_sphere.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)triangulation_sphere.cpp -o $(BINPATH)triangulation_sphere.o
 
 $(BINPATH)shapes.o: $(SRCPATH)shapes.cpp
 	$(CC) $(CFLAGS) -c $(SRCPATH)shapes.cpp -o $(BINPATH)shapes.o
