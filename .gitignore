@@ -2,6 +2,8 @@
 *.a
 *.DS_Store
 *test.dSYM
+*init.txt
+*capture/
 fluids/bin/*
 fluids/test
 game/bin/*
@@ -14,6 +16,7 @@ mathlib/test
 structures/bin/*
 structures/test
 ui/test
+ui/test.curve
 openCL/test
-
 audio/test
+graphics/blender_scripts/io_mesh/__pycache__
