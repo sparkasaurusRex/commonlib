@@ -10,7 +10,7 @@ LIB_PATH=
 LDFLAGS=$(shell pkg-config mxml --libs)
 LDFLAGS+=-lgraphics -ltool
 SRCPATH=src/
-SRCS=src/bake_static_mesh.cpp
+SRCS=src/bake_static_mesh.cpp src/bakery.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -38,6 +38,9 @@ $(BINPATH):
 #$(OBJS): $(SRCS)
 #	$(CC) $(CFLAGS) -c $< -o $@
 #	mv $@ $(BINPATH)
+
+$(BINPATH)bakery.o: $(SRCPATH)bakery.cpp
+	$(CC) $(CFLAGS) -c src/bakery.cpp -o $(BINPATH)bakery.o
 
 $(BINPATH)bake_static_mesh.o: $(SRCPATH)bake_static_mesh.cpp
 	$(CC) $(CFLAGS) -c src/bake_static_mesh.cpp -o $(BINPATH)bake_static_mesh.o

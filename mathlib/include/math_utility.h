@@ -157,7 +157,7 @@ namespace Math {
     return (b._val[0] - a._val[0]) * (c._val[1] - b._val[1]) - (b._val[1] - a._val[1]) * (c._val[0] - b._val[0]);
   }
 
-	unsigned int hash(unsigned char *str);
+	unsigned int hash(const char *str);
 }
 
 #endif // _MATH_UTILITY_H_
