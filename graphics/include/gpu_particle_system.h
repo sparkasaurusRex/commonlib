@@ -17,7 +17,7 @@
 
 #define MAX_NUM_ATTRACTORS 5
 #define MAX_AGE 100.f
-#define DATA_TEXTURE_SIZE 10000
+#define DATA_TEXTURE_LENGTH 10000
 
 
 namespace Graphics {
@@ -55,13 +55,15 @@ namespace Graphics {
   {
 
   public:
-    GPUParticleSystem();
+    GPUParticleSystem(const char * shader_directory);
     ~GPUParticleSystem();
 
-    void init(Float3 * initial_particle_pos, Float3 * initial_particle_vel, float * age, float * data);
+    void init(float particle_size, Float3 * initial_particle_pos, Float3 * initial_particle_vel, float * age, float * data);
     void deinit();
     void simulate(const float game_time, const float dt);
     void render();
+
+    bool should_kill() {return is_dead;}
 
     void set_render_shader_names(std::string vs, std::string fs) {
       update_pos_shader_names[0] = vs;
@@ -89,18 +91,23 @@ namespace Graphics {
       }
     }
 
-    void set_curve_values(int color_id, int num_curves) {
+    void set_curve_values(int e_dir_id, int a_id, int color_id, int size_id, int num_curves) {
       data_tex_height = num_curves + 1;
-      color_curve_id = color_id;
+      color_curve_id = color_id + 1;
+      size_curve_id = size_id + 1;
+      emitter_dir_id = e_dir_id + 1;
+      age_curve_id = a_id + 1;
     }
-    void set_system_values(float eRadius, float eStrength, float eRange, Float3 eDir, Float3 eLoc, int numP, float life, bool loop, const char * sprite_tex_file) {
+
+    void set_system_values(float eRadius, float eStrength, float eRange, float eDur, Float3 eLoc, int numP, float life, float dur, bool loop, const char * sprite_tex_file) {
       emitter_radius = eRadius;
       emitter_strength = eStrength;
       emitter_range = eRange;
-      emitterDirection = eDir;
       emitterLocation = eLoc;
       num_particles = numP;
       particleLifespan = life;
+      system_duration = dur;
+      emitter_duration = eDur;
       does_loop = loop;
       sprite = new Texture(sprite_tex_file);
       sprite->load();
@@ -120,15 +127,12 @@ namespace Graphics {
       UNIFORM_UPDATEVEL_POS_TEX,
       UNIFORM_UPDATEVEL_VEL_TEX,
       UNIFORM_UPDATEVEL_DATA_TEX,
-      UNIFORM_UPDATEVEL_EMITTER_DIR,
       UNIFORM_UPDATEVEL_CONSTANTS,
 
       UNIFORM_RENDER_POS_TEX,
-      UNIFORM_RENDER_LIFESPAN,
       UNIFORM_RENDER_SPRITE,
       UNIFORM_RENDER_DATA_TEX,
-      UNIFORM_RENDER_COLOR_CURVE_ID,
-      UNIFORM_RENDER_DATA_TEX_HEIGHT,
+      UNIFORM_RENDER_CONSTANTS,
 
       NUM_PARTICLE_UNIFORMS
     };
@@ -154,15 +158,19 @@ namespace Graphics {
 
     bool does_loop;
 
+    bool is_dead;
+
+    float start_time;
 
     Float3 emitterLocation;
-    Float3 emitterDirection;
 
-    float emitter_range, emitter_strength, emitter_radius;
-    int color_curve_id;
+    float emitter_range, emitter_strength, emitter_radius, emitter_duration;
+    int color_curve_id, size_curve_id, emitter_dir_id, age_curve_id;
     int data_tex_height;
 
     float particleLifespan;
+
+    float system_duration;
 
     void update_velocities(const float game_time, const float dt);
     void update_positions(const float game_time, const float dt);
@@ -208,30 +216,19 @@ namespace Graphics {
 
     GPUParticleSim();
 
-    ~GPUParticleSim() {
-      for (int i = 0; i < pSystems.size(); i++) {
-        delete pSystems[i];
-      }
-      pSystems.clear();
-    }
+    ~GPUParticleSim();
+
+    void set_shader_directory(const char * shader_dir) {shader_directory = shader_dir;}
 
     void addCurve(const char * fileName, const char * handle);
     void addCurveVec4(const char * file_name_r, const char * file_name_g, const char * file_name_b, const char * file_name_a, const char * handle);
 
 
-    void addParticleSystem(int numParticles, ParticleForce * * forces, int numForces, Float3 emitterLoc, float emitterRadius, Float3 emitterDirection, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, bool loop, const char * color_handle, const char * tex_file);
+    void addParticleSystem(int numParticles, float particle_size, ParticleForce * * forces, int numForces, const char * emitter_dir_handle, Float3 emitterLoc, float emitterRadius, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, bool loop, const char * age_handle, const char * color_handle, const char * size_handle, const char * tex_file);
 
-    void simulate(const float game_time, const float dt) {
-      for (int i = 0; i < pSystems.size(); i++) {
-        pSystems[i]->simulate(game_time, dt);
-      }
-    }
+    void simulate(const float game_time, const float dt);
 
-    void render() {
-      for (int i = 0; i < pSystems.size(); i++) {
-        pSystems[i]->render();
-      }
-    }
+    void render();
 
     GLuint get_pos_tex(const int i) { return pSystems[i]->get_pos_tex(1); }
     GLuint get_vel_tex(const int i) { return pSystems[i]->get_vel_tex(1); }
@@ -244,6 +241,8 @@ namespace Graphics {
     std::vector<float> rand_data;
 
     std::vector<const char *> curve_handles;
+
+    const char * shader_directory;
 
   };
 

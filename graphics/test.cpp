@@ -62,6 +62,7 @@ private:
     glPushMatrix();
       glLoadIdentity();
       //glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
+      glTranslatef(0.f, 0.f, cos(rot_angle));
       //glScalef(0.5, 0.5, 0.5);
 
       //gpu_particles.render();
@@ -75,13 +76,13 @@ private:
     glBegin(GL_QUADS);
       glColor3f(1.0f, 1.0f, 1.0f);
       glTexCoord2f(0.0f, 0.0f);
-      glVertex3f(-1.0f, -1.0f, 0.0f);
-      glTexCoord2f(1.0f, 0.0f);
-      glVertex3f(1.0f, -1.0f, 0.0f);
-      glTexCoord2f(1.0f, 1.0f);
-      glVertex3f(1.0f, 1.0f, 0.0f);
-      glTexCoord2f(0.0f, 1.0f);
       glVertex3f(-1.0f, 1.0f, 0.0f);
+      glTexCoord2f(1.0f, 0.0f);
+      glVertex3f(1.0f, 1.0f, 0.0f);
+      glTexCoord2f(1.0f, 1.0f);
+      glVertex3f(1.0f, -1.0f, 0.0f);
+      glTexCoord2f(0.0f, 1.0f);
+      glVertex3f(-1.0f, -1.0f, 0.0f);
     glEnd();
   }
 
@@ -238,7 +239,6 @@ private:
 
     if(!paused)
     {
-      //gpu_particles.simulate(frame_time);
       gpu_particle_sim.simulate(game_time, frame_time);
 
       rot_angle += 10.0f * frame_time;
@@ -248,33 +248,51 @@ private:
   void user_init()
   {
 
+    gpu_particle_sim.set_shader_directory("./data/shaders/");
+
     gpu_particle_sim.addCurveVec4("Curves/r_color_channal.curve",
                                   "Curves/g_color_channal.curve",
                                   "Curves/b_color_channal.curve",
                                   "Curves/a_color_channal.curve",
                                   "colors");
 
+    gpu_particle_sim.addCurveVec4("Curves/emitter_dir_x.curve",
+                                  "Curves/emitter_dir_y.curve",
+                                  "Curves/always_zero.curve",
+                                  "Curves/always_one.curve",
+                                  "emitter_dir");
+
+    gpu_particle_sim.addCurve("Curves/particle_size.curve", "size");
+    gpu_particle_sim.addCurve("Curves/age.curve", "age");
+
     ParticleForce * * forces = new ParticleForce*[2];
 
-    forces[0] = new Attractor(Float3(0.1f, -0.2f, 0.f), 0.25f);
-    forces[1] = new Attractor(Float3(-0.05f, 0.2f, 0.f), 0.25f);
+    forces[0] = new Attractor(Float3(0.3f, -1.f, 0.f), 0.03f);
+    forces[1] = new Attractor(Float3(-0.05f, 0.2f, 0.f), 0.05f);
 
     /*
-     * addParticleSystem(num_particles,
+     * addParticleSystem(num_particles, particle_size
      * forces, num_forces,
-     * emitter, emitter_radius,
-     * emitter_dir, emitter_range, emitter_strength, emitter_duration,
+     * emitter_dir_curve_handle
+     * emitter_loc, emitter_radius,
+     * emitter_range, emitter_strength, emitter_duration,
      * lifespan,
      * loop,
+     * age_curve_handle,
+     * color_curve_handle,
+     * size_curve_handle
      * sprite_file);
      */
-    gpu_particle_sim.addParticleSystem(10000,
+    gpu_particle_sim.addParticleSystem(10000, 0.035f,
                                        forces, 2,
-                                       Float3(0.f, -0.5f, 0.f), 0.15f,
-                                       Float3(1.f, 1.f, 0.f), 1.f, 0.9f, 10.f,
-                                       10.f,
+                                       "emitter_dir",
+                                       Float3(0.f, -1.f, 0.f), 0.1f,
+                                       0.4f, 0.5f, 5.f,
+                                       5.f,
                                        true,
+                                       "age",
                                        "colors",
+                                       "size",
                                        "data/particle.tiff");
 
     /*forces[0] = new Attractor(Float3(0.f, 0.5f, 0.f), 0.25f);
