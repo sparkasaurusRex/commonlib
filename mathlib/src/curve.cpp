@@ -100,6 +100,19 @@ float CurveSegmentPerlin::evaluate(const float _x) const
 
 Curve::Curve()
 {
+  init();
+}
+
+Curve::~Curve()
+{
+  for(int i = 0; i < segments.size(); i++)
+  {
+    delete segments[i];
+  }
+}
+
+void Curve::init()
+{
   CurveEndPoint a, b;
   a.p = Float2(0.0f, 0.0f);
   a.t = Float2(0.1f, 0.0f);
@@ -113,12 +126,31 @@ Curve::Curve()
   segments.push_back(new_cs);
 }
 
-Curve::~Curve()
+void Curve::reset()
 {
   for(int i = 0; i < segments.size(); i++)
   {
     delete segments[i];
   }
+  segments.clear();
+  handles.clear();
+
+  init();
+}
+
+void Curve::bell_curve_cerp(const float x0, const float x1)
+{
+  reset();
+  change_segment_type(0, INTERPOLATE_CERP);
+  segments[0]->end_points[0].p = Float2(0.0f, 0.0f);
+  segments[0]->end_points[1].p = Float2(1.0f, 0.0f);
+
+  CurveEndPoint cep;
+  cep.p = Float2(x0, 1.0f);
+  insert_end_point(INTERPOLATE_CERP, cep);
+  cep.p = Float2(x1, 1.0f);
+  insert_end_point(INTERPOLATE_CERP, cep);
+  build_handle_list();
 }
 
 void Curve::add_segment(CurveSegment *s)
@@ -176,6 +208,50 @@ CurveSegment *Curve::create_segment(InterpolationMethod m, CurveEndPoint new_a, 
       return new_cs;
     }
   }
+  return NULL;
+}
+
+CurveSegment *Curve::insert_end_point(InterpolationMethod m, CurveEndPoint new_p)
+{
+  CurveSegment *new_cs = NULL;
+  switch(m)
+  {
+    case INTERPOLATE_LERP:
+      new_cs = new CurveSegmentLerp;
+      break;
+    case INTERPOLATE_CERP:
+      new_cs = new CurveSegmentCerp;
+      break;
+    case INTERPOLATE_BEZIER:
+      new_cs = new CurveSegmentBezier;
+      break;
+    default:
+      cerr<<"Curve::create_segment(): unknown interpolation method!"<<endl;
+      return NULL;
+      break;
+  }
+  assert(new_cs);
+
+  //find the segment this end-point intersects with
+  std::vector<CurveSegment *>::iterator csi;
+  for(csi = segments.begin(); csi != segments.end(); csi++)
+  {
+    CurveSegment *cs = *csi;
+    if((cs->end_points[0].p[0] <= new_p.p[0]) && (cs->end_points[1].p[0] >= new_p.p[0]))
+    {
+      new_cs->end_points[0] = new_p;
+      new_cs->end_points[1] = cs->end_points[1];
+      cs->end_points[1].p = new_cs->end_points[0].p;
+
+      segments.insert(csi + 1, new_cs);
+      build_handle_list();
+      return new_cs;
+    }
+  }
+
+  //didn't find anywhere to insert it? something weird happened, basically
+  assert(false);
+  delete new_cs;
   return NULL;
 }
 
