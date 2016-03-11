@@ -66,12 +66,14 @@ typedef struct
 } StaticMeshFileData;
 
 
-typedef struct {
+typedef struct
+{
     Float3 pos;
     Float3 normal;
 } MeshVertex;
 
-typedef struct {
+typedef struct
+{
     int mat_id;
     std::vector<int> vertex_indices;
     Float3 normal;
