@@ -62,10 +62,9 @@ private:
     glPushMatrix();
       glLoadIdentity();
       //glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
-      glTranslatef(0.f, 0.f, cos(rot_angle));
+      //glTranslatef(0.f, 0.f, cos(rot_angle));
       //glScalef(0.5, 0.5, 0.5);
 
-      //gpu_particles.render();
       gpu_particle_sim.render();
 
     glPopMatrix();

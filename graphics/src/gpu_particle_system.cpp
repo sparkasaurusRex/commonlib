@@ -269,7 +269,7 @@ void GPUParticleSystem::init(float particle_size, Float3 * initial_particle_pos,
   uniform_locations[UNIFORM_RENDER_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
 
   for (int i = 0; i < NUM_PARTICLE_UNIFORMS; i++) {
-    assert(uniform_locations[i] != -1);
+    //assert(uniform_locations[i] != -1);
   }
 
   glUseProgramObjectARB(0);

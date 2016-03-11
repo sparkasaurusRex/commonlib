@@ -44,7 +44,7 @@ void main() {
     vec2 emitter_dir_uv = vec2(gl_TexCoord[0].s, (emitter_dir_id + 0.5f) / data_tex_height);
     vec3 emitter_direction = texture2D(data_tex, emitter_dir_uv).xyz;
     //Curve values are [0,1]. But we need values [-1,1].
-    emitter_direction = emitter_direction + vec3(-0.5f, -0.5f, -0.5f);
+    emitter_direction = 2 * (emitter_direction + vec3(-0.5f, -0.5f, -0.5f));
 
     float randFloat = randVec4.w;
 
