@@ -45,17 +45,17 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
   mxml_node_t *start_node = tree;
   do
   {
-    material_node = mxmlFindElement(start_node,
-                                    tree,
-                                    "material",
-                                    NULL,
-                                    NULL,
-                                    MXML_DESCEND);
+    material_node = mxmlFindElement(start_node, tree, "material", NULL, NULL, MXML_DESCEND);
 
     if(material_node)
     {
-
+      mxml_node_t *diff_node = mxmlFindElement(material_node, material_node, "diffuse_color", NULL, NULL, MXML_DESCEND);
+      assert(diff_node);
+      Float3 diff_color = mxml_read_float3(diff_node->child);
+      cout<<"\tdiffuse: "<<diff_color<<endl;
     }
+
+    start_node = material_node;
   } while(material_node);
 
   //read all the vertices
@@ -69,7 +69,12 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
       mxml_node_t *pos_node = mxmlFindElement(vert_node, vert_node, "vert_pos", NULL, NULL, MXML_DESCEND);
       assert(pos_node);
       Float3 vert_pos = mxml_read_float3(pos_node->child);
-      cout<<"\t"<<vert_pos<<endl;
+      cout<<"\tv: "<<vert_pos<<endl;
+
+      mxml_node_t *norm_node = mxmlFindElement(vert_node, vert_node, "normal", NULL, NULL, MXML_DESCEND);
+      assert(norm_node);
+      Float3 vert_normal = mxml_read_float3(norm_node->child);
+      cout<<"\tn: "<<vert_normal<<endl;
 
       start_node = vert_node;
     }
@@ -92,6 +97,41 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
       mxml_node_t *mat_idx_node = mxmlFindElement(face_node, face_node, "mat_idx", NULL, NULL, MXML_DESCEND);
       int mat_idx = atoi(mat_idx_node->child->value.text.string);
       cout<<"\tmat_idx: "<<mat_idx<<endl;
+
+      int v_idx[3] = { -1, -1, -1 };
+      Float3 col[3];
+      Float2 uvs[3];
+
+      mxml_node_t *vidx_node = face_node;
+      mxml_node_t *uv_node = face_node;
+      mxml_node_t *col_node = face_node;
+      for(int i = 0; i < 3; i++)
+      {
+          //uvs
+        uv_node = mxmlFindElement(uv_node, face_node, "uv", NULL, NULL, MXML_DESCEND);
+        assert(uv_node);
+
+        uvs[i] = mxml_read_float2(uv_node->child);
+        cout<<"\t\tuv: "<<uvs[i]<<endl;
+
+        //vertex color
+        col_node = mxmlFindElement(col_node, face_node, "col", NULL, NULL, MXML_DESCEND);
+        assert(col_node);
+        col[i] = mxml_read_float3(col_node->child);
+        cout<<"\t\trgb: "<<col[i]<<endl;
+
+        //vertex index
+        vidx_node = mxmlFindElement(vidx_node, face_node, "v_idx", NULL, NULL, MXML_DESCEND);
+        assert(vidx_node);
+        v_idx[i] = atoi(vidx_node->child->value.text.string);
+        cout<<"\t\tvidx: "<<v_idx[i]<<endl;
+      }
+
+      //face normal
+      mxml_node_t *norm_node = mxmlFindElement(face_node, face_node, "normal", NULL, NULL, MXML_DESCEND);
+      assert(norm_node);
+      Float3 face_normal = mxml_read_float3(norm_node->child);
+      cout<<"\tfn: "<<face_normal<<endl;
 
       start_node = face_node;
     }
