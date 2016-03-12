@@ -8,7 +8,7 @@ CFLAGS+= -g3 -O0
 
 LIB_PATH=
 LDFLAGS=$(shell pkg-config mxml --libs)
-LDFLAGS+=-lgraphics -ltool
+LDFLAGS+=-lgraphics -ltool -lmath
 SRCPATH=src/
 SRCS=src/bake_static_mesh.cpp src/bakery.cpp
 OBJS=$(SRCS:.cpp=.o)
@@ -19,6 +19,7 @@ ifneq (,$(findstring Darwin,$(UNAME)))
 	CFLAGS+=-Wno-deprecated-declarations
 	LIB_PATH+=-Lbin/osx
 	LIB_PATH+=-L../graphics/bin/osx
+	LIB_PATH+=-L../mathlib/bin/osx
 	BINPATH=bin/osx/
 else
 	#generic link flags
