@@ -69,14 +69,9 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
       Float3 vert_normal = mxml_read_float3(norm_node->child);
       cout<<"\tn: "<<vert_normal<<endl;
 
-
-
-
       start_node = vert_node;
     }
   } while(vert_node);
-
-
 
   //read all the faces
   std::vector<MeshFace> mesh_faces;
@@ -96,7 +91,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
       cout<<"\tface id: "<<face_idx<<endl;
 
       mxml_node_t *mat_idx_node = mxmlFindElement(face_node, face_node, "mat_idx", NULL, NULL, MXML_DESCEND);
-      int mat_idx = atoi(mat_idx_node->child->value.text.string);
+      mf.mat_idx = atoi(mat_idx_node->child->value.text.string);
       cout<<"\t\tmat_idx: "<<mat_idx<<endl;
 
       int v_idx[3] = { -1, -1, -1 };

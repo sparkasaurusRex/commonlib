@@ -14,6 +14,8 @@ namespace Tool
   public:
     Float3 normal;
     Float2 uvs[2];
+
+    int mat_idx;
   };
 
   class StaticMeshBaker
