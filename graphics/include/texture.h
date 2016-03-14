@@ -7,35 +7,47 @@
 #include <GL/gl.h>
 #endif
 
-#include "static_mesh.h"
-
-class Texture
+namespace Graphics
 {
-public:
-  Texture(const int w = 32, const int h = 32, const GLuint m = GL_RGBA);
-  Texture(const char *n);
 
-  ~Texture();
+  typedef struct
+  {
+      int hash_id;
+      char file_name[256];
+      int dim[2];
 
-  GLuint get_tex_id() const { return gl_texture; }
-  void get_dim(int &w, int &h) const { w = dim[0]; h = dim[1]; }
-  void set_dim(const int w, const int h) { dim[0] = w; dim[1] = h; }
-  GLuint get_pixel_mode() { return gl_mode; }
-  void set_pixel_mode(GLuint m) { gl_mode = m; }
+      int img_size;
+      unsigned char *image;
+  } TextureFileData;
 
-  void init();
+  class Texture
+  {
+  public:
+    Texture(const int w = 32, const int h = 32, const GLuint m = GL_RGBA);
+    Texture(const char *n);
 
-  bool load();
-  bool load_from_file_data(TextureFileData &tfd);
-  bool render_gl(GLuint tex_stage = GL_TEXTURE0) const;
+    ~Texture();
 
-  bool update_pixels_from_mem(void *pixels);
+    GLuint get_tex_id() const { return gl_texture; }
+    void get_dim(int &w, int &h) const { w = dim[0]; h = dim[1]; }
+    void set_dim(const int w, const int h) { dim[0] = w; dim[1] = h; }
+    GLuint get_pixel_mode() { return gl_mode; }
+    void set_pixel_mode(GLuint m) { gl_mode = m; }
 
-private:
-  int      dim[2];          //dimensions of the texture
-  char    fname[256];      //filename
-  GLuint    gl_texture;    //OpenGL texture name
-  GLuint    gl_mode;      //image format
+    void init();
+
+    bool load();
+    bool load_from_file_data(TextureFileData &tfd);
+    bool render_gl(GLuint tex_stage = GL_TEXTURE0) const;
+
+    bool update_pixels_from_mem(void *pixels);
+
+  private:
+    int       dim[2];          //dimensions of the texture
+    char      fname[256];      //filename
+    GLuint    gl_texture;    //OpenGL texture name
+    GLuint    gl_mode;      //image format
+  };
 };
 
 #endif // _TEXTURE_H_

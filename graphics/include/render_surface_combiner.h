@@ -17,7 +17,7 @@ public:
   void deinit();
   void render();
 
-  Texture *foo_a, *foo_b;
+  Graphics::Texture *foo_a, *foo_b;
 
 private:
   RenderSurface *a, *b, *c, *d;

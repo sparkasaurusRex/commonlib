@@ -1,39 +1,16 @@
 #include <iostream>
 #include <assert.h>
 
-#include "bake_static_mesh.h"
+#include "tool.h"
+#include "static_mesh_baker.h"
 
 using namespace Tool;
+using namespace Graphics;
 using namespace std;
 
 StaticMeshBaker::StaticMeshBaker()
 {
 
-}
-
-//TEMP - move to an xml lib
-Float2 mxml_read_float2(const mxml_node_t *node)
-{
-    assert(node);
-    assert(node->next);
-
-    Float2 val(atof(node->value.text.string),
-               atof(node->next->value.text.string));
-
-    return val;
-}
-
-Float3 mxml_read_float3(const mxml_node_t *node)
-{
-    assert(node);
-    assert(node->next);
-    assert(node->next->next);
-
-    Float3 val(atof(node->value.text.string),
-               atof(node->next->value.text.string),
-               atof(node->next->next->value.text.string));
-
-    return val;
 }
 
 void StaticMeshBaker::bake(mxml_node_t *tree)
@@ -55,10 +32,25 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
       cout<<"\tdiffuse: "<<diff_color<<endl;
     }
 
+    //read all the textures used by this material
+    mxml_node_t *tex_node = NULL;
+    mxml_node_t *t_start_node = material_node;
+
+    do
+    {
+      tex_node = mxmlFindElement(t_start_node, material_node, "texture", NULL, NULL, MXML_DESCEND);
+      if(tex_node)
+      {
+        //TODO
+      }
+      t_start_node = tex_node;
+    } while(tex_node);
+
     start_node = material_node;
   } while(material_node);
 
   //read all the vertices
+  std::vector<Float3> vertex_xyz;
   mxml_node_t *vert_node = NULL;
   start_node = tree;
   do
@@ -69,6 +61,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
       mxml_node_t *pos_node = mxmlFindElement(vert_node, vert_node, "vert_pos", NULL, NULL, MXML_DESCEND);
       assert(pos_node);
       Float3 vert_pos = mxml_read_float3(pos_node->child);
+      vertex_xyz.push_back(vert_pos);
       cout<<"\tv: "<<vert_pos<<endl;
 
       mxml_node_t *norm_node = mxmlFindElement(vert_node, vert_node, "normal", NULL, NULL, MXML_DESCEND);
@@ -76,11 +69,17 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
       Float3 vert_normal = mxml_read_float3(norm_node->child);
       cout<<"\tn: "<<vert_normal<<endl;
 
+
+
+
       start_node = vert_node;
     }
   } while(vert_node);
 
+
+
   //read all the faces
+  std::vector<MeshFace> mesh_faces;
   mxml_node_t *face_node = NULL;
   start_node = tree;
   do
@@ -88,6 +87,8 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
     face_node = mxmlFindElement(start_node, tree, "face", NULL, NULL, MXML_DESCEND);
     if(face_node)
     {
+      MeshFace mf;
+
       mxml_node_t *face_idx_node = mxmlFindElement(face_node, face_node, "face_idx", NULL, NULL, MXML_DESCEND);
       assert(face_idx_node);
 
@@ -96,7 +97,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
 
       mxml_node_t *mat_idx_node = mxmlFindElement(face_node, face_node, "mat_idx", NULL, NULL, MXML_DESCEND);
       int mat_idx = atoi(mat_idx_node->child->value.text.string);
-      cout<<"\tmat_idx: "<<mat_idx<<endl;
+      cout<<"\t\tmat_idx: "<<mat_idx<<endl;
 
       int v_idx[3] = { -1, -1, -1 };
       Float3 col[3];
@@ -107,7 +108,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
       mxml_node_t *col_node = face_node;
       for(int i = 0; i < 3; i++)
       {
-          //uvs
+        //uvs
         uv_node = mxmlFindElement(uv_node, face_node, "uv", NULL, NULL, MXML_DESCEND);
         assert(uv_node);
 
@@ -133,7 +134,14 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
       Float3 face_normal = mxml_read_float3(norm_node->child);
       cout<<"\tfn: "<<face_normal<<endl;
 
+      mesh_faces.push_back(mf);
+
       start_node = face_node;
     }
   } while(face_node);
+
+  //build render data
+  unsigned int *indices = new unsigned int[mesh_faces.size()];
+
+  delete indices;
 }

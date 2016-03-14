@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "bake_static_mesh.h"
+#include "static_mesh_baker.h"
 
 namespace Tool
 {
