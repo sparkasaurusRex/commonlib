@@ -13,11 +13,12 @@ namespace Tool
   {
   public:
     Float3 normal;
-    Float2 uvs[2];
+    //Float2 uvs[2];
 
     unsigned int mat_idx;
     unsigned int vert_idx[3];
-    
+    Float3 rgb[3];
+    Float2 uvs[3];
   };
 
   class StaticMeshBaker
@@ -26,10 +27,7 @@ namespace Tool
     StaticMeshBaker();
     ~StaticMeshBaker() {}
 
-    void bake(mxml_node_t *tree);
-
-  private:
-    std::vector<DrawCall<Graphics::StaticMeshVertex> > draw_calls;
+    void bake(mxml_node_t *tree, std::string output_fname);
   };
 };
 

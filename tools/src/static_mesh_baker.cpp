@@ -13,7 +13,7 @@ StaticMeshBaker::StaticMeshBaker()
 
 }
 
-void StaticMeshBaker::bake(mxml_node_t *tree)
+void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
 {
   cout<<"\tParsing static mesh xml..."<<endl;
 
@@ -92,7 +92,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
 
       mxml_node_t *mat_idx_node = mxmlFindElement(face_node, face_node, "mat_idx", NULL, NULL, MXML_DESCEND);
       mf.mat_idx = atoi(mat_idx_node->child->value.text.string);
-      cout<<"\t\tmat_idx: "<<mat_idx<<endl;
+      cout<<"\t\tmat_idx: "<<mf.mat_idx<<endl;
 
       int v_idx[3] = { -1, -1, -1 };
       Float3 col[3];
@@ -107,27 +107,27 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
         uv_node = mxmlFindElement(uv_node, face_node, "uv", NULL, NULL, MXML_DESCEND);
         assert(uv_node);
 
-        uvs[i] = mxml_read_float2(uv_node->child);
-        cout<<"\t\tuv: "<<uvs[i]<<endl;
+        mf.uvs[i] = mxml_read_float2(uv_node->child);
+        cout<<"\t\tuv: "<<mf.uvs[i]<<endl;
 
         //vertex color
         col_node = mxmlFindElement(col_node, face_node, "col", NULL, NULL, MXML_DESCEND);
         assert(col_node);
-        col[i] = mxml_read_float3(col_node->child);
-        cout<<"\t\trgb: "<<col[i]<<endl;
+        mf.rgb[i] = mxml_read_float3(col_node->child);
+        cout<<"\t\trgb: "<<mf.rgb[i]<<endl;
 
         //vertex index
         vidx_node = mxmlFindElement(vidx_node, face_node, "v_idx", NULL, NULL, MXML_DESCEND);
         assert(vidx_node);
-        v_idx[i] = atoi(vidx_node->child->value.text.string);
-        cout<<"\t\tvidx: "<<v_idx[i]<<endl;
+        mf.vert_idx[i] = atoi(vidx_node->child->value.text.string);
+        cout<<"\t\tvidx: "<<mf.vert_idx[i]<<endl;
       }
 
       //face normal
       mxml_node_t *norm_node = mxmlFindElement(face_node, face_node, "normal", NULL, NULL, MXML_DESCEND);
       assert(norm_node);
-      Float3 face_normal = mxml_read_float3(norm_node->child);
-      cout<<"\tfn: "<<face_normal<<endl;
+      mf.normal = mxml_read_float3(norm_node->child);
+      cout<<"\tfn: "<<mf.normal<<endl;
 
       mesh_faces.push_back(mf);
 
@@ -136,7 +136,64 @@ void StaticMeshBaker::bake(mxml_node_t *tree)
   } while(face_node);
 
   //build render data
-  unsigned int *indices = new unsigned int[mesh_faces.size()];
+  cout<<endl<<endl<<"\t"<<mesh_faces.size()<<" faces."<<endl;
+  int num_indices = mesh_faces.size();
+  unsigned int *indices = new unsigned int[num_indices];
+
+  int num_render_verts = mesh_faces.size() * 3;
+  StaticMeshVertex *render_verts = new StaticMeshVertex[num_render_verts];
+  int rvi = 0;
+
+  for(int i = 0; i < mesh_faces.size(); i++)
+  {
+    cout<<"\tvert_idx:\n";
+    for(int j = 0; j < 3; j++)
+    {
+      indices[num_indices] = mesh_faces[i].vert_idx[j];
+
+      cout<<"\t\t"<<mesh_faces[i].vert_idx[j]<<" ";
+      cout<<vertex_xyz[i]<<endl;
+
+      render_verts[rvi].x = vertex_xyz[mesh_faces[i].vert_idx[j]][0];
+      render_verts[rvi].y = vertex_xyz[mesh_faces[i].vert_idx[j]][1];
+      render_verts[rvi].z = vertex_xyz[mesh_faces[i].vert_idx[j]][2];
+
+      render_verts[rvi].nx = mesh_faces[i].normal[0];
+      render_verts[rvi].ny = mesh_faces[i].normal[1];
+      render_verts[rvi].nz = mesh_faces[i].normal[2];
+
+      render_verts[rvi].u0 = mesh_faces[i].uvs[j][0];
+      render_verts[rvi].v0 = mesh_faces[i].uvs[j][1];
+
+      rvi++;
+    }
+    cout<<endl;
+  }
+
+  cout<<"opening file "<<output_fname.c_str()<<"..."<<endl;
+  FILE *f = fopen(output_fname.c_str(), "wb");
+  assert(f);
+
+  int version = 1;
+  cout<<"file version: "<<version<<endl;
+  fwrite(&version, sizeof(int), 1, f);
+
+  //write vertex data
+  cout<<"writing "<<num_render_verts<<" render verts"<<endl;
+  fwrite(&num_render_verts, sizeof(int), 1, f);
+  fwrite(render_verts, sizeof(StaticMeshVertex), num_render_verts, f);
+
+  //write index data
+  fwrite(&num_indices, sizeof(int), 1, f);
+  fwrite(indices, sizeof(unsigned int), num_indices, f);
+
+  //DrawCall<StaticMeshVertex> dc;
+  //dc.num_indices = mesh_faces.size();
+  //dc.indices = indices;
+  //dc.vertex_data = render_verts;
+
+  fclose(f);
 
   delete indices;
+  delete render_verts;
 }

@@ -3,6 +3,8 @@
 
 using namespace std;
 using namespace UI;
+using namespace Graphics;
+using namespace Math;
 
 PushButton::PushButton(Font *f) : Label(f)
 {

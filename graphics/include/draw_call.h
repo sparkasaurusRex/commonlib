@@ -33,6 +33,8 @@ public:
 
   void set_material(Material *m) { mat = m; }
 
+  void render();
+
 private:
   Material *mat;
 

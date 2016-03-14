@@ -9,6 +9,7 @@ using namespace Math;
 
 void Bakery::bake(std::string fname)
 {
+  std::string output_fname = fname + ".bin";
   FILE *fp = fopen(fname.c_str(), "r");
   if(fp)
   {
@@ -27,7 +28,7 @@ void Bakery::bake(std::string fname)
     node = mxmlFindElement(tree, tree, "static_mesh", "version", NULL, MXML_DESCEND);
     if(node)
     {
-      smb.bake(tree);
+      smb.bake(tree, output_fname);
     }
   }
   else

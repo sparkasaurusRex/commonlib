@@ -98,9 +98,7 @@ namespace Graphics
     StaticMesh();
     ~StaticMesh();
 
-    bool read_from_file(const char *filename);
-    //bool read_from_file_data(StaticMeshFileData *smfd);
-    //bool fixup_materials(World *w);
+    bool read_from_file(FILE *f);
     bool init();
     void render_gl();
 
@@ -109,14 +107,6 @@ namespace Graphics
 
     //actual render data
     std::vector<DrawCall<StaticMeshVertex> > draw_calls;
-
-    //TODO
-    //these should only be temp - and eventually
-    //deprecated - they should only be used to
-    //build the render data
-    std::vector<Material *>     materials;
-    //std::vector<MeshVertex>     vertices;
-    //std::vector<MeshFace>       faces;
 
     GLuint vbo;
     GLuint nbo;
