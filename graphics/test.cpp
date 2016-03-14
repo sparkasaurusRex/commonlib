@@ -4,6 +4,7 @@
 #include "gpu_hair_sim.h"
 #include "perlin.h"
 #include "gpu_particle_system.h"
+#include "static_mesh.h"
 
 using namespace Graphics;
 using namespace PerlinNoise;
@@ -233,8 +234,8 @@ private:
   void game_loop(const float game_time, const float frame_time)
   {
     //cout<<"dt: "<<frame_time<<endl;
-    //update_forces(game_time, frame_time);
-    //gpu_hair.simulate(game_time, frame_time);
+    update_forces(game_time, frame_time);
+    gpu_hair.simulate(game_time, frame_time);
 
     if(!paused)
     {
@@ -322,7 +323,7 @@ private:
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));
     */
 
-/*
+
     int num_hairs = 10000;
     //TODO: move this out of the GPUHairSim class, so we can start w/ any hair
     //      distribution the user wants
@@ -356,7 +357,15 @@ private:
     cam.set_pos(cam_pos);
     cam.set_lookat(Float3(0.0f, 0.0f, 0.0f) - cam_pos);
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));
-    */
+
+    //mesh init
+    FILE *f = fopen("../../mundus/data/meshes/mtn_a.brick.bin", "rb");
+    assert(f);
+
+    StaticMesh sm;
+    sm.read_from_file(f);
+
+    fclose(f);
   }
   void user_run() {}
   void user_process_event(const SDL_Event &event)

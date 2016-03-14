@@ -16,8 +16,8 @@ LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 LDFLAGS+=-lmath -lgraphics -lfluids -lgame -lui
 SRCPATH=src/
 SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
-SRCS+=src/camera.cpp src/draw_call.cpp src/render_surface.cpp src/hdr_render_surface.cpp
-SRCS+=src/render_surface_combiner.cpp src/gpu_hair_sim.cpp
+SRCS+=src/camera.cpp src/render_surface.cpp src/hdr_render_surface.cpp
+SRCS+=src/render_surface_combiner.cpp src/gpu_hair_sim.cpp src/static_mesh.cpp
 SRCS+=src/gpu_particle_system.cpp
 OBJS=$(SRCS:.cpp=.o)
 
@@ -90,9 +90,6 @@ $(BINPATH)texture.o: $(SRCPATH)texture.cpp
 $(BINPATH)camera.o: $(SRCPATH)camera.cpp
 	$(CC) $(CFLAGS) -c src/camera.cpp -o $(BINPATH)camera.o
 
-$(BINPATH)draw_call.o: $(SRCPATH)draw_call.cpp
-	$(CC) $(CFLAGS) -c src/draw_call.cpp -o $(BINPATH)draw_call.o
-
 $(BINPATH)render_surface.o: $(SRCPATH)render_surface.cpp
 	$(CC) $(CFLAGS) -c src/render_surface.cpp -o $(BINPATH)render_surface.o
 
@@ -107,6 +104,9 @@ $(BINPATH)gpu_hair_sim.o: $(SRCPATH)gpu_hair_sim.cpp
 
 $(BINPATH)gpu_particle_system.o: $(SRCPATH)gpu_particle_system.cpp
 	$(CC) $(CFLAGS) -c src/gpu_particle_system.cpp -o $(BINPATH)gpu_particle_system.o
+
+$(BINPATH)static_mesh.o: $(SRCPATH)static_mesh.cpp
+	$(CC) $(CFLAGS) -c src/static_mesh.cpp -o $(BINPATH)static_mesh.o
 
 $(BINPATH)libgraphics.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgraphics.a $(OBJS_BIN)

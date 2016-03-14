@@ -184,6 +184,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
   fwrite(render_verts, sizeof(StaticMeshVertex), num_render_verts, f);
 
   //write index data
+  cout<<"writing "<<num_indices<<" indices"<<endl;
   fwrite(&num_indices, sizeof(int), 1, f);
   fwrite(indices, sizeof(unsigned int), num_indices, f);
 

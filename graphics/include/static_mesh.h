@@ -98,20 +98,17 @@ namespace Graphics
     StaticMesh();
     ~StaticMesh();
 
-    bool read_from_file(FILE *f);
+    void read_from_file(FILE *f);
     bool init();
     void render_gl();
 
   protected:
-    bool make_render_data();
-
-    //actual render data
     std::vector<DrawCall<StaticMeshVertex> > draw_calls;
+
+    StaticMeshVertex *vertices;
 
     GLuint vbo;
     GLuint nbo;
-
-    GLuint display_list;
   };
 };
 
