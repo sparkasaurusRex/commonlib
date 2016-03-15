@@ -127,6 +127,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
       mxml_node_t *norm_node = mxmlFindElement(face_node, face_node, "normal", NULL, NULL, MXML_DESCEND);
       assert(norm_node);
       mf.normal = mxml_read_float3(norm_node->child);
+      mf.normal.normalize();
       cout<<"\tfn: "<<mf.normal<<endl;
 
       mesh_faces.push_back(mf);

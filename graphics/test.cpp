@@ -79,9 +79,16 @@ private:
 
   void render_static_mesh()
   {
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    //gluPerspective(65.0f, 1.0f, 0.05f, 100.0f);
+    //glEnable(GL_LIGHTING);
+    //glEnable(GL_LIGHT0);
+
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CW);
+
+    GLfloat diff[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+    GLfloat light_pos[] = { 0.0f, 2.0f, 0.0f, 1.0f };
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diff);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -90,21 +97,18 @@ private:
     glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
 
-    //glDepthRange(0.0f, 10.0f);
-
     cam.set_fov(65.0f);
     cam.set_pos(Float3(0.0f, 0.0f, -1.0f + zoom));
     cam.set_lookat(Float3(0.0f, 0.0f, 1.0f));
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));
 
-    //glScalef(0.5, 0.5, 0.5);
-    //glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
-    //glTranslatef(0.0f, 0.0f, zoom);
-
     cam.render_setup();
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
       static_mesh.render();
     cam.render_cleanup();
+
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
   }
 
   void render_fullscreen_quad()
