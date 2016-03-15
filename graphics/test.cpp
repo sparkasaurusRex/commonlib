@@ -79,23 +79,26 @@ private:
 
   void render_static_mesh()
   {
-    //glEnable(GL_LIGHTING);
-    //glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+
+    glDisable(GL_BLEND);
 
     glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CW);
+    glFrontFace(GL_CCW);
 
-    GLfloat diff[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+    GLfloat diff[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat amb[] = { 0.1f, 0.1f, 0.1f, 1.0f };
     GLfloat light_pos[] = { 0.0f, 2.0f, 0.0f, 1.0f };
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diff);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, amb);
     glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    glDisable(GL_CULL_FACE);
-    glDepthMask(GL_FALSE);
-    glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
 
     cam.set_fov(65.0f);
     cam.set_pos(Float3(0.0f, 0.0f, -1.0f + zoom));
@@ -104,6 +107,7 @@ private:
 
     cam.render_setup();
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
+      glRotatef(rot_angle * 0.17f, 0.0f, 0.0f, 1.0f);
       static_mesh.render();
     cam.render_cleanup();
 

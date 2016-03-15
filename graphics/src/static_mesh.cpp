@@ -93,19 +93,16 @@ void StaticMesh::render()
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, sizeof(StaticMeshVertex), (void *)0);
   glEnableClientState(GL_COLOR_ARRAY);
-  glColorPointer(3, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 6));
+  glColorPointer(3, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 3));
 
   glEnableClientState(GL_NORMAL_ARRAY);
-  glNormalPointer(GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 3));
+  glNormalPointer(GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 6));
 
   glClientActiveTexture(GL_TEXTURE0);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 9));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-
-  glColor3f(1.0f, 1.0f, 1.0f);
-  glPointSize(3.0f);
   glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, (void *)0);
 
   glDisableClientState(GL_VERTEX_ARRAY);
