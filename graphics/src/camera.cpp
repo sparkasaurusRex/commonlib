@@ -20,6 +20,8 @@ Camera::Camera()
   focal_distance_m = 10000.0f;
   focal_length_mm = 35.0f;
   shutter_speed_s = 0.01f;
+
+  fov = 32.0f;
 }
 
 void Camera::transform(const Matrix3x3 &m)
@@ -41,7 +43,7 @@ void Camera::render_setup()
 {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(32, window_dimensions[0] / window_dimensions[1], 0.05f, 1000.0f);
+  gluPerspective(fov, window_dimensions[0] / window_dimensions[1], 0.05f, 1000.0f);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -54,6 +56,4 @@ void Camera::render_setup()
 
 void Camera::render_cleanup()
 {
-    //glPopMatrix();
-  //glPopMatrix();
 }

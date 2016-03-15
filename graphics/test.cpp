@@ -1,4 +1,5 @@
 #include <time.h>
+#include <OpenGL/glu.h>
 #include "sdl_game.h"
 #include "camera.h"
 #include "gpu_hair_sim.h"
@@ -37,6 +38,8 @@ public:
     render_mode = RENDER_STATIC_MESH;
     force_tex_dim[0] = 64;
     force_tex_dim[1] = 64;
+
+    zoom = 0.0f;
   }
   ~GraphicsApp()
   {
@@ -76,19 +79,32 @@ private:
 
   void render_static_mesh()
   {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    //gluPerspective(65.0f, 1.0f, 0.05f, 100.0f);
+
     glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-      glLoadIdentity();
-      //glRotatef(25.0f, 1.0f, 0.0f, 0.0f);
+    glLoadIdentity();
+
+    glDisable(GL_CULL_FACE);
+    glDepthMask(GL_FALSE);
+    glDisable(GL_DEPTH_TEST);
+
+    //glDepthRange(0.0f, 10.0f);
+
+    cam.set_fov(65.0f);
+    cam.set_pos(Float3(0.0f, 0.0f, -1.0f + zoom));
+    cam.set_lookat(Float3(0.0f, 0.0f, 1.0f));
+    cam.set_up(Float3(0.0f, 1.0f, 0.0f));
+
+    //glScalef(0.5, 0.5, 0.5);
+    //glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
+    //glTranslatef(0.0f, 0.0f, zoom);
+
+    cam.render_setup();
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
-      glTranslatef(0.0f, 0.0f, -1.5f);
-      //glScalef(1.2, 1.2, 1.2);
-
-      //cam.render_setup();
       static_mesh.render();
-      //cam.render_cleanup();
-
-    glPopMatrix();
+    cam.render_cleanup();
   }
 
   void render_fullscreen_quad()
@@ -162,8 +178,10 @@ private:
 
   void render_gl()
   {
+    glViewport(0, 0, resolution[0], resolution[1]);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glDepthRange(0.0f, 1.0f);
 
     switch(render_mode)
     {
@@ -397,6 +415,7 @@ private:
 
   void user_init()
   {
+    cam.set_window_dimensions(Float2(resolution[0], resolution[1]));
     particle_init();
     hair_init();
     static_mesh_init();
@@ -407,6 +426,9 @@ private:
   {
     switch(event.type)
     {
+      case SDL_MOUSEWHEEL:
+        zoom += (float)event.wheel.y * 0.08f;
+        break;
       case SDL_KEYUP:
         switch(event.key.keysym.sym)
         {
@@ -453,6 +475,8 @@ private:
   Camera cam;
   float rot_angle;
   StaticMesh static_mesh;
+
+  float zoom;
 
   bool paused;
 

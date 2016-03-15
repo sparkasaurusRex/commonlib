@@ -137,8 +137,9 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
 
   //build render data
   cout<<endl<<endl<<"\t"<<mesh_faces.size()<<" faces."<<endl;
-  int num_indices = mesh_faces.size();
+  int num_indices = mesh_faces.size() * 3;
   unsigned int *indices = new unsigned int[num_indices];
+  int index_counter = 0;
 
   int num_render_verts = mesh_faces.size() * 3;
   StaticMeshVertex *render_verts = new StaticMeshVertex[num_render_verts];
@@ -146,17 +147,22 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
 
   for(int i = 0; i < mesh_faces.size(); i++)
   {
+    MeshFace *mf = &mesh_faces[i];
     cout<<"\tvert_idx:\n";
     for(int j = 0; j < 3; j++)
     {
-      indices[num_indices] = mesh_faces[i].vert_idx[j];
+      indices[index_counter++] = mf->vert_idx[j];
 
-      cout<<"\t\t"<<mesh_faces[i].vert_idx[j]<<" ";
+      cout<<"\t\t"<<mf->vert_idx[j]<<" ";
       cout<<vertex_xyz[i]<<endl;
 
-      render_verts[rvi].x = vertex_xyz[mesh_faces[i].vert_idx[j]][0];
-      render_verts[rvi].y = vertex_xyz[mesh_faces[i].vert_idx[j]][1];
-      render_verts[rvi].z = vertex_xyz[mesh_faces[i].vert_idx[j]][2];
+      render_verts[rvi].x = vertex_xyz[mf->vert_idx[j]][0];
+      render_verts[rvi].y = vertex_xyz[mf->vert_idx[j]][1];
+      render_verts[rvi].z = vertex_xyz[mf->vert_idx[j]][2];
+
+      render_verts[rvi].r = 255.0f * mf->rgb[j][0];
+      render_verts[rvi].g = 255.0f * mesh_faces[i].rgb[j][1];
+      render_verts[rvi].b = 255.0f * mesh_faces[i].rgb[j][2];
 
       render_verts[rvi].nx = mesh_faces[i].normal[0];
       render_verts[rvi].ny = mesh_faces[i].normal[1];

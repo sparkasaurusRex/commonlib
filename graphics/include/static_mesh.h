@@ -19,6 +19,7 @@ namespace Graphics
   struct StaticMeshVertex
   {
     float x, y, z;
+    float r, g, b;
     float nx, ny, nz;
     float u0, v0;
   };

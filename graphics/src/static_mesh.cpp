@@ -58,18 +58,16 @@ void StaticMesh::read_from_file(FILE *f)
   cout<<"\t"<<num_vertices<<" vertices..."<<endl;
   for(int i = 0; i < num_vertices; i++)
   {
-    cout<<"\t\t"<<vertices[i].x<<", "<<vertices[i].y<<", "<<vertices[i].z<<endl;
-    cout<<"\t\t"<<vertices[i].nx<<", "<<vertices[i].ny<<", "<<vertices[i].nz<<endl;
+    cout<<"\t\tp:  "<<vertices[i].x<<", "<<vertices[i].y<<", "<<vertices[i].z<<endl;
+    cout<<"\t\tn:  "<<vertices[i].nx<<", "<<vertices[i].ny<<", "<<vertices[i].nz<<endl;
+    cout<<"\t\tuv: "<<vertices[i].u0<<", "<<vertices[i].v0<<endl;
   }
 
   fread(&num_indices, sizeof(int), 1, f);
   indices = new unsigned int[num_indices];
+  fread(indices, sizeof(unsigned int), num_indices, f);
 
   cout<<"\t"<<num_indices<<" indices..."<<endl;
-  for(int i = 0; i < num_indices; i++)
-  {
-    cout<<"\t\t"<<i<<endl;
-  }
 }
 
 void StaticMesh::init()
@@ -91,22 +89,28 @@ void StaticMesh::render()
 {
   //TODO: use DrawCall objects
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, sizeof(StaticMeshVertex), (void *)0);
-  glEnableClientState(GL_NORMAL_ARRAY);
-  glNormalPointer(GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 3));
   //glEnableClientState(GL_COLOR_ARRAY);
-  //glColorPointer(3, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 6));
+  //glColorPointer(3, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 3));
+
+  glEnableClientState(GL_NORMAL_ARRAY);
+  glNormalPointer(GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 6));
+
   glClientActiveTexture(GL_TEXTURE0);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 6));
+  glTexCoordPointer(2, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 9));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
   glColor3f(1.0f, 1.0f, 1.0f);
-  glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, (void *)(sizeof(unsigned int) * 0));
+  glPointSize(3.0f);
+  glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, (void *)0);
 
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
+
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
