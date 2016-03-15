@@ -107,7 +107,7 @@ private:
 
     cam.render_setup();
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
-      glRotatef(rot_angle * 0.17f, 0.0f, 0.0f, 1.0f);
+      glRotatef(rot_angle * 0.37f, 0.0f, 0.0f, 1.0f);
       static_mesh.render();
     cam.render_cleanup();
 
