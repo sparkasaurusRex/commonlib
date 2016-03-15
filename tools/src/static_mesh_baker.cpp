@@ -151,25 +151,27 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
     cout<<"\tvert_idx:\n";
     for(int j = 0; j < 3; j++)
     {
-      indices[index_counter++] = mf->vert_idx[j];
+      unsigned int vert_idx = mf->vert_idx[j];
+      indices[index_counter] = index_counter;//vert_idx;
+      index_counter++;
 
       cout<<"\t\t"<<mf->vert_idx[j]<<" ";
       cout<<vertex_xyz[i]<<endl;
 
-      render_verts[rvi].x = vertex_xyz[mf->vert_idx[j]][0];
-      render_verts[rvi].y = vertex_xyz[mf->vert_idx[j]][1];
-      render_verts[rvi].z = vertex_xyz[mf->vert_idx[j]][2];
+      render_verts[rvi].x = vertex_xyz[vert_idx][0];
+      render_verts[rvi].y = vertex_xyz[vert_idx][1];
+      render_verts[rvi].z = vertex_xyz[vert_idx][2];
 
       render_verts[rvi].r = 255.0f * mf->rgb[j][0];
-      render_verts[rvi].g = 255.0f * mesh_faces[i].rgb[j][1];
-      render_verts[rvi].b = 255.0f * mesh_faces[i].rgb[j][2];
+      render_verts[rvi].g = 255.0f * mf->rgb[j][1];
+      render_verts[rvi].b = 255.0f * mf->rgb[j][2];
 
-      render_verts[rvi].nx = mesh_faces[i].normal[0];
-      render_verts[rvi].ny = mesh_faces[i].normal[1];
-      render_verts[rvi].nz = mesh_faces[i].normal[2];
+      render_verts[rvi].nx = mf->normal[0];
+      render_verts[rvi].ny = mf->normal[1];
+      render_verts[rvi].nz = mf->normal[2];
 
-      render_verts[rvi].u0 = mesh_faces[i].uvs[j][0];
-      render_verts[rvi].v0 = mesh_faces[i].uvs[j][1];
+      render_verts[rvi].u0 = mf->uvs[j][0];
+      render_verts[rvi].v0 = mf->uvs[j][1];
 
       rvi++;
     }

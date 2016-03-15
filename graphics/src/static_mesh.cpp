@@ -92,8 +92,8 @@ void StaticMesh::render()
 
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, sizeof(StaticMeshVertex), (void *)0);
-  //glEnableClientState(GL_COLOR_ARRAY);
-  //glColorPointer(3, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 3));
+  glEnableClientState(GL_COLOR_ARRAY);
+  glColorPointer(3, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 3));
 
   glEnableClientState(GL_NORMAL_ARRAY);
   glNormalPointer(GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 6));
