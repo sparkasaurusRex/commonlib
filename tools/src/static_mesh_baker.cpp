@@ -163,9 +163,9 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
       render_verts[rvi].y = vertex_xyz[vert_idx][1];
       render_verts[rvi].z = vertex_xyz[vert_idx][2];
 
-      render_verts[rvi].r = 255.0f * mf->rgb[j][0];
-      render_verts[rvi].g = 255.0f * mf->rgb[j][1];
-      render_verts[rvi].b = 255.0f * mf->rgb[j][2];
+      render_verts[rvi].r = mf->rgb[j][0];
+      render_verts[rvi].g = mf->rgb[j][1];
+      render_verts[rvi].b = mf->rgb[j][2];
 
       render_verts[rvi].nx = mf->normal[0];
       render_verts[rvi].ny = mf->normal[1];
