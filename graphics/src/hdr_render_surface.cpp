@@ -1,6 +1,7 @@
 #include "hdr_render_surface.h"
 
 using namespace std;
+using namespace Graphics;
 
 HDRRenderSurface::HDRRenderSurface(const int w, const int h) : RenderSurface(w, h)
 {
