@@ -15,6 +15,7 @@ LDFLAGS+=$(shell pkg-config --libs glew)
 LDFLAGS+=-lmath -lui
 SRCPATH=src/
 SRCS=src/sdl_game.cpp src/console.cpp src/cinematics/fade_screen.cpp
+SRCS+=src/object_3d.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -53,6 +54,9 @@ $(BINPATH):
 
 $(BINPATH)sdl_game.o: $(SRCPATH)sdl_game.cpp
 	$(CC) $(CFLAGS) -c src/sdl_game.cpp -o $(BINPATH)sdl_game.o
+
+$(BINPATH)object_3d.o: $(SRCPATH)object_3d.cpp
+	$(CC) $(CFLAGS) -c src/object_3d.cpp -o $(BINPATH)object_3d.o
 
 $(BINPATH)console.o: $(SRCPATH)console.cpp
 	$(CC) $(CFLAGS) -c src/console.cpp -o $(BINPATH)console.o
