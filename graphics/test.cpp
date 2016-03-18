@@ -412,7 +412,7 @@ private:
   void static_mesh_init()
   {
     //mesh init
-    FILE *f = fopen("../../mundus/data/meshes/mtn_a.brick.bin", "rb");
+    FILE *f = fopen("data/meshes/test_mesh.brick.bin", "rb");
     assert(f);
 
     static_mesh.read_from_file(f);
