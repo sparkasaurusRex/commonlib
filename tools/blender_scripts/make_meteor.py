@@ -3,6 +3,8 @@ import bpy
 import random
 import math
 
+mesh_res = 6
+
 def displace_obj(o, noise_scale, strength):
     dis_mod = o.modifiers.new('Displacer', 'DISPLACE')
     dis_mod.texture = bpy.data.textures['Texture']
@@ -21,7 +23,7 @@ def normalize(v):
     return [ v[i]/vmag  for i in range(len(v)) ]
 
 #add a unit geodesic sphere @ the origin
-bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=4)
+bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=mesh_res)
 root_sphere = bpy.context.object
 root_sphere.name = 'Meteor'
 
@@ -32,9 +34,9 @@ for i in range(1, 25):
     sphere_size = random.uniform(0.2, 0.6)
     sphere_loc = (random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0))
     sphere_loc = normalize(sphere_loc)
-    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=3, size=sphere_size, location=sphere_loc)
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=mesh_res - 1, size=sphere_size, location=sphere_loc)
     spherelet = bpy.context.object
-    displace_obj(spherelet, 0.5, 0.25)
+    displace_obj(spherelet, 1.5, 0.7)
     spherelet.location = sphere_loc
 
     #boolean subtract this little sphere from the root sphere
@@ -50,3 +52,9 @@ for i in range(1, 25):
     root_sphere.select = False
     spherelet.select = True
     bpy.ops.object.delete()
+
+#clean up the mesh and remove double verts, etc...
+root_sphere.select = True
+bpy.ops.object.mode_set(mode='EDIT')
+bpy.ops.mesh.remove_doubles(threshold=0.075, use_unselected=True)
+bpy.ops.object.mode_set(mode='OBJECT')

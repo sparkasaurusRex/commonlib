@@ -4,6 +4,7 @@
 #include <string>
 
 #include "static_mesh_baker.h"
+#include "bphys_baker.h"
 
 namespace Tool
 {
@@ -15,7 +16,8 @@ namespace Tool
 
     void bake(std::string fname);
   private:
-    StaticMeshBaker smb;
+    StaticMeshBaker   smb;
+    BPhysBaker        bpb;
   };
 };
 
