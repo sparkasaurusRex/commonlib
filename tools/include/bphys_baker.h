@@ -5,6 +5,14 @@
 //class to bake data from a blender physics cache (fluid sim, particles, etc)
 //to textures or vertex colors usable for realtime applications
 
+#define WITH_LZO
+
+/* smoke data fileds (active_fields) */
+#define SM_ACTIVE_HEAT		(1<<0)
+#define SM_ACTIVE_FIRE		(1<<1)
+#define SM_ACTIVE_COLORS	(1<<2)
+#define SM_ACTIVE_COLOR_SET	(1<<3)
+
 namespace Tool
 {
   enum BPhysDataType
@@ -31,10 +39,10 @@ namespace Tool
     ~BPhysBaker() {}
 
     void init();
-
     void bake(FILE *f);
   private:
     void read_smoke_data(FILE *f);
+    void splat_voxel_data_onto_sphere_surface(float *voxels, float r, int tex_width, int tex_height);
   };
 };
 
