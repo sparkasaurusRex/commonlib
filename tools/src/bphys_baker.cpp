@@ -1,12 +1,12 @@
 #include <iostream>
 #include <assert.h>
-#include <png.h>
 
 #include "minilzo.h"
 #include "bphys_baker.h"
 
 using namespace std;
 using namespace Tool;
+using namespace Graphics;
 
 void BPhysBaker::init()
 {
@@ -31,7 +31,6 @@ void BPhysBaker::bake(FILE *f)
       break;
   }
 }
-
 
 static int ptcache_file_compressed_read(unsigned char *result, unsigned int len, FILE *f)
 {
@@ -205,6 +204,10 @@ void BPhysBaker::read_smoke_data(FILE *f)
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_y, out_len, f); //vy
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_z, out_len, f); //vz
 
+  std::string tga_fname("test.tga");
+  splat_voxel_data_onto_sphere_surface(velocity_voxels_x, alloc_res, 0.5f, 512, 256, tga_fname);
+
+
   if(shadow_voxels)     { delete shadow_voxels; }
   if(density_voxels)    { delete density_voxels; }
   if(heat_voxels)       { delete heat_voxels; }
@@ -215,4 +218,47 @@ void BPhysBaker::read_smoke_data(FILE *f)
   if(velocity_voxels_x) { delete velocity_voxels_x; }
   if(velocity_voxels_y) { delete velocity_voxels_y; }
   if(velocity_voxels_z) { delete velocity_voxels_z; }
+}
+
+void BPhysBaker::splat_voxel_data_onto_sphere_surface(float *voxels,
+                                                      unsigned int vox_len,
+                                                      float radius,
+                                                      int tex_width,
+                                                      int tex_height,
+                                                      std::string tga_file_name)
+{
+  //fill pixel data
+  int num_channels = 3;
+  long img_size = tex_width * tex_height * num_channels;
+  unsigned char *pixels = new unsigned char[img_size];
+  for(int j = 0; j < tex_height; j++)
+  {
+    for(int i = 0; i < tex_width; i++)
+    {
+      int idx = ((tex_width * j) + i) * num_channels;
+      float r = (float)i / (float)tex_width;
+      float g = (float)j / (float)tex_height;
+      float b = 0.0f;
+
+      pixels[idx] = (unsigned char)(r * 255.0f);
+      pixels[idx + 1] = (unsigned char)(g * 255.0f);
+      pixels[idx + 2] = (unsigned char)(b * 255.0f);
+    }
+  }
+
+  //assemble the tga header
+  int xa = tex_width % 256;
+  int xb = (tex_width - xa) / 256;
+  int ya = tex_height % 256;
+  int yb = (tex_height - ya) / 256;
+  unsigned char header[18] = {0,0,2,0,0,0,0,0,0,0,0,0,(char)xa,(char)xb,(char)ya,(char)yb,24,0};
+
+  //write header and data to file
+  FILE *f = fopen(tga_file_name.c_str(), "wb");
+  if(f)
+  {
+    fwrite(header, sizeof(unsigned char), 18, f);
+    fwrite(pixels, sizeof(unsigned char), img_size, f);
+    fclose(f);
+  }
 }

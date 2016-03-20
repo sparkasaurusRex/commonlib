@@ -1,9 +1,11 @@
 #ifndef __BPHYS_BAKER_H__
 #define __BPHYS_BAKER_H__
 
-#include <stdio.h>
 //class to bake data from a blender physics cache (fluid sim, particles, etc)
 //to textures or vertex colors usable for realtime applications
+
+#include <stdio.h>
+#include "texture.h"
 
 #define WITH_LZO
 
@@ -42,7 +44,12 @@ namespace Tool
     void bake(FILE *f);
   private:
     void read_smoke_data(FILE *f);
-    void splat_voxel_data_onto_sphere_surface(float *voxels, float r, int tex_width, int tex_height);
+    void splat_voxel_data_onto_sphere_surface(float *voxels,
+                                              unsigned int vox_len,
+                                              float radius,
+                                              int tex_width,
+                                              int tex_height,
+                                              std::string output_tga_fname);
   };
 };
 
