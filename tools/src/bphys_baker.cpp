@@ -1,9 +1,12 @@
 #include <iostream>
 #include <assert.h>
+#include <math.h>
 
+#include "math_utility.h"
 #include "minilzo.h"
 #include "bphys_baker.h"
 
+using namespace Math;
 using namespace std;
 using namespace Tool;
 using namespace Graphics;
@@ -128,7 +131,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   char version[5];
   int fluid_fields = -1;
   int active_fields = -1;
-  int res[3] = { -1, -1, -1 };
+  unsigned int res[3] = { -1, -1, -1 };
   float dx = -1.0f;
 
   version[4] = '\0';
@@ -137,7 +140,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   //fluid info
   fread(&fluid_fields, 1, sizeof(int), f);
   fread(&active_fields, 1, sizeof(int), f);
-  fread(&res, 3, sizeof(int), f);
+  fread(&res, 3, sizeof(unsigned int), f);
   fread(&dx, 1, sizeof(float), f);
 
   cout<<"version: "<<version<<endl;
@@ -165,9 +168,11 @@ void BPhysBaker::read_smoke_data(FILE *f)
 
   cout<<"reading shadow voxels..."<<endl;
   ptcache_file_compressed_read((unsigned char *)shadow_voxels, out_len, f); //shadow
+  splat_voxel_data_onto_sphere_surface(shadow_voxels, alloc_res, res, 0.5f, 512, 256, std::string("shadow.tga"));
 
   cout<<"reading density voxels..."<<endl;
   ptcache_file_compressed_read((unsigned char *)density_voxels, out_len, f); //density
+  splat_voxel_data_onto_sphere_surface(density_voxels, alloc_res, res, 0.5f, 512, 256, std::string("density.tga"));
 
   if(fluid_fields & SM_ACTIVE_HEAT)
   {
@@ -176,6 +181,9 @@ void BPhysBaker::read_smoke_data(FILE *f)
     heat_old_voxels = new float[alloc_res];
     ptcache_file_compressed_read((unsigned char *)heat_voxels, out_len, f); //heat
     ptcache_file_compressed_read((unsigned char *)heat_old_voxels, out_len, f); //heat_old
+
+    splat_voxel_data_onto_sphere_surface(heat_voxels, alloc_res, res, 0.5f, 512, 256, std::string("heat.tga"));
+    splat_voxel_data_onto_sphere_surface(heat_old_voxels, alloc_res, res, 0.5f, 512, 256, std::string("heat_old.tga"));
   }
   if(fluid_fields & SM_ACTIVE_FIRE)
   {
@@ -186,6 +194,10 @@ void BPhysBaker::read_smoke_data(FILE *f)
     ptcache_file_compressed_read((unsigned char *)flame_voxels, out_len, f); //flame
     ptcache_file_compressed_read((unsigned char *)fuel_voxels, out_len, f); //fuel
     ptcache_file_compressed_read((unsigned char *)react_voxels, out_len, f); //react
+
+    splat_voxel_data_onto_sphere_surface(flame_voxels, alloc_res, res, 0.5f, 512, 256, std::string("flame.tga"));
+    splat_voxel_data_onto_sphere_surface(fuel_voxels, alloc_res, res, 0.5f, 512, 256, std::string("fuel.tga"));
+    splat_voxel_data_onto_sphere_surface(react_voxels, alloc_res, res, 0.5f, 512, 256, std::string("react.tga"));
   }
   if(fluid_fields & SM_ACTIVE_COLORS)
   {
@@ -204,8 +216,9 @@ void BPhysBaker::read_smoke_data(FILE *f)
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_y, out_len, f); //vy
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_z, out_len, f); //vz
 
-  std::string tga_fname("test.tga");
-  splat_voxel_data_onto_sphere_surface(velocity_voxels_x, alloc_res, 0.5f, 512, 256, tga_fname);
+  splat_voxel_data_onto_sphere_surface(velocity_voxels_x, alloc_res, res, 0.5f, 512, 256, std::string("vel_x.tga"));
+  splat_voxel_data_onto_sphere_surface(velocity_voxels_y, alloc_res, res, 0.5f, 512, 256, std::string("vel_y.tga"));
+  splat_voxel_data_onto_sphere_surface(velocity_voxels_z, alloc_res, res, 0.5f, 512, 256, std::string("vel_z.tga"));
 
 
   if(shadow_voxels)     { delete shadow_voxels; }
@@ -222,11 +235,13 @@ void BPhysBaker::read_smoke_data(FILE *f)
 
 void BPhysBaker::splat_voxel_data_onto_sphere_surface(float *voxels,
                                                       unsigned int vox_len,
+                                                      unsigned int *vox_dim,
                                                       float radius,
                                                       int tex_width,
                                                       int tex_height,
                                                       std::string tga_file_name)
 {
+  radius = 1.0f;
   //fill pixel data
   int num_channels = 3;
   long img_size = tex_width * tex_height * num_channels;
@@ -235,10 +250,26 @@ void BPhysBaker::splat_voxel_data_onto_sphere_surface(float *voxels,
   {
     for(int i = 0; i < tex_width; i++)
     {
+      //interpret i & j as polar coordinates and convert to (x,y,z) space
+      float theta = 2.0f * M_PI * ((float)i / (float)tex_width);
+      float phi = (M_PI / 2.0f) + M_PI * (1.0f - ((float)j / (float)tex_height));
+
+      Float3 cartesian = polar_to_cartesian(theta, phi, radius);
+
+      //push this xyz into the [0,1] range
+      cartesian = cartesian + Float3(1.0f, 1.0f, 1.0f);
+      cartesian = cartesian * 0.5f;
+
+      unsigned int v_idx[3];
+      for(int i = 0; i < 3; i++) { v_idx[0] = (unsigned int)(cartesian[0] * (float)vox_dim[0]); }
+
+      int v_idx_actual = v_idx[0] + vox_dim[0] * (v_idx[1] + vox_dim[2] * v_idx[2]);
+      float voxel = voxels[v_idx_actual];
+
       int idx = ((tex_width * j) + i) * num_channels;
-      float r = (float)i / (float)tex_width;
-      float g = (float)j / (float)tex_height;
-      float b = 0.0f;
+      float r = voxel * 100.0f;//cartesian[0];
+      float g = voxel * 100.0f;//cartesian[1];
+      float b = voxel * 100.0f;//cartesian[2];
 
       pixels[idx] = (unsigned char)(r * 255.0f);
       pixels[idx + 1] = (unsigned char)(g * 255.0f);
