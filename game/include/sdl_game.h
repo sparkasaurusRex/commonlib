@@ -54,6 +54,8 @@ public:
   void run();
   void process_events();
 
+  double get_game_time() const { return (double)SDL_GetTicks(); }
+
   void set_pause_menu(UI::Menu *menu) { assert(!(flags & SDL_GAME_GENERATE_PAUSE_MENU)); pause_menu = menu; }
 
   void begin_video_capture() { recording_movie = true; movie_frame_counter = 0; }
