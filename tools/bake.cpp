@@ -8,6 +8,7 @@ using namespace Tool;
 int main(int argc, char **argv)
 {
   Bakery bakery;
+  bakery.init();
 
   string fname;
 

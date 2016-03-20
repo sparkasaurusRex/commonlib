@@ -7,6 +7,12 @@ using namespace Tool;
 using namespace std;
 using namespace Math;
 
+void Bakery::init()
+{
+  smb.init();
+  bpb.init();
+}
+
 void Bakery::bake(std::string fname)
 {
   //extract the file extension

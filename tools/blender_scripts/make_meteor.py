@@ -3,7 +3,7 @@ import bpy
 import random
 import math
 
-mesh_res = 6
+mesh_res = 2
 
 def displace_obj(o, noise_scale, strength):
     dis_mod = o.modifiers.new('Displacer', 'DISPLACE')
@@ -34,7 +34,7 @@ for i in range(1, 25):
     sphere_size = random.uniform(0.2, 0.6)
     sphere_loc = (random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0))
     sphere_loc = normalize(sphere_loc)
-    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=mesh_res - 1, size=sphere_size, location=sphere_loc)
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=mesh_res, size=sphere_size, location=sphere_loc)
     spherelet = bpy.context.object
     displace_obj(spherelet, 1.5, 0.7)
     spherelet.location = sphere_loc

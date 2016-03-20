@@ -30,6 +30,8 @@ namespace Tool
     BPhysBaker() {}
     ~BPhysBaker() {}
 
+    void init();
+
     void bake(FILE *f);
   private:
     void read_smoke_data(FILE *f);
