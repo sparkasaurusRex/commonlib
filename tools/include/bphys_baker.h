@@ -46,6 +46,7 @@ namespace Tool
     void read_smoke_data(FILE *f);
     void splat_voxel_data_onto_sphere_surface(float *voxels,
                                               unsigned int vox_len,
+                                              unsigned int *vox_dim,
                                               float radius,
                                               int tex_width,
                                               int tex_height,

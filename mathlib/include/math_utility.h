@@ -157,6 +157,18 @@ namespace Math {
     return (b._val[0] - a._val[0]) * (c._val[1] - b._val[1]) - (b._val[1] - a._val[1]) * (c._val[0] - b._val[0]);
   }
 
+  inline Float3 polar_to_cartesian(const float theta, const float phi, const float r)
+  {
+    float cp = cos(phi);
+    float ct = cos(theta);
+    float sp = sin(phi);
+    float st = sin(theta);
+    return Float3(r * ct * cp, r * sp, r * st * cp);
+    //float x =  rad * cos(theta) * cos_phi;
+    //float y =  rad * sin(phi);
+    //float z =  rad * sin(theta) * cos_phi;
+  }
+
 	unsigned int hash(const char *str);
 }
 
