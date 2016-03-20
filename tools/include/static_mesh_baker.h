@@ -27,6 +27,8 @@ namespace Tool
     StaticMeshBaker();
     ~StaticMeshBaker() {}
 
+    void init() {}
+
     void bake(mxml_node_t *tree, std::string output_fname);
   };
 };

@@ -2,6 +2,7 @@ CC=g++
 
 CFLAGS=-I./include -I../mathlib/include -I../graphics/include
 CFLAGS+=-I/usr/local/include -I../game/include
+CFLAGS+=-I./include/minilzo
 CFLAGS+=$(shell pkg-config mxml --cflags)
 #CFLAGS+=-Ofast
 CFLAGS+= -g3 -O0
@@ -12,6 +13,7 @@ LDFLAGS+=-lgraphics -ltool -lmath
 SRCPATH=src/
 SRCS=src/static_mesh_baker.cpp src/bakery.cpp src/tool.cpp
 SRCS+=src/bphys_baker.cpp
+SRCS+=src/minilzo/minilzo.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -52,6 +54,9 @@ $(BINPATH)static_mesh_baker.o: $(SRCPATH)static_mesh_baker.cpp
 
 $(BINPATH)bphys_baker.o: $(SRCPATH)bphys_baker.cpp
 	$(CC) $(CFLAGS) -c src/bphys_baker.cpp -o $(BINPATH)bphys_baker.o
+
+$(BINPATH)minilzo.o: $(SRCPATH)minilzo/minilzo.cpp
+	$(CC) $(CFLAGS) -c src/minilzo/minilzo.cpp -o $(BINPATH)minilzo.o
 
 $(BINPATH)libtool.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libtool.a $(OBJS_BIN)

@@ -1,10 +1,20 @@
 #include <iostream>
 #include <assert.h>
-#include <lzo/lzo1x.h>
+//#include <lzo/lzo1x.h>
+#include "minilzo.h"
 #include "bphys_baker.h"
 
 using namespace std;
 using namespace Tool;
+
+void BPhysBaker::init()
+{
+  cout<<"Initializing Blender Point Cache (Physics) Baker..."<<endl;
+  if (lzo_init() != LZO_E_OK)
+  {
+    cerr<<"BPhysBaker::init() - Failed to initialize lzo compression!"<<endl;
+  }
+}
 
 void BPhysBaker::bake(FILE *f)
 {
@@ -21,8 +31,7 @@ void BPhysBaker::bake(FILE *f)
   }
 }
 
-/*
-static int ptcache_file_compressed_read(PTCacheFile *pf, unsigned char *result, unsigned int len)
+static int ptcache_file_compressed_read(unsigned char *result, unsigned int len, FILE *f)
 {
 	int r = 0;
 	unsigned char compressed = 0;
@@ -69,7 +78,6 @@ static int ptcache_file_compressed_read(PTCacheFile *pf, unsigned char *result, 
 
 	return r;
 }
-*/
 
 void BPhysBaker::read_smoke_data(FILE *f)
 {
@@ -97,4 +105,11 @@ void BPhysBaker::read_smoke_data(FILE *f)
   cout<<"active fields: "<<active_fields<<endl;
   cout<<"resolution: "<<res<<endl;
   cout<<"dx: "<<dx<<endl;
+
+  unsigned char compressed = 0;
+  fread(&compressed, sizeof(unsigned char), 1, f);
+	if(compressed)
+  {
+    cout<<"compressed data found..."<<endl;
+  }
 }

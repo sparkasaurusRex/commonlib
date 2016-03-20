@@ -14,6 +14,8 @@ namespace Tool
     Bakery() {}
     ~Bakery() {}
 
+    void init();
+
     void bake(std::string fname);
   private:
     StaticMeshBaker   smb;
