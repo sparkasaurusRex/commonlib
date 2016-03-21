@@ -26,7 +26,7 @@ enum RenderMode
 class GraphicsApp : public SDLGame
 {
 public:
-  GraphicsApp() : SDLGame(512, 512, "Graphics Test")
+  GraphicsApp() : SDLGame(512, 512, "Graphics Test", SDL_GAME_GENERATE_PAUSE_MENU)
   {
     rot_angle = 0.0f;
     color_tex = NULL;
@@ -249,25 +249,25 @@ private:
 
     gpu_particle_sim.set_shader_directory("./data/shaders/");
 
-    gpu_particle_sim.addCurveVec4("Curves/r_color_channal.curve",
+    gpu_particle_sim.addCurveVec4("Curves/cosine.curve",
                                   "Curves/g_color_channal.curve",
                                   "Curves/b_color_channal.curve",
                                   "Curves/a_color_channal.curve",
                                   "colors");
 
-    gpu_particle_sim.addCurveVec4("Curves/emitter_dir_x.curve",
-                                  "Curves/emitter_dir_y.curve",
+    gpu_particle_sim.addCurveVec4("Curves/sine.curve",
+                                  "Curves/cosine.curve",
                                   "Curves/always_zero.curve",
                                   "Curves/always_one.curve",
                                   "emitter_dir");
 
-    gpu_particle_sim.addCurve("Curves/particle_size.curve", "size");
-    gpu_particle_sim.addCurve("Curves/age.curve", "age");
+    gpu_particle_sim.addCurve("Curves/always_one.curve", "size");
+    gpu_particle_sim.addCurve("Curves/linear.curve", "age");
 
     ParticleForce * * forces = new ParticleForce*[2];
 
     forces[0] = new Attractor(Float3(0.3f, -1.f, 0.f), 0.03f);
-    forces[1] = new Attractor(Float3(-0.05f, 0.2f, 0.f), 0.05f);
+    forces[1] = new Attractor(Float3(-0.05f, 0.2f, 0.f), 0.04f);
 
     /*
      * addParticleSystem(num_particles, particle_size
@@ -282,12 +282,12 @@ private:
      * size_curve_handle
      * sprite_file);
      */
-    gpu_particle_sim.addParticleSystem(10000, 0.035f,
+    gpu_particle_sim.addParticleSystem(10000, 0.015f,
                                        forces, 2,
                                        "emitter_dir",
-                                       Float3(0.f, -1.f, 0.f), 0.1f,
-                                       0.4f, 0.5f, 5.f,
-                                       5.f,
+                                       Float3(0.f, 0.f, 0.f), 0.1f,
+                                       0.4f, 0.5f, 2.f,
+                                       2.f,
                                        true,
                                        "age",
                                        "colors",

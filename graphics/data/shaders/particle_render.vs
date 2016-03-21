@@ -31,7 +31,7 @@ void main() {
     gl_Position = gl_ProjectionMatrix * vec4(0.0, 0.0, 1000.0, 1.0);
   }
   else {
-    //Do render
+    //Render
 
     int color_curve_id = int(constants[1]);
     int size_curve_id = int(constants[2]);
