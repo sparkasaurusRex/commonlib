@@ -163,7 +163,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   float *velocity_voxels_z = new float[alloc_res];
 
   float sphere_radius = 0.75f;
-  int img_res[2] = { 128, 64 };//{ 1024, 512 };
+  int img_res[2] = { 256, 128 };//{ 1024, 512 };
 
   cout<<"reading shadow voxels..."<<endl;
   ptcache_file_compressed_read((unsigned char *)shadow_voxels, out_len, f); //shadow
@@ -221,7 +221,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_y, out_len, f); //vy
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_z, out_len, f); //vz
 
-  Float2 vel_range(-0.6f, 0.6f);
+  Float2 vel_range(-1.0f, 1.0f);
   splat_voxel_data_onto_sphere_surface(res, vel_range, vel_range, vel_range, sphere_radius, img_res[0], img_res[1], std::string("vel.tga"), velocity_voxels_x, velocity_voxels_y, velocity_voxels_z);
 
   if(shadow_voxels)     { delete shadow_voxels; }
