@@ -301,7 +301,8 @@ void BPhysBaker::splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
       unsigned int v_idx[3];
       for(int v_idx_i = 0; v_idx_i < 3; v_idx_i++) { v_idx[v_idx_i] = (unsigned int)(cartesian[v_idx_i] * (float)vox_dim[v_idx_i]); }
 
-      float voxel[3] = { 0.0f, 0.0f, 0.0f };
+      Float3 voxel;
+      Float3 voxel_up, voxel_down, voxel_left, voxel_right, voxel_front, voxel_back;
       int v_idx_actual = v_idx[0] + vox_dim[0] * (v_idx[1] + vox_dim[2] * v_idx[2]);
       voxel[0] = remap_range(voxels_r[v_idx_actual], vox_range_r[0], vox_range_r[1], 0.0f, 1.0f);
       if(voxels_g) { voxel[1] = remap_range(voxels_g[v_idx_actual], vox_range_g[0], vox_range_g[1], 0.0f, 1.0f); }
