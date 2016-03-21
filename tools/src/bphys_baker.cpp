@@ -37,85 +37,81 @@ void BPhysBaker::bake(FILE *f)
 
 static int ptcache_file_compressed_read(unsigned char *result, unsigned int len, FILE *f)
 {
-	int r = 0;
-	unsigned char compressed = 0;
-	size_t in_len;
+  int r = 0;
+  unsigned char compressed = 0;
+  size_t in_len;
 #ifdef WITH_LZO
-	size_t out_len = len;
+  size_t out_len = len;
 #endif
-	unsigned char *in;
-	//unsigned char *props = MEM_callocN(16 * sizeof(char), "tmp");
+  unsigned char *in;
+  //unsigned char *props = MEM_callocN(16 * sizeof(char), "tmp");
   unsigned char *props = new unsigned char[16];
 
-	//ptcache_file_read(pf, &compressed, 1, sizeof(unsigned char));
+  //ptcache_file_read(pf, &compressed, 1, sizeof(unsigned char));
   fread(&compressed, sizeof(unsigned char), 1, f);
-	if (compressed) {
-		unsigned int size;
-		//ptcache_file_read(pf, &size, 1, sizeof(unsigned int));
+  if (compressed) {
+    unsigned int size;
+    //ptcache_file_read(pf, &size, 1, sizeof(unsigned int));
     fread(&size, sizeof(unsigned int), 1, f);
-		in_len = (size_t)size;
-		if (in_len==0) {
+    in_len = (size_t)size;
+    if (in_len==0) {
 
-		}
-		else {
-			//in = (unsigned char *)MEM_callocN(sizeof(unsigned char)*in_len, "pointcache_compressed_buffer");
+    }
+    else {
       in = new unsigned char[in_len];
-			//ptcache_file_read(pf, in, in_len, sizeof(unsigned char));
       fread(in, sizeof(unsigned char), in_len, f);
 #ifdef WITH_LZO
-			if (compressed == 1)
-				r = lzo1x_decompress_safe(in, (lzo_uint)in_len, result, (lzo_uint *)&out_len, NULL);
+      if (compressed == 1)
+        r = lzo1x_decompress_safe(in, (lzo_uint)in_len, result, (lzo_uint *)&out_len, NULL);
 #endif
 #ifdef WITH_LZMA
-			if (compressed == 2) {
-				size_t sizeOfIt;
-				size_t leni = in_len, leno = len;
-				//ptcache_file_read(pf, &size, 1, sizeof(unsigned int));
+      if (compressed == 2) {
+        size_t sizeOfIt;
+        size_t leni = in_len, leno = len;
         fread(&size, sizeof(unsigned int), 1, f);
-				sizeOfIt = (size_t)size;
-				//ptcache_file_read(pf, props, sizeOfIt, sizeof(unsigned char));
+        sizeOfIt = (size_t)size;
         fread(props, sizeof(unsigned char), sizeOfIt, f);
-				r = LzmaUncompress(result, &leno, in, &leni, props, sizeOfIt);
-			}
+        r = LzmaUncompress(result, &leno, in, &leni, props, sizeOfIt);
+      }
 #endif
-			//MEM_freeN(in);
+      //MEM_freeN(in);
       delete in;
-		}
-	}
-	else {
-		//ptcache_file_read(pf, result, len, sizeof(unsigned char));
+    }
+  }
+  else
+  {
     fread(result, sizeof(unsigned char), len, f);
-	}
+  }
 
-	//MEM_freeN(props);
+  //MEM_freeN(props);
   delete props;
 
-	return r;
+  return r;
 }
 
 #if 0
 
 typedef struct ModifierData {
-	struct ModifierData *next, *prev;
+  struct ModifierData *next, *prev;
 
-	int type, mode;
-	int stackindex, pad;
-	char name[64];  /* MAX_NAME */
+  int type, mode;
+  int stackindex, pad;
+  char name[64];  /* MAX_NAME */
 
-	/* XXX for timing info set by caller... solve later? (ton) */
-	struct Scene *scene;
+  /* XXX for timing info set by caller... solve later? (ton) */
+  struct Scene *scene;
 
-	char *error;
+  char *error;
 } ModifierData;
 
 typedef struct SmokeModifierData {
-	ModifierData modifier;
+  ModifierData modifier;
 
-	struct SmokeDomainSettings *domain;
-	struct SmokeFlowSettings *flow; /* inflow, outflow, smoke objects */
-	struct SmokeCollSettings *coll; /* collision objects */
-	float time;
-	int type;  /* domain, inflow, outflow, ... */
+  struct SmokeDomainSettings *domain;
+  struct SmokeFlowSettings *flow; /* inflow, outflow, smoke objects */
+  struct SmokeCollSettings *coll; /* collision objects */
+  float time;
+  int type;  /* domain, inflow, outflow, ... */
 } SmokeModifierData;
 #endif
 
@@ -167,7 +163,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   float *velocity_voxels_z = new float[alloc_res];
 
   float sphere_radius = 0.75f;
-  int img_res[2] = { 1024, 512 };
+  int img_res[2] = { 128, 64 };//{ 1024, 512 };
 
   cout<<"reading shadow voxels..."<<endl;
   ptcache_file_compressed_read((unsigned char *)shadow_voxels, out_len, f); //shadow
@@ -299,12 +295,19 @@ void BPhysBaker::splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
       cartesian = remap_range(cartesian, old_min, old_max, new_min, new_max);
 
       unsigned int v_idx[3];
-      for(int v_idx_i = 0; v_idx_i < 3; v_idx_i++) { v_idx[v_idx_i] = (unsigned int)(cartesian[v_idx_i] * (float)vox_dim[v_idx_i]); }
+      Float3 vox_center;
+      for(int v_idx_i = 0; v_idx_i < 3; v_idx_i++)
+      {
+        v_idx[v_idx_i] = (unsigned int)(cartesian[v_idx_i] * (float)vox_dim[v_idx_i]);
+        vox_center[v_idx_i] = (float)v_idx[v_idx_i] / (float)vox_dim[v_idx_i] + (0.5f / (float)vox_dim[v_idx_i]);
+      }
 
       Float3 voxel;
       Float3 voxel_up, voxel_down, voxel_left, voxel_right, voxel_front, voxel_back;
+
       int v_idx_actual = v_idx[0] + vox_dim[0] * (v_idx[1] + vox_dim[2] * v_idx[2]);
       voxel[0] = remap_range(voxels_r[v_idx_actual], vox_range_r[0], vox_range_r[1], 0.0f, 1.0f);
+
       if(voxels_g) { voxel[1] = remap_range(voxels_g[v_idx_actual], vox_range_g[0], vox_range_g[1], 0.0f, 1.0f); }
       else { voxel[1] = voxel[0]; }
       if(voxels_b) { voxel[2] = remap_range(voxels_b[v_idx_actual], vox_range_b[0], vox_range_b[1], 0.0f, 1.0f); }

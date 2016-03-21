@@ -16,7 +16,7 @@ namespace Tool
 
     void init();
 
-    void bake(std::string fname);
+    void bake(std::string fname, std::string out_fname);
   private:
     StaticMeshBaker   smb;
     BPhysBaker        bpb;

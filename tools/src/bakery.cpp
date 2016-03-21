@@ -13,7 +13,7 @@ void Bakery::init()
   bpb.init();
 }
 
-void Bakery::bake(std::string fname)
+void Bakery::bake(std::string fname, std::string out_fname)
 {
   //extract the file extension
   //march backwards from the end of the string
