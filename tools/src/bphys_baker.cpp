@@ -166,7 +166,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   float *velocity_voxels_y = new float[alloc_res];
   float *velocity_voxels_z = new float[alloc_res];
 
-  float sphere_radius = 0.25f;
+  float sphere_radius = 0.75f;
   int img_res[2] = { 1024, 512 };
 
   cout<<"reading shadow voxels..."<<endl;
@@ -176,7 +176,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
 
   cout<<"reading density voxels..."<<endl;
   ptcache_file_compressed_read((unsigned char *)density_voxels, out_len, f); //density
-  Float2 density_range(0.0f, 0.01f);
+  Float2 density_range(0.0f, 1.0f);
   splat_voxel_data_onto_sphere_surface(res, density_range, sphere_radius, img_res[0], img_res[1], std::string("density.tga"), density_voxels);
 
   if(fluid_fields & SM_ACTIVE_HEAT)
@@ -201,10 +201,8 @@ void BPhysBaker::read_smoke_data(FILE *f)
     ptcache_file_compressed_read((unsigned char *)fuel_voxels, out_len, f); //fuel
     ptcache_file_compressed_read((unsigned char *)react_voxels, out_len, f); //react
 
-    Float2 flame_range(0.0f, 1.0f);
-    splat_voxel_data_onto_sphere_surface(res, flame_range, sphere_radius, img_res[0], img_res[1], std::string("flame.tga"), flame_voxels);
-    splat_voxel_data_onto_sphere_surface(res, flame_range, sphere_radius, img_res[0], img_res[1], std::string("fuel.tga"), fuel_voxels);
-    splat_voxel_data_onto_sphere_surface(res, flame_range, sphere_radius, img_res[0], img_res[1], std::string("react.tga"), react_voxels);
+    Float2 flame_range(0.0f, 0.1f);
+    splat_voxel_data_onto_sphere_surface(res, flame_range, sphere_radius, img_res[0], img_res[1], std::string("flame.tga"), flame_voxels, fuel_voxels, react_voxels);
   }
   if(fluid_fields & SM_ACTIVE_COLORS)
   {
@@ -225,11 +223,8 @@ void BPhysBaker::read_smoke_data(FILE *f)
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_y, out_len, f); //vy
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_z, out_len, f); //vz
 
-  Float2 vel_range(-0.4f, 0.4f);
+  Float2 vel_range(-0.6f, 0.6f);
   splat_voxel_data_onto_sphere_surface(res, vel_range, sphere_radius, img_res[0], img_res[1], std::string("vel.tga"), velocity_voxels_x, velocity_voxels_y, velocity_voxels_z);
-  //splat_voxel_data_onto_sphere_surface(velocity_voxels_y, res, vel_range, sphere_radius, img_res[0], img_res[1], std::string("vel_y.tga"));
-  //splat_voxel_data_onto_sphere_surface(velocity_voxels_z, res, vel_range, sphere_radius, img_res[0], img_res[1], std::string("vel_z.tga"));
-
 
   if(shadow_voxels)     { delete shadow_voxels; }
   if(density_voxels)    { delete density_voxels; }
@@ -243,7 +238,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   if(velocity_voxels_z) { delete velocity_voxels_z; }
 }
 
-void BPhysBaker::write_vertical_voxel_slice(float *voxels,
+/*void BPhysBaker::write_vertical_voxel_slice(float *voxels,
                                             unsigned int *vox_dim,
                                             Float2 vox_range,
                                             int slice_idx,
@@ -264,7 +259,7 @@ void BPhysBaker::write_vertical_voxel_slice(float *voxels,
       int v_idx_actual = v_idx[0] + vox_dim[0] * (v_idx[1] + vox_dim[2] * v_idx[2]);
     }
   }
-}
+}*/
 
 void BPhysBaker::splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
                                                       Float2 vox_range,
