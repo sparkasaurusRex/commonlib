@@ -53,7 +53,9 @@ namespace Tool
                                     int tex_height,
                                     std::string output_tga_fname);*/
     void splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
-                                              Math::Float2 vox_range,
+                                              Math::Float2 vox_range_r,
+                                              Math::Float2 vox_range_g,
+                                              Math::Float2 vox_range_b,
                                               float radius,
                                               int tex_width,
                                               int tex_height,

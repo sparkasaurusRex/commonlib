@@ -172,12 +172,12 @@ void BPhysBaker::read_smoke_data(FILE *f)
   cout<<"reading shadow voxels..."<<endl;
   ptcache_file_compressed_read((unsigned char *)shadow_voxels, out_len, f); //shadow
   Float2 shadow_range(0.0f, 1.0f);
-  splat_voxel_data_onto_sphere_surface(res, shadow_range, sphere_radius, img_res[0], img_res[1], std::string("shadow.tga"), shadow_voxels);
+  splat_voxel_data_onto_sphere_surface(res, shadow_range, shadow_range, shadow_range, sphere_radius, img_res[0], img_res[1], std::string("shadow.tga"), shadow_voxels);
 
   cout<<"reading density voxels..."<<endl;
   ptcache_file_compressed_read((unsigned char *)density_voxels, out_len, f); //density
   Float2 density_range(0.0f, 1.0f);
-  splat_voxel_data_onto_sphere_surface(res, density_range, sphere_radius, img_res[0], img_res[1], std::string("density.tga"), density_voxels);
+  splat_voxel_data_onto_sphere_surface(res, density_range, density_range, density_range, sphere_radius, img_res[0], img_res[1], std::string("density.tga"), density_voxels);
 
   if(fluid_fields & SM_ACTIVE_HEAT)
   {
@@ -187,9 +187,9 @@ void BPhysBaker::read_smoke_data(FILE *f)
     ptcache_file_compressed_read((unsigned char *)heat_voxels, out_len, f); //heat
     ptcache_file_compressed_read((unsigned char *)heat_old_voxels, out_len, f); //heat_old
 
-    Float2 heat_range(0.0f, 1.0f);
-    splat_voxel_data_onto_sphere_surface(res, heat_range, sphere_radius, img_res[0], img_res[1], std::string("heat.tga"), heat_voxels);
-    splat_voxel_data_onto_sphere_surface(res, heat_range, sphere_radius, img_res[0], img_res[1], std::string("heat_old.tga"), heat_old_voxels);
+    Float2 heat_range(0.0f, 2.0f);
+    Float2 heat_old_range(0.0f, 2.0f);
+    splat_voxel_data_onto_sphere_surface(res, heat_range, heat_old_range, heat_range, sphere_radius, img_res[0], img_res[1], std::string("heat.tga"), heat_voxels, heat_old_voxels);
   }
   if(fluid_fields & SM_ACTIVE_FIRE)
   {
@@ -202,7 +202,9 @@ void BPhysBaker::read_smoke_data(FILE *f)
     ptcache_file_compressed_read((unsigned char *)react_voxels, out_len, f); //react
 
     Float2 flame_range(0.0f, 0.1f);
-    splat_voxel_data_onto_sphere_surface(res, flame_range, sphere_radius, img_res[0], img_res[1], std::string("flame.tga"), flame_voxels, fuel_voxels, react_voxels);
+    Float2 fuel_range(0.0f, 0.05f);
+    Float2 react_range(0.0f, 0.1f);
+    splat_voxel_data_onto_sphere_surface(res, flame_range, fuel_range, react_range, sphere_radius, img_res[0], img_res[1], std::string("flame.tga"), flame_voxels, fuel_voxels, react_voxels);
   }
   if(fluid_fields & SM_ACTIVE_COLORS)
   {
@@ -224,7 +226,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_z, out_len, f); //vz
 
   Float2 vel_range(-0.6f, 0.6f);
-  splat_voxel_data_onto_sphere_surface(res, vel_range, sphere_radius, img_res[0], img_res[1], std::string("vel.tga"), velocity_voxels_x, velocity_voxels_y, velocity_voxels_z);
+  splat_voxel_data_onto_sphere_surface(res, vel_range, vel_range, vel_range, sphere_radius, img_res[0], img_res[1], std::string("vel.tga"), velocity_voxels_x, velocity_voxels_y, velocity_voxels_z);
 
   if(shadow_voxels)     { delete shadow_voxels; }
   if(density_voxels)    { delete density_voxels; }
@@ -262,7 +264,9 @@ void BPhysBaker::read_smoke_data(FILE *f)
 }*/
 
 void BPhysBaker::splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
-                                                      Float2 vox_range,
+                                                      Float2 vox_range_r,
+                                                      Float2 vox_range_g,
+                                                      Float2 vox_range_b,
                                                       float radius,
                                                       int tex_width,
                                                       int tex_height,
@@ -299,10 +303,10 @@ void BPhysBaker::splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
 
       float voxel[3] = { 0.0f, 0.0f, 0.0f };
       int v_idx_actual = v_idx[0] + vox_dim[0] * (v_idx[1] + vox_dim[2] * v_idx[2]);
-      voxel[0] = remap_range(voxels_r[v_idx_actual], vox_range[0], vox_range[1], 0.0f, 1.0f);
-      if(voxels_g) { voxel[1] = remap_range(voxels_g[v_idx_actual], vox_range[0], vox_range[1], 0.0f, 1.0f); }
+      voxel[0] = remap_range(voxels_r[v_idx_actual], vox_range_r[0], vox_range_r[1], 0.0f, 1.0f);
+      if(voxels_g) { voxel[1] = remap_range(voxels_g[v_idx_actual], vox_range_g[0], vox_range_g[1], 0.0f, 1.0f); }
       else { voxel[1] = voxel[0]; }
-      if(voxels_b) { voxel[2] = remap_range(voxels_b[v_idx_actual], vox_range[0], vox_range[1], 0.0f, 1.0f); }
+      if(voxels_b) { voxel[2] = remap_range(voxels_b[v_idx_actual], vox_range_b[0], vox_range_b[1], 0.0f, 1.0f); }
       else { voxel[2] = voxel[0]; }
 
       int idx = ((tex_width * j) + i) * num_channels;
