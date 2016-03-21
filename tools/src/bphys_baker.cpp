@@ -166,13 +166,18 @@ void BPhysBaker::read_smoke_data(FILE *f)
   float *velocity_voxels_y = new float[alloc_res];
   float *velocity_voxels_z = new float[alloc_res];
 
+  float sphere_radius = 0.25f;
+  int img_res[2] = { 1024, 512 };
+
   cout<<"reading shadow voxels..."<<endl;
   ptcache_file_compressed_read((unsigned char *)shadow_voxels, out_len, f); //shadow
-  splat_voxel_data_onto_sphere_surface(shadow_voxels, alloc_res, res, 0.5f, 512, 256, std::string("shadow.tga"));
+  Float2 shadow_range(0.0f, 1.0f);
+  splat_voxel_data_onto_sphere_surface(res, shadow_range, sphere_radius, img_res[0], img_res[1], std::string("shadow.tga"), shadow_voxels);
 
   cout<<"reading density voxels..."<<endl;
   ptcache_file_compressed_read((unsigned char *)density_voxels, out_len, f); //density
-  splat_voxel_data_onto_sphere_surface(density_voxels, alloc_res, res, 0.5f, 512, 256, std::string("density.tga"));
+  Float2 density_range(0.0f, 0.01f);
+  splat_voxel_data_onto_sphere_surface(res, density_range, sphere_radius, img_res[0], img_res[1], std::string("density.tga"), density_voxels);
 
   if(fluid_fields & SM_ACTIVE_HEAT)
   {
@@ -182,8 +187,9 @@ void BPhysBaker::read_smoke_data(FILE *f)
     ptcache_file_compressed_read((unsigned char *)heat_voxels, out_len, f); //heat
     ptcache_file_compressed_read((unsigned char *)heat_old_voxels, out_len, f); //heat_old
 
-    splat_voxel_data_onto_sphere_surface(heat_voxels, alloc_res, res, 0.5f, 512, 256, std::string("heat.tga"));
-    splat_voxel_data_onto_sphere_surface(heat_old_voxels, alloc_res, res, 0.5f, 512, 256, std::string("heat_old.tga"));
+    Float2 heat_range(0.0f, 1.0f);
+    splat_voxel_data_onto_sphere_surface(res, heat_range, sphere_radius, img_res[0], img_res[1], std::string("heat.tga"), heat_voxels);
+    splat_voxel_data_onto_sphere_surface(res, heat_range, sphere_radius, img_res[0], img_res[1], std::string("heat_old.tga"), heat_old_voxels);
   }
   if(fluid_fields & SM_ACTIVE_FIRE)
   {
@@ -195,9 +201,10 @@ void BPhysBaker::read_smoke_data(FILE *f)
     ptcache_file_compressed_read((unsigned char *)fuel_voxels, out_len, f); //fuel
     ptcache_file_compressed_read((unsigned char *)react_voxels, out_len, f); //react
 
-    splat_voxel_data_onto_sphere_surface(flame_voxels, alloc_res, res, 0.5f, 512, 256, std::string("flame.tga"));
-    splat_voxel_data_onto_sphere_surface(fuel_voxels, alloc_res, res, 0.5f, 512, 256, std::string("fuel.tga"));
-    splat_voxel_data_onto_sphere_surface(react_voxels, alloc_res, res, 0.5f, 512, 256, std::string("react.tga"));
+    Float2 flame_range(0.0f, 1.0f);
+    splat_voxel_data_onto_sphere_surface(res, flame_range, sphere_radius, img_res[0], img_res[1], std::string("flame.tga"), flame_voxels);
+    splat_voxel_data_onto_sphere_surface(res, flame_range, sphere_radius, img_res[0], img_res[1], std::string("fuel.tga"), fuel_voxels);
+    splat_voxel_data_onto_sphere_surface(res, flame_range, sphere_radius, img_res[0], img_res[1], std::string("react.tga"), react_voxels);
   }
   if(fluid_fields & SM_ACTIVE_COLORS)
   {
@@ -205,6 +212,8 @@ void BPhysBaker::read_smoke_data(FILE *f)
     color_voxels_r = new float[alloc_res];
     color_voxels_g = new float[alloc_res];
     color_voxels_b = new float[alloc_res];
+
+    Math::Float2 col_range(0.0f, 1.0f);
     ptcache_file_compressed_read((unsigned char *)color_voxels_r, out_len, f); //r
     ptcache_file_compressed_read((unsigned char *)color_voxels_g, out_len, f); //g
     ptcache_file_compressed_read((unsigned char *)color_voxels_b, out_len, f); //b
@@ -216,9 +225,10 @@ void BPhysBaker::read_smoke_data(FILE *f)
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_y, out_len, f); //vy
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_z, out_len, f); //vz
 
-  splat_voxel_data_onto_sphere_surface(velocity_voxels_x, alloc_res, res, 0.5f, 512, 256, std::string("vel_x.tga"));
-  splat_voxel_data_onto_sphere_surface(velocity_voxels_y, alloc_res, res, 0.5f, 512, 256, std::string("vel_y.tga"));
-  splat_voxel_data_onto_sphere_surface(velocity_voxels_z, alloc_res, res, 0.5f, 512, 256, std::string("vel_z.tga"));
+  Float2 vel_range(-0.4f, 0.4f);
+  splat_voxel_data_onto_sphere_surface(res, vel_range, sphere_radius, img_res[0], img_res[1], std::string("vel.tga"), velocity_voxels_x, velocity_voxels_y, velocity_voxels_z);
+  //splat_voxel_data_onto_sphere_surface(velocity_voxels_y, res, vel_range, sphere_radius, img_res[0], img_res[1], std::string("vel_y.tga"));
+  //splat_voxel_data_onto_sphere_surface(velocity_voxels_z, res, vel_range, sphere_radius, img_res[0], img_res[1], std::string("vel_z.tga"));
 
 
   if(shadow_voxels)     { delete shadow_voxels; }
@@ -233,15 +243,39 @@ void BPhysBaker::read_smoke_data(FILE *f)
   if(velocity_voxels_z) { delete velocity_voxels_z; }
 }
 
-void BPhysBaker::splat_voxel_data_onto_sphere_surface(float *voxels,
-                                                      unsigned int vox_len,
-                                                      unsigned int *vox_dim,
+void BPhysBaker::write_vertical_voxel_slice(float *voxels,
+                                            unsigned int *vox_dim,
+                                            Float2 vox_range,
+                                            int slice_idx,
+                                            int tex_width,
+                                            int tex_height,
+                                            std::string output_tga_fname)
+{
+  //fill pixel data
+  int num_channels = 3;
+  long img_size = tex_width * tex_height * num_channels;
+  unsigned char *pixels = new unsigned char[img_size];
+  for(int j = 0; j < tex_height; j++)
+  {
+    for(int i = 0; i < tex_width; i++)
+    {
+      unsigned int v_idx[3];
+      //for(int i )
+      int v_idx_actual = v_idx[0] + vox_dim[0] * (v_idx[1] + vox_dim[2] * v_idx[2]);
+    }
+  }
+}
+
+void BPhysBaker::splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
+                                                      Float2 vox_range,
                                                       float radius,
                                                       int tex_width,
                                                       int tex_height,
-                                                      std::string tga_file_name)
+                                                      std::string tga_file_name,
+                                                      float *voxels_r,
+                                                      float *voxels_g,
+                                                      float *voxels_b)
 {
-  radius = 1.0f;
   //fill pixel data
   int num_channels = 3;
   long img_size = tex_width * tex_height * num_channels;
@@ -251,31 +285,50 @@ void BPhysBaker::splat_voxel_data_onto_sphere_surface(float *voxels,
     for(int i = 0; i < tex_width; i++)
     {
       //interpret i & j as polar coordinates and convert to (x,y,z) space
-      float theta = 2.0f * M_PI * ((float)i / (float)tex_width);
-      float phi = (M_PI / 2.0f) + M_PI * (1.0f - ((float)j / (float)tex_height));
+      float u = (float)i / (float)tex_width;
+      float v = (float)j / (float)tex_height;
+      float theta = 2.0f * M_PI * u;
+      float phi = (M_PI / 2.0f) + M_PI * (1.0f - v);
 
       Float3 cartesian = polar_to_cartesian(theta, phi, radius);
 
       //push this xyz into the [0,1] range
-      cartesian = cartesian + Float3(1.0f, 1.0f, 1.0f);
-      cartesian = cartesian * 0.5f;
+      Float3 old_min(-1.0f, -1.0f, -1.0f);
+      Float3 old_max(1.0f, 1.0f, 1.0f);
+      Float3 new_min(0.0f, 0.0f, 0.0f);
+      Float3 new_max(1.0f, 1.0f, 1.0f);
+      cartesian = remap_range(cartesian, old_min, old_max, new_min, new_max);
 
       unsigned int v_idx[3];
-      for(int i = 0; i < 3; i++) { v_idx[0] = (unsigned int)(cartesian[0] * (float)vox_dim[0]); }
+      for(int v_idx_i = 0; v_idx_i < 3; v_idx_i++) { v_idx[v_idx_i] = (unsigned int)(cartesian[v_idx_i] * (float)vox_dim[v_idx_i]); }
 
+      float voxel[3] = { 0.0f, 0.0f, 0.0f };
       int v_idx_actual = v_idx[0] + vox_dim[0] * (v_idx[1] + vox_dim[2] * v_idx[2]);
-      float voxel = voxels[v_idx_actual];
+      voxel[0] = remap_range(voxels_r[v_idx_actual], vox_range[0], vox_range[1], 0.0f, 1.0f);
+      if(voxels_g) { voxel[1] = remap_range(voxels_g[v_idx_actual], vox_range[0], vox_range[1], 0.0f, 1.0f); }
+      else { voxel[1] = voxel[0]; }
+      if(voxels_b) { voxel[2] = remap_range(voxels_b[v_idx_actual], vox_range[0], vox_range[1], 0.0f, 1.0f); }
+      else { voxel[2] = voxel[0]; }
 
       int idx = ((tex_width * j) + i) * num_channels;
-      float r = voxel * 100.0f;//cartesian[0];
-      float g = voxel * 100.0f;//cartesian[1];
-      float b = voxel * 100.0f;//cartesian[2];
+      float r = voxel[0];
+      float g = voxel[1];
+      float b = voxel[2];
 
       pixels[idx] = (unsigned char)(r * 255.0f);
       pixels[idx + 1] = (unsigned char)(g * 255.0f);
       pixels[idx + 2] = (unsigned char)(b * 255.0f);
     }
   }
+
+  write_tga_from_pixels(tga_file_name, tex_width, tex_height, pixels);
+  delete pixels;
+}
+
+void BPhysBaker::write_tga_from_pixels(std::string fname, int tex_width, int tex_height, unsigned char *pixels)
+{
+  int num_channels = 3;
+  long img_size = tex_width * tex_height * num_channels;
 
   //assemble the tga header
   int xa = tex_width % 256;
@@ -285,7 +338,7 @@ void BPhysBaker::splat_voxel_data_onto_sphere_surface(float *voxels,
   unsigned char header[18] = {0,0,2,0,0,0,0,0,0,0,0,0,(char)xa,(char)xb,(char)ya,(char)yb,24,0};
 
   //write header and data to file
-  FILE *f = fopen(tga_file_name.c_str(), "wb");
+  FILE *f = fopen(fname.c_str(), "wb");
   if(f)
   {
     fwrite(header, sizeof(unsigned char), 18, f);

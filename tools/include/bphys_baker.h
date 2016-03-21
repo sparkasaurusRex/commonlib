@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include "texture.h"
+#include "math_utility.h"
 
 #define WITH_LZO
 
@@ -44,13 +45,24 @@ namespace Tool
     void bake(FILE *f);
   private:
     void read_smoke_data(FILE *f);
-    void splat_voxel_data_onto_sphere_surface(float *voxels,
-                                              unsigned int vox_len,
-                                              unsigned int *vox_dim,
+    void write_vertical_voxel_slice(float *voxels,
+                                    unsigned int *vox_dim,
+                                    Math::Float2 vox_range,
+                                    int slice_idx,
+                                    int tex_width,
+                                    int tex_height,
+                                    std::string output_tga_fname);
+    void splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
+                                              Math::Float2 vox_range,
                                               float radius,
                                               int tex_width,
                                               int tex_height,
-                                              std::string output_tga_fname);
+                                              std::string output_tga_fname,
+                                              float *voxels_r,
+                                              float *voxels_g = NULL,
+                                              float *voxels_b = NULL);
+
+    void write_tga_from_pixels(std::string fname, int w, int h, unsigned char *pixels);
   };
 };
 
