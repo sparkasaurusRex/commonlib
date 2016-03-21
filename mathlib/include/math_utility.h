@@ -179,12 +179,14 @@ namespace Math {
 
   inline Float3 polar_to_cartesian(const float theta, const float phi, const float r)
   {
-    float cp = cos(phi); float ct = cos(theta);
-    float sp = sin(phi); float st = sin(theta);
+    float cp = cos(phi);
+    float ct = cos(theta);
+    float sp = sin(phi);
+    float st = sin(theta);
     return Float3(r * ct * cp, r * sp, r * st * cp);
   }
 
-  unsigned int hash(const char *str);
+	unsigned int hash(const char *str);
 }
 
 #endif // _MATH_UTILITY_H_
