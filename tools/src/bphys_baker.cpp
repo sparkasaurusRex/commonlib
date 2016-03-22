@@ -163,7 +163,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   float *velocity_voxels_z = new float[alloc_res];
 
   float sphere_radius = 0.75f;
-  int img_res[2] = { 256, 128 };//{ 1024, 512 };
+  int img_res[2] = { 1024, 512 };//{ 1024, 512 };
 
   cout<<"reading shadow voxels..."<<endl;
   ptcache_file_compressed_read((unsigned char *)shadow_voxels, out_len, f); //shadow
@@ -221,7 +221,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_y, out_len, f); //vy
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_z, out_len, f); //vz
 
-  Float2 vel_range(-1.0f, 1.0f);
+  Float2 vel_range(-3.0f, 3.0f);
   splat_voxel_data_onto_sphere_surface(res, vel_range, vel_range, vel_range, sphere_radius, img_res[0], img_res[1], std::string("vel.tga"), velocity_voxels_x, velocity_voxels_y, velocity_voxels_z);
 
   if(shadow_voxels)     { delete shadow_voxels; }
@@ -259,6 +259,80 @@ void BPhysBaker::read_smoke_data(FILE *f)
   }
 }*/
 
+/*
+double getBilinearFilteredPixelColor(Texture tex, double u, double v) {
+  u = u * tex.size - 0.5;
+  v = v * tex.size - 0.5;
+  int x = floor(u);
+  int y = floor(v);
+  double u_ratio = u - x;
+  double v_ratio = v - y;
+  double u_opposite = 1 - u_ratio;
+  double v_opposite = 1 - v_ratio;
+  double result = (tex[x][y]   * u_opposite  + tex[x+1][y]   * u_ratio) * v_opposite +
+                  (tex[x][y+1] * u_opposite  + tex[x+1][y+1] * u_ratio) * v_ratio;
+  return result;
+}*/
+
+int voxel_idx(const unsigned int *v_idx, const unsigned int *vox_dim)
+{
+  return v_idx[0] + vox_dim[0] * (v_idx[1] + vox_dim[2] * v_idx[2]);
+}
+
+float sample_voxel(float *voxels, unsigned int *vox_dim, const Float3 &uvw, bool trilinear_filter = true)
+{
+  //sample pos is assumed to be in range [0, 1]
+  unsigned int v_idx[3];
+  Float3 scaled_uvw = uvw;
+  Float3 voxel_xyz;
+  for(int v_idx_i = 0; v_idx_i < 3; v_idx_i++)
+  {
+    scaled_uvw[v_idx_i] = uvw[v_idx_i] * (float)vox_dim[v_idx_i] - 0.5f;
+    v_idx[v_idx_i] = (unsigned int)(scaled_uvw[v_idx_i]);
+    voxel_xyz[v_idx_i] = v_idx[v_idx_i];
+  }
+
+  //cout<<scaled_uvw - voxel_xyz<<endl;
+
+  float center_val = voxels[voxel_idx(v_idx, vox_dim)];
+  if(trilinear_filter)
+  {
+    Float3 uvw_weights = scaled_uvw - voxel_xyz;
+
+    float low_val[3];
+    float hi_val[3];
+    float tri_val[3];
+    for(int i = 0; i < 3; i++)
+    {
+      low_val[i] = center_val;
+      hi_val[i] = center_val;
+      tri_val[i] = center_val;
+      if(v_idx[i] > 0)
+      {
+        unsigned int idx[3] = { v_idx[0], v_idx[1], v_idx[2] };
+        idx[i] = v_idx[i] - 1;
+        low_val[i] = voxels[voxel_idx(idx, vox_dim)];
+      }
+      if(v_idx[i] < (vox_dim[i] - 2))
+      {
+        unsigned int idx[3] = { v_idx[0], v_idx[1], v_idx[2] };
+        idx[i] = v_idx[i] + 1;
+        hi_val[i] = voxels[voxel_idx(idx, vox_dim)];
+      }
+      if(uvw_weights[i] <= 0.5f)
+      {
+        tri_val[i] = lerp(low_val[i], center_val, uvw_weights[i] * 2.0f);
+      }
+      else
+      {
+        tri_val[i] = lerp(center_val, hi_val[i], 2.0f * uvw_weights[i] - 1.0f);
+      }
+    }
+    return (tri_val[0] + tri_val[1] + tri_val[2]) / 3.0f;
+  }
+  return center_val;
+}
+
 void BPhysBaker::splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
                                                       Float2 vox_range_r,
                                                       Float2 vox_range_g,
@@ -294,23 +368,21 @@ void BPhysBaker::splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
       Float3 new_max(1.0f, 1.0f, 1.0f);
       cartesian = remap_range(cartesian, old_min, old_max, new_min, new_max);
 
-      unsigned int v_idx[3];
-      Float3 vox_center;
-      for(int v_idx_i = 0; v_idx_i < 3; v_idx_i++)
-      {
-        v_idx[v_idx_i] = (unsigned int)(cartesian[v_idx_i] * (float)vox_dim[v_idx_i]);
-        vox_center[v_idx_i] = (float)v_idx[v_idx_i] / (float)vox_dim[v_idx_i] + (0.5f / (float)vox_dim[v_idx_i]);
-      }
-
       Float3 voxel;
-      Float3 voxel_up, voxel_down, voxel_left, voxel_right, voxel_front, voxel_back;
+      float val = sample_voxel(voxels_r, vox_dim, cartesian);
+      voxel[0] = remap_range(val, vox_range_r[0], vox_range_r[1], 0.0f, 1.0f);
 
-      int v_idx_actual = v_idx[0] + vox_dim[0] * (v_idx[1] + vox_dim[2] * v_idx[2]);
-      voxel[0] = remap_range(voxels_r[v_idx_actual], vox_range_r[0], vox_range_r[1], 0.0f, 1.0f);
-
-      if(voxels_g) { voxel[1] = remap_range(voxels_g[v_idx_actual], vox_range_g[0], vox_range_g[1], 0.0f, 1.0f); }
+      if(voxels_g)
+      {
+        val = sample_voxel(voxels_g, vox_dim, cartesian);
+        voxel[1] = remap_range(val, vox_range_g[0], vox_range_g[1], 0.0f, 1.0f);
+      }
       else { voxel[1] = voxel[0]; }
-      if(voxels_b) { voxel[2] = remap_range(voxels_b[v_idx_actual], vox_range_b[0], vox_range_b[1], 0.0f, 1.0f); }
+      if(voxels_b)
+      {
+        val = sample_voxel(voxels_b, vox_dim, cartesian);
+        voxel[2] = remap_range(val, vox_range_b[0], vox_range_b[1], 0.0f, 1.0f);
+      }
       else { voxel[2] = voxel[0]; }
 
       int idx = ((tex_width * j) + i) * num_channels;
