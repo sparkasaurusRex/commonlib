@@ -88,6 +88,7 @@ static int ptcache_file_compressed_read(unsigned char *result, unsigned int len,
 
 void BPhysBaker::read_smoke_data(FILE *f)
 {
+  assert(f);
   cout<<"reading smoke sim data..."<<endl;
 
   //WTF DOES THIS BLOCK OF DATA DO?!?!?!

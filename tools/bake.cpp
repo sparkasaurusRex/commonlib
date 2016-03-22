@@ -16,7 +16,7 @@ int main(int argc, char **argv)
   {
     for(int i = 1; i < argc; i++)
     {
-      in_fname = argv[1];
+      in_fname = argv[i];
       out_fname = make_nice_filename(std::string(""), std::string(""), i);
       cout<<"Baking "<<in_fname.c_str()<<"..."<<endl;
       bakery.bake(in_fname, out_fname);
