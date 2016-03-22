@@ -14,10 +14,13 @@ int main(int argc, char **argv)
 
   if(argc > 1)
   {
-    in_fname = argv[1];
-    out_fname = argv[2];
-    cout<<"Baking "<<in_fname.c_str()<<"..."<<endl;
-    bakery.bake(in_fname, out_fname);
+    for(int i = 1; i < argc; i++)
+    {
+      in_fname = argv[1];
+      out_fname = make_nice_filename(std::string(""), std::string(""), i);
+      cout<<"Baking "<<in_fname.c_str()<<"..."<<endl;
+      bakery.bake(in_fname, out_fname);
+    }
   }
 
   return 0;

@@ -27,7 +27,7 @@ void Bakery::bake(std::string fname, std::string out_fname)
     FILE *fp = fopen(fname.c_str(), "rb");
     if(fp)
     {
-      bpb.bake(fp);
+      bpb.bake(fp, out_fname);
     }
     else
     {

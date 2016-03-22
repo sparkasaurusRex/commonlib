@@ -20,12 +20,14 @@ void BPhysBaker::init()
   }
 }
 
-void BPhysBaker::bake(FILE *f)
+void BPhysBaker::bake(FILE *f, std::string output_filename)
 {
   BPhysHeader bph;
   fread(&bph, sizeof(BPhysHeader), 1, f);
   assert(bph.bphys[0] == 'B' && bph.bphys[1] == 'P' && bph.bphys[2] == 'H' && bph.bphys[3] == 'Y');
   assert(bph.bphys[4] == 'S' && bph.bphys[5] == 'I' && bph.bphys[6] == 'C' && bph.bphys[7] == 'S');
+
+  out_fname = output_filename;
 
   switch(bph.data_type)
   {
@@ -44,14 +46,11 @@ static int ptcache_file_compressed_read(unsigned char *result, unsigned int len,
   size_t out_len = len;
 #endif
   unsigned char *in;
-  //unsigned char *props = MEM_callocN(16 * sizeof(char), "tmp");
   unsigned char *props = new unsigned char[16];
 
-  //ptcache_file_read(pf, &compressed, 1, sizeof(unsigned char));
   fread(&compressed, sizeof(unsigned char), 1, f);
   if (compressed) {
     unsigned int size;
-    //ptcache_file_read(pf, &size, 1, sizeof(unsigned int));
     fread(&size, sizeof(unsigned int), 1, f);
     in_len = (size_t)size;
     if (in_len==0) {
@@ -74,7 +73,6 @@ static int ptcache_file_compressed_read(unsigned char *result, unsigned int len,
         r = LzmaUncompress(result, &leno, in, &leni, props, sizeOfIt);
       }
 #endif
-      //MEM_freeN(in);
       delete in;
     }
   }
@@ -83,38 +81,10 @@ static int ptcache_file_compressed_read(unsigned char *result, unsigned int len,
     fread(result, sizeof(unsigned char), len, f);
   }
 
-  //MEM_freeN(props);
   delete props;
 
   return r;
 }
-
-#if 0
-
-typedef struct ModifierData {
-  struct ModifierData *next, *prev;
-
-  int type, mode;
-  int stackindex, pad;
-  char name[64];  /* MAX_NAME */
-
-  /* XXX for timing info set by caller... solve later? (ton) */
-  struct Scene *scene;
-
-  char *error;
-} ModifierData;
-
-typedef struct SmokeModifierData {
-  ModifierData modifier;
-
-  struct SmokeDomainSettings *domain;
-  struct SmokeFlowSettings *flow; /* inflow, outflow, smoke objects */
-  struct SmokeCollSettings *coll; /* collision objects */
-  float time;
-  int type;  /* domain, inflow, outflow, ... */
-} SmokeModifierData;
-#endif
-
 
 void BPhysBaker::read_smoke_data(FILE *f)
 {
@@ -166,14 +136,16 @@ void BPhysBaker::read_smoke_data(FILE *f)
   int img_res[2] = { 1024, 512 };//{ 1024, 512 };
 
   cout<<"reading shadow voxels..."<<endl;
+  std::string fname = "shadow" + out_fname + ".tga";
   ptcache_file_compressed_read((unsigned char *)shadow_voxels, out_len, f); //shadow
   Float2 shadow_range(0.0f, 1.0f);
-  splat_voxel_data_onto_sphere_surface(res, shadow_range, shadow_range, shadow_range, sphere_radius, img_res[0], img_res[1], std::string("shadow.tga"), shadow_voxels);
+  splat_voxel_data_onto_sphere_surface(res, shadow_range, shadow_range, shadow_range, sphere_radius, img_res[0], img_res[1], fname, shadow_voxels);
 
   cout<<"reading density voxels..."<<endl;
+  fname = "density" + out_fname + ".tga";
   ptcache_file_compressed_read((unsigned char *)density_voxels, out_len, f); //density
   Float2 density_range(0.0f, 1.0f);
-  splat_voxel_data_onto_sphere_surface(res, density_range, density_range, density_range, sphere_radius, img_res[0], img_res[1], std::string("density.tga"), density_voxels);
+  splat_voxel_data_onto_sphere_surface(res, density_range, density_range, density_range, sphere_radius, img_res[0], img_res[1], fname, density_voxels);
 
   if(fluid_fields & SM_ACTIVE_HEAT)
   {
@@ -185,7 +157,8 @@ void BPhysBaker::read_smoke_data(FILE *f)
 
     Float2 heat_range(0.0f, 2.0f);
     Float2 heat_old_range(0.0f, 2.0f);
-    splat_voxel_data_onto_sphere_surface(res, heat_range, heat_old_range, heat_range, sphere_radius, img_res[0], img_res[1], std::string("heat.tga"), heat_voxels, heat_old_voxels);
+    fname = "heat" + out_fname + ".tga";
+    splat_voxel_data_onto_sphere_surface(res, heat_range, heat_old_range, heat_range, sphere_radius, img_res[0], img_res[1], fname, heat_voxels, heat_old_voxels);
   }
   if(fluid_fields & SM_ACTIVE_FIRE)
   {
@@ -200,7 +173,8 @@ void BPhysBaker::read_smoke_data(FILE *f)
     Float2 flame_range(0.0f, 0.1f);
     Float2 fuel_range(0.0f, 0.05f);
     Float2 react_range(0.0f, 0.1f);
-    splat_voxel_data_onto_sphere_surface(res, flame_range, fuel_range, react_range, sphere_radius, img_res[0], img_res[1], std::string("flame.tga"), flame_voxels, fuel_voxels, react_voxels);
+    fname = "flame" + out_fname + ".tga";
+    splat_voxel_data_onto_sphere_surface(res, flame_range, fuel_range, react_range, sphere_radius, img_res[0], img_res[1], fname, flame_voxels, fuel_voxels, react_voxels);
   }
   if(fluid_fields & SM_ACTIVE_COLORS)
   {
@@ -222,7 +196,8 @@ void BPhysBaker::read_smoke_data(FILE *f)
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_z, out_len, f); //vz
 
   Float2 vel_range(-3.0f, 3.0f);
-  splat_voxel_data_onto_sphere_surface(res, vel_range, vel_range, vel_range, sphere_radius, img_res[0], img_res[1], std::string("vel.tga"), velocity_voxels_x, velocity_voxels_y, velocity_voxels_z);
+  fname = "vel" + out_fname + ".tga";
+  splat_voxel_data_onto_sphere_surface(res, vel_range, vel_range, vel_range, sphere_radius, img_res[0], img_res[1], fname, velocity_voxels_x, velocity_voxels_y, velocity_voxels_z);
 
   if(shadow_voxels)     { delete shadow_voxels; }
   if(density_voxels)    { delete density_voxels; }

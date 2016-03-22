@@ -42,8 +42,10 @@ namespace Tool
     ~BPhysBaker() {}
 
     void init();
-    void bake(FILE *f);
+    void bake(FILE *f, std::string output_filename);
   private:
+    std::string out_fname;
+
     void read_smoke_data(FILE *f);
     /*void write_vertical_voxel_slice(float *voxels,
                                     unsigned int *vox_dim,
