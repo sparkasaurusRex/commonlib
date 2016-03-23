@@ -30,7 +30,7 @@ namespace Graphics
     StaticMesh();
     ~StaticMesh();
 
-    void read_from_file(FILE *f);
+    void read_from_file(FILE *f, bool verbose = false);
     void init();
     void render();
 

@@ -44,7 +44,7 @@ StaticMesh::~StaticMesh()
   }
 }
 
-void StaticMesh::read_from_file(FILE *f)
+void StaticMesh::read_from_file(FILE *f, bool verbose)
 {
   int version;
   fread(&version, sizeof(int), 1, f);
@@ -54,20 +54,22 @@ void StaticMesh::read_from_file(FILE *f)
   vertices = new StaticMeshVertex[num_vertices];
   fread(vertices, sizeof(StaticMeshVertex), num_vertices, f);
 
-  cout<<"StaticMesh::read_from_file(): "<<endl;
-  cout<<"\t"<<num_vertices<<" vertices..."<<endl;
-  for(int i = 0; i < num_vertices; i++)
-  {
-    cout<<"\t\tp:  "<<vertices[i].x<<", "<<vertices[i].y<<", "<<vertices[i].z<<endl;
-    cout<<"\t\tn:  "<<vertices[i].nx<<", "<<vertices[i].ny<<", "<<vertices[i].nz<<endl;
-    cout<<"\t\tuv: "<<vertices[i].u0<<", "<<vertices[i].v0<<endl;
-  }
-
   fread(&num_indices, sizeof(int), 1, f);
   indices = new unsigned int[num_indices];
   fread(indices, sizeof(unsigned int), num_indices, f);
 
-  cout<<"\t"<<num_indices<<" indices..."<<endl;
+  if(verbose)
+  {
+    cout<<"StaticMesh::read_from_file(): "<<endl;
+    cout<<"\t"<<num_vertices<<" vertices..."<<endl;
+    for(int i = 0; i < num_vertices; i++)
+    {
+      cout<<"\t\tp:  "<<vertices[i].x<<", "<<vertices[i].y<<", "<<vertices[i].z<<endl;
+      cout<<"\t\tn:  "<<vertices[i].nx<<", "<<vertices[i].ny<<", "<<vertices[i].nz<<endl;
+      cout<<"\t\tuv: "<<vertices[i].u0<<", "<<vertices[i].v0<<endl;
+    }
+    cout<<"\t"<<num_indices<<" indices..."<<endl;
+  }
 }
 
 void StaticMesh::init()
