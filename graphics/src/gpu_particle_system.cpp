@@ -269,7 +269,7 @@ void GPUParticleSystem::init(float particle_size, Float3 * initial_particle_pos,
   uniform_locations[UNIFORM_RENDER_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
 
   for (int i = 0; i < NUM_PARTICLE_UNIFORMS; i++) {
-    //assert(uniform_locations[i] != -1);
+    assert(uniform_locations[i] != -1);
   }
 
   glUseProgramObjectARB(0);
@@ -346,9 +346,9 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   delete attractors;
 
   //constants
-  //{dt, lifespan, num_attractors, emitter_range, emitter_strength, game_time, rand_curve_id, emitter_dir_id, data_tex_height}
+  //{dt, lifespan, num_attractors, emitter_range, emitter_strength, sim_time, rand_curve_id, emitter_dir_id, data_tex_height}
   const int num_constants = 9;
-  GLfloat constants[num_constants] = {dt, particleLifespan, k / 4, emitter_range, emitter_strength, (game_time - start_time) / 500.f, 0, emitter_dir_id, data_tex_height};
+  GLfloat constants[num_constants] = {dt, particleLifespan, k / 4, emitter_range, emitter_strength, (game_time - start_time) / 1000.f, 0, emitter_dir_id, data_tex_height};
   glUniform1fv(uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS], num_constants, constants);
 
   //prev_pos_tex
@@ -431,9 +431,9 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   glUniform3f(uniform_locations[UNIFORM_UPDATEPOS_EMITTER_LOC], emitterLocation[0], emitterLocation[1], emitterLocation[2]);
 
   //constants
-  //{dt, lifespan, does_loop, emitter_radius, emitter_duration, game_time, rand_curve_id, age_curve_id, data_tex_height}
+  //{dt, lifespan, does_loop, emitter_radius, emitter_duration, sim_time, rand_curve_id, age_curve_id, data_tex_height}
   const int num_constants = 9;
-  GLfloat constants[num_constants] = {dt, particleLifespan, does_loop, emitter_radius, emitter_duration, (game_time - start_time) / 500.f, 0, age_curve_id, data_tex_height};
+  GLfloat constants[num_constants] = {dt, particleLifespan, does_loop, emitter_radius, emitter_duration, (game_time - start_time) / 1000.f, 0, age_curve_id, data_tex_height};
   glUniform1fv(uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS], num_constants, constants);
 
   //prev_pos_tex
@@ -494,7 +494,7 @@ void GPUParticleSystem::simulate(const float game_time, const float dt)
     //Initialize start_time
     start_time = game_time;
   }
-  if (!does_loop && (game_time - start_time) / 500.f > system_duration) {
+  if (!does_loop && (game_time - start_time) / 1000.f > system_duration) {
     is_dead = true;
   }
 
@@ -591,7 +591,8 @@ void GPUParticleSim::addCurveVec4(const char * file_name_r, const char * file_na
   FILE * file_a = fopen(file_name_a, "rb");
 
   if (file_r == NULL || file_g == NULL || file_b == NULL || file_a == NULL) {
-    cout << "Error! No file named " << file_name_r << ".....or the other ones.\n";
+    cout << "Error! No file named " << file_name_r << ".....or one of the other ones.\n";
+    exit(0);
     return;
   }
 
@@ -630,6 +631,7 @@ void GPUParticleSim::addCurve(const char * file_name, const char * handle) {
 
   if (file_name == NULL) {
     cout << "Error! No file named " << file_name << ".\n";
+    exit(0);
     return;
   }
 
