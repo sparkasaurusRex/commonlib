@@ -105,7 +105,7 @@ float Math::radians_to_degrees(float r)
 	return (r / M_PI) * 180.0f;
 }*/
 
-unsigned int Math::hash(unsigned char *str)
+unsigned int Math::hash(const char *str)
 {
   unsigned int hash = 5381;
   int c;

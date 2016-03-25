@@ -218,6 +218,12 @@ void SDLGame::run()
     else
     {
       render_gl();
+
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
+      glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+
       fps_label.render();
 
       if(pause_menu)

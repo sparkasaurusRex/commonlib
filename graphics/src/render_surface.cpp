@@ -9,6 +9,7 @@
 #include "render_surface.h"
 
 using namespace std;
+using namespace Graphics;
 
 RenderSurface::RenderSurface(const int w, const int h)
 {

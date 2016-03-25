@@ -409,6 +409,9 @@ int main(int argc, char **argv)
     app.set_num_verts(atoi(argv[1]));
   }
 
+  float x = remap_range(0.3f, 0.0f, 1.0f, -10.0f, 10.0f);
+  cout<<"remap: "<<x<<endl;
+
   app.init();
   app.run();
 

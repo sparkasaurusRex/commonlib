@@ -3,6 +3,7 @@
 
 using namespace UI;
 using namespace std;
+using namespace Math;
 
 ToolBox::ToolBox() : RectangularWidget()
 {

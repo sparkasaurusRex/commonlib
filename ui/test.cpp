@@ -16,6 +16,7 @@
 using namespace UI;
 using namespace std;
 using namespace Math;
+using namespace Graphics;
 
 void pb_callback(const SDL_Event &e);
 

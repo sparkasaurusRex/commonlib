@@ -6,6 +6,7 @@
 #include "material.h"
 
 using namespace std;
+using namespace Graphics;
 
 Material::Material()
 {

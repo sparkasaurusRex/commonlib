@@ -1,0 +1,15 @@
+<shader_block pretty_name="Fresnel / Glancing Fade" name="fresnel">
+  <tooltip>
+Blends between two colors by the angle between the "look at" vector and the surface normal.
+  </tooltip>
+  <input pretty_name="Color A" var_name="color_a" type="vec4">
+  <input pretty_name="Color B" var_name="color_b" type="vec4">
+  <input pretty_name="Sharpness" var_name="sharpness" type="float">
+  <code>
+{
+  float n_dot_v = max(dot(normal, view_dir), 0.0);
+  return lerp(color_a, color_b, pow(n_dot_v, sharpness));
+}
+  </code>
+  <output pretty_name="Out" type="float4">
+</shader_block>

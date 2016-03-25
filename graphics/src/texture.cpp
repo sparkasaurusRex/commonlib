@@ -26,6 +26,7 @@
 #include "texture.h"
 
 using namespace std;
+using namespace Graphics;
 
 Texture::Texture(const int w, const int h, const GLuint m)
 {

@@ -1,5 +1,7 @@
 #include "render_surface_combiner.h"
 
+using namespace Graphics;
+
 RenderSurfaceCombiner::RenderSurfaceCombiner()
 {
  a = b = c = d = NULL;

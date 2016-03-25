@@ -20,6 +20,7 @@ public:
   void transform(const Math::Matrix3x3 &m);
 
   void set_window_dimensions(const Math::Float2 d)    { window_dimensions = d; }
+  void set_fov(const float f)                         { fov = f; }
   void set_f_stop(const float f)                      { f_stop = f; }
   void set_focal_distance(const float d)              { focal_distance_m = d; }
   void set_focal_length(const float l)                { focal_length_mm = l; }
@@ -35,6 +36,8 @@ private:
   Math::Float3 lookat;
 
   Math::Float2    window_dimensions;
+
+  float           fov;                    //field of vision
   float           f_stop;                 //aperture size
   float           focal_distance_m;       //distance that we are focused on
   float           focal_length_mm;        //focal length (zoom)

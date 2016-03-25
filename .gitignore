@@ -1,7 +1,7 @@
 *.o
 *.a
 *.DS_Store
-*test.dSYM
+*.dSYM
 *init.txt
 *capture/
 fluids/bin/*
@@ -20,3 +20,4 @@ ui/test.curve
 openCL/test
 audio/test
 graphics/blender_scripts/io_mesh/__pycache__
+tools/bake

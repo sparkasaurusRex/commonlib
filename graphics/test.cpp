@@ -1,12 +1,15 @@
 #include <time.h>
+#include <OpenGL/glu.h>
 #include "sdl_game.h"
 #include "camera.h"
 #include "gpu_hair_sim.h"
 #include "perlin.h"
 #include "gpu_particle_system.h"
+#include "static_mesh.h"
 
 using namespace Graphics;
 using namespace PerlinNoise;
+using namespace std;
 
 enum RenderMode
 {
@@ -20,6 +23,8 @@ enum RenderMode
   RENDER_PARTICLE_VELOCITY_TEXTURE,
   RENDER_PARTICLE_DATA_TEXTURE,
 
+  RENDER_STATIC_MESH,
+
   NUM_RENDER_MODES
 };
 
@@ -30,9 +35,11 @@ public:
   {
     rot_angle = 0.0f;
     color_tex = NULL;
-    render_mode = RENDER_PARTICLES;
+    render_mode = RENDER_STATIC_MESH;
     force_tex_dim[0] = 64;
     force_tex_dim[1] = 64;
+
+    zoom = 0.0f;
   }
   ~GraphicsApp()
   {
@@ -68,6 +75,44 @@ private:
       gpu_particle_sim.render();
 
     glPopMatrix();
+  }
+
+  void render_static_mesh()
+  {
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+
+    glDisable(GL_BLEND);
+
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CCW);
+
+    GLfloat diff[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat amb[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+    GLfloat light_pos[] = { 0.0f, 2.0f, 0.0f, 1.0f };
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diff);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, amb);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
+
+    cam.set_fov(65.0f);
+    cam.set_pos(Float3(0.0f, 0.0f, -1.0f + zoom));
+    cam.set_lookat(Float3(0.0f, 0.0f, 1.0f));
+    cam.set_up(Float3(0.0f, 1.0f, 0.0f));
+
+    cam.render_setup();
+      glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
+      glRotatef(rot_angle * 0.37f, 0.0f, 0.0f, 1.0f);
+      static_mesh.render();
+    cam.render_cleanup();
+
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
   }
 
   void render_fullscreen_quad()
@@ -141,8 +186,10 @@ private:
 
   void render_gl()
   {
+    glViewport(0, 0, resolution[0], resolution[1]);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glDepthRange(0.0f, 1.0f);
 
     switch(render_mode)
     {
@@ -169,6 +216,9 @@ private:
         break;
       case RENDER_PARTICLE_DATA_TEXTURE:
         render_particle_data_texture();
+        break;
+      case RENDER_STATIC_MESH:
+        render_static_mesh();
         break;
       default:
         render_hair();
@@ -233,8 +283,8 @@ private:
   void game_loop(const float game_time, const float frame_time)
   {
     //cout<<"dt: "<<frame_time<<endl;
-    //update_forces(game_time, frame_time);
-    //gpu_hair.simulate(game_time, frame_time);
+    update_forces(game_time, frame_time);
+    gpu_hair.simulate(game_time, frame_time);
 
     if(!paused)
     {
@@ -244,9 +294,8 @@ private:
     }
   }
 
-  void user_init()
+  void particle_init()
   {
-
     gpu_particle_sim.set_shader_directory("./data/shaders/");
 
     gpu_particle_sim.addCurveVec4("Curves/cosine.curve",
@@ -321,8 +370,10 @@ private:
     cam.set_lookat(Float3(0.0f, 0.0f, 0.0f) - cam_pos);
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));
     */
+  }
 
-/*
+  void hair_init()
+  {
     int num_hairs = 10000;
     //TODO: move this out of the GPUHairSim class, so we can start w/ any hair
     //      distribution the user wants
@@ -356,13 +407,36 @@ private:
     cam.set_pos(cam_pos);
     cam.set_lookat(Float3(0.0f, 0.0f, 0.0f) - cam_pos);
     cam.set_up(Float3(0.0f, 1.0f, 0.0f));
-    */
   }
+
+  void static_mesh_init()
+  {
+    //mesh init
+    FILE *f = fopen("data/meshes/test_mesh.brick.bin", "rb");
+    assert(f);
+
+    static_mesh.read_from_file(f);
+    static_mesh.init();
+
+    fclose(f);
+  }
+
+  void user_init()
+  {
+    cam.set_window_dimensions(Float2(resolution[0], resolution[1]));
+    particle_init();
+    hair_init();
+    static_mesh_init();
+  }
+
   void user_run() {}
   void user_process_event(const SDL_Event &event)
   {
     switch(event.type)
     {
+      case SDL_MOUSEWHEEL:
+        zoom += (float)event.wheel.y * 0.08f;
+        break;
       case SDL_KEYUP:
         switch(event.key.keysym.sym)
         {
@@ -393,6 +467,9 @@ private:
           case '8':
             render_mode = RENDER_PARTICLE_DATA_TEXTURE;
             break;
+          case '9':
+            render_mode = RENDER_STATIC_MESH;
+            break;
         }
         break;
     }
@@ -402,17 +479,18 @@ private:
   GPUHairSim gpu_hair;
   GPUParticleSim gpu_particle_sim;
 
-
   RenderMode render_mode;
   Camera cam;
   float rot_angle;
+  StaticMesh static_mesh;
+
+  float zoom;
 
   bool paused;
 
   Texture *color_tex;
 
   unsigned int force_tex_dim[2];
-
 };
 
 int main(int argc, char **argv)
@@ -424,291 +502,3 @@ int main(int argc, char **argv)
   app.run();
   return 0;
 }
-
-/*
-#include <GL/glew.h>
-
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
-
-#include <SDL2/SDL.h>
-#include <iostream>
-#include <assert.h>
-
-#include "texture.h"
-#include "perlin.h"
-#include "fluid2d.h"
-#include "font.h"
-#include "render_surface.h"
-#include "render_surface_combiner.h"
-
-using namespace std;
-
-const int WIN_WIDTH = 512;
-const int WIN_HEIGHT = 512;
-
-SDL_Window* sdl_window = NULL;
-SDL_GLContext sdl_gl_context = NULL;
-Texture *t = NULL;
-Texture *dynamic_tex = NULL;
-Texture *fluid_tex = NULL;
-
-Font *font = NULL;
-
-Fluid2D *fluid = NULL;
-
-RenderSurface rsa, rsb;
-RenderSurfaceCombiner rsc;
-
-void quit_app()
-{
-  SDL_GL_DeleteContext(sdl_gl_context);
-  SDL_DestroyWindow(sdl_window);
-  SDL_Quit();
-  exit(0);
-}
-
-void init_sdl()
-{
-	if(SDL_Init( SDL_INIT_VIDEO ) < 0)
-  {
-    printf( "SDL could not initialize! SDL_Error: %s\n", SDL_GetError() );
-  }
-  else
-  {
-    //Create window
-    sdl_window = SDL_CreateWindow("Graphics Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WIN_WIDTH, WIN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-    assert(sdl_window);
-
-    sdl_gl_context = SDL_GL_CreateContext(sdl_window);
-    assert(sdl_gl_context);
-
-    SDL_GL_SetSwapInterval(1);
-  }
-}
-
-void init_gl()
-{
-  glewInit();
-
-  std::string vs_name("data/shaders/passthrough.vs");
-  std::string fs_name("data/shaders/downsample.fs");
-
-  rsa.set_fbo_res(WIN_WIDTH, WIN_HEIGHT);
-  rsa.set_shader_names(vs_name, fs_name);
-  rsa.init();
-
-  rsb.set_fbo_res(WIN_WIDTH, WIN_HEIGHT);
-  rsb.set_shader_names(vs_name, fs_name);
-  rsb.init();
-
-  rsc.set_shader_names(vs_name, std::string("data/shaders/fb_additive_combine.fs"));
-  rsc.set_surfaces(&rsa, &rsb, &rsa, &rsb);
-  rsc.init();
-}
-
-void process_events()
-{
-  const Uint8 *keystate = SDL_GetKeyboardState(NULL);
-  if(keystate[SDLK_ESCAPE]) quit_app();
-
-  SDL_Event event;
-  while(SDL_PollEvent(&event))
-  {
-    if(event.type == SDL_QUIT)
-    {
-      quit_app();
-    }
-  }
-}
-
-//fill our dynamic texture with perlin noise
-void fill_dynamic_texture(float t)
-{
-  int w, h;
-  dynamic_tex->get_dim(w, h);
-  GLuint mode = dynamic_tex->get_pixel_mode();
-  int num_bytes = (mode == GL_RGBA) ? 4 : 3;
-
-  //not exactly optimal to allocate / deallocate this every frame...
-  GLubyte *pixels = new GLubyte[w * h * num_bytes];
-
-  for(int i = 0; i < w; i++)
-  {
-    for(int j = 0; j < h; j++)
-    {
-      float x_val = 1.0f * (float)i / (float)w;
-      float y_val = 1.0f * (float)j / (float)h;
-      float z_val = t * 0.0002f;
-      float val = 0.5f * PerlinNoise::octave_noise_3d(2, 1.0f, 4.0f, x_val, y_val, z_val) + 0.5f;
-      //float val = PerlinNoise::marble_noise_3d(2, 1.0f, 5.0f, x_val, y_val, z_val);
-      //float val = PerlinNoise::raw_noise_3d(x_val, y_val, z_val);
-      //float val = 0.5f * sin(M_PI * 2.0f * (float)i / (float)w) + 0.5f;
-      for(int oct = 0; oct < 3; oct++)
-      {
-        pixels[((i * w + j) * num_bytes) + oct] = (GLubyte)(val * 255.0f);
-      }
-      if(num_bytes == 4)
-      {
-        pixels[((i * w + j) * 4) + 3] = (GLubyte)255.0f;
-      }
-    }
-  }
-
-  //cout<<"updating pixels..."<<endl;
-  dynamic_tex->update_pixels_from_mem(pixels);
-  delete pixels;
-}
-
-void fill_fluid_texture(float t)
-{
-  return;
-  fluid->simulate(t);
-  const float *f;// = fluid->get_density_array();
-
-  int w, h;
-  fluid_tex->get_dim(w, h);
-  GLuint mode = fluid_tex->get_pixel_mode();
-  int num_bytes = (mode == GL_RGBA) ? 4 : 3;
-
-  GLubyte *pixels = new GLubyte[w * h * num_bytes];
-  for(int i = 0; i < w; i++)
-  {
-    for(int j = 0; j < h; j++)
-    {
-      int fluid_idx = i + (w + 2) * j;
-      float val = f[fluid_idx];
-
-      for(int oct = 0; oct < 3; oct++)
-      {
-        pixels[((i * w + j) * num_bytes) + oct] = (GLubyte)(val * 255.0f);
-      }
-      if(num_bytes == 4)
-      {
-        pixels[((i * w + j) * 4) + 3] = (GLubyte)255.0f;
-      }
-    }
-  }
-
-  fluid_tex->update_pixels_from_mem(pixels);
-  delete pixels;
-}
-
-void render_font_test()
-{
-  glColor3f(1.0f, 0.0f, 0.0f);
-  font->print(270.0f, 220.0f, "The quick brown fox\njumps over the\nlazy dog!?");
-}
-
-void game_loop()
-{
-  Uint32 ticks = SDL_GetTicks();
-  float game_time = (float)ticks;
-
-  fill_dynamic_texture(game_time);
-  fill_fluid_texture(game_time);
-
-  rsa.capture();
-
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  //texture from file
-  t->render_gl();
-  glBegin(GL_QUADS);
-  	glColor3f(1.0f, 1.0f, 1.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(1.0f, 0.0f, 0.0f);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(1.0f, 1.0f, 0.0f);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(0.0f, 1.0f, 0.0f);
-  glEnd();
-
-  //render dynamic texture
-  dynamic_tex->render_gl();
-  glBegin(GL_QUADS);
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(-1.0f, 0.0f, 0.0f);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(0.0f, 1.0f, 0.0f);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(-1.0f, 1.0f, 0.0f);
-  glEnd();
-
-  //render fluid texture
-  fluid_tex->render_gl();
-  glBegin(GL_QUADS);
-    glColor3f(1.0f, 1.0f, 1.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(-1.0f, -1.0f, 0.0f);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(0.0f, -1.0f, 0.0f);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(-1.0f, 0.0f, 0.0f);
-  glEnd();
-
-  render_font_test();
-
-  rsa.release();
-
-  //rsb.capture();
-  //rsa.render();
-  //rsb.release();
-
-  //rsc.render();
-  rsa.render();
-
-	glFlush();
-	SDL_GL_SwapWindow(sdl_window);
-}
-
-int main(int argc, char **argv)
-{
-	init_sdl();
-	init_gl();
-
-  t = new Texture("data/test.tga");
-  t->load();
-
-  font = new Font("/Library/Fonts/AmericanTypewriter.ttc", 16);
-  font->init();
-
-  dynamic_tex = new Texture(256, 256, GL_RGB);
-  dynamic_tex->init();
-
-  fluid_tex = new Texture(256, 256, GL_RGB);
-  fluid_tex->init();
-
-  fluid = new Fluid2D(256, 256);
-
-  while(true)
-  {
-    process_events();
-    game_loop();
-  }
-
-  quit_app();
-
-  delete fluid;
-
-  delete t;
-  delete dynamic_tex;
-  delete fluid_tex;
-
-	return 0;
-}
-*/
