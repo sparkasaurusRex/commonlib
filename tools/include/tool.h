@@ -10,6 +10,7 @@ namespace Tool
   enum AssetType
   {
     ASSET_STATIC_MESH,
+    ASSET_SHADER,
     ASSET_PARTICLE_SYSTEM,
 
     NUM_ASSET_TYPES

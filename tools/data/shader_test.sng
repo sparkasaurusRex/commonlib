@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<shader_graph version="1" type="fragment">
+  <shader_node type="root" id="0">
+  </shader_node>
+  <shader_node type="shader_block" fname="fresnel.shd" id="1">
+    <note>This is a very important note</note>
+    <shader_socket target_node="0" target="final_color"></shader_socket>
+  </shader_node>
+  <shader_node type="color" id="2">
+    <vec4>1.0 0.0 0.0</vec4>
+    <shader_socket target_node="1" target_var="color_a"></shader_socket>
+  </shader_node>
+</shader_graph>

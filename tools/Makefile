@@ -12,7 +12,7 @@ LDFLAGS=$(shell pkg-config mxml --libs)
 LDFLAGS+=-lgraphics -ltool -lmath
 SRCPATH=src/
 SRCS=src/static_mesh_baker.cpp src/bakery.cpp src/tool.cpp
-SRCS+=src/bphys_baker.cpp
+SRCS+=src/bphys_baker.cpp src/shader_baker.cpp
 SRCS+=src/minilzo/minilzo.cpp
 OBJS=$(SRCS:.cpp=.o)
 
@@ -54,6 +54,9 @@ $(BINPATH)static_mesh_baker.o: $(SRCPATH)static_mesh_baker.cpp
 
 $(BINPATH)bphys_baker.o: $(SRCPATH)bphys_baker.cpp
 	$(CC) $(CFLAGS) -c src/bphys_baker.cpp -o $(BINPATH)bphys_baker.o
+
+$(BINPATH)shader_baker.o: $(SRCPATH)shader_baker.cpp
+	$(CC) $(CFLAGS) -c src/shader_baker.cpp -o $(BINPATH)shader_baker.o
 
 $(BINPATH)minilzo.o: $(SRCPATH)minilzo/minilzo.cpp
 	$(CC) $(CFLAGS) -c src/minilzo/minilzo.cpp -o $(BINPATH)minilzo.o

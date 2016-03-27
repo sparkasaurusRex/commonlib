@@ -1,13 +1,13 @@
 CC=g++
 LIB_PATH=
 CFLAGS=-I./include -I../mathlib/include -I/usr/include/libxml2 -I../fluids/include
-CFLAGS+=-I/usr/local/include -I../game/include -I../ui/include
+CFLAGS+=-I/usr/local/include -I../game/include -I../ui/include -I./include/vfx
 CFLAGS+=$(shell pkg-config freetype2 --cflags)
 CFLAGS+=$(shell pkg-config glew --cflags)
 CFLAGS+=$(shell pkg-config sdl2 --cflags)
 CFLAGS+=$(shell pkg-config SDL2_image --cflags)
-#CFLAGS+=-Ofast
-CFLAGS+= -g3 -O0
+CFLAGS+=-Ofast
+#CFLAGS+= -g3 -O0
 
 LDFLAGS=$(shell pkg-config freetype2 --libs)
 LDFLAGS+=$(shell pkg-config glew --libs)
@@ -18,7 +18,7 @@ SRCPATH=src/
 SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
 SRCS+=src/camera.cpp src/render_surface.cpp src/hdr_render_surface.cpp
 SRCS+=src/render_surface_combiner.cpp src/gpu_hair_sim.cpp src/static_mesh.cpp
-SRCS+=src/gpu_particle_system.cpp
+SRCS+=src/gpu_particle_system.cpp src/vfx/ribbon.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -107,6 +107,9 @@ $(BINPATH)gpu_particle_system.o: $(SRCPATH)gpu_particle_system.cpp
 
 $(BINPATH)static_mesh.o: $(SRCPATH)static_mesh.cpp
 	$(CC) $(CFLAGS) -c src/static_mesh.cpp -o $(BINPATH)static_mesh.o
+
+$(BINPATH)ribbon.o: $(SRCPATH)/vfx/ribbon.cpp
+	$(CC) $(CFLAGS) -c $(SRCPATH)vfx/ribbon.cpp -o $(BINPATH)ribbon.o
 
 $(BINPATH)libgraphics.a: $(OBJS_BIN)
 	ar -cvq $(BINPATH)libgraphics.a $(OBJS_BIN)

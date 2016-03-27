@@ -9,8 +9,9 @@ using namespace Math;
 
 void Bakery::init()
 {
-  smb.init();
-  bpb.init();
+  static_mesh_baker.init();
+  bphys_baker.init();
+  shader_baker.init();
 }
 
 void Bakery::bake(std::string fname, std::string out_fname)
@@ -27,7 +28,7 @@ void Bakery::bake(std::string fname, std::string out_fname)
     FILE *fp = fopen(fname.c_str(), "rb");
     if(fp)
     {
-      bpb.bake(fp, out_fname);
+      bphys_baker.bake(fp, out_fname);
     }
     else
     {
@@ -55,7 +56,13 @@ void Bakery::bake(std::string fname, std::string out_fname)
       node = mxmlFindElement(tree, tree, "static_mesh", "version", NULL, MXML_DESCEND);
       if(node)
       {
-        smb.bake(tree, output_fname);
+        static_mesh_baker.bake(tree, output_fname);
+      }
+
+      node = mxmlFindElement(tree, tree, "shader_graph", "version", NULL, MXML_DESCEND);
+      if(node)
+      {
+        shader_baker.bake(tree, output_fname);
       }
     }
     else
