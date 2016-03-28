@@ -91,9 +91,13 @@ void Ribbon::init()
 void Ribbon::render()
 {
   glUseProgramObjectARB(0);
-  glDisable(GL_BLEND);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_ONE, GL_ONE);
   glDisable(GL_CULL_FACE);
-  glDisable(GL_DEPTH_TEST);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthRange(0.0f, 1.0f);
+  glDepthMask(GL_FALSE);
 
   glPointSize(5.0f);
 
@@ -125,13 +129,31 @@ void Ribbon::simulate(const float gt, const float dt)
     profile_height *= profile_a.evaluate(seg_pct);
 
     Float3 root_vert_pos = polar_to_cartesian(theta, phi, 1.0f);
-    vertex_data[i * 2].x = root_vert_pos[0];
-    vertex_data[i * 2].y = root_vert_pos[1];
-    vertex_data[i * 2].z = root_vert_pos[2];
+    Float3 top_vert_pos = root_vert_pos + root_vert_pos * profile_height;
 
-    vertex_data[i * 2 + 1].x = root_vert_pos[0] + root_vert_pos[0] * profile_height;
-    vertex_data[i * 2 + 1].y = root_vert_pos[1] + root_vert_pos[1] * profile_height;
-    vertex_data[i * 2 + 1].z = root_vert_pos[2] + root_vert_pos[2] * profile_height;
+    Float3 n = top_vert_pos - root_vert_pos;
+    Float3 tmp = n ^ Float3(0.0f, 1.0f, 0.0f);
+    n = n ^ tmp;
+    n.normalize();
+
+    int i0 = i * 2;
+    int i1 = i * 2 + 1;
+
+    vertex_data[i0].x = root_vert_pos[0];
+    vertex_data[i0].y = root_vert_pos[1];
+    vertex_data[i0].z = root_vert_pos[2];
+
+    vertex_data[i0].nx = n[0];
+    vertex_data[i0].ny = n[1];
+    vertex_data[i0].nz = n[2];
+
+    vertex_data[i1].x = top_vert_pos[0];
+    vertex_data[i1].y = top_vert_pos[1];
+    vertex_data[i1].z = top_vert_pos[2];
+
+    vertex_data[i1].nx = n[0];
+    vertex_data[i1].ny = n[1];
+    vertex_data[i1].nz = n[2];
   }
 
   //update the vbo, and release
