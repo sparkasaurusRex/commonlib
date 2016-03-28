@@ -51,7 +51,14 @@ namespace Graphics
     float root_speed;
     float root_scale;
 
+    float profile_noise_scale;
+    Math::Float2 profile_noise_bounds;
+    float profile_noise_speed;
+
     float tex_scroll_speed;
+
+    Math::Float2 theta_bounds;
+    Math::Float2 phi_bounds;
   };
 };
 
