@@ -29,6 +29,10 @@ Ribbon::Ribbon()
   phi_bounds[1] = 0.5f;
 
   profile_a.bell_curve_cerp(0.4f, 0.6f);
+
+  mat = NULL;
+  tex_a = NULL;
+  tex_b = NULL;
 }
 
 Ribbon::~Ribbon()
@@ -100,6 +104,10 @@ void Ribbon::render()
   glDepthMask(GL_FALSE);
 
   glPointSize(5.0f);
+
+  if(mat) { mat->render_gl(); }
+  if(tex_a) { tex_a->render_gl(); }
+  if(tex_b) { tex_b->render_gl(); }
 
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
