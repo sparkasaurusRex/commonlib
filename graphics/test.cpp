@@ -6,6 +6,7 @@
 #include "perlin.h"
 #include "gpu_particle_system.h"
 #include "static_mesh.h"
+#include "ribbon.h"
 
 using namespace Graphics;
 using namespace PerlinNoise;
@@ -421,12 +422,18 @@ private:
     fclose(f);
   }
 
+  void ribbon_init()
+  {
+    ribbon.init();
+  }
+
   void user_init()
   {
     cam.set_window_dimensions(Float2(resolution[0], resolution[1]));
     particle_init();
     hair_init();
     static_mesh_init();
+    ribbon_init();
   }
 
   void user_run() {}
@@ -478,6 +485,8 @@ private:
 
   GPUHairSim gpu_hair;
   GPUParticleSim gpu_particle_sim;
+
+  Ribbon ribbon;
 
   RenderMode render_mode;
   Camera cam;

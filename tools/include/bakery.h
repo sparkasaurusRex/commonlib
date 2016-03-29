@@ -5,6 +5,7 @@
 
 #include "static_mesh_baker.h"
 #include "bphys_baker.h"
+#include "shader_baker.h"
 
 namespace Tool
 {
@@ -18,8 +19,9 @@ namespace Tool
 
     void bake(std::string fname, std::string out_fname);
   private:
-    StaticMeshBaker   smb;
-    BPhysBaker        bpb;
+    StaticMeshBaker   static_mesh_baker;
+    BPhysBaker        bphys_baker;
+    ShaderBaker       shader_baker;
   };
 };
 
