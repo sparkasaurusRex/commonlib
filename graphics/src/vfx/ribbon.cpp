@@ -24,9 +24,9 @@ Ribbon::Ribbon()
   profile_noise_speed = 0.0003f;
 
   theta_bounds[0] = 0.0f;
-  theta_bounds[1] = 0.5f;
+  theta_bounds[1] = 0.1f;
   phi_bounds[0] = 0.0f;
-  phi_bounds[1] = 0.5f;
+  phi_bounds[1] = 0.8f;
 
   profile_a.bell_curve_cerp(0.4f, 0.6f);
 
@@ -105,8 +105,20 @@ void Ribbon::render()
 
   glPointSize(5.0f);
 
-  if(mat) { mat->render_gl(); }
-  if(tex_a) { tex_a->render_gl(); }
+  Shader *shader = NULL;
+  if(mat)
+  {
+    shader = mat->get_shader();
+    mat->render_gl();
+  }
+  if(tex_a && shader)
+  {
+    glClientActiveTexture(0);
+    tex_a->render_gl();
+
+    GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "tex");
+    glUniform1i(tex_loc, 0);
+  }
   if(tex_b) { tex_b->render_gl(); }
 
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -145,23 +157,23 @@ void Ribbon::simulate(const float gt, const float dt)
     n.normalize();
 
     int i0 = i * 2;
-    int i1 = i * 2 + 1;
+    int i1 = i0 + 1;
 
-    vertex_data[i0].x = root_vert_pos[0];
-    vertex_data[i0].y = root_vert_pos[1];
-    vertex_data[i0].z = root_vert_pos[2];
+    vertex_data[i0].x = root_vert_pos._val[0];
+    vertex_data[i0].y = root_vert_pos._val[1];
+    vertex_data[i0].z = root_vert_pos._val[2];
 
-    vertex_data[i0].nx = n[0];
-    vertex_data[i0].ny = n[1];
-    vertex_data[i0].nz = n[2];
+    vertex_data[i0].nx = n._val[0];
+    vertex_data[i0].ny = n._val[1];
+    vertex_data[i0].nz = n._val[2];
 
-    vertex_data[i1].x = top_vert_pos[0];
-    vertex_data[i1].y = top_vert_pos[1];
-    vertex_data[i1].z = top_vert_pos[2];
+    vertex_data[i1].x = top_vert_pos._val[0];
+    vertex_data[i1].y = top_vert_pos._val[1];
+    vertex_data[i1].z = top_vert_pos._val[2];
 
-    vertex_data[i1].nx = n[0];
-    vertex_data[i1].ny = n[1];
-    vertex_data[i1].nz = n[2];
+    vertex_data[i1].nx = n._val[0];
+    vertex_data[i1].ny = n._val[1];
+    vertex_data[i1].nz = n._val[2];
   }
 
   //update the vbo, and release

@@ -68,8 +68,7 @@ void StaticMesh::read_from_file(FILE *f, bool verbose)
       cout<<"\t\tn:  "<<vertices[i].nx<<", "<<vertices[i].ny<<", "<<vertices[i].nz<<endl;
       cout<<"\t\tuv: "<<vertices[i].u0<<", "<<vertices[i].v0<<endl;
     }
-    cout<<"\t"<<num_indices<<" indices..."<<endl;r
-
+    cout<<"\t"<<num_indices<<" indices..."<<endl;
   }
 }
 
