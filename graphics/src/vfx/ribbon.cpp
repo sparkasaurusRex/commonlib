@@ -19,14 +19,14 @@ Ribbon::Ribbon()
   tex_scroll_speed = 1.0f;
 
   profile_noise_bounds[0] = 0.05f;
-  profile_noise_bounds[1] = 0.2f;
+  profile_noise_bounds[1] = 0.35f;
   profile_noise_scale = 1.2f;
   profile_noise_speed = 0.0003f;
 
   theta_bounds[0] = 0.0f;
   theta_bounds[1] = 0.1f;
   phi_bounds[0] = 0.0f;
-  phi_bounds[1] = 0.8f;
+  phi_bounds[1] = 0.2f;
 
   profile_a.bell_curve_cerp(0.4f, 0.6f);
 
@@ -113,13 +113,16 @@ void Ribbon::render()
   }
   if(tex_a && shader)
   {
-    glClientActiveTexture(0);
-    tex_a->render_gl();
-
     GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "noise_1d_tex");
     glUniform1i(tex_loc, 0);
+    tex_a->render_gl(0);
   }
-  if(tex_b) { tex_b->render_gl(); }
+  if(tex_b && shader)
+  {
+    GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "grad_vert_tex");
+    glUniform1i(tex_loc, 1);
+    tex_b->render_gl(1);
+  }
 
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -145,7 +148,7 @@ void Ribbon::render()
 
 void Ribbon::simulate(const float gt, const float dt)
 {
-  float ribbon_length = 0.1f; //in radians?
+  float ribbon_length = 0.2f; //in radians?
   //TODO: use dynamic texture and vertex-shader displacement
   for(int i = 0; i < num_segments; i++)
   {
