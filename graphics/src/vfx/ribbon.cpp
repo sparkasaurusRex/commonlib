@@ -116,7 +116,7 @@ void Ribbon::render()
     glClientActiveTexture(0);
     tex_a->render_gl();
 
-    GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "tex");
+    GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "noise_1d_tex");
     glUniform1i(tex_loc, 0);
   }
   if(tex_b) { tex_b->render_gl(); }
@@ -129,6 +129,15 @@ void Ribbon::render()
 
   glEnableClientState(GL_NORMAL_ARRAY);
   glNormalPointer(GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 3));
+
+  glEnableClientState(GL_COLOR_ARRAY);
+  glColorPointer(3, GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 6));
+  glClientActiveTexture(GL_TEXTURE0);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glTexCoordPointer(2, GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 9));
+  //glClientActiveTexture(GL_TEXTURE1);
+  //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  //glTexCoordPointer(2, GL_FLOAT, sizeof(AtmosVert), (void *)(sizeof(float) * 11));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glDrawElements(GL_QUAD_STRIP, num_indices, GL_UNSIGNED_INT, (void *)0);
