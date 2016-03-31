@@ -95,8 +95,6 @@ void Ribbon::init()
 void Ribbon::render()
 {
   glUseProgramObjectARB(0);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_ONE, GL_ONE);
   glDisable(GL_CULL_FACE);
 
   glEnable(GL_DEPTH_TEST);
@@ -111,20 +109,30 @@ void Ribbon::render()
     shader = mat->get_shader();
     mat->render_gl();
   }
+
   if(tex_a && shader)
   {
     GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "noise_1d_tex");
     glUniform1i(tex_loc, 0);
-    tex_a->render_gl(0);
+    glActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, tex_a->get_tex_id());
+    //tex_a->render_gl(0);
   }
   if(tex_b && shader)
   {
     GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "grad_vert_tex");
     glUniform1i(tex_loc, 1);
-    tex_b->render_gl(1);
+    glActiveTexture(GL_TEXTURE1);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, tex_b->get_tex_id());
+    //tex_b->render_gl(1);
   }
 
-  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_ONE, GL_ONE);
+
+  //glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
