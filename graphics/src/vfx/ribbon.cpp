@@ -18,10 +18,10 @@ Ribbon::Ribbon()
   root_speed = 0.0001f;
   tex_scroll_speed = 1.0f;
 
-  profile_noise_bounds[0] = 0.05f;
+  profile_noise_bounds[0] = 0.2f;
   profile_noise_bounds[1] = 0.35f;
   profile_noise_scale = 1.2f;
-  profile_noise_speed = 0.0003f;
+  profile_noise_speed = 0.0001f;
 
   theta_bounds[0] = 0.0f;//M_PI - 0.1f;
   theta_bounds[1] = 0.5f;//M_PI;
@@ -92,7 +92,7 @@ void Ribbon::init()
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Ribbon::render()
+void Ribbon::render(const float game_time)
 {
   glUseProgramObjectARB(0);
   glDisable(GL_CULL_FACE);
@@ -129,6 +129,9 @@ void Ribbon::render()
     //tex_b->render_gl(1);
   }
 
+  GLuint gt_loc = glGetUniformLocation(shader->gl_shader_program, "game_time");
+  glUniform1f(gt_loc, game_time);
+
   glEnable(GL_BLEND);
   glBlendFunc(GL_ONE, GL_ONE);
 
@@ -156,9 +159,10 @@ void Ribbon::render()
 
 void Ribbon::simulate(const float gt, const float dt)
 {
-  float theta_offset = 0.0f;
-  float phi_offset = M_PI;
+  float theta_offset = M_PI;
+  float phi_offset = 0.0f;
   float ribbon_length = 0.6f; //in radians?
+
   //TODO: use dynamic texture and vertex-shader displacement
   for(int i = 0; i < num_segments; i++)
   {
@@ -167,7 +171,7 @@ void Ribbon::simulate(const float gt, const float dt)
     float phi = PerlinNoise::scaled_octave_noise_2d(2, 1.0f, root_scale, phi_bounds[0], phi_bounds[1], gt * root_speed + 137.9532f, seg_pct);
     phi = phi_offset + phi + seg_pct * ribbon_length;
 
-    float profile_height = PerlinNoise::scaled_octave_noise_2d(2, 1.0f, profile_noise_scale, profile_noise_bounds[0], profile_noise_bounds[1], gt * profile_noise_speed + 165.132f, seg_pct * profile_noise_scale);
+    float profile_height = PerlinNoise::scaled_octave_noise_2d(3, 1.0f, profile_noise_scale, profile_noise_bounds[0], profile_noise_bounds[1], gt * profile_noise_speed + 165.132f, seg_pct * profile_noise_scale);
     profile_height *= profile_a.evaluate(seg_pct);
 
     Float3 root_vert_pos = polar_to_cartesian(theta, phi, 1.1f);
