@@ -98,9 +98,15 @@ float CurveSegmentPerlin::evaluate(const float _x) const
   return clamp(amplitude * (PerlinNoise::octave_noise_2d(octaves, 1.0f, frequency, x_pct + phase, 0.0f) + y_offset), 0.0f, 1.0f);
 }
 
+/*
 Curve::Curve()
 {
   init();
+}*/
+
+Curve::Curve(InterpolationMethod im, Float2 a, Float2 b, Float2 ta, Float2 tb)
+{
+  init(im, a, b, ta, tb);
 }
 
 Curve::~Curve()
@@ -111,21 +117,44 @@ Curve::~Curve()
   }
 }
 
-void Curve::init()
+void Curve::init(InterpolationMethod im, Float2 a, Float2 b, Float2 ta, Float2 tb)
 {
-  CurveEndPoint a, b;
-  a.p = Float2(0.0f, 0.0f);
-  a.t = Float2(0.1f, 0.0f);
-  b.p = Float2(1.0f, 1.0f);
-  b.t = Float2(0.9f, 1.0f);
+  CurveEndPoint ep_a, ep_b;
+  ep_a.p = a;
+  ep_a.t = ta;
+  ep_b.p = b;
+  ep_b.t = tb;
 
-  CurveSegment *new_cs = new CurveSegmentLerp;
-  new_cs->end_points[0] = a;
-  new_cs->end_points[1] = b;
+  CurveSegment *new_cs = NULL;
+  switch(im)
+  {
+    case INTERPOLATE_LERP:
+      new_cs = new CurveSegmentLerp;
+      break;
+    case INTERPOLATE_CERP:
+      new_cs = new CurveSegmentCerp;
+      break;
+    case INTERPOLATE_BEZIER:
+      new_cs = new CurveSegmentBezier;
+      break;
+    default:
+      cerr<<"Curve::init(): unknown interpolation method!"<<endl;
+      break;
+  }
+  assert(new_cs);
+  new_cs->end_points[0] = ep_a;
+  new_cs->end_points[1] = ep_b;
 
+  for(int i = 0; i < segments.size(); i++)
+  {
+    delete segments[i];
+  }
+  segments.clear();
+  handles.clear();
   segments.push_back(new_cs);
 }
 
+//redundant
 void Curve::reset()
 {
   for(int i = 0; i < segments.size(); i++)
