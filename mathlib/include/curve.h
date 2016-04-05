@@ -135,10 +135,19 @@ namespace Math {
   class Curve
   {
     public:
-      Curve();
+      //Curve();
+      Curve(InterpolationMethod im = INTERPOLATE_LERP,
+            Float2 a = Float2(0.0f, 0.0f),
+            Float2 b = Float2(1.0f, 1.0f),
+            Float2 ta = Float2(0.1f, 0.0f),
+            Float2 tb = Float2(0.9f, 1.0f));
       ~Curve();
 
-      void init();
+      void init(InterpolationMethod im = INTERPOLATE_LERP,
+                Float2 a = Float2(0.0f, 0.0f),
+                Float2 b = Float2(1.0f, 1.0f),
+                Float2 ta = Float2(0.1f, 0.0f),
+                Float2 tb = Float2(0.9f, 1.0f));
       void reset();
 
       void bell_curve_cerp(const float x0, const float x1);

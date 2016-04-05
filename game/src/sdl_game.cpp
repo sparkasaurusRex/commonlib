@@ -392,6 +392,10 @@ void SDLGame::init_sdl()
     cout<<"Initializing OpenGL..."<<endl;
     cout<<"version "<<glGetString(GL_VERSION)<<endl;//major_version<<"."<<minor_version<<endl;
     //cout<<"extensions: "<<endl<<glGetString(GL_EXTENSIONS)<<endl;
+
+    int max_vertex_attribs;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attribs);
+    cout<<"Max Vertex Attribs: "<<max_vertex_attribs<<endl;
   }
 }
 
