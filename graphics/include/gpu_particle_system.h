@@ -213,16 +213,29 @@ namespace Graphics {
   public:
 
     GPUParticleSim();
-
     ~GPUParticleSim();
 
-    void set_shader_directory(const char * shader_dir) { shader_directory = shader_dir;}
+    void set_shader_directory(const char * shader_dir) { shader_directory = shader_dir; }
 
-    void addCurve(const char * fileName, const char * handle);
-    void addCurveVec4(const char * file_name_r, const char * file_name_g, const char * file_name_b, const char * file_name_a, const char * handle);
+    void addCurve(const char *fileName, const char *handle);
+    void addCurveVec4(const char *file_name_r, const char *file_name_g, const char *file_name_b, const char *file_name_a, const char *handle);
 
-
-    void addParticleSystem(int numParticles, float particle_size, ParticleForce * * forces, int numForces, const char * emitter_dir_handle, Float3 emitterLoc, float emitterRadius, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, bool loop, const char * age_handle, const char * color_handle, const char * size_handle, const char * tex_file);
+    void addParticleSystem(int numParticles,
+                           float particle_size,
+                           ParticleForce **forces,
+                           int numForces,
+                           const char *emitter_dir_handle,
+                           Float3 emitterLoc,
+                           float emitterRadius,
+                           float emitterRange,
+                           float emitterStrength,
+                           float emitterDuration,
+                           float lifespan,
+                           bool loop,
+                           const char *age_handle,
+                           const char *color_handle,
+                           const char *size_handle,
+                           const char *tex_file);
 
     void simulate(const float game_time, const float dt);
 
@@ -238,10 +251,8 @@ namespace Graphics {
     std::vector<float>                  rand_data;
     std::vector<const char *>           curve_handles;
 
-    const char * shader_directory;
-
+    const char *shader_directory;
   };
-
 };
 
 #endif //__GPU_PARTICLE_SYSTEM_H__
