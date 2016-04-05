@@ -18,7 +18,6 @@ GPUParticleSystem::GPUParticleSystem(const char * shader_directory)
   start_time = 0;
 
   num_particles = 0;
-
   numAttractors = 0;
 
   pos_fbo[0] = pos_fbo[1] = 0;
@@ -49,10 +48,9 @@ GPUParticleSystem::~GPUParticleSystem()
   deinit();
 }
 
-void GPUParticleSystem::init(float particle_size, Float3 * initial_particle_pos, Float3 * initial_particle_vel, float * age, float * data)
+void GPUParticleSystem::init(float particle_size, Float3 *initial_particle_pos, Float3 *initial_particle_vel, float *age, float *data)
 {
   billboard_size = particle_size;
-
   GLuint pixel_mode = GL_RGBA;
 
   //create textures
@@ -89,10 +87,10 @@ void GPUParticleSystem::init(float particle_size, Float3 * initial_particle_pos,
 
   assert(glIsTexture(data_tex) == GL_TRUE);
 
-  for (int i = 0; i < 2; i++)
+  for(int i = 0; i < 2; i++)
   {
     /* Position Texture */
-    GLfloat * pixels = new GLfloat[num_particles * 4];
+    GLfloat *pixels = new GLfloat[num_particles * 4];
 
     int pixel_idx = 0;
 
@@ -569,9 +567,9 @@ void GPUParticleSystem::render()
 
 
 GPUParticleSim::GPUParticleSim() {
-
   // Populate random texture
-  for (int i = 0; i < DATA_TEXTURE_LENGTH * 4; i++) {
+  for(int i = 0; i < DATA_TEXTURE_LENGTH * 4; i++)
+  {
     rand_data.push_back(random(-1.f, 1.f));
   }
 }
@@ -583,14 +581,19 @@ GPUParticleSim::~GPUParticleSim() {
   pSystems.clear();
 }
 
-void GPUParticleSim::addCurveVec4(const char * file_name_r, const char * file_name_g, const char * file_name_b, const char * file_name_a, const char * handle) {
+void GPUParticleSim::addCurveVec4(const char *file_name_r,
+                                  const char *file_name_g,
+                                  const char *file_name_b,
+                                  const char *file_name_a,
+                                  const char *handle)
+{
+  FILE *file_r = fopen(file_name_r, "rb");
+  FILE *file_g = fopen(file_name_g, "rb");
+  FILE *file_b = fopen(file_name_b, "rb");
+  FILE *file_a = fopen(file_name_a, "rb");
 
-  FILE * file_r = fopen(file_name_r, "rb");
-  FILE * file_g = fopen(file_name_g, "rb");
-  FILE * file_b = fopen(file_name_b, "rb");
-  FILE * file_a = fopen(file_name_a, "rb");
-
-  if (file_r == NULL || file_g == NULL || file_b == NULL || file_a == NULL) {
+  if(file_r == NULL || file_g == NULL || file_b == NULL || file_a == NULL)
+  {
     cout << "Error! No file named " << file_name_r << ".....or one of the other ones.\n";
     exit(0);
     return;
@@ -610,7 +613,8 @@ void GPUParticleSim::addCurveVec4(const char * file_name_r, const char * file_na
 
   curve_handles.push_back(handle);
   float x;
-  for (int i = 0; i < DATA_TEXTURE_LENGTH; i++) {
+  for(int i = 0; i < DATA_TEXTURE_LENGTH; i++)
+  {
     x = (float)i / DATA_TEXTURE_LENGTH;
     rand_data.push_back(curve_r.evaluate(x));
     rand_data.push_back(curve_g.evaluate(x));
@@ -622,14 +626,14 @@ void GPUParticleSim::addCurveVec4(const char * file_name_r, const char * file_na
   fclose(file_g);
   fclose(file_b);
   fclose(file_a);
-
 }
 
-void GPUParticleSim::addCurve(const char * file_name, const char * handle) {
-
+void GPUParticleSim::addCurve(const char * file_name, const char * handle)
+{
   FILE * file = fopen(file_name, "rb");
 
-  if (file_name == NULL) {
+  if(file_name == NULL)
+  {
     cout << "Error! No file named " << file_name << ".\n";
     exit(0);
     return;
@@ -640,7 +644,8 @@ void GPUParticleSim::addCurve(const char * file_name, const char * handle) {
 
   curve_handles.push_back(handle);
 
-  for (int i = 0; i < DATA_TEXTURE_LENGTH * 4; i++) {
+  for (int i = 0; i < DATA_TEXTURE_LENGTH * 4; i++)
+  {
     rand_data.push_back(curve.evaluate((float)i / (DATA_TEXTURE_LENGTH * 4)));
   }
 
@@ -671,8 +676,23 @@ void GPUParticleSim::render() {
   }
 }
 
-void GPUParticleSim::addParticleSystem(int numParticles, float particle_size, ParticleForce * * forces, int numForces, const char * emitter_dir_handle, Float3 emitterLoc, float emitterRadius, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, bool loop, const char * age_handle, const char * color_handle, const char * size_handle, const char * sprite_tex_file) {
-
+void GPUParticleSim::addParticleSystem(int numParticles,
+                                       float particle_size,
+                                       ParticleForce **forces,
+                                       int numForces,
+                                       const char *emitter_dir_handle,
+                                       Float3 emitterLoc,
+                                       float emitterRadius,
+                                       float emitterRange,
+                                       float emitterStrength,
+                                       float emitterDuration,
+                                       float lifespan,
+                                       bool loop,
+                                       const char *age_handle,
+                                       const char *color_handle,
+                                       const char *size_handle,
+                                       const char *sprite_tex_file)
+{
   GPUParticleSystem * ps = new GPUParticleSystem(shader_directory);
 
   Float3 * particle_pos = new Float3[numParticles];
@@ -690,17 +710,17 @@ void GPUParticleSim::addParticleSystem(int numParticles, float particle_size, Pa
   int emitter_dir_id = 0;
   int age_id = 0;
 
-  for (int i = 0; i < curve_handles.size(); i++)
+  for(int i = 0; i < curve_handles.size(); i++)
   {
-    if (curve_handles[i] == color_handle)
+    if(curve_handles[i] == color_handle)
     {
       color_curve_id = i;
     }
-    else if (curve_handles[i] == size_handle)
+    else if(curve_handles[i] == size_handle)
     {
       size_curve_id = i;
     }
-    else if (curve_handles[i] == emitter_dir_handle)
+    else if(curve_handles[i] == emitter_dir_handle)
     {
       emitter_dir_id = i;
     }
@@ -713,12 +733,12 @@ void GPUParticleSim::addParticleSystem(int numParticles, float particle_size, Pa
   ps->set_curve_values(emitter_dir_id, age_id, color_curve_id, size_curve_id, curve_handles.size());
   ps->set_system_values(emitterRadius, emitterStrength, emitterRange, emitterDuration, emitterLoc, numParticles, lifespan, lifespan + emitterDuration, loop, sprite_tex_file);
 
-  for (int i = 0; i < numForces; i++) {
+  for (int i = 0; i < numForces; i++)
+  {
     ps->add_force(forces[i]);
   }
 
   ps->init(particle_size, particle_pos, particle_vel, age, rand_data.data());
-
 
   delete particle_pos;
   delete particle_vel;

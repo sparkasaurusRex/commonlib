@@ -57,8 +57,10 @@ SDLGame::SDLGame(const int w, const int h,
   font = NULL;
 #if defined(__APPLE__)
   font_face = "/Library/Fonts/Andale Mono.ttf";
+  widget_font_face = "/Library/Fonts/Andale Mono.ttf";
 #endif //__APPLE__
-  font_height = 24;
+  font_size = 24;
+  widget_font_size = 12;
 
   pause_menu = NULL;
   if(flags & SDL_GAME_GENERATE_PAUSE_MENU)
@@ -126,11 +128,11 @@ void SDLGame::init()
   }
 
   init_sdl();
-  font = new Font(font_face.c_str(), font_height);
+  font = new Font(font_face.c_str(), font_size);
   font->init();
   title_screen.set_font(font);
 
-  widget_font = new Font(font_face.c_str(), 12);
+  widget_font = new Font(widget_font_face.c_str(), widget_font_size);
   widget_font->init();
 
   fps_label.set_font(widget_font);
@@ -338,6 +340,19 @@ void SDLGame::process_events()
     if(event.type == SDL_QUIT) { quit_app(); }
     if(!console.is_active()) { user_process_event(event); }
   }
+}
+
+
+void SDLGame::set_main_font(std::string font_face_name, unsigned int size)
+{
+  font_face = font_face_name;
+  font_size = size;
+}
+
+void SDLGame::set_widget_font(std::string font_face_name, unsigned int size)
+{
+  widget_font_face = font_face_name;
+  widget_font_size = size;
 }
 
 void SDLGame::screenshot()

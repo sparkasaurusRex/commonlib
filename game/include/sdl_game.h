@@ -58,6 +58,9 @@ public:
 
   void set_pause_menu(UI::Menu *menu) { assert(!(flags & SDL_GAME_GENERATE_PAUSE_MENU)); pause_menu = menu; }
 
+  void set_main_font(std::string font_face_name, unsigned int size);
+  void set_widget_font(std::string font_face_name, unsigned int size);
+
   void begin_video_capture() { recording_movie = true; movie_frame_counter = 0; }
   void end_video_capture() { recording_movie = false; movie_frame_counter = 0; }
 
@@ -90,12 +93,12 @@ protected:
   double last_game_time;
 
   std::string font_face;
-  unsigned int font_height;
-
   Font *font;    //font we want to use for mostly everything
-  DebugConsole console;
+  unsigned int font_size;
 
+  std::string widget_font_face;
   Font *widget_font;
+  unsigned int widget_font_size;
 
   int fps_idx;
   float prev_fps[SDL_GAME_NUM_FPS_FRAMES];
@@ -105,6 +108,7 @@ protected:
 
   UI::Menu *pause_menu;
   FadeScreen title_screen;
+  DebugConsole console;
 
   float sim_lock_dt;
 };

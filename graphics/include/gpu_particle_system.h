@@ -55,25 +55,28 @@ namespace Graphics {
   {
 
   public:
-    GPUParticleSystem(const char * shader_directory);
+    GPUParticleSystem(const char *shader_directory);
     ~GPUParticleSystem();
 
-    void init(float particle_size, Float3 * initial_particle_pos, Float3 * initial_particle_vel, float * age, float * data);
+    void init(float particle_size, Float3 *initial_particle_pos, Float3 *initial_particle_vel, float *age, float *data);
     void deinit();
     void simulate(const float game_time, const float dt);
     void render();
 
     bool should_kill() {return is_dead;}
 
-    void set_render_shader_names(std::string vs, std::string fs) {
+    void set_render_shader_names(std::string vs, std::string fs)
+    {
       update_pos_shader_names[0] = vs;
       update_pos_shader_names[1] = fs;
     }
-    void set_update_pos_shader_names(std::string vs, std::string fs) {
+    void set_update_pos_shader_names(std::string vs, std::string fs)
+    {
       update_vel_shader_names[0] = vs;
       update_vel_shader_names[1] = fs;
     }
-    void set_update_vel_shader_names(std::string vs, std::string fs)  {
+    void set_update_vel_shader_names(std::string vs, std::string fs)
+    {
       render_shader_names[0] = vs;
       render_shader_names[1] = fs;
     }
@@ -91,7 +94,8 @@ namespace Graphics {
       }
     }
 
-    void set_curve_values(int e_dir_id, int a_id, int color_id, int size_id, int num_curves) {
+    void set_curve_values(int e_dir_id, int a_id, int color_id, int size_id, int num_curves)
+    {
       data_tex_height = num_curves + 1;
       color_curve_id = color_id + 1;
       size_curve_id = size_id + 1;
@@ -153,15 +157,10 @@ namespace Graphics {
     std::vector<ParticleForce *> forces;
 
     int numAttractors;
-
     float billboard_size;
-
     bool does_loop;
-
     bool is_dead;
-
     float start_time;
-
     Float3 emitterLocation;
 
     float emitter_range, emitter_strength, emitter_radius, emitter_duration;
@@ -189,14 +188,13 @@ namespace Graphics {
 
     GLuint data_tex;
 
-    Texture * sprite;
+    Texture *sprite;
 
     GLuint vbo;
     GLuint ibo;
 
-    ParticleVert * verts;
-
-    unsigned int * indices;
+    ParticleVert *verts;
+    unsigned int *indices;
 
     GLuint fbo_vbo;
     GLuint fbo_ibo;
@@ -218,7 +216,7 @@ namespace Graphics {
 
     ~GPUParticleSim();
 
-    void set_shader_directory(const char * shader_dir) {shader_directory = shader_dir;}
+    void set_shader_directory(const char * shader_dir) { shader_directory = shader_dir;}
 
     void addCurve(const char * fileName, const char * handle);
     void addCurveVec4(const char * file_name_r, const char * file_name_g, const char * file_name_b, const char * file_name_a, const char * handle);
@@ -236,11 +234,9 @@ namespace Graphics {
 
   private:
 
-    std::vector<GPUParticleSystem *> pSystems;
-
-    std::vector<float> rand_data;
-
-    std::vector<const char *> curve_handles;
+    std::vector<GPUParticleSystem *>    pSystems;
+    std::vector<float>                  rand_data;
+    std::vector<const char *>           curve_handles;
 
     const char * shader_directory;
 

@@ -314,7 +314,7 @@ private:
     gpu_particle_sim.addCurve("Curves/always_one.curve", "size");
     gpu_particle_sim.addCurve("Curves/linear.curve", "age");
 
-    ParticleForce * * forces = new ParticleForce*[2];
+    ParticleForce **forces = new ParticleForce*[2];
 
     forces[0] = new Attractor(Float3(0.3f, -1.f, 0.f), 0.03f);
     forces[1] = new Attractor(Float3(-0.05f, 0.2f, 0.f), 0.04f);
@@ -376,8 +376,7 @@ private:
   void hair_init()
   {
     int num_hairs = 10000;
-    //TODO: move this out of the GPUHairSim class, so we can start w/ any hair
-    //      distribution the user wants
+
     Float3 *hair_pos = new Float3[num_hairs];
     Float3 *hair_uvs = new Float3[num_hairs];
     for(int i = 0; i < num_hairs; i++)
