@@ -413,7 +413,7 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
 
   //glClearColor(0.f, 0.f, 0.f, 0.f);
   //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glDisable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -482,17 +482,16 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   tmp = pos_fbo[0];
   pos_fbo[0] = pos_fbo[1];
   pos_fbo[1] = tmp;
-
 }
 
 void GPUParticleSystem::simulate(const float game_time, const float dt)
 {
-
   if (start_time == 0) {
     //Initialize start_time
     start_time = game_time;
   }
-  if (!does_loop && (game_time - start_time) / 1000.f > system_duration) {
+  if (!does_loop && (game_time - start_time) / 1000.f > system_duration)
+  {
     is_dead = true;
   }
 
@@ -505,7 +504,6 @@ void GPUParticleSystem::render()
   glDisable(GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_LIGHTING);
-
 
   glDepthMask(GL_FALSE);
 
@@ -585,10 +583,10 @@ GPUParticleSim::GPUParticleSim() {
 }
 
 GPUParticleSim::~GPUParticleSim() {
-  for (int i = 0; i < pSystems.size(); i++) {
-    delete pSystems[i];
+  for (int i = 0; i < particle_systems.size(); i++) {
+    delete particle_systems[i];
   }
-  pSystems.clear();
+  particle_systems.clear();
 }
 
 void GPUParticleSim::addCurveVec4(const char *file_name_r,
@@ -664,13 +662,13 @@ void GPUParticleSim::addCurve(const char * file_name, const char * handle)
 
 void GPUParticleSim::simulate(const float game_time, const float dt) {
 
-  std::vector<GPUParticleSystem *>::iterator iter = pSystems.begin();
+  std::vector<GPUParticleSystem *>::iterator iter = particle_systems.begin();
 
-  while (iter != pSystems.end())
+  while (iter != particle_systems.end())
   {
     if ((*iter)->should_kill())
     {
-      iter = pSystems.erase(iter);
+      iter = particle_systems.erase(iter);
     }
     else
     {
@@ -681,8 +679,8 @@ void GPUParticleSim::simulate(const float game_time, const float dt) {
 }
 
 void GPUParticleSim::render() {
-  for (int i = 0; i < pSystems.size(); i++) {
-    pSystems[i]->render();
+  for (int i = 0; i < particle_systems.size(); i++) {
+    particle_systems[i]->render();
   }
 }
 
@@ -703,13 +701,14 @@ void GPUParticleSim::addParticleSystem(int numParticles,
                                        const char *size_handle,
                                        const char *sprite_tex_file)
 {
-  GPUParticleSystem * ps = new GPUParticleSystem(shader_directory);
+  GPUParticleSystem *ps = new GPUParticleSystem(shader_directory);
 
-  Float3 * particle_pos = new Float3[numParticles];
-  Float3 * particle_vel = new Float3[numParticles];
-  float * age = new float[numParticles];
+  Float3 *particle_pos = new Float3[numParticles];
+  Float3 *particle_vel = new Float3[numParticles];
+  float *age = new float[numParticles];
 
-  for (int i = 0; i < numParticles; i++) {
+  for (int i = 0; i < numParticles; i++)
+  {
     particle_pos[i] = Float3(0, 0, 0);
     particle_vel[i] = Float3(0, 0, 0);
     age[i] = -1;
@@ -754,5 +753,5 @@ void GPUParticleSim::addParticleSystem(int numParticles,
   delete particle_vel;
   delete age;
 
-  pSystems.push_back(ps);
+  particle_systems.push_back(ps);
 }

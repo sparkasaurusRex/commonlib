@@ -20,12 +20,12 @@
 #define DATA_TEXTURE_LENGTH 10000
 
 
-namespace Graphics {
+namespace Graphics
+{
 
-  enum ParticleForceType {
-
+  enum ParticleForceType
+  {
     ATTRACTOR,
-
     EMPTY
   };
 
@@ -33,17 +33,18 @@ namespace Graphics {
   {
   public:
     ParticleForce(int fType) : forceType(fType) {}
-    int getForceType() {return forceType;}
+    int getForceType() { return forceType; }
 
   private:
     int forceType;
   };
 
-  class Attractor : public ParticleForce {
+  class Attractor : public ParticleForce
+  {
   public:
     Attractor(Float3 loc, float s) : ParticleForce(ATTRACTOR), location(loc), strength(s) {}
-    virtual Float3 getLocation() {return location;}
-    virtual float getStrength() {return strength;}
+    virtual Float3 getLocation() { return location; }
+    virtual float getStrength() { return strength; }
 
   private:
     Float3 location;
@@ -127,6 +128,8 @@ namespace Graphics {
       sprite->load();
     }
 
+    void update_emitter_location(const Math::Float3 &new_pos) { emitterLocation = new_pos; }
+
   private:
 
     enum ParticleSystemUniforms
@@ -166,12 +169,12 @@ namespace Graphics {
 
     std::vector<ParticleForce *> forces;
 
-    int numAttractors;
-    float billboard_size;
-    bool does_loop;
-    bool is_dead;
-    float start_time;
-    Float3 emitterLocation;
+    int         numAttractors;
+    float       billboard_size;
+    bool        does_loop;
+    bool        is_dead;
+    float       start_time;
+    Float3      emitterLocation;
 
     float emitter_range, emitter_strength, emitter_radius, emitter_duration;
     int color_curve_id, size_curve_id, emitter_dir_id, age_curve_id;
@@ -251,13 +254,15 @@ namespace Graphics {
 
     void render();
 
-    GLuint get_pos_tex(const int i) { return pSystems[i]->get_pos_tex(1); }
-    GLuint get_vel_tex(const int i) { return pSystems[i]->get_vel_tex(1); }
-    GLuint get_data_tex() { return pSystems[0]->get_data_tex(); }
+    GLuint get_pos_tex(const int i) { return particle_systems[i]->get_pos_tex(1); }
+    GLuint get_vel_tex(const int i) { return particle_systems[i]->get_vel_tex(1); }
+    GLuint get_data_tex() { return particle_systems[0]->get_data_tex(); }
+
+    GPUParticleSystem *get_particle_system_by_index(const unsigned int idx) { return particle_systems[idx]; }
 
   private:
 
-    std::vector<GPUParticleSystem *>    pSystems;
+    std::vector<GPUParticleSystem *>    particle_systems;
     std::vector<float>                  rand_data;
     std::vector<const char *>           curve_handles;
 
