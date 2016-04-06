@@ -103,7 +103,17 @@ namespace Graphics {
       age_curve_id = a_id + 1;
     }
 
-    void set_system_values(float eRadius, float eStrength, float eRange, float eDur, Float3 eLoc, int numP, float life, float dur, bool loop, const char * sprite_tex_file) {
+    void set_system_values(float eRadius,
+                           float eStrength,
+                           float eRange,
+                           float eDur,
+                           Float3 eLoc,
+                           int numP,
+                           float life,
+                           float dur,
+                           bool loop,
+                           const char *sprite_tex_file)
+    {
       emitter_radius = eRadius;
       emitter_strength = eStrength;
       emitter_range = eRange;

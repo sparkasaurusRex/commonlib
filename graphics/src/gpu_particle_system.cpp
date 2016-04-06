@@ -12,7 +12,7 @@ using namespace Graphics;
 
 GPUParticleSystem::GPUParticleSystem(const char * shader_directory)
 {
-  billboard_size = 0.025f;
+  billboard_size = 0.25f;
   does_loop = false;
   is_dead = false;
   start_time = 0;
@@ -503,14 +503,21 @@ void GPUParticleSystem::simulate(const float game_time, const float dt)
 void GPUParticleSystem::render()
 {
   glDisable(GL_CULL_FACE);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_LIGHTING);
+
+
+  glDepthMask(GL_FALSE);
 
   //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+  glDisable(GL_ALPHA_TEST);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
   render_mat.render_gl();
 
-  //constants
-  //{lifespan, color_curve_id, size_curve_id, data_tex_height}
+  // constants
+  // { lifespan, color_curve_id, size_curve_id, data_tex_height }
   const int num_constants = 4;
   GLfloat constants[num_constants] = {particleLifespan, color_curve_id, size_curve_id, data_tex_height};
   glUniform1fv(uniform_locations[UNIFORM_RENDER_CONSTANTS], num_constants, constants);
@@ -563,6 +570,9 @@ void GPUParticleSystem::render()
 
   glClientActiveTexture(GL_TEXTURE0);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthMask(GL_TRUE);
 }
 
 
