@@ -58,6 +58,7 @@ namespace Tool
                                               Math::Float2 vox_range_r,
                                               Math::Float2 vox_range_g,
                                               Math::Float2 vox_range_b,
+                                              bool convert_to_tangent_space,
                                               float radius,
                                               int tex_width,
                                               int tex_height,

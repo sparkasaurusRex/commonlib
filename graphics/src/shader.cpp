@@ -14,6 +14,7 @@
 #include "shader.h"
 
 using namespace std;
+using namespace Graphics;
 
 Shader::Shader()
 {

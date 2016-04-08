@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "math_utility.h"
+#include "matrix.h"
 #include "minilzo.h"
 #include "bphys_baker.h"
 
@@ -140,13 +141,13 @@ void BPhysBaker::read_smoke_data(FILE *f)
   std::string fname = "shadow" + out_fname + ".tga";
   ptcache_file_compressed_read((unsigned char *)shadow_voxels, out_len, f); //shadow
   Float2 shadow_range(0.0f, 1.0f);
-  splat_voxel_data_onto_sphere_surface(res, shadow_range, shadow_range, shadow_range, sphere_radius, img_res[0], img_res[1], fname, shadow_voxels);
+  splat_voxel_data_onto_sphere_surface(res, shadow_range, shadow_range, shadow_range, false, sphere_radius, img_res[0], img_res[1], fname, shadow_voxels);
 
   cout<<"reading density voxels..."<<endl;
   fname = "density" + out_fname + ".tga";
   ptcache_file_compressed_read((unsigned char *)density_voxels, out_len, f); //density
   Float2 density_range(0.0f, 1.0f);
-  splat_voxel_data_onto_sphere_surface(res, density_range, density_range, density_range, sphere_radius, img_res[0], img_res[1], fname, density_voxels);
+  splat_voxel_data_onto_sphere_surface(res, density_range, density_range, density_range, false, sphere_radius, img_res[0], img_res[1], fname, density_voxels);
 
   if(fluid_fields & SM_ACTIVE_HEAT)
   {
@@ -159,7 +160,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
     Float2 heat_range(0.0f, 2.0f);
     Float2 heat_old_range(0.0f, 2.0f);
     fname = "heat" + out_fname + ".tga";
-    splat_voxel_data_onto_sphere_surface(res, heat_range, heat_old_range, heat_range, sphere_radius, img_res[0], img_res[1], fname, heat_voxels, heat_old_voxels);
+    splat_voxel_data_onto_sphere_surface(res, heat_range, heat_old_range, heat_range, false, sphere_radius, img_res[0], img_res[1], fname, heat_voxels, heat_old_voxels);
   }
   if(fluid_fields & SM_ACTIVE_FIRE)
   {
@@ -175,7 +176,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
     Float2 fuel_range(0.0f, 0.05f);
     Float2 react_range(0.0f, 0.1f);
     fname = "flame" + out_fname + ".tga";
-    splat_voxel_data_onto_sphere_surface(res, flame_range, fuel_range, react_range, sphere_radius, img_res[0], img_res[1], fname, flame_voxels, fuel_voxels, react_voxels);
+    splat_voxel_data_onto_sphere_surface(res, flame_range, fuel_range, react_range, false, sphere_radius, img_res[0], img_res[1], fname, flame_voxels, fuel_voxels, react_voxels);
   }
   if(fluid_fields & SM_ACTIVE_COLORS)
   {
@@ -196,9 +197,11 @@ void BPhysBaker::read_smoke_data(FILE *f)
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_y, out_len, f); //vy
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_z, out_len, f); //vz
 
-  Float2 vel_range(-3.0f, 3.0f);
-  fname = "vel" + out_fname + ".tga";
-  splat_voxel_data_onto_sphere_surface(res, vel_range, vel_range, vel_range, sphere_radius, img_res[0], img_res[1], fname, velocity_voxels_x, velocity_voxels_y, velocity_voxels_z);
+  Float2 vel_range(-1.0f, 1.0f);
+  fname = "vel_tan" + out_fname + ".tga";
+  splat_voxel_data_onto_sphere_surface(res, vel_range, vel_range, vel_range, true, sphere_radius, img_res[0], img_res[1], fname, velocity_voxels_x, velocity_voxels_y, velocity_voxels_z);
+  fname = "vel_raw" + out_fname + ".tga";
+  splat_voxel_data_onto_sphere_surface(res, vel_range, vel_range, vel_range, false, sphere_radius, img_res[0], img_res[1], fname, velocity_voxels_x, velocity_voxels_y, velocity_voxels_z);
 
   if(shadow_voxels)     { delete shadow_voxels; }
   if(density_voxels)    { delete density_voxels; }
@@ -313,6 +316,7 @@ void BPhysBaker::splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
                                                       Float2 vox_range_r,
                                                       Float2 vox_range_g,
                                                       Float2 vox_range_b,
+                                                      bool convert_to_tangent_space,
                                                       float radius,
                                                       int tex_width,
                                                       int tex_height,
@@ -345,21 +349,38 @@ void BPhysBaker::splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
       cartesian = remap_range(cartesian, old_min, old_max, new_min, new_max);
 
       Float3 voxel;
-      float val = sample_voxel(voxels_r, vox_dim, cartesian);
-      voxel[0] = remap_range(val, vox_range_r[0], vox_range_r[1], 0.0f, 1.0f);
+      voxel[0] = sample_voxel(voxels_r, vox_dim, cartesian);
+      //voxel[0] = remap_range(val, vox_range_r[0], vox_range_r[1], 0.0f, 1.0f);
 
       if(voxels_g)
       {
-        val = sample_voxel(voxels_g, vox_dim, cartesian);
-        voxel[1] = remap_range(val, vox_range_g[0], vox_range_g[1], 0.0f, 1.0f);
+        voxel[1] = sample_voxel(voxels_g, vox_dim, cartesian);
+        //voxel[1] = remap_range(val, vox_range_g[0], vox_range_g[1], 0.0f, 1.0f);
       }
       else { voxel[1] = voxel[0]; }
       if(voxels_b)
       {
-        val = sample_voxel(voxels_b, vox_dim, cartesian);
-        voxel[2] = remap_range(val, vox_range_b[0], vox_range_b[1], 0.0f, 1.0f);
+        voxel[2] = sample_voxel(voxels_b, vox_dim, cartesian);
+        //voxel[2] = remap_range(val, vox_range_b[0], vox_range_b[1], 0.0f, 1.0f);
       }
       else { voxel[2] = voxel[0]; }
+
+      if(convert_to_tangent_space)
+      {
+        Float3 normal = cartesian;
+        Float3 tangent = normal ^ Float3(0.0f, 1.0f, 0.0f);
+        Float3 bitangent = tangent ^ normal;
+        normal.normalize();
+        tangent.normalize();
+        bitangent.normalize();
+        Matrix3x3 tan_mat(tangent, bitangent, normal);
+
+        voxel = tan_mat * voxel;
+      }
+
+      voxel[0] = remap_range(voxel[0], vox_range_r[0], vox_range_r[1], 0.0f, 1.0f);
+      voxel[1] = remap_range(voxel[1], vox_range_g[0], vox_range_g[1], 0.0f, 1.0f);
+      voxel[2] = remap_range(voxel[2], vox_range_b[0], vox_range_b[1], 0.0f, 1.0f);
 
       int idx = ((tex_width * j) + i) * num_channels;
       float r = voxel[0];
