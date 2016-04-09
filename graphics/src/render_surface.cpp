@@ -10,6 +10,7 @@
 
 using namespace std;
 using namespace Graphics;
+using namespace Math;
 
 RenderSurface::RenderSurface(const int w, const int h)
 {

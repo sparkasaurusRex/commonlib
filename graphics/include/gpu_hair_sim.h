@@ -51,7 +51,7 @@ namespace Graphics {
     GPUHairSim();
     ~GPUHairSim();
 
-    void init(Float3 *hair_pos, Float3 *hair_uvs);
+    void init(Math::Float3 *hair_pos, Math::Float3 *hair_uvs);
     void deinit();
     void simulate(const float game_time, const float dt);
     void render();
@@ -69,7 +69,7 @@ namespace Graphics {
     GLuint get_uv_tex() { return uv_tex; }
 
     void update_forces(const GLfloat *force_data);
-    void update_lighting(Float3 sun_pos, Float3 sun_diff, Float3 sun_spec, Float3 ambient, float cam_dist);
+    void update_lighting(Math::Float3 sun_pos, Math::Float3 sun_diff, Math::Float3 sun_spec, Math::Float3 ambient, float cam_dist);
 
     void set_render_shader_names(std::string vs, std::string fs);
     void set_simulation_shader_names(std::string vs, std::string fs);
@@ -89,16 +89,16 @@ namespace Graphics {
     int           force_tex_dim[2];
 
     Texture       *color_tex;
-    Float3        col_a;
-    Float3        col_b;
+    Math::Float3  col_a;
+    Math::Float3  col_b;
 
     Material      render_mat;
     Material      sim_mat;
 
-    Float3        sun_pos_xyz;
-    Float3        sun_diff_rgb;
-    Float3        sun_spec_rgb;
-    Float3        ambient_rgb;
+    Math::Float3        sun_pos_xyz;
+    Math::Float3        sun_diff_rgb;
+    Math::Float3        sun_spec_rgb;
+    Math::Float3        ambient_rgb;
     float         cam_distance;
 
     //vertex and index buffers for the geo
@@ -112,7 +112,7 @@ namespace Graphics {
     //vertex and index buffers for the FBOs
     GLuint        fbo_vbo;
     GLuint        fbo_ibo;
-    FBOHairVert       fbo_verts[4];
+    FBOHairVert   fbo_verts[4];
     int           num_fbo_verts;
     unsigned int  fbo_indices[4];
     int           num_fbo_indices;

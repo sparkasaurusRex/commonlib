@@ -7,6 +7,7 @@
 
 using namespace std;
 using namespace Graphics;
+using namespace Math;
 
 Material::Material()
 {

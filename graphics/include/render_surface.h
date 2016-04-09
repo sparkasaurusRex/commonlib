@@ -66,8 +66,8 @@ namespace Graphics
     //TODO: clean all this uniform BS up
     std::vector<Math::Float2> f2_uni_const;
 
-    std::vector<std::pair<Float2 *, std::string> > uniforms;
-    std::vector<std::pair<Float3, std::string> > float3_uniforms;
+    std::vector<std::pair<Math::Float2 *, std::string> > uniforms;
+    std::vector<std::pair<Math::Float3, std::string> > float3_uniforms;
     std::vector<std::pair<GLuint, std::string> > tex_uniforms;
   };
 };

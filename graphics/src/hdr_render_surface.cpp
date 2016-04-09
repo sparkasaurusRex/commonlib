@@ -2,6 +2,7 @@
 
 using namespace std;
 using namespace Graphics;
+using namespace Math;
 
 HDRRenderSurface::HDRRenderSurface(const int w, const int h) : RenderSurface(w, h)
 {

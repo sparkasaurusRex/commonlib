@@ -11,9 +11,6 @@
 
 #include "math_utility.h"
 #include "shader.h"
-//#include "texture.h"
-
-using namespace Math;
 
 namespace Graphics {
   class Material {
@@ -31,9 +28,9 @@ namespace Graphics {
 
       void set_blend_mode(const GLenum src, const GLenum dst);
       void set_alpha(const float a);
-      void set_diff_rgb(const Float3 rgb);
-      void set_spec_rgb(const Float3 rgb);
-      void set_emit_rgb(const Float3 rgb);
+      void set_diff_rgb(const Math::Float3 rgb);
+      void set_spec_rgb(const Math::Float3 rgb);
+      void set_emit_rgb(const Math::Float3 rgb);
 
       void render_gl() const;
 
@@ -48,9 +45,9 @@ namespace Graphics {
 
       float alpha;
 
-      Float3 diff_rgb;
-      Float3 spec_rgb;
-      Float3 emit_rgb;
+      Math::Float3 diff_rgb;
+      Math::Float3 spec_rgb;
+      Math::Float3 emit_rgb;
 
       //std::vector<Texture *> textures;
       std::vector<int> texture_ids;

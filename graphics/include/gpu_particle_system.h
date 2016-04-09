@@ -19,10 +19,8 @@
 #define MAX_AGE 100.f
 #define DATA_TEXTURE_LENGTH 10000
 
-
 namespace Graphics
 {
-
   enum ParticleForceType
   {
     ATTRACTOR,
@@ -42,15 +40,14 @@ namespace Graphics
   class Attractor : public ParticleForce
   {
   public:
-    Attractor(Float3 loc, float s) : ParticleForce(ATTRACTOR), location(loc), strength(s) {}
-    virtual Float3 getLocation() { return location; }
+    Attractor(Math::Float3 loc, float s) : ParticleForce(ATTRACTOR), location(loc), strength(s) {}
+    virtual Math::Float3 getLocation() { return location; }
     virtual float getStrength() { return strength; }
 
   private:
-    Float3 location;
+    Math::Float3 location;
     float strength;
   };
-
 
   class GPUParticleSystem
   {
@@ -59,7 +56,7 @@ namespace Graphics
     GPUParticleSystem(const char *shader_directory);
     ~GPUParticleSystem();
 
-    void init(float particle_size, Float3 *initial_particle_pos, Float3 *initial_particle_vel, float *age, float *data);
+    void init(float particle_size, Math::Float3 *initial_particle_pos, Math::Float3 *initial_particle_vel, float *age, float *data);
     void deinit();
     void simulate(const float game_time, const float dt);
     void render();
@@ -108,7 +105,7 @@ namespace Graphics
                            float eStrength,
                            float eRange,
                            float eDur,
-                           Float3 eLoc,
+                           Math::Float3 eLoc,
                            int numP,
                            float life,
                            float dur,
@@ -174,10 +171,17 @@ namespace Graphics
     bool        does_loop;
     bool        is_dead;
     float       start_time;
-    Float3      emitterLocation;
+    Math::Float3      emitterLocation;
 
-    float emitter_range, emitter_strength, emitter_radius, emitter_duration;
-    int color_curve_id, size_curve_id, emitter_dir_id, age_curve_id;
+    float emitter_range;
+    float emitter_strength;
+    float emitter_radius;
+    float emitter_duration;
+
+    int color_curve_id;
+    int size_curve_id;
+    int emitter_dir_id;
+    int age_curve_id;
     int data_tex_height;
 
     float particleLifespan;
@@ -231,14 +235,18 @@ namespace Graphics
     void set_shader_directory(const char * shader_dir) { shader_directory = shader_dir; }
 
     void addCurve(const char *fileName, const char *handle);
-    void addCurveVec4(const char *file_name_r, const char *file_name_g, const char *file_name_b, const char *file_name_a, const char *handle);
+    void addCurveVec4(const char *file_name_r,
+                      const char *file_name_g,
+                      const char *file_name_b,
+                      const char *file_name_a,
+                      const char *handle);
 
     void addParticleSystem(int numParticles,
                            float particle_size,
                            ParticleForce **forces,
                            int numForces,
                            const char *emitter_dir_handle,
-                           Float3 emitterLoc,
+                           Math::Float3 emitterLoc,
                            float emitterRadius,
                            float emitterRange,
                            float emitterStrength,

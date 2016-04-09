@@ -11,6 +11,7 @@
 using namespace Graphics;
 using namespace PerlinNoise;
 using namespace std;
+using namespace Math;
 
 enum RenderMode
 {
