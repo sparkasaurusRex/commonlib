@@ -12,12 +12,12 @@ namespace Graphics
 
   typedef struct
   {
-      int hash_id;
-      char file_name[256];
-      int dim[2];
+    int hash_id;
+    char file_name[256];
+    int dim[2];
 
-      int img_size;
-      unsigned char *image;
+    int img_size;
+    unsigned char *image;
   } TextureFileData;
 
   class Texture
@@ -33,6 +33,7 @@ namespace Graphics
     void set_dim(const int w, const int h) { dim[0] = w; dim[1] = h; }
     GLuint get_pixel_mode() { return gl_mode; }
     void set_pixel_mode(GLuint m) { gl_mode = m; }
+    void set_wrap_mode(GLuint u, GLuint v) { wrap_mode[0] = u; wrap_mode[1] = v; }
 
     void init();
 
@@ -45,8 +46,9 @@ namespace Graphics
   private:
     int       dim[2];          //dimensions of the texture
     char      fname[256];      //filename
-    GLuint    gl_texture;    //OpenGL texture name
-    GLuint    gl_mode;      //image format
+    GLuint    gl_texture;      //OpenGL texture name
+    GLuint    gl_mode;         //image format
+    GLuint    wrap_mode[2];
   };
 };
 

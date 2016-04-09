@@ -15,11 +15,14 @@ namespace Graphics
     void set_surfaces(RenderSurface *_a, RenderSurface *_b, RenderSurface *_c, RenderSurface *_d);
     void set_shader_names(std::string vs, std::string fs);
 
+    void set_lut_texture(Texture *lt) { lut = lt; }
+    void set_vignette_texture(Texture *vt) { vignette = vt; }
+
     void init();
     void deinit();
     void render();
 
-    Graphics::Texture *foo_a, *foo_b;
+    //Graphics::Texture *foo_a, *foo_b;
 
   private:
     RenderSurface *a, *b, *c, *d;
@@ -33,6 +36,8 @@ namespace Graphics
     GLuint                 ibo;
 
     Material               mat;
+    Texture                *lut;
+    Texture                *vignette;
   };
 };
 

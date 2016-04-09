@@ -37,6 +37,9 @@ RenderSurfaceCombiner::RenderSurfaceCombiner()
 
  vbo = 0;
  ibo = 0;
+
+ lut = NULL;
+ vignette = NULL;
 }
 
 RenderSurfaceCombiner::~RenderSurfaceCombiner()
@@ -95,7 +98,6 @@ void RenderSurfaceCombiner::render()
 
   mat.render_gl();
 
-
   GLint aloc = glGetUniformLocation(shader->gl_shader_program, "tex_a");
   glUniform1i(aloc, 0);
   GLint bloc = glGetUniformLocation(shader->gl_shader_program, "tex_b");
@@ -106,24 +108,42 @@ void RenderSurfaceCombiner::render()
   glUniform1i(dloc, 3);
 
   glActiveTexture(GL_TEXTURE0);
-  glClientActiveTexture(GL_TEXTURE0);
+  //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, a->get_tex());
 
   glActiveTexture(GL_TEXTURE1);
-  glClientActiveTexture(GL_TEXTURE1);
+  //glClientActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, b->get_tex());
 
   glActiveTexture(GL_TEXTURE2);
-  glClientActiveTexture(GL_TEXTURE2);
+  //glClientActiveTexture(GL_TEXTURE2);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, c->get_tex());
 
   glActiveTexture(GL_TEXTURE3);
-  glClientActiveTexture(GL_TEXTURE3);
+  //glClientActiveTexture(GL_TEXTURE3);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, d->get_tex());
+
+  if(lut)
+  {
+    GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "lut_tex");
+    glUniform1i(tex_loc, 4);
+    glActiveTexture(GL_TEXTURE4);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, lut->get_tex_id());
+  }
+
+  if(vignette)
+  {
+    GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "vignette_tex");
+    glUniform1i(tex_loc, 5);
+    glActiveTexture(GL_TEXTURE5);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, vignette->get_tex_id());
+  }
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -138,22 +158,26 @@ void RenderSurfaceCombiner::render()
   //reset shader
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE0);
-  glClientActiveTexture(GL_TEXTURE0);
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
 
   glActiveTexture(GL_TEXTURE1);
-  glClientActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
 
   glActiveTexture(GL_TEXTURE2);
-  glClientActiveTexture(GL_TEXTURE2);
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
 
   glActiveTexture(GL_TEXTURE3);
-  glClientActiveTexture(GL_TEXTURE3);
+  glDisable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  glActiveTexture(GL_TEXTURE4);
+  glDisable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, 0);
+
+  glActiveTexture(GL_TEXTURE5);
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
 }

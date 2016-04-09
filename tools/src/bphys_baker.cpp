@@ -197,7 +197,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_y, out_len, f); //vy
   ptcache_file_compressed_read((unsigned char *)velocity_voxels_z, out_len, f); //vz
 
-  Float2 vel_range(-1.0f, 1.0f);
+  Float2 vel_range(-2.0f, 2.0f);
   fname = "vel_tan" + out_fname + ".tga";
   splat_voxel_data_onto_sphere_surface(res, vel_range, vel_range, vel_range, true, sphere_radius, img_res[0], img_res[1], fname, velocity_voxels_x, velocity_voxels_y, velocity_voxels_z);
   fname = "vel_raw" + out_fname + ".tga";
@@ -350,19 +350,9 @@ void BPhysBaker::splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
 
       Float3 voxel;
       voxel[0] = sample_voxel(voxels_r, vox_dim, cartesian);
-      //voxel[0] = remap_range(val, vox_range_r[0], vox_range_r[1], 0.0f, 1.0f);
-
-      if(voxels_g)
-      {
-        voxel[1] = sample_voxel(voxels_g, vox_dim, cartesian);
-        //voxel[1] = remap_range(val, vox_range_g[0], vox_range_g[1], 0.0f, 1.0f);
-      }
+      if(voxels_g) { voxel[1] = sample_voxel(voxels_g, vox_dim, cartesian); }
       else { voxel[1] = voxel[0]; }
-      if(voxels_b)
-      {
-        voxel[2] = sample_voxel(voxels_b, vox_dim, cartesian);
-        //voxel[2] = remap_range(val, vox_range_b[0], vox_range_b[1], 0.0f, 1.0f);
-      }
+      if(voxels_b) { voxel[2] = sample_voxel(voxels_b, vox_dim, cartesian); }
       else { voxel[2] = voxel[0]; }
 
       if(convert_to_tangent_space)
