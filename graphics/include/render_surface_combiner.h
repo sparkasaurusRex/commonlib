@@ -12,6 +12,8 @@ namespace Graphics
     RenderSurfaceCombiner();
     ~RenderSurfaceCombiner();
 
+    void set_fbo_res(const int w, const int h) { fbo_res[0] = w; fbo_res[1] = h; }
+
     void set_surfaces(RenderSurface *_a, RenderSurface *_b, RenderSurface *_c, RenderSurface *_d);
     void set_shader_names(std::string vs, std::string fs);
 
@@ -28,6 +30,8 @@ namespace Graphics
     RenderSurface *a, *b, *c, *d;
     std::string vertex_shader_name;
     std::string fragment_shader_name;
+
+    int                    fbo_res[2];
 
     //quad data
     unsigned int           index_data[4];

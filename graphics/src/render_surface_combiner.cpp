@@ -107,23 +107,22 @@ void RenderSurfaceCombiner::render()
   GLint dloc = glGetUniformLocation(shader->gl_shader_program, "tex_d");
   glUniform1i(dloc, 3);
 
+  GLint texel_size_loc = glGetUniformLocation(shader->gl_shader_program, "texel_size");
+  glUniform2f(texel_size_loc, 1.0f / (float)fbo_res[0], 1.0f / (float)fbo_res[1]);
+
   glActiveTexture(GL_TEXTURE0);
-  //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, a->get_tex());
 
   glActiveTexture(GL_TEXTURE1);
-  //glClientActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, b->get_tex());
 
   glActiveTexture(GL_TEXTURE2);
-  //glClientActiveTexture(GL_TEXTURE2);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, c->get_tex());
 
   glActiveTexture(GL_TEXTURE3);
-  //glClientActiveTexture(GL_TEXTURE3);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, d->get_tex());
 
