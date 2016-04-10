@@ -21,7 +21,7 @@ namespace Graphics
     int get_num_segments() const { return num_segments; }
 
     void set_material(Graphics::Material *m) { mat = m; }
-    void set_textures(Graphics::Texture *a, Graphics::Texture *b) { tex_a = a; tex_b = b; }
+    void set_textures(Graphics::Texture2D *a, Graphics::Texture2D *b) { tex_a = a; tex_b = b; }
   private:
 
     //These two curves multiply by each other to determine the height of each
@@ -30,7 +30,7 @@ namespace Graphics
     Math::Curve profile_b;
 
     Material *mat;
-    Texture *tex_a, *tex_b;
+    Texture2D *tex_a, *tex_b;
 
     GLuint vbo, ibo;
 

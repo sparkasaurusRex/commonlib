@@ -59,7 +59,7 @@ namespace Graphics {
     //only allowed to call these *before* init!!!
     void set_num_hairs(const int h) { num_hairs = h; }
     void set_num_segments(const int s) { num_segments = s; }
-    void set_color_tex(Texture *t) { color_tex = t; }
+    void set_color_tex(Texture2D *t) { color_tex = t; }
     void set_force_tex_dim(const int w, const int h) { force_tex_dim[0] = w; force_tex_dim[1] = h; }
 
     int get_num_hairs() const { return num_hairs; }
@@ -88,7 +88,7 @@ namespace Graphics {
     GLuint        force_tex;
     int           force_tex_dim[2];
 
-    Texture       *color_tex;
+    Texture2D     *color_tex;
     Math::Float3  col_a;
     Math::Float3  col_b;
 

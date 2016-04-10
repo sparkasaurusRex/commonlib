@@ -44,7 +44,7 @@ public:
   void set_linger_seconds(const float ls) { linger_timer.set(ls); }
 
   void set_text(std::string t) { text = t; }
-  void set_backdrop_texture(Graphics::Texture *tex) { backdrop_texture = tex; }
+  void set_backdrop_texture(Graphics::Texture2D *tex) { backdrop_texture = tex; }
 private:
   Font *font;
 
@@ -54,7 +54,7 @@ private:
 
   float fade_opacity;
   std::string text;
-  Graphics::Texture *backdrop_texture;
+  Graphics::Texture2D *backdrop_texture;
 };
 
 #endif //__FADE_SCREEN_H__

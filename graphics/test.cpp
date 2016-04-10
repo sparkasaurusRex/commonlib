@@ -400,7 +400,7 @@ private:
     delete hair_pos;
     delete hair_uvs;
 
-    color_tex = new Texture("data/grass.jpg");
+    color_tex = new Texture2D("data/grass.jpg");
     color_tex->load();
     gpu_hair.set_color_tex(color_tex);
 
@@ -497,7 +497,7 @@ private:
 
   bool paused;
 
-  Texture *color_tex;
+  Texture2D *color_tex;
 
   unsigned int force_tex_dim[2];
 };

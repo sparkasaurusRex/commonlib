@@ -49,6 +49,26 @@ namespace Graphics
     float strength;
   };
 
+  struct GPUParticleSystemTemplate
+  {
+    int               num_particles;
+    float             particle_size;
+    ParticleForce     **forces;
+    int               num_forces;
+    const char        *emitter_dir_handle;
+    Math::Float3      emitter_loc;
+    float             emitterRadius;
+    float             emitter_range;
+    float             emitter_strength;
+    float             emitter_duration;
+    float             lifespan;
+    bool              loop;
+    char              *age_handle;
+    char              *color_handle;
+    char              *size_handle;
+    char              *tex_file;
+  };
+
   class GPUParticleSystem
   {
 
@@ -121,7 +141,7 @@ namespace Graphics
       system_duration = dur;
       emitter_duration = eDur;
       does_loop = loop;
-      sprite = new Texture(sprite_tex_file);
+      sprite = new Texture2D(sprite_tex_file);
       sprite->load();
     }
 
@@ -205,7 +225,7 @@ namespace Graphics
 
     GLuint data_tex;
 
-    Texture *sprite;
+    Texture2D *sprite;
 
     GLuint vbo;
     GLuint ibo;
