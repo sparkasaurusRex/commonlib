@@ -283,14 +283,14 @@ void GPUHairSim::init(Float3 *hair_pos, Float3 *hair_uvs)
   sim_mat.init();
 
   //retrieve shader uniform locations
-  sim_mat.render_gl();
+  sim_mat.render();
   Shader *shader = sim_mat.get_shader();
   uniform_locations[UNIFORM_SIM_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
   uniform_locations[UNIFORM_SIM_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
   uniform_locations[UNIFORM_SIM_FORCE_TEX] = glGetUniformLocation(shader->gl_shader_program, "force_tex");
   uniform_locations[UNIFORM_SIM_UV_TEX] = glGetUniformLocation(shader->gl_shader_program, "uv_tex");
 
-  render_mat.render_gl();
+  render_mat.render();
   shader = render_mat.get_shader();
   uniform_locations[UNIFORM_RENDER_HAIR_TEX] = glGetUniformLocation(shader->gl_shader_program, "hair_tex");
   uniform_locations[UNIFORM_RENDER_UV_TEX] = glGetUniformLocation(shader->gl_shader_program, "uv_tex");
@@ -376,7 +376,7 @@ void GPUHairSim::simulate(const float game_time, const float dt)
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  sim_mat.render_gl();
+  sim_mat.render();
   Shader *shader = sim_mat.get_shader();
 
   //set uniforms + textures
@@ -439,7 +439,7 @@ void GPUHairSim::render()
 {
   glLineWidth(1.0f);
 
-  render_mat.render_gl();
+  render_mat.render();
 
   Shader *shader = render_mat.get_shader();
 

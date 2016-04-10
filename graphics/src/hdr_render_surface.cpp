@@ -45,7 +45,7 @@ void HDRRenderSurface::deinit()
 void HDRRenderSurface::render()
 {
   Shader *shader = mat.get_shader();
-  mat.render_gl(); //material needs to be bound for the uniforms to be set.
+  mat.render(); //material needs to be bound for the uniforms to be set.
 
   GLint exposure_loc = glGetUniformLocation(shader->gl_shader_program, "exposure");
   glUniform1f(exposure_loc, exposure);
@@ -58,7 +58,7 @@ void HDRRenderSurface::render()
 void HDRRenderSurface::render_method_2()
 {
   Shader *shader = mat2.get_shader();
-  mat2.render_gl(); //material needs to be bound for the uniforms to be set.
+  mat2.render(); //material needs to be bound for the uniforms to be set.
 
   GLint exposure_loc = glGetUniformLocation(shader->gl_shader_program, "exposure");
   glUniform1f(exposure_loc, exposure);
@@ -79,7 +79,7 @@ void HDRRenderSurface::render_method_2()
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  mat2.render_gl();
+  mat2.render();
 
   for(int i = 0; i < uniforms.size(); i++)
   {

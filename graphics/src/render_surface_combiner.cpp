@@ -100,7 +100,7 @@ void RenderSurfaceCombiner::render()
 
   Shader *shader = mat.get_shader();
 
-  mat.render_gl();
+  mat.render();
 
   GLint aloc = glGetUniformLocation(shader->gl_shader_program, "tex_a");
   glUniform1i(aloc, 0);

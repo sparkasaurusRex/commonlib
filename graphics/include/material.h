@@ -25,20 +25,27 @@ namespace Graphics {
       void set_shader(Shader *s) { shader = s; }
       Shader *get_shader() { return shader; }
 
-      void enable_lighting(const bool l);
+      void add_texture(Graphics::Texture2D *t, std::string name);
+      void add_texture(Graphics::Texture3D *t, std::string name);
+
+      void add_uniform_var(ShaderUniformVariable *suv) { shader_uniforms.push_back(suv); }
+
+      void enable_lighting(const bool l); //archaic?
       void enable_blending(const bool b);
 
       void set_blend_mode(const GLenum src, const GLenum dst);
 
-      void render_gl() const;
+      void render() const;
+      void cleanup() const;
 
       void add_tex_idx(const int tid);
 
     private:
-      Shader                                *shader;
-      std::vector<ShaderUniformVariable>    shader_uniforms;
-      std::vector<Texture2D *>              textures_2d;
-      std::vector<Texture3D *>              textures_3d;
+      Shader                                               *shader;
+      std::vector<ShaderUniformVariable *>                 shader_uniforms;
+      std::vector<ShaderUniformInt>                        texture_uniforms; //TODO: maybe a better way?
+      std::vector<std::pair<Texture2D *, std::string> >    textures_2d;
+      std::vector<std::pair<Texture3D *, std::string> >    textures_3d;
 
       //lighting parameters
       bool lighting;
@@ -50,17 +57,6 @@ namespace Graphics {
 
       //depth parameters
       Math::Float2 depth_range;
-
-
-      // Math::Float3 diff_rgb;
-      // Math::Float3 spec_rgb;
-      // Math::Float3 emit_rgb;
-
-      //std::vector<Texture *> textures;
-      //std::vector<int> texture_ids;
-
-      //std::string vs_fname;
-      //std::string fs_fname;
   };
 };
 

@@ -31,8 +31,8 @@ Ribbon::Ribbon()
   profile_a.bell_curve_cerp(0.45f, 0.55f);
 
   mat = NULL;
-  tex_a = NULL;
-  tex_b = NULL;
+  //tex_a = NULL;
+  //tex_b = NULL;
 }
 
 Ribbon::~Ribbon()
@@ -103,13 +103,9 @@ void Ribbon::render(const float game_time)
 
   glPointSize(5.0f);
 
-  Shader *shader = NULL;
-  if(mat)
-  {
-    shader = mat->get_shader();
-    mat->render_gl();
-  }
+  mat->render();
 
+/*
   if(tex_a && shader)
   {
     GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "noise_1d_tex");
@@ -134,6 +130,7 @@ void Ribbon::render(const float game_time)
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_ONE, GL_ONE);
+  */
 
   //glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -155,6 +152,8 @@ void Ribbon::render(const float game_time)
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glDrawElements(GL_QUAD_STRIP, num_indices, GL_UNSIGNED_INT, (void *)0);
+
+  mat->cleanup();
 }
 
 void Ribbon::simulate(const float gt, const float dt)

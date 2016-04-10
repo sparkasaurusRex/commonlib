@@ -256,7 +256,7 @@ void GPUParticleSystem::init(float particle_size, Float3 *initial_particle_pos, 
 
 
   //Get shader uniform locations
-  update_pos_mat.render_gl();
+  update_pos_mat.render();
   Shader * shader = update_pos_mat.get_shader();
 
   uniform_locations[UNIFORM_UPDATEPOS_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
@@ -266,7 +266,7 @@ void GPUParticleSystem::init(float particle_size, Float3 *initial_particle_pos, 
   uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
 
 
-  update_vel_mat.render_gl();
+  update_vel_mat.render();
   shader = update_vel_mat.get_shader();
 
   uniform_locations[UNIFORM_UPDATEVEL_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
@@ -275,7 +275,7 @@ void GPUParticleSystem::init(float particle_size, Float3 *initial_particle_pos, 
   uniform_locations[UNIFORM_UPDATEVEL_ATTRACTORS] = glGetUniformLocation(shader->gl_shader_program, "attractors");
   uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
 
-  render_mat.render_gl();
+  render_mat.render();
   shader = render_mat.get_shader();
 
   uniform_locations[UNIFORM_RENDER_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "particle_tex");
@@ -334,7 +334,7 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   glLoadIdentity();
 
 
-  update_vel_mat.render_gl();
+  update_vel_mat.render();
 
   //attractors
   GLfloat * attractors = new GLfloat[4 * MAX_NUM_ATTRACTORS];
@@ -440,7 +440,7 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   glLoadIdentity();
 
 
-  update_pos_mat.render_gl();
+  update_pos_mat.render();
 
   //emitterLocation
   glUniform3f(uniform_locations[UNIFORM_UPDATEPOS_EMITTER_LOC], emitterLocation[0], emitterLocation[1], emitterLocation[2]);
@@ -529,7 +529,7 @@ void GPUParticleSystem::render()
   glDisable(GL_ALPHA_TEST);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-  render_mat.render_gl();
+  render_mat.render();
 
   // constants
   // { lifespan, color_curve_id, size_curve_id, data_tex_height }

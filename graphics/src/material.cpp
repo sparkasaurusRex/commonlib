@@ -29,18 +29,40 @@ void Material::init()
 {
   //bare minimum, we need a shader
   assert(shader);
-  //strcpy(shader->gl_fragment_shader_fname, fs_fname.c_str());
-  //strcpy(shader->gl_vertex_shader_fname, vs_fname.c_str());
 
-  //shader->load_link_and_compile();
+  //NOTE: we assume that by this point the shader has been loaded, compiled, linked, etc...
+
+  //create uniforms for all the textures
+  for(int i = 0; i < textures_2d.size(); i++)
+  {
+    ShaderUniformInt sui;
+    sui.set_name(textures_2d[i].second);
+    sui.set_loc(shader);
+    sui.set_var(i);
+
+    texture_uniforms.push_back(sui);
+  }
+
+  //collect all the uniform variable locations
+  for(int i = 0; i < shader_uniforms.size(); i++)
+  {
+    shader_uniforms[i]->set_loc(shader);
+  }
 }
 
-/*
-void Material::set_shader_filenames(std::string vs_name, std::string fs_name)
+void Material::add_texture(Texture2D *t, string name)
 {
-  vs_fname = vs_name;
-  fs_fname = fs_name;
-}*/
+  assert(t);
+  std::pair<Texture2D *, string> p(t, name);
+  textures_2d.push_back(p);
+}
+
+void Material::add_texture(Texture3D *t, string name)
+{
+  assert(false);
+  //assert(t);
+  //textures_3d.push_back(pair<Texture3D, string>(t, name));
+}
 
 void Material::enable_lighting(const bool l)
 {
@@ -59,26 +81,34 @@ void Material::set_blend_mode(const GLenum src, const GLenum dst)
 }
 
 
-void Material::render_gl() const
+void Material::render() const
 {
-  shader->render_gl();
+  shader->render();
 
-  /*
-  //set up uniforms
-  GLint diff_loc = glGetUniformLocationARB(shader->gl_shader_program, "diff_rgb");
-  glUniform3fARB(diff_loc, diff_rgb[0], diff_rgb[1], diff_rgb[2]);
-
-  GLint amb_loc = glGetUniformLocationARB(shader->gl_shader_program, "amb_rgb");
-  glUniform3fARB(amb_loc, 0.2f, 0.5f, 0.1f);
-  */
-
-
-  //set up textures
-  /*
-  for(int i = 0; i < texture_ids.size(); i++)
+  //set up shader uniform variables
+  for(int i = 0; i < shader_uniforms.size(); i++)
   {
-    //cout<<"tex_id: "<<texture_ids[i]<<endl;
-    //glActiveTexture(GL_TEXTURE0 + i);
+    shader_uniforms[i]->render();
+  }
+
+  for(int i = 0; i < texture_uniforms.size(); i++)
+  {
+    texture_uniforms[i].render();
+  }
+
+  //textures
+  for(int i = 0; i < textures_2d.size(); i++)
+  {
+    glActiveTexture(GL_TEXTURE0 + i);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textures_2d[i].first->get_tex_id());
+  }
+  /*
+  for(int i = 0; i < textures_3d.size(); i++)
+  {
+    glActiveTexture(GL_TEXTURE0 + i + textures_2d.size());
+    glEnable(GL_TEXTURE_3D);
+    glBindTexture(GL_TEXTURE_3D, textures_3d[i].first->get_tex_id());
   }
   */
 
@@ -104,6 +134,23 @@ void Material::render_gl() const
   {
     glDisable(GL_BLEND);
   }
+}
 
-  //set up textures / shaders...
+void Material::cleanup() const
+{
+  glUseProgramObjectARB(0);
+
+  for(int i = 0; i < textures_2d.size(); i++)
+  {
+    glActiveTexture(GL_TEXTURE0 + i);
+    glDisable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+  }
+
+  for(int i = 0; i < textures_3d.size(); i++)
+  {
+    glActiveTexture(GL_TEXTURE0 + i + textures_2d.size());
+    glDisable(GL_TEXTURE_3D);
+    glBindTexture(GL_TEXTURE_3D, 0);
+  }
 }

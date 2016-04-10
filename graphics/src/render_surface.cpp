@@ -188,7 +188,7 @@ void RenderSurface::render()
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  mat.render_gl();
+  mat.render();
 
   Shader *shader = mat.get_shader();
   for(int i = 0; i < uniforms.size(); i++)

@@ -157,7 +157,7 @@ bool Shader::load_link_and_compile()
 }
 
 //apply the shader before rendering
-void Shader::render_gl()
+void Shader::render()
 {
   glUseProgram(gl_shader_program);
 }
