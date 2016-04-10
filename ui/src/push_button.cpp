@@ -19,7 +19,7 @@ void PushButton::set_click_callback(void (*cb)(const SDL_Event &e))
   click_callback = cb;
 }
 
-void PushButton::set_texture(const int i, Texture *t)
+void PushButton::set_texture(const int i, Texture2D *t)
 {
   textures[i] = t;
 }

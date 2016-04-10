@@ -7,15 +7,6 @@
 #include <GL/gl.h>
 #endif
 
-/*
-class ShaderUniform
-{
-public:
-  ShaderUniform();
-  ~ShaderUniform();
-protected:
-  GLuint loc;
-};*/
 
 namespace Graphics
 {
@@ -25,6 +16,7 @@ namespace Graphics
     Shader();
     ~Shader();
 
+    void set_shader_filenames(std::string vs_fname, std::string fs_fname);
     GLuint load_and_compile_shader(GLenum shader_type, const char *source);
     bool load_link_and_compile();
     void render_gl();
@@ -42,6 +34,35 @@ namespace Graphics
     int gl_pos_loc;
     int gl_col_loc;
     int gl_uv_loc;
+  };
+
+  class ShaderUniformVariable
+  {
+  public:
+    ShaderUniformVariable();
+    ~ShaderUniformVariable() {}
+
+    void set_loc(GLuint l) { loc = l; }
+    void set_loc(Shader *sp)
+    {
+      glGetUniformLocation(sp->gl_shader_program, name.c_str());
+    }
+
+    virtual void render() = 0;  //set uniform variables - to be called prior to Shader::render()
+  protected:
+    std::string name;
+    GLuint loc;
+  };
+
+  class ShaderUniformFloat : public ShaderUniformVariable
+  {
+  public:
+    ShaderUniformFloat();
+    ~ShaderUniformFloat() {}
+
+    virtual void render() { glUniform1f(loc, var); }
+  private:
+    float var;
   };
 };
 

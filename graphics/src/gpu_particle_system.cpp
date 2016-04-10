@@ -41,11 +41,19 @@ GPUParticleSystem::GPUParticleSystem(const char * shader_directory)
   update_vel_shader_names[1] = shader_directory + std::string("particle_update_vel.fs");
   render_shader_names[0] = shader_directory + std::string("particle_render.vs");
   render_shader_names[1] = shader_directory + std::string("particle_render.fs");
+
+  render_shader = new Shader;
+  update_pos_shader = new Shader;
+  update_vel_shader = new Shader;
 }
 
 GPUParticleSystem::~GPUParticleSystem()
 {
   deinit();
+
+  delete render_shader;
+  delete update_pos_shader;
+  delete update_vel_shader;
 }
 
 void GPUParticleSystem::init(float particle_size, Float3 *initial_particle_pos, Float3 *initial_particle_vel, float *age, float *data)
@@ -228,13 +236,22 @@ void GPUParticleSystem::init(float particle_size, Float3 *initial_particle_pos, 
 
 
   //Set up shaders
-  render_mat.set_shader_filenames(render_shader_names[0], render_shader_names[1]);
+  //render_mat.set_shader_filenames(render_shader_names[0], render_shader_names[1]);
+  render_shader->set_shader_filenames(render_shader_names[0], render_shader_names[1]);
+  render_shader->load_link_and_compile();
+  render_mat.set_shader(render_shader);
   render_mat.init();
 
-  update_pos_mat.set_shader_filenames(update_pos_shader_names[0], update_pos_shader_names[1]);
+  //update_pos_mat.set_shader_filenames(update_pos_shader_names[0], update_pos_shader_names[1]);
+  update_pos_shader->set_shader_filenames(update_pos_shader_names[0], update_pos_shader_names[1]);
+  update_pos_shader->load_link_and_compile();
+  update_pos_mat.set_shader(update_pos_shader);
   update_pos_mat.init();
 
-  update_vel_mat.set_shader_filenames(update_vel_shader_names[0], update_vel_shader_names[1]);
+  //update_vel_mat.set_shader_filenames(update_vel_shader_names[0], update_vel_shader_names[1]);
+  update_vel_shader->set_shader_filenames(update_vel_shader_names[0], update_vel_shader_names[1]);
+  update_vel_shader->load_link_and_compile();
+  update_vel_mat.set_shader(update_vel_shader);
   update_vel_mat.init();
 
 

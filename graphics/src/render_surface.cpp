@@ -59,11 +59,15 @@ RenderSurface::RenderSurface(const int w, const int h)
 
   fbo_res[0] = w;
   fbo_res[1] = h;
+
+  //TEMP (we probably don't want to actually load a new shader for each render surface)
+  shader = new Shader;
 }
 
 RenderSurface::~RenderSurface()
 {
   deinit();
+  delete shader;
 }
 
 void RenderSurface::set_shader_names(std::string vs, std::string fs)
@@ -100,7 +104,9 @@ void RenderSurface::add_uniform(Float3 &v, std::string name)
 
 void RenderSurface::init()
 {
-  mat.set_shader_filenames(vertex_shader_name, fragment_shader_name);
+  shader->set_shader_filenames(vertex_shader_name, fragment_shader_name);
+  shader->load_link_and_compile();
+  mat.set_shader(shader);
   mat.init();
 
   glGenBuffers(1, &vbo);

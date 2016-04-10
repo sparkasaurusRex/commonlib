@@ -26,8 +26,8 @@ public:
   App() : SDLGame(512, 512, "UI Test")
   {
     widget_font = NULL;
-    pb_tex[0] = new Texture("../graphics/data/test.tga");
-    pb_tex[1] = new Texture("../graphics/data/smoke_alpha_01.tga");
+    pb_tex[0] = new Texture2D("../graphics/data/test.tga");
+    pb_tex[1] = new Texture2D("../graphics/data/smoke_alpha_01.tga");
   }
   ~App()
   {
@@ -161,7 +161,7 @@ private:
 
   RadialPushButton rpb[NUM_RPB];
 
-  Texture *pb_tex[2];
+  Texture2D *pb_tex[2];
 };
 
 App *my_app = NULL;

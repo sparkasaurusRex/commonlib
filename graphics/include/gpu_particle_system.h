@@ -214,8 +214,13 @@ namespace Graphics
     int num_particles;
 
     Material render_mat;
+    Shader   *render_shader;
+
     Material update_pos_mat;
+    Shader   *update_pos_shader;
+
     Material update_vel_mat;
+    Shader   *update_vel_shader;
 
     GLuint pos_fbo[2];
     GLuint pos_tex[2];

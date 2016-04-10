@@ -40,6 +40,7 @@ namespace Graphics
     GLuint                 ibo;
 
     Material               mat;
+    Shader                 *shader;
     Texture2D              *lut;
     Texture2D              *vignette;
   };

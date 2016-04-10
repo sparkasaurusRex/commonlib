@@ -93,13 +93,15 @@ namespace Graphics {
     Math::Float3  col_b;
 
     Material      render_mat;
+    Shader        *render_shader;
     Material      sim_mat;
+    Shader        *sim_shader;
 
     Math::Float3        sun_pos_xyz;
     Math::Float3        sun_diff_rgb;
     Math::Float3        sun_spec_rgb;
     Math::Float3        ambient_rgb;
-    float         cam_distance;
+    float               cam_distance;
 
     //vertex and index buffers for the geo
     GLuint        vbo;

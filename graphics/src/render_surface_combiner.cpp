@@ -40,11 +40,13 @@ RenderSurfaceCombiner::RenderSurfaceCombiner()
 
  lut = NULL;
  vignette = NULL;
+ shader = new Shader;
 }
 
 RenderSurfaceCombiner::~RenderSurfaceCombiner()
 {
   deinit();
+  delete shader;
 }
 
 void RenderSurfaceCombiner::set_surfaces(RenderSurface *_a, RenderSurface *_b, RenderSurface *_c, RenderSurface *_d)
@@ -63,7 +65,9 @@ void RenderSurfaceCombiner::set_shader_names(std::string vs, std::string fs)
 
 void RenderSurfaceCombiner::init()
 {
-  mat.set_shader_filenames(vertex_shader_name, fragment_shader_name);
+  shader->set_shader_filenames(vertex_shader_name, fragment_shader_name);
+  shader->load_link_and_compile();
+  mat.set_shader(shader);
   mat.init();
 
   glGenBuffers(1, &vbo);

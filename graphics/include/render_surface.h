@@ -60,6 +60,7 @@ namespace Graphics
     GLenum                 tex_filter;
 
     Material               mat;
+    Shader                 *shader;
     std::string            vertex_shader_name;
     std::string            fragment_shader_name;
 

@@ -74,11 +74,16 @@ GPUHairSim::GPUHairSim()
   sun_diff_rgb = Float3(3.0f, 2.5f, 1.0f);
   sun_spec_rgb = Float3(1.0f, 1.0f, 0.0f);
   ambient_rgb = Float3(0.2f, 0.3f, 0.3f);
+
+  render_shader = new Shader;
+  sim_shader = new Shader;
 }
 
 GPUHairSim::~GPUHairSim()
 {
   deinit();
+  delete render_shader;
+  delete sim_shader;
 }
 
 void GPUHairSim::init(Float3 *hair_pos, Float3 *hair_uvs)
@@ -267,10 +272,14 @@ void GPUHairSim::init(Float3 *hair_pos, Float3 *hair_uvs)
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_indices, indices, GL_STATIC_DRAW);
 
   //load textures and shaders
-  render_mat.set_shader_filenames(render_shader_names[0], render_shader_names[1]);
+  render_shader->set_shader_filenames(render_shader_names[0], render_shader_names[1]);
+  render_shader->load_link_and_compile();
+  render_mat.set_shader(render_shader);
   render_mat.init();
 
-  sim_mat.set_shader_filenames(simulation_shader_names[0], simulation_shader_names[1]);
+  sim_shader->set_shader_filenames(simulation_shader_names[0], simulation_shader_names[1]);
+  sim_shader->load_link_and_compile();
+  sim_mat.set_shader(sim_shader);
   sim_mat.init();
 
   //retrieve shader uniform locations

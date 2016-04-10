@@ -18,34 +18,29 @@ Material::Material()
   src_blend_param = GL_SRC_COLOR;
   dst_blend_param = GL_ONE_MINUS_SRC_ALPHA;
 
-  alpha = 1.0f;
-
-  diff_rgb = Float3(0.5f, 0.5f, 0.5f);
-  spec_rgb = Float3(0.8f, 0.7f, 0.2f);
-  emit_rgb = Float3(0.0f, 0.0f, 0.0f);
-
-  shader = new Shader;
+  shader = NULL;
 }
 
 Material::~Material()
 {
-  delete shader;
 }
 
 void Material::init()
 {
+  //bare minimum, we need a shader
   assert(shader);
-  strcpy(shader->gl_fragment_shader_fname, fs_fname.c_str());
-  strcpy(shader->gl_vertex_shader_fname, vs_fname.c_str());
+  //strcpy(shader->gl_fragment_shader_fname, fs_fname.c_str());
+  //strcpy(shader->gl_vertex_shader_fname, vs_fname.c_str());
 
-  shader->load_link_and_compile();
+  //shader->load_link_and_compile();
 }
 
+/*
 void Material::set_shader_filenames(std::string vs_name, std::string fs_name)
 {
   vs_fname = vs_name;
   fs_fname = fs_name;
-}
+}*/
 
 void Material::enable_lighting(const bool l)
 {
@@ -63,30 +58,6 @@ void Material::set_blend_mode(const GLenum src, const GLenum dst)
   dst_blend_param = dst;
 }
 
-void Material::set_alpha(const float a)
-{
-  alpha = a;
-}
-
-void Material::set_diff_rgb(const Float3 d)
-{
-  diff_rgb = d;
-}
-
-void Material::set_spec_rgb(const Float3 s)
-{
-  spec_rgb = s;
-}
-
-void Material::set_emit_rgb(const Float3 e)
-{
-  emit_rgb = e;
-}
-
-void Material::add_tex_idx(const int tid)
-{
-  texture_ids.push_back(tid);
-}
 
 void Material::render_gl() const
 {
@@ -103,11 +74,13 @@ void Material::render_gl() const
 
 
   //set up textures
+  /*
   for(int i = 0; i < texture_ids.size(); i++)
   {
     //cout<<"tex_id: "<<texture_ids[i]<<endl;
     //glActiveTexture(GL_TEXTURE0 + i);
   }
+  */
 
   if(lighting)
   {

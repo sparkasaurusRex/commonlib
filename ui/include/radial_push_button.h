@@ -13,7 +13,7 @@ namespace UI
     ~RadialPushButton() {}
 
     void set_click_callback(void (*cb)(const SDL_Event &e));
-    void set_texture(const int i, Graphics::Texture *t);
+    void set_texture(const int i, Graphics::Texture2D *t);
     void set_click_color(const Math::Float3 c) { click_rgb = c; }
 
     virtual void init();
@@ -23,7 +23,7 @@ namespace UI
     void (*click_callback)(const SDL_Event &e); //callback func
     Math::Float3 click_rgb;
     bool click_capture;
-    Graphics::Texture *textures[2]; //2 to switch textures upon click
+    Graphics::Texture2D *textures[2]; //2 to switch textures upon click
   };
 };
 

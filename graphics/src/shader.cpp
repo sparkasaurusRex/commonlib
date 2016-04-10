@@ -36,6 +36,12 @@ Shader::~Shader()
   glDeleteObjectARB(gl_fragment_shader);
 }
 
+void Shader::set_shader_filenames(std::string vs_fname, std::string fs_fname)
+{
+  strcpy(gl_fragment_shader_fname, fs_fname.c_str());
+  strcpy(gl_vertex_shader_fname, vs_fname.c_str());
+}
+
 GLuint Shader::load_and_compile_shader(GLenum shader_type, const char *source)
 {
   //GLuint my_shader = glCreateShaderObjectARB(shader_type);

@@ -8,11 +8,14 @@ HDRRenderSurface::HDRRenderSurface(const int w, const int h) : RenderSurface(w, 
 {
   exposure = 1.0f;
   bloom_threshold = 0.9f;
+
+  shader2 = new Shader;
 }
 
 HDRRenderSurface::~HDRRenderSurface()
 {
   deinit();
+  delete shader2;
 }
 
 void HDRRenderSurface::init()
@@ -25,7 +28,10 @@ void HDRRenderSurface::init()
   set_internal_format(GL_RGBA16F_ARB);
   set_filtering_mode(GL_LINEAR);
 
-  mat2.set_shader_filenames(vs_name, fs_name2);
+  //mat2.set_shader_filenames(vs_name, fs_name2);
+  shader2->set_shader_filenames(vs_name, fs_name2);
+  shader2->load_link_and_compile();
+  mat2.set_shader(shader2);
   mat2.init();
 
   RenderSurface::init();

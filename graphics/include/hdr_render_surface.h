@@ -3,6 +3,8 @@
 
 #include "render_surface.h"
 
+//TODO: this whole setup is super hacky... total rewrite?
+
 namespace Graphics
 {
   class HDRRenderSurface : public RenderSurface
@@ -21,6 +23,8 @@ namespace Graphics
   private:
     float                  exposure;
     float                  bloom_threshold;
+
+    Shader                 *shader2;
     Material               mat2;
   };
 };
