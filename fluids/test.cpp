@@ -19,6 +19,8 @@
 #include "fluid2d_angle_snapper.h"
 
 using namespace std;
+using namespace Graphics;
+using namespace Math;
 
 class FluidGame : public SDLGame
 {
@@ -92,7 +94,7 @@ private:
 
   void user_init()
   {
-    fluid_tex = new Texture(fluid_dim, fluid_dim, GL_RGB);
+    fluid_tex = new Texture2D(fluid_dim, fluid_dim, GL_RGB);
     fluid_tex->init();
 
     fluid = new Fluid2D(fluid_dim, fluid_dim);
@@ -206,7 +208,7 @@ private:
 
   int fluid_channel_display;
 
-  Texture *fluid_tex;
+  Texture2D *fluid_tex;
   Fluid2D *fluid;
   Fluid2DInflow *inflow;
   Fluid2DTurbulenceField *turb, *turb2;
