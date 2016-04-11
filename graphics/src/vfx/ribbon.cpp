@@ -31,8 +31,6 @@ Ribbon::Ribbon()
   profile_a.bell_curve_cerp(0.45f, 0.55f);
 
   mat = NULL;
-  //tex_a = NULL;
-  //tex_b = NULL;
 }
 
 Ribbon::~Ribbon()
@@ -105,35 +103,6 @@ void Ribbon::render(const float game_time)
 
   mat->render();
 
-/*
-  if(tex_a && shader)
-  {
-    GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "noise_1d_tex");
-    glUniform1i(tex_loc, 0);
-    glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, tex_a->get_tex_id());
-    //tex_a->render_gl(0);
-  }
-  if(tex_b && shader)
-  {
-    GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "grad_vert_tex");
-    glUniform1i(tex_loc, 1);
-    glActiveTexture(GL_TEXTURE1);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, tex_b->get_tex_id());
-    //tex_b->render_gl(1);
-  }
-
-  GLuint gt_loc = glGetUniformLocation(shader->gl_shader_program, "game_time");
-  glUniform1f(gt_loc, game_time);
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_ONE, GL_ONE);
-  */
-
-  //glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, sizeof(RibbonVertex), (void *)0);
@@ -146,9 +115,6 @@ void Ribbon::render(const float game_time)
   glClientActiveTexture(GL_TEXTURE0);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 9));
-  //glClientActiveTexture(GL_TEXTURE1);
-  //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  //glTexCoordPointer(2, GL_FLOAT, sizeof(AtmosVert), (void *)(sizeof(float) * 11));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glDrawElements(GL_QUAD_STRIP, num_indices, GL_UNSIGNED_INT, (void *)0);

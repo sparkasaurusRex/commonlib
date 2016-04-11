@@ -80,7 +80,6 @@ void Material::set_blend_mode(const GLenum src, const GLenum dst)
   dst_blend_param = dst;
 }
 
-
 void Material::render() const
 {
   shader->render();

@@ -98,7 +98,8 @@ namespace Graphics
     ShaderUniformFloat3() : ShaderUniformVariable() {}
     ~ShaderUniformFloat3() {}
 
-    virtual void render() { glUniform3f(loc, var._val[0], var._val[1], var._val[2]); }
+    virtual void render() const { glUniform3f(loc, var._val[0], var._val[1], var._val[2]); }
+    void set_var(const Math::Float3 v) { var = v; };
   private:
     Math::Float3 var;
   };
