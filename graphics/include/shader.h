@@ -88,6 +88,7 @@ namespace Graphics
     ~ShaderUniformFloat2() {}
 
     virtual void render() const { glUniform2f(loc, var._val[0], var._val[1]); }
+    void set_var(const Math::Float2 v) { var = v; }
   private:
     Math::Float2 var;
   };
@@ -99,7 +100,7 @@ namespace Graphics
     ~ShaderUniformFloat3() {}
 
     virtual void render() const { glUniform3f(loc, var._val[0], var._val[1], var._val[2]); }
-    void set_var(const Math::Float3 v) { var = v; };
+    void set_var(const Math::Float3 v) { var = v; }
   private:
     Math::Float3 var;
   };

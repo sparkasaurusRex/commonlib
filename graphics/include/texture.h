@@ -64,7 +64,7 @@ namespace Graphics
     void set_dim(const int w, const int h) { dim[0] = w; dim[1] = h; }
     GLuint get_pixel_mode() { return gl_mode; }
     void set_pixel_mode(GLuint m) { gl_mode = m; }
-    void set_wrap_mode(GLuint u, GLuint v) { wrap_mode[0] = u; wrap_mode[1] = v; }
+    void set_wrap_mode(GLuint s, GLuint t, GLuint r) { wrap_mode[0] = s; wrap_mode[1] = t; wrap_mode[2] = r; }
 
     void init();
 

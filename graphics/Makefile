@@ -6,8 +6,8 @@ CFLAGS+=$(shell pkg-config freetype2 --cflags)
 CFLAGS+=$(shell pkg-config glew --cflags)
 CFLAGS+=$(shell pkg-config sdl2 --cflags)
 CFLAGS+=$(shell pkg-config SDL2_image --cflags)
-#CFLAGS+=-Ofast
-CFLAGS+= -g3 -O0
+CFLAGS+=-Ofast
+#CFLAGS+= -g3 -O0
 
 LDFLAGS=$(shell pkg-config freetype2 --libs)
 LDFLAGS+=$(shell pkg-config glew --libs)

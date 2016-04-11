@@ -59,9 +59,10 @@ void Material::add_texture(Texture2D *t, string name)
 
 void Material::add_texture(Texture3D *t, string name)
 {
-  assert(false);
-  //assert(t);
-  //textures_3d.push_back(pair<Texture3D, string>(t, name));
+  //assert(false);
+  assert(t);
+  std::pair<Texture3D *, string> p(t, name);
+  textures_3d.push_back(p);
 }
 
 void Material::enable_lighting(const bool l)
@@ -102,14 +103,14 @@ void Material::render() const
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textures_2d[i].first->get_tex_id());
   }
-  /*
+
   for(int i = 0; i < textures_3d.size(); i++)
   {
-    glActiveTexture(GL_TEXTURE0 + i + textures_2d.size());
+    GLuint actual_tex_slot = GL_TEXTURE0 + textures_2d.size() + i;
+    glActiveTexture(actual_tex_slot);
     glEnable(GL_TEXTURE_3D);
     glBindTexture(GL_TEXTURE_3D, textures_3d[i].first->get_tex_id());
   }
-  */
 
   if(lighting)
   {
