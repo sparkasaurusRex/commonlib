@@ -213,6 +213,7 @@ void Texture2D::render_gl(GLuint tex_stage) const
   //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_BLEND);
   glEnable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
 
   //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -379,6 +380,7 @@ bool Texture3D::render_gl(GLuint tex_stage) const
   //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_BLEND);
   glEnable(GL_TEXTURE_3D);
+  glDisable(GL_TEXTURE_2D);
 
   //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  //What does this do, really?
