@@ -34,12 +34,13 @@ namespace Graphics
     GLuint get_pixel_mode() { return gl_mode; }
     void set_pixel_mode(GLuint m) { gl_mode = m; }
     void set_wrap_mode(GLuint u, GLuint v) { wrap_mode[0] = u; wrap_mode[1] = v; }
+    void set_filtering_mode(GLuint f) { filter_mode = f; }
 
     void init();
 
     bool load();
-    bool load_from_file_data(TextureFileData &tfd);
-    bool render_gl(GLuint tex_stage = GL_TEXTURE0) const;
+    //bool load_from_file_data(TextureFileData &tfd);
+    void render_gl(GLuint tex_stage = GL_TEXTURE0) const;
 
     bool update_pixels_from_mem(void *pixels);
 
@@ -48,6 +49,7 @@ namespace Graphics
     char               fname[256];      //filename
     GLuint             gl_texture;      //OpenGL texture name
     GLuint             gl_mode;         //image format
+    GLuint             filter_mode;     //GL_LINEAR, GL_NEAREST, etc...
     GLuint             wrap_mode[2];    //wrapping mode
   };
 
@@ -65,6 +67,7 @@ namespace Graphics
     GLuint get_pixel_mode() { return gl_mode; }
     void set_pixel_mode(GLuint m) { gl_mode = m; }
     void set_wrap_mode(GLuint s, GLuint t, GLuint r) { wrap_mode[0] = s; wrap_mode[1] = t; wrap_mode[2] = r; }
+    void set_filter_mode(GLuint f) { filter_mode = f; }
 
     void init();
 
@@ -79,6 +82,7 @@ namespace Graphics
     GLuint             gl_texture;
     GLuint             gl_mode;
     GLuint             wrap_mode[3];
+    GLuint             filter_mode;
   };
 };
 

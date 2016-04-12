@@ -35,12 +35,19 @@ Texture2D::Texture2D(const unsigned int w, const unsigned int h, const GLuint m)
   assert(w > 0 && h > 0);
   dim[0] = w; dim[1] = h;
 
+  filter_mode = GL_LINEAR;
+  wrap_mode[0] = GL_REPEAT;
+  wrap_mode[1] = GL_REPEAT;
   gl_mode = m;
 }
 
 Texture2D::Texture2D(const char *n)
 {
   strcpy(fname, n);
+  filter_mode = GL_LINEAR;
+  wrap_mode[0] = GL_REPEAT;
+  wrap_mode[1] = GL_REPEAT;
+  gl_mode = GL_RGBA;
 }
 
 Texture2D::~Texture2D()
@@ -68,8 +75,8 @@ void Texture2D::init()
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_mode[0]);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_mode[1]);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtering
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtering
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_mode);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_mode);
 
   assert(glIsTexture(gl_texture) == GL_TRUE);
 }
@@ -140,8 +147,8 @@ bool Texture2D::load()
     //not sure if these should go here, or in the render loop
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_mode[0]);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_mode[1]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_mode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_mode);
 
 #if defined(__USE_SOIL__)
     SOIL_free_image_data(image);
@@ -155,12 +162,13 @@ bool Texture2D::load()
   return true;
 }
 
+/*
 bool Texture2D::load_from_file_data(TextureFileData &tfd)
 {
     if(gl_texture != 0)
     {
-        assert(glIsTexture(gl_texture) == GL_TRUE);
-        return true; //already loaded
+      assert(glIsTexture(gl_texture) == GL_TRUE);
+      return true; //already loaded
     }
 
     glGenTextures(1, &gl_texture);
@@ -178,26 +186,27 @@ bool Texture2D::load_from_file_data(TextureFileData &tfd)
     dim[1] = tfd.dim[1];
 
     //not sure if these should go here, or in the render loop
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_mode[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_mode[1]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_mode)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_mode);
 
     glTexImage2D(GL_TEXTURE_2D,
                  0,
-                 GL_RGBA,
+                 gl_mode,
                  dim[0],
                  dim[1],
                  0,
-                 GL_RGBA,
+                 gl_mode,
                  GL_UNSIGNED_BYTE,
                  tfd.image);
 
     return true;
 }
+*/
 
 //set up the texture for rendering
-bool Texture2D::render_gl(GLuint tex_stage) const
+void Texture2D::render_gl(GLuint tex_stage) const
 {
   //return true;
   glActiveTexture(tex_stage);
@@ -210,8 +219,6 @@ bool Texture2D::render_gl(GLuint tex_stage) const
   //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
   glBindTexture(GL_TEXTURE_2D, gl_texture);
-
-  return true;
 }
 
 bool Texture2D::update_pixels_from_mem(void *pixels)
@@ -240,11 +247,16 @@ Texture3D::Texture3D(const unsigned int w, const unsigned int h, const unsigned 
   dim[0] = w; dim[1] = h; dim[2] = d;
 
   gl_mode = m;
+  wrap_mode[0] = wrap_mode[1] = wrap_mode[2] = GL_REPEAT;
+  filter_mode = GL_NEAREST;
 }
 
 Texture3D::Texture3D(const char *n)
 {
   strcpy(fname, n);
+  gl_mode = GL_RGBA;
+  wrap_mode[0] = wrap_mode[1] = wrap_mode[2] = GL_REPEAT;
+  filter_mode = GL_NEAREST;
 }
 
 Texture3D::~Texture3D()
@@ -274,14 +286,16 @@ void Texture3D::init()
    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, wrap_mode[0]);
    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, wrap_mode[1]);
    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, wrap_mode[2]);
-   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);   //Linear Filtering
-   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);   //Linear Filtering
+   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, filter_mode);
+   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, filter_mode);
 
    assert(glIsTexture(gl_texture) == GL_TRUE);
 }
 
 bool Texture3D::load(const unsigned int depth)
 {
+    cout<<"Texture3D::load()..."<<endl;
+    cout<<"\t"<<fname<<endl;
     int width, height, channels;
 
 #if defined(__USE_SOIL__)
@@ -324,14 +338,14 @@ bool Texture3D::load(const unsigned int depth)
     }
 
     glTexImage3D(GL_TEXTURE_3D,
-                   0,
-                   gl_mode,
-                   width,
-                   height,
-                   depth,
-                   0,
-                   gl_mode,
-                   GL_UNSIGNED_BYTE,
+                 0,
+                 gl_mode,
+                 dim[0],
+                 dim[1],
+                 dim[2],
+                 0,
+                 gl_mode,
+                 GL_UNSIGNED_BYTE,
 #if defined(__USE_SOIL__)
                  image);
 #else
@@ -342,13 +356,13 @@ bool Texture3D::load(const unsigned int depth)
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, wrap_mode[0]);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, wrap_mode[1]);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, wrap_mode[2]);
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Filtering
-    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Filtering
+
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, filter_mode); // Linear Filtering
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, filter_mode); // Linear Filtering
 
 #if defined(__USE_SOIL__)
     SOIL_free_image_data(image);
 #else
-    //SDL_UnlockSurface(image);
     SDL_FreeSurface(image);
 #endif
 

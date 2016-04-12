@@ -25,8 +25,6 @@ namespace Graphics
     void deinit();
     void render();
 
-    //Graphics::Texture *foo_a, *foo_b;
-
   private:
     RenderSurface *a, *b, *c, *d;
     std::string vertex_shader_name;

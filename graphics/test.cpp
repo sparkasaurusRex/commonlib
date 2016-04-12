@@ -27,6 +27,8 @@ enum RenderMode
 
   RENDER_STATIC_MESH,
 
+  RENDER_TEXTURE_3D,
+
   NUM_RENDER_MODES
 };
 
@@ -37,6 +39,7 @@ public:
   {
     rot_angle = 0.0f;
     color_tex = NULL;
+    tex_3d = NULL;
     render_mode = RENDER_STATIC_MESH;
     force_tex_dim[0] = 64;
     force_tex_dim[1] = 64;
@@ -46,6 +49,7 @@ public:
   ~GraphicsApp()
   {
     delete color_tex;
+    delete tex_3d;
   }
 private:
   void render_hair()
@@ -117,6 +121,32 @@ private:
     glDisable(GL_LIGHT0);
   }
 
+  void render_fullscreen_quad_3d()
+  {
+    float r = get_game_time() * 0.001f;
+    glBegin(GL_QUADS);
+      glColor3f(1.0f, 1.0f, 1.0f);
+      glTexCoord3f(0.0f, 0.0f, r);
+      glVertex3f(-1.0f, 1.0f, 0.0f);
+      glTexCoord3f(1.0f, 0.0f, r);
+      glVertex3f(1.0f, 1.0f, 0.0f);
+      glTexCoord3f(1.0f, 1.0f, r);
+      glVertex3f(1.0f, -1.0f, 0.0f);
+      glTexCoord3f(0.0f, 1.0f, r);
+      glVertex3f(-1.0f, -1.0f, 0.0f);
+    glEnd();
+  }
+
+  void render_texture_3d()
+  {
+    cout<<"render_texture_3d()"<<endl;
+    cout<<"\ttex_id: "<<tex_3d->get_tex_id()<<endl;
+    setup_textured_quad_state(true);
+    glBindTexture(GL_TEXTURE_3D, tex_3d->get_tex_id());
+    render_fullscreen_quad_3d();
+    glDisable(GL_TEXTURE_3D);
+  }
+
   void render_fullscreen_quad()
   {
     glBegin(GL_QUADS);
@@ -132,13 +162,28 @@ private:
     glEnd();
   }
 
-  void setup_textured_quad_state()
+  void setup_textured_quad_state(bool is_3d = false)
   {
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
+
+    glDisable(GL_CULL_FACE);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glActiveTexture(GL_TEXTURE0);
     glClientActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
+
+    if(is_3d)
+    {
+      glDisable(GL_TEXTURE_2D);
+      glEnable(GL_TEXTURE_3D);
+    }
+    else
+    {
+      glDisable(GL_TEXTURE_3D);
+      glEnable(GL_TEXTURE_2D);
+    }
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     glMatrixMode(GL_MODELVIEW);
@@ -147,6 +192,8 @@ private:
 
   void render_particle_pos_texture()
   {
+    cout<<"render_particle_pos_texture()"<<endl;
+    cout<<"\ttex_id: "<<gpu_particle_sim.get_pos_tex(0)<<endl;
     setup_textured_quad_state();
     glBindTexture(GL_TEXTURE_2D, gpu_particle_sim.get_pos_tex(0));
     render_fullscreen_quad();
@@ -221,6 +268,9 @@ private:
         break;
       case RENDER_STATIC_MESH:
         render_static_mesh();
+        break;
+      case RENDER_TEXTURE_3D:
+        render_texture_3d();
         break;
       default:
         render_hair();
@@ -404,6 +454,9 @@ private:
     color_tex->load();
     gpu_hair.set_color_tex(color_tex);
 
+    tex_3d = new Texture3D("../../mundus/data/textures/lut_basic.tif");
+    tex_3d->load(32);
+
     Float3 cam_pos(0.0f, 0.5f, -10.0f);
     cam.set_pos(cam_pos);
     cam.set_lookat(Float3(0.0f, 0.0f, 0.0f) - cam_pos);
@@ -477,6 +530,9 @@ private:
           case '9':
             render_mode = RENDER_STATIC_MESH;
             break;
+          case '0':
+            render_mode = RENDER_TEXTURE_3D;
+            break;
         }
         break;
     }
@@ -498,6 +554,7 @@ private:
   bool paused;
 
   Texture2D *color_tex;
+  Texture3D *tex_3d;
 
   unsigned int force_tex_dim[2];
 };
