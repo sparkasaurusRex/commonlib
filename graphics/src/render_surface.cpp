@@ -1,3 +1,9 @@
+// originally written while on vacation in Vancouver, B.C. with Lila Garcia
+// we ate and drank at various restaurants in Gastown and stayed in a condo airBnB.
+// Lila nearly got electrocuted when she tried to plug in the coffee grinder,
+// and the outlet shot out sparks and melted a spatula. (!!!)
+// I cannot describe my excitement the first time I got HDR bloom to work. :)
+
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #else
@@ -5,8 +11,8 @@
 #endif
 
 #include <assert.h>
-
 #include "render_surface.h"
+#include "texture.h"
 
 using namespace std;
 using namespace Graphics;
@@ -52,22 +58,24 @@ RenderSurface::RenderSurface(const int w, const int h)
   use_depth = true;
   depth_fbo = 0;
 
-  tex_internal_format = GL_RGB;//GL_RGBA16F_ARB;
-  tex_format = GL_RGB;
-  tex_type = GL_UNSIGNED_BYTE;//GL_HALF_FLOAT_ARB; //GL_FLOAT;
-  tex_filter = GL_LINEAR;
+  tex_internal_format =  GL_RGB;//GL_RGBA16F_ARB;
+  tex_format =           GL_RGB;
+  tex_type =             GL_UNSIGNED_BYTE;//GL_HALF_FLOAT_ARB; //GL_FLOAT;
+  tex_filter =           GL_LINEAR;
 
   fbo_res[0] = w;
   fbo_res[1] = h;
 
   //TEMP (we probably don't want to actually load a new shader for each render surface)
   shader = new Shader;
+  target_tex = new Texture2D(fbo_res[0], fbo_res[1]);
 }
 
 RenderSurface::~RenderSurface()
 {
   deinit();
   delete shader;
+  delete target_tex;
 }
 
 void RenderSurface::set_shader_names(std::string vs, std::string fs)
@@ -82,18 +90,13 @@ void RenderSurface::add_uniform_ptr(Float2 *u, std::string name)
   uniforms.push_back(uniform_pair);
 }
 
-void RenderSurface::add_uniform_tex(GLuint t, std::string name)
-{
-  std::pair<GLuint, std::string> tex_pair(t, name);
-  tex_uniforms.push_back(tex_pair);
-}
-
 void RenderSurface::add_uniform(Float2 &v, std::string name)
 {
   f2_uni_const.push_back(v);
   Float2 *f2_ptr = &(f2_uni_const[f2_uni_const.size() - 1]);
   std::pair<Float2 *, std::string> f2_pair(f2_ptr, name);
   uniforms.push_back(f2_pair);
+  //mat.add_uniform_var();
 }
 
 void RenderSurface::add_uniform(Float3 &v, std::string name)
@@ -107,7 +110,7 @@ void RenderSurface::init()
   shader->set_shader_filenames(vertex_shader_name, fragment_shader_name);
   shader->load_link_and_compile();
   mat.set_shader(shader);
-  mat.init();
+  mat.set_verbose(true);
 
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -118,18 +121,29 @@ void RenderSurface::init()
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 4, index_data, GL_STATIC_DRAW);
 
   // create a color texture
-  glGenTextures(1, &target_tex);
-  glBindTexture(GL_TEXTURE_2D, target_tex);
-  glTexImage2D(GL_TEXTURE_2D, 0, tex_internal_format, fbo_res[0], fbo_res[1], 0, tex_format, tex_type, 0);
+  //glGenTextures(1, &target_tex);
+  //glBindTexture(GL_TEXTURE_2D, target_tex);
+  //glTexImage2D(GL_TEXTURE_2D, 0, tex_internal_format, fbo_res[0], fbo_res[1], 0, tex_format, tex_type, 0);
+  target_tex->set_tex_format(tex_format);
+  target_tex->set_internal_format(tex_internal_format);
+  target_tex->set_data_format(tex_type);
+  target_tex->set_filtering_mode(tex_filter);
+  target_tex->set_wrap_mode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+  target_tex->set_resolution(fbo_res[0], fbo_res[1]);
+  target_tex->init();
 
+  /*
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, tex_filter);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, tex_filter);
-  glBindTexture(GL_TEXTURE_2D, 0);
+  glBindTexture(GL_TEXTURE_2D, 0);*/
 
-  std::string tex_name("surface_tex");
-  add_uniform_tex(target_tex, tex_name);
+  //std::string tex_name("surface_tex");
+  //add_uniform_tex(target_tex, tex_name);
+  mat.add_texture(target_tex, std::string("surface_tex"));
+
+  mat.init();
 
   // create depth renderbuffer
   if(use_depth)
@@ -146,7 +160,7 @@ void RenderSurface::init()
   // create FBO
   glGenFramebuffersEXT(1, &target_fbo);
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, target_fbo);
-  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, target_tex, 0);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, target_tex->get_tex_id(), 0);
   if(use_depth)
   {
     glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth_fbo);
@@ -189,8 +203,8 @@ void RenderSurface::render()
   glLoadIdentity();
 
   mat.render();
-
   Shader *shader = mat.get_shader();
+
   for(int i = 0; i < uniforms.size(); i++)
   {
     Float2 *uval = uniforms[i].first;
@@ -207,6 +221,7 @@ void RenderSurface::render()
     glUniform3f(uloc, uval[0], uval[1], uval[2]);
   }
 
+/*
   for(int i = 0; i < tex_uniforms.size(); i++)
   {
     GLuint tex_id = tex_uniforms[i].first;
@@ -220,8 +235,8 @@ void RenderSurface::render()
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, tex_id);
   }
+  */
 
-  //mat.render_gl();
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -233,14 +248,16 @@ void RenderSurface::render()
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, (void *)0);
 
-  //reset shader
-  glUseProgramObjectARB(0);
+  mat.cleanup();
 
-  for(int i = 0; i < tex_uniforms.size(); i++)
+  //reset shader
+  //glUseProgramObjectARB(0);
+
+  /*for(int i = 0; i < tex_uniforms.size(); i++)
   {
     glActiveTexture(GL_TEXTURE0 + i);
     glClientActiveTexture(GL_TEXTURE0 + i);
     glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
-  }
+  }*/
 }

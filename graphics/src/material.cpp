@@ -19,6 +19,9 @@ Material::Material()
   dst_blend_param = GL_ONE_MINUS_SRC_ALPHA;
 
   shader = NULL;
+#ifdef __DEBUG__
+  verbose = false;
+#endif //__DEBUG__
 }
 
 Material::~Material()
@@ -27,11 +30,18 @@ Material::~Material()
 
 void Material::init()
 {
+#ifdef __DEBUG__
+  if(verbose)
+  {
+    cout<<"Material::init()"<<endl;
+    cout<<"\tnum 2D textures: "<<textures_2d.size()<<endl;
+    cout<<"\tnum 3D textures: "<<textures_3d.size()<<endl;
+  }
+#endif //__DEBUG__
   //bare minimum, we need a shader
   assert(shader);
 
   //NOTE: we assume that by this point the shader has been loaded, compiled, linked, etc...
-
   //create uniforms for all the textures
   for(int i = 0; i < textures_2d.size(); i++)
   {
@@ -42,12 +52,32 @@ void Material::init()
 
     texture_uniforms.push_back(sui);
   }
+  for(int i = 0; i < textures_3d.size(); i++)
+  {
+    ShaderUniformInt sui;
+    sui.set_name(textures_3d[i].second);
+    sui.set_loc(shader);
+    sui.set_var(i + textures_2d.size());
+
+    texture_uniforms.push_back(sui);
+  }
 
   //collect all the uniform variable locations
   for(int i = 0; i < shader_uniforms.size(); i++)
   {
     shader_uniforms[i]->set_loc(shader);
   }
+
+#ifdef __DEBUG__
+  if(verbose)
+  {
+    cout<<"\tTexture Uniform Variables: "<<endl;
+    for(int i = 0; i < texture_uniforms.size(); i++)
+    {
+      cout<<"\t\t"<<texture_uniforms[i].get_name()<<": "<<texture_uniforms[i].get_var()<<endl;
+    }
+  }
+#endif //__DEBUG__
 }
 
 void Material::add_texture(Texture2D *t, string name)

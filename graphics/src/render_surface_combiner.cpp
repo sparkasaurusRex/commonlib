@@ -39,8 +39,7 @@ RenderSurfaceCombiner::RenderSurfaceCombiner()
  vbo = 0;
  ibo = 0;
 
- lut = NULL;
- lut3D = NULL;
+ //lut3D = NULL;
  vignette = NULL;
  shader = new Shader;
 }
@@ -76,8 +75,7 @@ void RenderSurfaceCombiner::init()
   mat.add_uniform_var(&gpu_texel_size);
 
   mat.add_texture(vignette, "vignette_tex");
-  mat.add_texture(lut, "lut_tex");
-  mat.add_texture(lut3D, "lut_tex_3D");
+  //mat.add_texture(lut3D, "lut_tex_3D");
 
   mat.init();
 
@@ -127,19 +125,19 @@ void RenderSurfaceCombiner::render()
 
   glActiveTexture(GL_TEXTURE0 + tex_slot_offset);
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, a->get_tex());
+  glBindTexture(GL_TEXTURE_2D, a->get_tex()->get_tex_id());
 
   glActiveTexture(GL_TEXTURE0 + tex_slot_offset + 1);
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, b->get_tex());
+  glBindTexture(GL_TEXTURE_2D, b->get_tex()->get_tex_id());
 
   glActiveTexture(GL_TEXTURE0 + tex_slot_offset + 2);
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, c->get_tex());
+  glBindTexture(GL_TEXTURE_2D, c->get_tex()->get_tex_id());
 
   glActiveTexture(GL_TEXTURE0 + tex_slot_offset + 3);
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, d->get_tex());
+  glBindTexture(GL_TEXTURE_2D, d->get_tex()->get_tex_id());
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
