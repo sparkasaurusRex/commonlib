@@ -20,6 +20,8 @@ namespace Graphics
     virtual void deinit();
     virtual void render();
     void render_method_2();
+
+    Material *get_mat2() { return &mat2; }
   private:
     float                  exposure;
     float                  bloom_threshold;

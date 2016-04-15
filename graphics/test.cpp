@@ -465,6 +465,7 @@ private:
     gpu_hair.set_color_tex(color_tex);
 
     tex_3d = new Texture3D("../../mundus/data/textures/lut_basic.tif");
+    tex_3d->set_wrap_mode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
     tex_3d->load(32);
 
     Float3 cam_pos(0.0f, 0.5f, -10.0f);

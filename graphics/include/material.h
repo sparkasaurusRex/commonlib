@@ -42,6 +42,10 @@ namespace Graphics {
 
       void add_tex_idx(const int tid);
 
+#ifdef __DEBUG__
+      void set_verbose(const bool v) { verbose = v; }
+#endif //__DEBUG__
+
     private:
       Shader                                               *shader;
       std::vector<ShaderUniformVariable *>                 shader_uniforms;
@@ -59,6 +63,10 @@ namespace Graphics {
 
       //depth parameters
       Math::Float2 depth_range;
+
+#ifdef __DEBUG__
+      bool verbose;
+#endif //__DEBUG__
   };
 };
 

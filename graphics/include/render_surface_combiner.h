@@ -17,8 +17,7 @@ namespace Graphics
     void set_surfaces(RenderSurface *_a, RenderSurface *_b, RenderSurface *_c, RenderSurface *_d);
     void set_shader_names(std::string vs, std::string fs);
 
-    void set_lut_texture(Texture2D *lt) { lut = lt; }
-    void set_lut_texture(Texture3D *lt) { lut3D = lt; }
+    //void set_lut_texture(Texture3D *lt) { lut3D = lt; }
     void set_vignette_texture(Texture2D *vt) { vignette = vt; }
 
     void init();
@@ -40,8 +39,7 @@ namespace Graphics
 
     Material               mat;
     Shader                 *shader;
-    Texture2D              *lut;
-    Texture3D              *lut3D;
+    //Texture3D              *lut3D;
     Texture2D              *vignette;
 
     ShaderUniformFloat2    gpu_texel_size;

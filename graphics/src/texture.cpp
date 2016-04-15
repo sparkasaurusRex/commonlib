@@ -28,7 +28,11 @@
 using namespace std;
 using namespace Graphics;
 
-Texture2D::Texture2D(const unsigned int w, const unsigned int h, const GLuint m)
+Texture2D::Texture2D(const unsigned int w,
+                     const unsigned int h,
+                     const GLuint _data_format,
+                     const GLuint _internal_format,
+                     const GLuint _tex_format)
 {
   fname[0] = '\0';
 
@@ -38,7 +42,9 @@ Texture2D::Texture2D(const unsigned int w, const unsigned int h, const GLuint m)
   filter_mode = GL_LINEAR;
   wrap_mode[0] = GL_REPEAT;
   wrap_mode[1] = GL_REPEAT;
-  gl_mode = m;
+  data_format = _data_format;
+  internal_format = _internal_format;
+  tex_format = _tex_format;
 }
 
 Texture2D::Texture2D(const char *n)
@@ -47,7 +53,9 @@ Texture2D::Texture2D(const char *n)
   filter_mode = GL_LINEAR;
   wrap_mode[0] = GL_REPEAT;
   wrap_mode[1] = GL_REPEAT;
-  gl_mode = GL_RGBA;
+  data_format = GL_UNSIGNED_BYTE;
+  internal_format = GL_RGBA;
+  tex_format = GL_RGBA;
 }
 
 Texture2D::~Texture2D()
@@ -65,12 +73,12 @@ void Texture2D::init()
 
   glTexImage2D(GL_TEXTURE_2D,
                0,
-               gl_mode,
+               internal_format,
                dim[0],
                dim[1],
                0,
-               gl_mode,
-               GL_UNSIGNED_BYTE,
+               tex_format,
+               data_format,
                NULL);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_mode[0]);
@@ -79,6 +87,8 @@ void Texture2D::init()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_mode);
 
   assert(glIsTexture(gl_texture) == GL_TRUE);
+
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 bool Texture2D::load()
@@ -111,11 +121,13 @@ bool Texture2D::load()
 
     if(image->format->BytesPerPixel == 3)
     {
-      gl_mode = GL_RGB;
+      tex_format = GL_RGB;
+      internal_format = GL_RGB;
     }
     else if(image->format->BytesPerPixel == 4)
     {
-      gl_mode = GL_RGBA;
+      tex_format = GL_RGBA;
+      internal_format = GL_RGBA;
     }
 
 #endif
@@ -132,16 +144,16 @@ bool Texture2D::load()
 
     glTexImage2D(GL_TEXTURE_2D,
                    0,
-                   gl_mode,
+                   internal_format,
                    width,
                    height,
                    0,
-                   gl_mode,
-                   GL_UNSIGNED_BYTE,
+                   tex_format,
+                   data_format,
 #if defined(__USE_SOIL__)
-                 image);
+                   image);
 #else
-                 image->pixels);
+                   image->pixels);
 #endif
 
     //not sure if these should go here, or in the render loop
@@ -161,49 +173,6 @@ bool Texture2D::load()
 
   return true;
 }
-
-/*
-bool Texture2D::load_from_file_data(TextureFileData &tfd)
-{
-    if(gl_texture != 0)
-    {
-      assert(glIsTexture(gl_texture) == GL_TRUE);
-      return true; //already loaded
-    }
-
-    glGenTextures(1, &gl_texture);
-
-    glBindTexture(GL_TEXTURE_2D, gl_texture);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    if(glIsTexture(gl_texture) != GL_TRUE)
-  {
-      assert(false);
-      return false;
-  }
-
-    dim[0] = tfd.dim[0];
-    dim[1] = tfd.dim[1];
-
-    //not sure if these should go here, or in the render loop
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_mode[0]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_mode[1]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_mode)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_mode);
-
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 gl_mode,
-                 dim[0],
-                 dim[1],
-                 0,
-                 gl_mode,
-                 GL_UNSIGNED_BYTE,
-                 tfd.image);
-
-    return true;
-}
-*/
 
 //set up the texture for rendering
 void Texture2D::render_gl(GLuint tex_stage) const
@@ -231,10 +200,10 @@ bool Texture2D::update_pixels_from_mem(void *pixels)
                   mip_level,        //mip level to overwrite
                   0,                //starting u-coord
                   0,                //starting v-coord
-                  dim[0],            //width of update rect
-                  dim[1],            //height of update rect
-                  gl_mode,          //pixel format
-                  GL_UNSIGNED_BYTE,
+                  dim[0],           //width of update rect
+                  dim[1],           //height of update rect
+                  tex_format,       //pixel format
+                  data_format,      //GL_UNSIGNED_BYTE, etc.
                   pixels);          //pointer to pixel data
   return true;
 }
@@ -257,7 +226,7 @@ Texture3D::Texture3D(const char *n)
   strcpy(fname, n);
   gl_mode = GL_RGBA;
   wrap_mode[0] = wrap_mode[1] = wrap_mode[2] = GL_REPEAT;
-  filter_mode = GL_NEAREST;
+  filter_mode = GL_LINEAR;
 }
 
 Texture3D::~Texture3D()

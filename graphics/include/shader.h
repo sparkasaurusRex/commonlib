@@ -43,6 +43,7 @@ namespace Graphics
     ShaderUniformVariable() { name = "foo"; loc = 0; }
     ~ShaderUniformVariable() {}
 
+    std::string get_name() const { return name; }
     void set_name(std::string n) { name = n; }
     void set_loc(GLuint l) { loc = l; }
     void set_loc(Shader *sp)
@@ -65,6 +66,7 @@ namespace Graphics
     virtual void render() const { glUniform1i(loc, var); }
 
     void set_var(const int v) { var = v; }
+    int get_var() const { return var; }
   private:
     int var;
   };
