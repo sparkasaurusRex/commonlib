@@ -33,9 +33,17 @@ namespace Graphics {
       void add_uniform_var(ShaderUniformVariable *suv) { shader_uniforms.push_back(suv); }
 
       void enable_lighting(const bool l); //archaic?
-      void enable_blending(const bool b);
 
+      void enable_blending(const bool b);
       void set_blend_mode(const GLenum src, const GLenum dst);
+
+      void enable_depth_write(const bool d) { depth_write = d; }
+      void enable_depth_read(const bool d) { depth_read = d; }
+      void set_depth_function(GLenum df) { depth_func = df; }
+      void set_depth_range(const Math::Float2 dr) { depth_range = dr; }
+
+      void enable_backface_culling(const bool bc) { backface_cull = bc; }
+      void set_culling_winding(const GLenum cw) { backface_cull_winding = cw; }
 
       void render() const;
       void cleanup() const;
@@ -62,7 +70,13 @@ namespace Graphics {
       GLenum dst_blend_param;
 
       //depth parameters
+      GLenum depth_func;
+      bool depth_write;
+      bool depth_read;
       Math::Float2 depth_range;
+
+      bool backface_cull;
+      GLenum backface_cull_winding;
 
 #ifdef __DEBUG__
       bool verbose;

@@ -18,6 +18,14 @@ Material::Material()
   src_blend_param = GL_SRC_COLOR;
   dst_blend_param = GL_ONE_MINUS_SRC_ALPHA;
 
+  depth_read = true;
+  depth_write = true;
+  depth_func = GL_LEQUAL;
+  depth_range = Float2(0.0f, 1.0f);
+
+  backface_cull = true;
+  backface_cull_winding = GL_CCW;
+
   shader = NULL;
 #ifdef __DEBUG__
   verbose = false;
@@ -142,14 +150,8 @@ void Material::render() const
     glBindTexture(GL_TEXTURE_3D, textures_3d[i].first->get_tex_id());
   }
 
-  if(lighting)
-  {
-    glEnable(GL_LIGHTING);
-  }
-  else
-  {
-    glDisable(GL_LIGHTING);
-  }
+  if(lighting) { glEnable(GL_LIGHTING); }
+  else { glDisable(GL_LIGHTING); }
 
   //TODO - we should really render all transparents
   //       at once... with back to front sorting... yeah.
@@ -164,6 +166,21 @@ void Material::render() const
   {
     glDisable(GL_BLEND);
   }
+
+  //depth stuff
+  if(depth_read) { glEnable(GL_DEPTH_TEST); }
+  else { glDisable(GL_DEPTH_TEST); }
+  if(depth_write) { glDepthMask(GL_TRUE); }
+  else { glDepthMask(GL_FALSE); }
+  glDepthRange(depth_range[0], depth_range[1]);
+
+  //backface culling
+  if(backface_cull)
+  {
+    glEnable(GL_CULL_FACE);
+    glFrontFace(backface_cull_winding);
+  }
+  else { glDisable(GL_CULL_FACE); }
 }
 
 void Material::cleanup() const
