@@ -18,15 +18,17 @@ using namespace Graphics;
 
 Shader::Shader()
 {
-  gl_fragment_shader = 0;
-  gl_vertex_shader = 0;
-  gl_shader_program = 0;
+  name[0] = '\0';
 
-  //gl_fragment_source = NULL;
-  //gl_vertex_source = NULL;
+  gl_fragment_shader =  0;
+  gl_vertex_shader =    0;
+  gl_shader_program =   0;
 
   strcat(gl_fragment_shader_fname, "");
   strcat(gl_vertex_shader_fname, "");
+
+  vs_text = NULL;
+  fs_text = NULL;
 }
 
 Shader::~Shader()
@@ -42,7 +44,7 @@ void Shader::set_shader_filenames(std::string vs_fname, std::string fs_fname)
   strcpy(gl_vertex_shader_fname, vs_fname.c_str());
 }
 
-GLuint Shader::load_and_compile_shader(GLenum shader_type, const char *source)
+GLuint Shader::compile_shader(GLenum shader_type, const char *source)
 {
   //GLuint my_shader = glCreateShaderObjectARB(shader_type);
   GLuint my_shader = glCreateShader(shader_type);
@@ -87,7 +89,13 @@ void print_log(GLuint obj)
 		printf("%s\n",infoLog);
 }
 
-bool Shader::load_link_and_compile()
+void set_shader_source(const char *vs, const char *fs)
+{
+  vs_text = vs;
+  fs_text = fs;
+}
+
+bool Shader::init()
 {
     GLsizei err_len;
     GLcharARB err_log[512];
@@ -113,7 +121,7 @@ bool Shader::load_link_and_compile()
       memset(gl_vertex_source, 0, string_size + 1);
       fread(gl_vertex_source, sizeof(char), string_size, fp);
 
-      gl_vertex_shader = load_and_compile_shader(GL_VERTEX_SHADER_ARB, gl_vertex_source);
+      gl_vertex_shader = compile_shader(GL_VERTEX_SHADER_ARB, gl_vertex_source);
       print_log(gl_vertex_shader);
 
       glAttachShader(gl_shader_program, gl_vertex_shader);

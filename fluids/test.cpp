@@ -154,9 +154,48 @@ private:
   void user_run()
   {
   }
+
   void user_process_event(const SDL_Event &event)
   {
 
+
+    int mouse_x, mouse_y, num_keys;
+    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    const Uint8 *keyboard_state = SDL_GetKeyboardState(&num_keys);
+    if(button_state & SDL_BUTTON(SDL_BUTTON_LEFT))
+    {
+      float fluid_amt =  fluid_add_amount;
+      if(keyboard_state[SDL_SCANCODE_LCTRL])
+      {
+        fluid_amt = -fluid_amt;
+      }
+      int w, h;
+      fluid_tex->get_dim(w, h);
+      Float2 click_pt((float)mouse_x / resolution[0], (float)mouse_y / resolution[1]);
+      fluid->add_density_at_point(click_pt, fluid_amt, 0.025f);
+    }
+
+    switch(event.type)
+    {
+      case SDL_MOUSEWHEEL:
+        //zoom += (float)event.wheel.y * 0.08f;
+        break;
+      case SDL_KEYUP:
+        switch(event.key.keysym.sym)
+        {
+          case SDL_MOUSEMOTION:
+          {
+            if(event.motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT))
+            {
+              //cout<<"button 1 pressed and mouse moving"<<endl;
+              Float2 pt((float)event.motion.x / resolution[0], (float)event.motion.y / resolution[1]);
+              Float2 vel(velocity_scale * (float)event.motion.xrel, velocity_scale * (float)event.motion.yrel);
+              fluid->add_velocity_at_point(pt, vel, 0.03f);
+            }
+            break;
+          }
+        }
+    }
   }
 
   void fill_fluid_texture()
@@ -200,21 +239,21 @@ private:
     delete pixels;
   }
 
-  int fluid_dim;
-  float previous_game_time;
-  float time_scale;
-  float velocity_scale;
-  float fluid_add_amount;
+  int                       fluid_dim;
+  float                     previous_game_time;
+  float                     time_scale;
+  float                     velocity_scale;
+  float                     fluid_add_amount;
 
-  int fluid_channel_display;
+  int                       fluid_channel_display;
 
-  Texture2D *fluid_tex;
-  Fluid2D *fluid;
-  Fluid2DInflow *inflow;
-  Fluid2DTurbulenceField *turb, *turb2;
-  Fluid2DTurbulenceInflow *turb_in[3];
-  Fluid2DTurbulenceInflow *turb_out[3];
-  Fluid2DAngleSnapper *angle_snapper;
+  Texture2D                 *fluid_tex;
+  Fluid2D                   *fluid;
+  Fluid2DInflow             *inflow;
+  Fluid2DTurbulenceField    *turb, *turb2;
+  Fluid2DTurbulenceInflow   *turb_in[3];
+  Fluid2DTurbulenceInflow   *turb_out[3];
+  Fluid2DAngleSnapper       *angle_snapper;
 };
 
 

@@ -13,6 +13,16 @@ using namespace PerlinNoise;
 using namespace std;
 using namespace Math;
 
+const char passthrough_vs[] =
+"\
+#version 120\
+\
+void main(void) {\
+	gl_TexCoord[0] = gl_MultiTexCoord0;\
+	gl_Position = ftransform();\
+}\
+";
+
 enum RenderMode
 {
   RENDER_HAIR,
