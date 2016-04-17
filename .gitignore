@@ -1,9 +1,11 @@
 *.o
+*.obj
 *.a
 *.DS_Store
 *.dSYM
 *init.txt
 *capture/
+*Debug/
 fluids/bin/*
 fluids/test
 game/bin/*

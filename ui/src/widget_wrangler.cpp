@@ -1,9 +1,3 @@
-#if defined(__APPLE__)
-#include <OpenGL/glu.h>
-#else
-#include <GL/glu.h>
-#endif
-
 #include "widget_wrangler.h"
 
 using namespace UI;
@@ -31,7 +25,7 @@ void WidgetWrangler::render() const
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  for(int i = 0; i < widgets.size(); i++)
+  for(unsigned int i = 0; i < widgets.size(); i++)
   {
     widgets[i]->render();
   }
@@ -42,7 +36,7 @@ void WidgetWrangler::process_event(const SDL_Event &e)
   //cout<<"WidgetWrangler::process_event()"<<endl;
   //first, figure out which widget has the focus
   //focus_idx = 0;
-  for(int i = 0; i < widgets.size(); i++)
+  for(unsigned int i = 0; i < widgets.size(); i++)
   {
     Widget *w = widgets[i];
     if(e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT)
@@ -60,7 +54,7 @@ void WidgetWrangler::process_event(const SDL_Event &e)
   }
 
   //next, dispatch event messages
-  for(int i = 0; i < widgets.size(); i++)
+  for(unsigned int i = 0; i < widgets.size(); i++)
   {
     Widget *w = widgets[i];
     //w->process_event(e);
@@ -80,7 +74,7 @@ void WidgetWrangler::process_event(const SDL_Event &e)
 
 void WidgetWrangler::simulate(const float dt)
 {
-  for(int i = 0; i < widgets.size(); i++)
+  for(unsigned int i = 0; i < widgets.size(); i++)
   {
     widgets[i]->simulate(dt);
   }

@@ -341,8 +341,10 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
 
   int k = 0;
 
-  for (int i = 0; i < forces.size(); i++) {
-    if (forces[i]->getForceType() == ATTRACTOR) {
+  for(unsigned int i = 0; i < forces.size(); i++)
+  {
+    if(forces[i]->getForceType() == ATTRACTOR)
+	{
 
       Attractor * a = static_cast<Attractor *>(forces[i]);
 
@@ -363,7 +365,7 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   //constants
   //{dt, lifespan, num_attractors, emitter_range, emitter_strength, sim_time, rand_curve_id, emitter_dir_id, data_tex_height}
   const int num_constants = 9;
-  GLfloat constants[num_constants] = {dt, particleLifespan, k / 4, emitter_range, emitter_strength, (game_time - start_time) / 1000.f, 0, emitter_dir_id, data_tex_height};
+  GLfloat constants[num_constants] = {dt, particleLifespan, (float)(k / 4), emitter_range, emitter_strength, (game_time - start_time) / 1000.f, 0, (float)emitter_dir_id, (float)data_tex_height};
   glUniform1fv(uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS], num_constants, constants);
 
   //prev_pos_tex
@@ -448,7 +450,7 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   //constants
   //{dt, lifespan, does_loop, emitter_radius, emitter_duration, sim_time, rand_curve_id, age_curve_id, data_tex_height}
   const int num_constants = 9;
-  GLfloat constants[num_constants] = {dt, particleLifespan, does_loop, emitter_radius, emitter_duration, (game_time - start_time) / 1000.f, 0, age_curve_id, data_tex_height};
+  GLfloat constants[num_constants] = { dt, particleLifespan, (float)does_loop, emitter_radius, emitter_duration, (game_time - start_time) / 1000.f, 0.0f, (float)age_curve_id, (float)data_tex_height };
   glUniform1fv(uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS], num_constants, constants);
 
   //prev_pos_tex
@@ -534,7 +536,7 @@ void GPUParticleSystem::render()
   // constants
   // { lifespan, color_curve_id, size_curve_id, data_tex_height }
   const int num_constants = 4;
-  GLfloat constants[num_constants] = {particleLifespan, color_curve_id, size_curve_id, data_tex_height};
+  GLfloat constants[num_constants] = {particleLifespan, (float)color_curve_id, (float)size_curve_id, (float)data_tex_height};
   glUniform1fv(uniform_locations[UNIFORM_RENDER_CONSTANTS], num_constants, constants);
 
   //pos_tex
@@ -600,7 +602,7 @@ GPUParticleSim::GPUParticleSim() {
 }
 
 GPUParticleSim::~GPUParticleSim() {
-  for (int i = 0; i < particle_systems.size(); i++) {
+  for(unsigned int i = 0; i < particle_systems.size(); i++) {
     delete particle_systems[i];
   }
   particle_systems.clear();
@@ -612,10 +614,12 @@ void GPUParticleSim::addCurveVec4(const char *file_name_r,
                                   const char *file_name_a,
                                   const char *handle)
 {
-  FILE *file_r = fopen(file_name_r, "rb");
-  FILE *file_g = fopen(file_name_g, "rb");
-  FILE *file_b = fopen(file_name_b, "rb");
-  FILE *file_a = fopen(file_name_a, "rb");
+  
+  FILE *file_r, *file_g, *file_b, *file_a;
+  fopen_s(&file_r, file_name_r, "rb");
+  fopen_s(&file_g, file_name_g, "rb");
+  fopen_s(&file_b, file_name_b, "rb");
+  fopen_s(&file_a, file_name_a, "rb");
 
   if(file_r == NULL || file_g == NULL || file_b == NULL || file_a == NULL)
   {
@@ -655,7 +659,8 @@ void GPUParticleSim::addCurveVec4(const char *file_name_r,
 
 void GPUParticleSim::addCurve(const char * file_name, const char * handle)
 {
-  FILE * file = fopen(file_name, "rb");
+  FILE *file;
+  fopen_s(&file, file_name, "rb");
 
   if(file_name == NULL)
   {
@@ -696,7 +701,8 @@ void GPUParticleSim::simulate(const float game_time, const float dt) {
 }
 
 void GPUParticleSim::render() {
-  for (int i = 0; i < particle_systems.size(); i++) {
+  for(unsigned int i = 0; i < particle_systems.size(); i++)
+  {
     particle_systems[i]->render();
   }
 }
@@ -736,7 +742,7 @@ void GPUParticleSim::addParticleSystem(int numParticles,
   int emitter_dir_id = 0;
   int age_id = 0;
 
-  for(int i = 0; i < curve_handles.size(); i++)
+  for(unsigned int i = 0; i < curve_handles.size(); i++)
   {
     if(curve_handles[i] == color_handle)
     {

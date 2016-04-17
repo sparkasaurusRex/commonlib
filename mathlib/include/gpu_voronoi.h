@@ -1,6 +1,11 @@
 #ifndef __GPU_VORONOI_H__
 #define __GPU_VORONOI_H__
 
+#if defined(_WIN32)
+#include <Windows.h>
+#include <gl/glew.h>
+#endif
+
 #if defined (__APPLE__)
 #include <OpenGL/GL.h>
 #else

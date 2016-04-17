@@ -49,8 +49,8 @@ namespace Math
         //this will almost certainly never happen, so it's ok it's a little slow
         //if this proves too slow, we could also sort on x-coord in
         //cartesian space
-        float long_a = 0.5f + (atan2(a.first._val[2], a.first._val[0]) / M_PI) * 0.5f;
-        float long_b = 0.5f + (atan2(b.first._val[2], b.first._val[0]) / M_PI) * 0.5f;
+        float long_a = 0.5f + (atan2(a.first._val[2], a.first._val[0]) / (float)M_PI) * 0.5f;
+        float long_b = 0.5f + (atan2(b.first._val[2], b.first._val[0]) / (float)M_PI) * 0.5f;
         return (long_a < long_b);
       }
     };

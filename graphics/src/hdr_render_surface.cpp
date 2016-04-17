@@ -83,7 +83,7 @@ void HDRRenderSurface::render_method_2()
 
   mat2.render();
 
-  for(int i = 0; i < uniforms.size(); i++)
+  for(unsigned int i = 0; i < uniforms.size(); i++)
   {
     Float2 *uval = uniforms[i].first;
     std::string uname = uniforms[i].second;

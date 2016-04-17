@@ -196,7 +196,7 @@ void Triangulation2D::generate_convex_hull()
   //first, find the vertex with the smallest y coordinate
   int min_y_idx = -1;
   Float2 min_vert;
-  for(int i = 0; i < vertices->size(); i++)
+  for(unsigned int i = 0; i < vertices->size(); i++)
   {
     index_list.push_back(i);
     Float2 v = (*vertices)[i];
@@ -222,7 +222,7 @@ void Triangulation2D::generate_convex_hull()
   std::sort(index_list.begin(), index_list.end(), ca);
 
   std::vector<int> convex_hull;
-  for(int i = 0; i < index_list.size(); i++)
+  for(unsigned int i = 0; i < index_list.size(); i++)
   {
     Float2 p = (*vertices)[index_list[i]];
     while(convex_hull.size() > 2 && ccw((*vertices)[convex_hull[i - 2]],
@@ -269,7 +269,7 @@ void Triangulation2D::generate_convex_hull()
   */
 
   //push all the indices into the edge list
-  for(int i = 0; i < convex_hull.size() - 1; i++)
+  for(unsigned int i = 0; i < convex_hull.size() - 1; i++)
   {
     Edge2D new_edge;
     new_edge.vidx[0] = convex_hull[i];

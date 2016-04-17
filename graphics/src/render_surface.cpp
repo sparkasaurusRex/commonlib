@@ -6,8 +6,6 @@
 
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
 #endif
 
 #include <assert.h>
@@ -110,7 +108,8 @@ void RenderSurface::init()
   shader->set_shader_filenames(vertex_shader_name, fragment_shader_name);
   shader->load_link_and_compile();
   mat.set_shader(shader);
-  mat.set_verbose(true);
+
+  //mat.set_verbose(true);
 
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -205,7 +204,7 @@ void RenderSurface::render()
   mat.render();
   Shader *shader = mat.get_shader();
 
-  for(int i = 0; i < uniforms.size(); i++)
+  for(unsigned int i = 0; i < uniforms.size(); i++)
   {
     Float2 *uval = uniforms[i].first;
     std::string uname = uniforms[i].second;
@@ -213,7 +212,7 @@ void RenderSurface::render()
     glUniform2f(uloc, (*uval)[0], (*uval)[1]);
   }
 
-  for(int i = 0; i < float3_uniforms.size(); i++)
+  for(unsigned int i = 0; i < float3_uniforms.size(); i++)
   {
     Float3 uval = float3_uniforms[i].first;
     std::string uname = float3_uniforms[i].second;

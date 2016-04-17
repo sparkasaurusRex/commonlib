@@ -7,7 +7,11 @@
 #include <GL/gl.h>
 #endif
 
+#if defined(_WIN32)
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif //_WIN32
 
 #include <string>
 #include <assert.h>

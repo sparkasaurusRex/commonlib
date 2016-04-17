@@ -7,8 +7,6 @@
 
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
 #endif //__APPLE__
 
 #include "shader.h"
@@ -24,8 +22,8 @@ Shader::Shader()
   gl_vertex_shader =    0;
   gl_shader_program =   0;
 
-  strcat(gl_fragment_shader_fname, "");
-  strcat(gl_vertex_shader_fname, "");
+  strcat_s(gl_fragment_shader_fname, "");
+  strcat_s(gl_vertex_shader_fname, "");
 }
 
 Shader::~Shader()
@@ -37,8 +35,8 @@ Shader::~Shader()
 
 void Shader::set_shader_filenames(std::string vs_fname, std::string fs_fname)
 {
-  strcpy(gl_fragment_shader_fname, fs_fname.c_str());
-  strcpy(gl_vertex_shader_fname, vs_fname.c_str());
+  strcpy_s(gl_fragment_shader_fname, fs_fname.c_str());
+  strcpy_s(gl_vertex_shader_fname, vs_fname.c_str());
 }
 
 GLuint Shader::load_and_compile_shader(GLenum shader_type, const char *source)
@@ -56,11 +54,12 @@ GLuint Shader::load_and_compile_shader(GLenum shader_type, const char *source)
   	glGetShaderiv(my_shader, GL_INFO_LOG_LENGTH, &maxLength);
 
   	// The maxLength includes the NULL character
-  	GLchar errorLog[maxLength];
+  	GLchar *errorLog = new char[maxLength];
   	glGetShaderInfoLog(my_shader, maxLength, &maxLength, &errorLog[0]);
     cout<<errorLog<<endl;
 
   	glDeleteShader(my_shader);
+	delete errorLog;
   }
   return my_shader;
 }
@@ -75,7 +74,7 @@ void print_log(GLuint obj)
 	else
 		glGetProgramiv(obj,GL_INFO_LOG_LENGTH, &maxLength);
 
-	char infoLog[maxLength];
+	char *infoLog = new char[maxLength];
 
 	if (glIsShader(obj))
 		glGetShaderInfoLog(obj, maxLength, &infologLength, infoLog);
@@ -84,12 +83,14 @@ void print_log(GLuint obj)
 
 	if (infologLength > 0)
 		printf("%s\n",infoLog);
+
+	delete infoLog;
 }
 
 bool Shader::load_link_and_compile()
 {
-    GLsizei err_len;
-    GLcharARB err_log[512];
+    //GLsizei err_len;
+    //GLcharARB err_log[512];
 
     cout<<"loading vertex shader "<<gl_vertex_shader_fname<<endl;
 
@@ -99,8 +100,8 @@ bool Shader::load_link_and_compile()
     assert(gl_shader_program);
 
     //load shader file from disk
-    FILE *fp;
-    fp = fopen(gl_vertex_shader_fname, "r");
+    FILE *fp = NULL;
+    fopen_s(&fp, gl_vertex_shader_fname, "r");
     if(fp)
     {
       fseek(fp, 0, SEEK_END);
@@ -127,7 +128,8 @@ bool Shader::load_link_and_compile()
     }
 
     cout<<"loading fragment shader "<<gl_fragment_shader_fname<<endl;
-    fp = fopen(gl_fragment_shader_fname, "r");
+	fp = NULL;
+    fopen_s(&fp, gl_fragment_shader_fname, "r");
     if(fp)
     {
       fseek(fp, 0, SEEK_END);

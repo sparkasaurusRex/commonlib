@@ -124,7 +124,7 @@ void Ribbon::render(const float game_time)
 
 void Ribbon::simulate(const float gt, const float dt)
 {
-  float theta_offset = M_PI;
+  float theta_offset = (float)M_PI;
   float phi_offset = 0.0f;
   float ribbon_length = 0.6f; //in radians?
 

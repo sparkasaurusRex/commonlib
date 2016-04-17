@@ -1,18 +1,17 @@
-#include <SDL2/SDL.h>
+#include "texture.h"
 
-//http://www.libsdl.org/projects/SDL_image/
-//#if defined(__APPLE__)
-//#include <SDL2_image/SDL_image.h>
-//#else
+#if defined(_WIN32)
+#include <SDL.h>
+#include <SDL_image.h>
+#else
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-//#endif
+#endif
 
 //#define __USE_SOIL__
 
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
 #endif
 
 #if defined(__USE_SOIL__)
@@ -20,10 +19,9 @@
 #endif
 
 #include <iostream>
-
 #include <assert.h>
 
-#include "texture.h"
+
 
 using namespace std;
 using namespace Graphics;
@@ -49,7 +47,7 @@ Texture2D::Texture2D(const unsigned int w,
 
 Texture2D::Texture2D(const char *n)
 {
-  strcpy(fname, n);
+  strcpy_s(fname, n);
   filter_mode = GL_LINEAR;
   wrap_mode[0] = GL_REPEAT;
   wrap_mode[1] = GL_REPEAT;
@@ -101,9 +99,10 @@ bool Texture2D::load()
         return true; //already loaded
     }*/
 
-    int width, height, channels;
+    int width, height;
 
 #if defined(__USE_SOIL__)
+	int channels;
     unsigned char *image = SOIL_load_image(fname, &width, &height, &channels, SOIL_LOAD_RGBA);
     assert(image);
     dim[0] = width;
@@ -223,7 +222,7 @@ Texture3D::Texture3D(const unsigned int w, const unsigned int h, const unsigned 
 
 Texture3D::Texture3D(const char *n)
 {
-  strcpy(fname, n);
+  strcpy_s(fname, n);
   gl_mode = GL_RGBA;
   wrap_mode[0] = wrap_mode[1] = wrap_mode[2] = GL_REPEAT;
   filter_mode = GL_LINEAR;
@@ -266,9 +265,10 @@ bool Texture3D::load(const unsigned int depth)
 {
     cout<<"Texture3D::load()..."<<endl;
     cout<<"\t"<<fname<<endl;
-    int width, height, channels;
+    int width, height;
 
 #if defined(__USE_SOIL__)
+	int channels;
     unsigned char *image = SOIL_load_image(fname, &width, &height, &channels, SOIL_LOAD_RGBA);
     assert(image);
     dim[0] = width / depth;

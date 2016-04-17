@@ -5,8 +5,12 @@
 #include <iostream>
 
 #ifndef M_PHI
-#define M_PHI   1.61803398874989484820f
-#endif
+#define M_PHI   1.61803398874989484820
+#endif //M_PHI
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif //M_PI
 
 namespace Math {
   class Float2 {
@@ -123,7 +127,7 @@ namespace Math {
   }
 
   inline float lerp(float x, float y, float m) { return (x * (1.0f - m) + y * m); }
-  inline float cerp(float x, float y, float m) { double mu2 = (1.0f - cos(m * M_PI)) / 2.0f; return (x * (1.0f - mu2) + y * mu2); }
+  inline float cerp(float x, float y, float m) { float mu2 = (1.0f - (float)cos(m * M_PI)) / 2.0f; return (x * (1.0f - mu2) + y * mu2); }
 
   inline Float2 lerp(Float2 &x, Float2 &y, float m)
   {
@@ -145,8 +149,8 @@ namespace Math {
   inline Float3 cerp(Float3 &x, Float3 &y, float m) { return Float3(cerp(x._val[0], y._val[0], m), cerp(x._val[1], y._val[1], m), cerp(x._val[2], y._val[2], m)); }
 
   float clamp(float x, float a, float b);
-  float max(float a, float b);
-  float min(float a, float b);
+  //float max(float a, float b);
+  //float min(float a, float b);
 
   float inline remap_range(float x, float old_min, float old_max, float new_min, float new_max)
   {
@@ -169,8 +173,8 @@ namespace Math {
   float random(float a, float b);
   int random(int a, int b);
 
-  inline float degrees_to_radians(float d) { return (d / 180.0f) * M_PI; }
-  inline float radians_to_degrees(float r) { return (r / M_PI) * 180.0f; }
+  inline float degrees_to_radians(float d) { return (d / 180.0f) * (float)M_PI; }
+  inline float radians_to_degrees(float r) { return (r / (float)M_PI) * 180.0f; }
 
   inline float ccw(const Float2 &a, const Float2 &b, const Float2 &c)
   {

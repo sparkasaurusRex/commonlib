@@ -1,10 +1,13 @@
 #ifndef __GPU_PARTICLE_SYSTEM_H__
 #define __GPU_PARTICLE_SYSTEM_H__
 
+#if defined (_WIN32)
+#include <Windows.h>
+#include <GL/glew.h>
+#endif //_WIN32
+
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
 #endif
 
 #include <vector>

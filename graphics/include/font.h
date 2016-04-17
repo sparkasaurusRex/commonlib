@@ -1,17 +1,22 @@
 #ifndef __FONT_H__
 #define __FONT_H__
 
+#if defined (_WIN32)
+#include <Windows.h>
+#include <GL/glew.h>
+#endif
+
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#endif
+
 #include <ft2build.h>
 #include <freetype.h>
 #include <ftglyph.h>
 #include <ftoutln.h>
 #include <fttrigon.h>
 
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+
 
 class Font
 {

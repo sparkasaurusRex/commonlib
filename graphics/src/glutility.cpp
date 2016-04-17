@@ -1,16 +1,10 @@
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
-
 #include <math.h>
 #include "glutility.h"
 
 void gl_init()
 {
-    int argc;
-    char **argv;
+    //int argc;
+    //char **argv;
     //glutInit(&argc, argv);
 }
 

@@ -273,8 +273,8 @@ void CurveEditor::process_event(const SDL_Event &event)
             Float2 pos;
             std::string x_string = handle_pos_te[0].get_text();
             std::string y_string = handle_pos_te[1].get_text();
-            pos[0] = atof(x_string.c_str());
-            pos[1] = atof(y_string.c_str());
+            pos[0] = (float)atof(x_string.c_str());
+            pos[1] = (float)atof(y_string.c_str());
             last_selected_handle->translate(pos);
             curve->enforce_segment_ranges();
             cout<<"CurveEditor::process_event(): new_pos: "<<pos<<endl;
@@ -287,14 +287,16 @@ void CurveEditor::process_event(const SDL_Event &event)
         }
         case 's':
         {
-          FILE *f = fopen("test.curve", "wb");
+		  FILE *f = NULL;
+          fopen_s(&f, "test.curve", "wb");
           curve->fwrite(f);
           fclose(f);
           break;
         }
         case 'l':
         {
-          FILE *f = fopen("test.curve", "rb");
+		  FILE *f = NULL;
+		  fopen_s(&f, "test.curve", "rb");
           curve->fread(f);
           fclose(f);
           break;

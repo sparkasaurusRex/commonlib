@@ -51,7 +51,7 @@ void Material::init()
 
   //NOTE: we assume that by this point the shader has been loaded, compiled, linked, etc...
   //create uniforms for all the textures
-  for(int i = 0; i < textures_2d.size(); i++)
+  for(unsigned int i = 0; i < textures_2d.size(); i++)
   {
     ShaderUniformInt sui;
     sui.set_name(textures_2d[i].second);
@@ -60,7 +60,7 @@ void Material::init()
 
     texture_uniforms.push_back(sui);
   }
-  for(int i = 0; i < textures_3d.size(); i++)
+  for(unsigned int i = 0; i < textures_3d.size(); i++)
   {
     ShaderUniformInt sui;
     sui.set_name(textures_3d[i].second);
@@ -71,7 +71,7 @@ void Material::init()
   }
 
   //collect all the uniform variable locations
-  for(int i = 0; i < shader_uniforms.size(); i++)
+  for(unsigned int i = 0; i < shader_uniforms.size(); i++)
   {
     shader_uniforms[i]->set_loc(shader);
   }
@@ -124,25 +124,25 @@ void Material::render() const
   shader->render();
 
   //set up shader uniform variables
-  for(int i = 0; i < shader_uniforms.size(); i++)
+  for(unsigned int i = 0; i < shader_uniforms.size(); i++)
   {
     shader_uniforms[i]->render();
   }
 
-  for(int i = 0; i < texture_uniforms.size(); i++)
+  for(unsigned int i = 0; i < texture_uniforms.size(); i++)
   {
     texture_uniforms[i].render();
   }
 
   //textures
-  for(int i = 0; i < textures_2d.size(); i++)
+  for(unsigned int i = 0; i < textures_2d.size(); i++)
   {
     glActiveTexture(GL_TEXTURE0 + i);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textures_2d[i].first->get_tex_id());
   }
 
-  for(int i = 0; i < textures_3d.size(); i++)
+  for(unsigned int i = 0; i < textures_3d.size(); i++)
   {
     GLuint actual_tex_slot = GL_TEXTURE0 + textures_2d.size() + i;
     glActiveTexture(actual_tex_slot);
@@ -187,14 +187,14 @@ void Material::cleanup() const
 {
   glUseProgramObjectARB(0);
 
-  for(int i = 0; i < textures_2d.size(); i++)
+  for(unsigned int i = 0; i < textures_2d.size(); i++)
   {
     glActiveTexture(GL_TEXTURE0 + i);
     glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
   }
 
-  for(int i = 0; i < textures_3d.size(); i++)
+  for(unsigned int i = 0; i < textures_3d.size(); i++)
   {
     glActiveTexture(GL_TEXTURE0 + i + textures_2d.size());
     glDisable(GL_TEXTURE_3D);

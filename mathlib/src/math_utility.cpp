@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
+#include <algorithm>
 #include "math_utility.h"
 
 //#define M_PI 3.14159f
@@ -66,13 +67,14 @@ Float3::Float3(const Float3 &b)
 
 float Math::clamp(float x, float a, float b)
 {
-	register float low = min(a, b);
-	register float hi = max(a, b);
+	register float low = std::min(a, b);
+	register float hi = std::max(a, b);
 	if(x < low) x = low;
 	if(x > hi) x = hi;
 	return x;
 }
 
+#if 0
 /*inline */float Math::max(float a, float b)
 {
 	return (a > b) ? a : b;
@@ -82,6 +84,7 @@ float Math::clamp(float x, float a, float b)
 {
 	return (a < b) ? a : b;
 }
+#endif
 
 float Math::random(float a, float b)
 {
@@ -110,7 +113,7 @@ unsigned int Math::hash(const char *str)
   unsigned int hash = 5381;
   int c;
 
-  while((bool)(c = *str++))
+  while((c = *str++))
   {
       hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
   }

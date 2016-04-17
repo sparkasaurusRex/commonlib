@@ -2,13 +2,21 @@
 #include <assert.h>
 #include <time.h>
 
+#if defined(_WIN32)
+#include <Windows.h>
+#endif //_WIN32
+
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
 #endif
 
+#if defined(_WIN32)
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
 
 #include "math_utility.h"
 #include "matrix.h"

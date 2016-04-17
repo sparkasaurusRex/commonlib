@@ -1,10 +1,13 @@
 #ifndef __GPU_HAIR_SIM_H__
 #define __GPU_HAIR_SIM_H__
 
+#if defined (_WIN32)
+#include <Windows.h>
+#include <GL/glew.h>
+#endif
+
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
 #endif
 
 #include "material.h"
