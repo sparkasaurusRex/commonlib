@@ -118,12 +118,13 @@ void SDLGame::toggle_fullscreen()
 void SDLGame::init()
 {
   //load init file and set resolution
-  FILE *init_file = fopen("init.txt", "r");
+  FILE *init_file = NULL;
+  fopen_s(&init_file, "init.txt", "r");
 
   if(init_file)
   {
-    fscanf(init_file, "%i", &resolution[0]);
-    fscanf(init_file, "%i", &resolution[1]);
+    fscanf_s(init_file, "%i", &resolution[0]);
+    fscanf_s(init_file, "%i", &resolution[1]);
     fclose(init_file);
   }
 
@@ -185,7 +186,7 @@ void SDLGame::run()
     }
 
     //average the last n frames
-    float actual_fps = 1.0f / frame_time;
+    float actual_fps = (float)(1.0f / frame_time);
     prev_fps[fps_idx] = actual_fps;
     fps_idx = (fps_idx + 1) % SDL_GAME_NUM_FPS_FRAMES;
     float avg_fps = 0.0f;
@@ -210,11 +211,11 @@ void SDLGame::run()
 
     std::string fps_text = std::string("fps: ") + ss.str();
     fps_label.set_text(fps_text);
-    fps_label.simulate(frame_time);
+    fps_label.simulate((float)frame_time);
 
     if(title_screen.is_active())
     {
-      title_screen.simulate(frame_time);
+      title_screen.simulate((float)frame_time);
       title_screen.render_gl();
     }
     else
@@ -230,11 +231,11 @@ void SDLGame::run()
 
       if(pause_menu)
       {
-        pause_menu->simulate(frame_time);
+        pause_menu->simulate((float)frame_time);
         pause_menu->render();
       }
 
-      console.simulate(frame_time);
+      console.simulate((float)frame_time);
       console.render_gl();
     }
 
@@ -363,7 +364,7 @@ void SDLGame::screenshot()
   glReadPixels(0, 0, resolution[0], resolution[1], GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
 
   char filename[256];
-  sprintf(filename, "capture/%s%i.bmp", window_title.c_str(), movie_frame_counter++);
+  sprintf_s(filename, "capture/%s%i.bmp", window_title.c_str(), movie_frame_counter++);
   cout<<"writing "<<filename<<endl;
   SDL_SaveBMP(image, filename);
   SDL_FreeSurface(image);

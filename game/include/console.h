@@ -56,7 +56,7 @@ class DebugConsole
 
     std::string                 current_command;
 
-    int                         command_history_idx;
+    unsigned int                command_history_idx;
     std::vector<std::string>    command_history;
 
     std::vector<std::string>    boolean_var_names;
@@ -73,7 +73,7 @@ class DebugConsole
 
     //tab completion
     std::string                 tab_complete_string;
-    int                         last_tab_complete_idx;
+    unsigned int                last_tab_complete_idx;
 };
 
 #endif // __CONSOLE_H__

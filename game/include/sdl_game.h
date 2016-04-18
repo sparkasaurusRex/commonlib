@@ -70,7 +70,7 @@ public:
 
   void quit_app();
 protected:
-  virtual void game_loop(const float game_time, const float frame_time) = 0;
+  virtual void game_loop(const double game_time, const double frame_time) = 0;
 
   virtual void user_init() = 0;
   virtual void user_run() = 0;

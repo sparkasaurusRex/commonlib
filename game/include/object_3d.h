@@ -1,6 +1,15 @@
 #ifndef __OBJECT_3D_H__
 #define __OBJECT_3D_H__
 
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#endif
+
+#if defined(_WIN32)
+#include <Windows.h>
+#include <GL/glew.h>
+#endif
+
 #include "math_utility.h"
 #include "quaternion.h"
 
