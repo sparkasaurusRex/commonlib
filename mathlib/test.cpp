@@ -4,12 +4,11 @@
 
 #if defined(_WIN32)
 #include <Windows.h>
+#include <GL/glew.h>
 #endif //_WIN32
 
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
 #endif
 
 #if defined(_WIN32)
@@ -162,7 +161,7 @@ private:
       TriangulationSphere *tri = point_cloud.get_triangulation();
 
       std::vector<Edge3D> *edges = tri->get_edges();
-      for(int i = 0; i < edges->size(); i++)
+      for(unsigned int i = 0; i < edges->size(); i++)
       {
         Edge3D e = (*edges)[i];
         Float3 a = point_cloud.get_point(e.vidx[0]);
@@ -220,7 +219,7 @@ private:
     glBegin(GL_LINE_STRIP);
     for(int i = 0; i <= num_segments; i++)
     {
-      float theta = 2.0f * M_PI * (float)i / (float)num_segments;
+      float theta = 2.0f * (float)M_PI * (float)i / (float)num_segments;
       glVertex3f(cos(theta) * rad, bh, sin(theta) * rad);
     }
     glEnd();
@@ -312,10 +311,10 @@ private:
   }
 
 
-  void game_loop(const float game_time, const float frame_time)
+  void game_loop(const double game_time, const double frame_time)
   {
-    function_theta += frame_time;
-    if(function_theta > M_PI * 2.0f) { function_theta -= M_PI * 2.0f; }
+    function_theta += (float)frame_time;
+    if(function_theta > (float)M_PI * 2.0f) { function_theta -= (float)M_PI * 2.0f; }
 
     if(mode == TEST_MODE_VORONOI_3D)
     {
@@ -410,7 +409,7 @@ int main(int argc, char **argv)
 {
   TestApp app;
 
-  srand(time(NULL));
+  srand((unsigned int)time(NULL));
 
   if(argc > 1)
   {
