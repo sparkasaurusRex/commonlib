@@ -8,6 +8,7 @@
 
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
 #endif
 
 #include <ft2build.h>

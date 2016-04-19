@@ -63,7 +63,11 @@ void Font::print(float x, float y, const char *fmt, ...)
     *text = 0;                                    // Do Nothing
   else {
     va_start(ap, fmt);                              // Parses The String For Variables
+#if defined(_WIN32)
     vsprintf_s(text, fmt, ap);                            // And Converts Symbols To Actual Numbers
+#else
+    vsprintf(text, fmt, ap);
+#endif
     va_end(ap);                                 // Results Are Stored In Text
   }
 
@@ -141,7 +145,11 @@ void Font::print(float x, float y, const char *fmt, ...)
 Font::Font(const char *fname, unsigned int height)
 {
   h = (float)height;
+#if defined (_WIN32)
   strcpy_s(face_fname, fname);
+#else
+  strcpy(face_fname, fname);
+#endif
 }
 
 Font::~Font()

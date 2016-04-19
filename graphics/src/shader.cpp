@@ -24,6 +24,7 @@ Shader::Shader()
 
   gl_fragment_shader_fname[0] = '\0';
   gl_vertex_shader_fname[0] = '\0';
+
 }
 
 Shader::~Shader()
@@ -35,8 +36,13 @@ Shader::~Shader()
 
 void Shader::set_shader_filenames(std::string vs_fname, std::string fs_fname)
 {
+#if defined (_WIN32)
   strcpy_s(gl_fragment_shader_fname, fs_fname.c_str());
   strcpy_s(gl_vertex_shader_fname, vs_fname.c_str());
+#else
+  strcpy(gl_fragment_shader_fname, fs_fname.c_str());
+  strcpy(gl_vertex_shader_fname, vs_fname.c_str());
+#endif //(_WIN32)
 }
 
 GLuint Shader::load_and_compile_shader(GLenum shader_type, const char *source)
@@ -101,7 +107,11 @@ bool Shader::load_link_and_compile()
 
     //load shader file from disk
     FILE *fp = NULL;
+#if defined (_WIN32)
     fopen_s(&fp, gl_vertex_shader_fname, "r");
+#else
+    fp = fopen(gl_vertex_shader_fname, "r");
+#endif //(_WIN32)
     if(fp)
     {
       fseek(fp, 0, SEEK_END);
@@ -128,8 +138,12 @@ bool Shader::load_link_and_compile()
     }
 
     cout<<"loading fragment shader "<<gl_fragment_shader_fname<<endl;
-	fp = NULL;
+    fp = NULL;
+#if defined (_WIN32)
     fopen_s(&fp, gl_fragment_shader_fname, "r");
+#else
+    fp = fopen(gl_fragment_shader_fname, "r");
+#endif //(_WIN32)
     if(fp)
     {
       fseek(fp, 0, SEEK_END);

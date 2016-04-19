@@ -584,5 +584,6 @@ int main(int argc, char **argv)
   GraphicsApp app;
   app.init();
   app.run();
+
   return 0;
 }

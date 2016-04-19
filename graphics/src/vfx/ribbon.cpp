@@ -31,6 +31,8 @@ Ribbon::Ribbon()
   profile_a.bell_curve_cerp(0.45f, 0.55f);
 
   mat = NULL;
+  vertex_data = NULL;
+  index_data = NULL;
 }
 
 Ribbon::~Ribbon()
