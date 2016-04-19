@@ -614,12 +614,19 @@ void GPUParticleSim::addCurveVec4(const char *file_name_r,
                                   const char *file_name_a,
                                   const char *handle)
 {
-  
+
   FILE *file_r, *file_g, *file_b, *file_a;
+#if defined (_WIN32)
   fopen_s(&file_r, file_name_r, "rb");
   fopen_s(&file_g, file_name_g, "rb");
   fopen_s(&file_b, file_name_b, "rb");
   fopen_s(&file_a, file_name_a, "rb");
+#else
+  file_r = fopen(file_name_r, "rb");
+  file_g = fopen(file_name_g, "rb");
+  file_b = fopen(file_name_b, "rb");
+  file_a = fopen(file_name_a, "rb");
+#endif
 
   if(file_r == NULL || file_g == NULL || file_b == NULL || file_a == NULL)
   {
@@ -660,7 +667,11 @@ void GPUParticleSim::addCurveVec4(const char *file_name_r,
 void GPUParticleSim::addCurve(const char * file_name, const char * handle)
 {
   FILE *file;
+#if defined (_WIN32)
   fopen_s(&file, file_name, "rb");
+#else
+  file = fopen(file_name, "rb");
+#endif
 
   if(file_name == NULL)
   {

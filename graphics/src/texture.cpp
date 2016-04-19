@@ -47,7 +47,11 @@ Texture2D::Texture2D(const unsigned int w,
 
 Texture2D::Texture2D(const char *n)
 {
+#if defined (_WIN32)
   strcpy_s(fname, n);
+#else
+  strcpy(fname, n);
+#endif //_WIN32
   filter_mode = GL_LINEAR;
   wrap_mode[0] = GL_REPEAT;
   wrap_mode[1] = GL_REPEAT;
@@ -222,7 +226,11 @@ Texture3D::Texture3D(const unsigned int w, const unsigned int h, const unsigned 
 
 Texture3D::Texture3D(const char *n)
 {
+#if defined (_WIN32)
   strcpy_s(fname, n);
+#else
+  strcpy(fname, n);
+#endif
   gl_mode = GL_RGBA;
   wrap_mode[0] = wrap_mode[1] = wrap_mode[2] = GL_REPEAT;
   filter_mode = GL_LINEAR;
