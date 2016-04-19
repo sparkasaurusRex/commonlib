@@ -111,6 +111,10 @@ bool Texture2D::load()
     //SDL2 way of loading
     cout<<"IMG_Load("<<fname<<")"<<endl;
     SDL_Surface *image = IMG_Load(fname);
+	if (!image)
+	{
+		printf("IMG_Load: %s\n", IMG_GetError());
+	}
 
     assert(image);
     dim[0] = width = image->w;

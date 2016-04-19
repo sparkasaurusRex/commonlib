@@ -59,6 +59,10 @@ SDLGame::SDLGame(const int w, const int h,
   font_face = "/Library/Fonts/Andale Mono.ttf";
   widget_font_face = "/Library/Fonts/Andale Mono.ttf";
 #endif //__APPLE__
+#if defined(_WIN32)
+  font_face = "C:\\Windows\\Fonts\\Arial.ttf";
+  widget_font_face = "C:\\Windows\\Fonts\\Arial.ttf";
+#endif
   font_size = 24;
   widget_font_size = 12;
 
@@ -135,6 +139,7 @@ void SDLGame::init()
 
   widget_font = new Font(widget_font_face.c_str(), widget_font_size);
   widget_font->init();
+  console.set_font(widget_font);
 
   fps_label.set_font(widget_font);
   fps_label.set_text(std::string("fps"));

@@ -22,8 +22,8 @@ Shader::Shader()
   gl_vertex_shader =    0;
   gl_shader_program =   0;
 
-  strcat_s(gl_fragment_shader_fname, "");
-  strcat_s(gl_vertex_shader_fname, "");
+  gl_fragment_shader_fname[0] = '\0';
+  gl_vertex_shader_fname[0] = '\0';
 }
 
 Shader::~Shader()

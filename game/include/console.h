@@ -10,7 +10,7 @@
 //apple only
 //#define DEFAULT_CONSOLE_FONT_FACE     "/Library/Fonts/AmericanTypewriter.ttc"
 //#define DEFAULT_CONSOLE_FONT_FACE     "/Library/Fonts/OsakaMono.ttf"
-#define DEFAULT_CONSOLE_FONT_FACE     "/Library/Fonts/Andale Mono.ttf"
+//#define DEFAULT_CONSOLE_FONT_FACE     "/Library/Fonts/Andale Mono.ttf"
 //#define DEFAULT_CONSOLE_FONT_FACE       "/Library/Fonts/Courier New.ttf"
 
 //#define DEFAULT_CONSOLE_FONT_FACE   "/usr/share/fonts/truetype/freefont/FreeSans.ttf"
@@ -44,6 +44,8 @@ class DebugConsole
 
     void traverse_command_history(const int dir);
     void tab_complete(int depth = 0);
+
+	void set_font(Font *f) { font = f; }
 
   private:
     float                       pct_exposed;

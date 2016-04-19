@@ -1,5 +1,11 @@
 #include <time.h>
+#if defined(__APPLE__)
 #include <OpenGL/glu.h>
+#endif
+#if defined(_WIN32)
+#include <Windows.h>
+#include <GL/glew.h>
+#endif
 #include "sdl_game.h"
 #include "camera.h"
 #include "gpu_hair_sim.h"
@@ -70,7 +76,7 @@ private:
       //glRotatef(25.0f, 1.0f, 0.0f, 0.0f);
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
       //glTranslatef(0.0f, -0.3f, 0.0f);
-      glScalef(1.2, 1.2, 1.2);
+      glScalef(1.2f, 1.2f, 1.2f);
 
       //cam.render_setup();
       gpu_hair.render();
@@ -133,7 +139,7 @@ private:
 
   void render_fullscreen_quad_3d()
   {
-    float r = get_game_time() * 0.001f;
+    float r = (float)get_game_time() * 0.001f;
     glBegin(GL_QUADS);
       glColor3f(1.0f, 1.0f, 1.0f);
       glTexCoord3f(0.0f, 0.0f, r);
@@ -301,15 +307,15 @@ private:
 
 
     int pix_idx = 0;
-    for(int i = 0; i < force_tex_dim[0]; i++)
+    for(unsigned int i = 0; i < force_tex_dim[0]; i++)
     {
-      for(int j = 0; j < force_tex_dim[1]; j++)
+      for(unsigned int j = 0; j < force_tex_dim[1]; j++)
       {
         float u = (float)i / (float)force_tex_dim[0];
         float v = (float)j / (float)force_tex_dim[1];
 
-        float theta = 2.0f * M_PI * v;
-        float phi = (M_PI / 2.0f) + M_PI * (1.0f - u);
+        float theta = 2.0f * (float)M_PI * v;
+        float phi = ((float)M_PI / 2.0f) + (float)M_PI * (1.0f - u);
 
         //TODO: LUT for (lat, lon) -> (x, y, z)
         float r = 1.0f;
@@ -321,9 +327,9 @@ private:
         p.normalize();
 
         Float3 wind;
-        wind[0] = scaled_octave_noise_4d(2, 1.0f, scale, -1.0f, 1.0f, p[0] + game_time * speed, p[1], p[2], game_time * speed * 0.3f);
-        wind[1] = scaled_octave_noise_4d(2, 1.0f, scale * 0.95, -1.0f, 1.0f, p[0] + 7.15f + game_time * speed, p[1] + 13.76f, p[2] + 12.74f, game_time * speed * 0.3f);
-        wind[2] = scaled_octave_noise_4d(2, 1.0f, scale * 1.2f, -1.0f, 1.0f, p[0] + 3.12f + game_time * speed, p[1] + 67.12f, p[2] - 4.1784f, game_time * speed * 0.3f);
+        wind[0] = scaled_octave_noise_4d(2.0f, 1.0f, scale, -1.0f, 1.0f, p[0] + game_time * speed, p[1], p[2], game_time * speed * 0.3f);
+        wind[1] = scaled_octave_noise_4d(2.0f, 1.0f, scale * 0.95f, -1.0f, 1.0f, p[0] + 7.15f + game_time * speed, p[1] + 13.76f, p[2] + 12.74f, game_time * speed * 0.3f);
+        wind[2] = scaled_octave_noise_4d(2.0f, 1.0f, scale * 1.2f, -1.0f, 1.0f, p[0] + 3.12f + game_time * speed, p[1] + 67.12f, p[2] - 4.1784f, game_time * speed * 0.3f);
 
         pixels[pix_idx++] = p[0] + wind[0];// + scaled_octave_noise_2d(3, 1.0f, 2.0f, 0.2f, 1.0f, 0.5f * speed * game_time, p[2]);
         pixels[pix_idx++] = p[1] + wind[1];
@@ -342,17 +348,17 @@ private:
     delete pixels;
   }
 
-  void game_loop(const float game_time, const float frame_time)
+  void game_loop(const double game_time, const double frame_time)
   {
     //cout<<"dt: "<<frame_time<<endl;
-    update_forces(game_time, frame_time);
-    gpu_hair.simulate(game_time, frame_time);
+    update_forces((float)game_time, (float)frame_time);
+    gpu_hair.simulate((float)game_time, (float)frame_time);
 
     if(!paused)
     {
-      gpu_particle_sim.simulate(game_time, frame_time);
+      gpu_particle_sim.simulate((float)game_time, (float)frame_time);
 
-      rot_angle += 10.0f * frame_time;
+      rot_angle += 10.0f * (float)frame_time;
     }
   }
 
@@ -446,8 +452,8 @@ private:
       hair_pos[i].normalize();
       float height_variance = random(0.5f, 1.0f);
 
-      float u = 0.5f + (atan2(hair_pos[i][2], hair_pos[i][0]) / M_PI) * 0.5f;
-      float v = asin(hair_pos[i][1]) / (M_PI) + 0.5f;
+      float u = 0.5f + (atan2(hair_pos[i][2], hair_pos[i][0]) / (float)M_PI) * 0.5f;
+      float v = asin(hair_pos[i][1]) / (float)(M_PI) + 0.5f;
 
       hair_uvs[i] = Float3(u, v, height_variance);
     }
@@ -477,7 +483,8 @@ private:
   void static_mesh_init()
   {
     //mesh init
-    FILE *f = fopen("data/meshes/test_mesh.brick.bin", "rb");
+	FILE *f;
+    fopen_s(&f, "data/meshes/test_mesh.brick.bin", "rb");
     assert(f);
 
     static_mesh.read_from_file(f);
@@ -493,7 +500,7 @@ private:
 
   void user_init()
   {
-    cam.set_window_dimensions(Float2(resolution[0], resolution[1]));
+    cam.set_window_dimensions(Float2((float)resolution[0], (float)resolution[1]));
     particle_init();
     hair_init();
     static_mesh_init();
@@ -572,7 +579,7 @@ private:
 
 int main(int argc, char **argv)
 {
-  srand(time(NULL));
+  srand((unsigned int)time(NULL));
 
   GraphicsApp app;
   app.init();

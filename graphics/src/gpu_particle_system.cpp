@@ -602,7 +602,8 @@ GPUParticleSim::GPUParticleSim() {
 }
 
 GPUParticleSim::~GPUParticleSim() {
-  for(unsigned int i = 0; i < particle_systems.size(); i++) {
+  for(unsigned int i = 0; i < particle_systems.size(); i++)
+  {
     delete particle_systems[i];
   }
   particle_systems.clear();
@@ -624,7 +625,7 @@ void GPUParticleSim::addCurveVec4(const char *file_name_r,
   if(file_r == NULL || file_g == NULL || file_b == NULL || file_a == NULL)
   {
     cout << "Error! No file named " << file_name_r << ".....or one of the other ones.\n";
-    exit(0);
+	assert(false);
     return;
   }
 

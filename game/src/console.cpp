@@ -60,8 +60,8 @@ bool DebugConsole::is_active() const
 
 void DebugConsole::init()
 {
-  font = new Font(DEFAULT_CONSOLE_FONT_FACE, DEFAULT_CONSOLE_FONT_SIZE);
-  font->init();
+  //font = new Font(DEFAULT_CONSOLE_FONT_FACE, DEFAULT_CONSOLE_FONT_SIZE);
+  //font->init();
 
   current_command.clear();
   command_history.clear();

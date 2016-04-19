@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mathlib_test", "mathlib_tes
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ui", "ui\ui.vcxproj", "{BC5FE04E-94A6-4CDB-8C1E-C4B221001ED1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "graphics_test", "graphics_test\graphics_test.vcxproj", "{20727EAA-0ECC-4230-8606-8FDED8A989DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -61,6 +63,14 @@ Global
 		{BC5FE04E-94A6-4CDB-8C1E-C4B221001ED1}.Release|x64.Build.0 = Release|x64
 		{BC5FE04E-94A6-4CDB-8C1E-C4B221001ED1}.Release|x86.ActiveCfg = Release|Win32
 		{BC5FE04E-94A6-4CDB-8C1E-C4B221001ED1}.Release|x86.Build.0 = Release|Win32
+		{20727EAA-0ECC-4230-8606-8FDED8A989DF}.Debug|x64.ActiveCfg = Debug|x64
+		{20727EAA-0ECC-4230-8606-8FDED8A989DF}.Debug|x64.Build.0 = Debug|x64
+		{20727EAA-0ECC-4230-8606-8FDED8A989DF}.Debug|x86.ActiveCfg = Debug|Win32
+		{20727EAA-0ECC-4230-8606-8FDED8A989DF}.Debug|x86.Build.0 = Debug|Win32
+		{20727EAA-0ECC-4230-8606-8FDED8A989DF}.Release|x64.ActiveCfg = Release|x64
+		{20727EAA-0ECC-4230-8606-8FDED8A989DF}.Release|x64.Build.0 = Release|x64
+		{20727EAA-0ECC-4230-8606-8FDED8A989DF}.Release|x86.ActiveCfg = Release|Win32
+		{20727EAA-0ECC-4230-8606-8FDED8A989DF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
