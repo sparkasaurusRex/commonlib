@@ -56,7 +56,7 @@ private:
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     ww.render();
   }
-  void game_loop(const float game_time, const float frame_time)
+  void game_loop(const double game_time, const double frame_time)
   {
     ww.simulate(frame_time);
 
@@ -103,7 +103,7 @@ private:
       rpb[i].set_radii(Float2(30.0f, 90.0f));
 
       float arc_offset = 0.0f;
-      float arc_width = 2.0f * M_PI / (float)NUM_RPB;
+      float arc_width = 2.0f * (float)M_PI / (float)NUM_RPB;
       rpb[i].set_arc(Float2(i * arc_width + 0.05f + arc_offset, (i + 1) * arc_width - 0.05f + arc_offset));
       rpb[i].set_center(Float2(180.0f, 380.0f));
       rpb[i].set_click_callback(pb_callback);

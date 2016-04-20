@@ -23,8 +23,8 @@ void Fluid2DTurbulenceField::simulate(const float dt)
       float x = (float)i / (float)fluid_dim[0];
       float y = (float)j / (float)fluid_dim[1];
 
-      Float2 turb(strength * PerlinNoise::scaled_octave_noise_3d(octaves, 1.0f, scale, -1.0f, 1.0f, x + phase[0], y + phase[1], speed * time),
-                  strength * PerlinNoise::scaled_octave_noise_3d(octaves, 1.0f, scale, -1.0f, 1.0f, x + phase[0] + 12.532f, y + phase[2] + 3.67f, speed * time));
+      Float2 turb(strength * PerlinNoise::scaled_octave_noise_3d((float)octaves, 1.0f, scale, -1.0f, 1.0f, x + phase[0], y + phase[1], speed * time),
+                  strength * PerlinNoise::scaled_octave_noise_3d((float)octaves, 1.0f, scale, -1.0f, 1.0f, x + phase[0] + 12.532f, y + phase[2] + 3.67f, speed * time));
 
 
       curr[idx(i, j)].data[0] += turb[0];

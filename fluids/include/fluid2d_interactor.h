@@ -25,7 +25,7 @@ protected:
 
   inline int idx(const int &i, const int &j) const
 	{
-		return i + (fluid_dim[0] + 2) * j;
+		return i + ((int)fluid_dim[0] + 2) * j;
 	}
 
   Float2 pos;

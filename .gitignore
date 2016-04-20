@@ -1,5 +1,8 @@
 *.o
 *.obj
+*.exe
+*.pdb
+*.ilk
 *.a
 *.DS_Store
 *.dSYM
@@ -23,3 +26,5 @@ openCL/test
 audio/test
 graphics/blender_scripts/io_mesh/__pycache__
 tools/bake
+visual_studio/.vs
+visual_studio/ipch

@@ -15,7 +15,7 @@ public:
   ~MySDLGame() {}
 
 private:
-  void game_loop(const float game_time, const float frame_time) {}
+  void game_loop(const double game_time, const double frame_time) {}
   void user_init()
   {
     float float_vars[5];

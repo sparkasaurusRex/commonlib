@@ -1,10 +1,15 @@
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
 #endif
 
+#if defined(_WIN32)
+#include <Windows.h>
+#include <GL/glew.h>
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
+
 #include <iostream>
 #include <assert.h>
 
@@ -84,7 +89,7 @@ private:
     glEnd();
   }
 
-  void game_loop(const float game_time, const float frame_time)
+  void game_loop(const double game_time, const double frame_time)
   {
     float sim_time = frame_time * time_scale;
     //sim_time = 0.005f;
@@ -157,8 +162,6 @@ private:
 
   void user_process_event(const SDL_Event &event)
   {
-
-
     int mouse_x, mouse_y, num_keys;
     Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
     const Uint8 *keyboard_state = SDL_GetKeyboardState(&num_keys);
@@ -172,7 +175,7 @@ private:
       int w, h;
       fluid_tex->get_dim(w, h);
       Float2 click_pt((float)mouse_x / resolution[0], (float)mouse_y / resolution[1]);
-      fluid->add_density_at_point(click_pt, fluid_amt, 0.025f);
+      fluid->add_density_at_point(click_pt, Float3(fluid_amt, fluid_amt, fluid_amt), 0.025f);
     }
 
     switch(event.type)
@@ -208,7 +211,7 @@ private:
     Float3 color_a(80.0f, 55.0f, 35.0f);
     Float3 color_b(255.0f, 255.0f, 255.0f);
 
-    GLuint mode = fluid_tex->get_pixel_mode();
+    GLuint mode = fluid_tex->get_tex_format();
     int num_bytes = (mode == GL_RGBA) ? 4 : 3;
 
     GLubyte *pixels = new GLubyte[w * h * num_bytes];
