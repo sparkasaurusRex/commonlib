@@ -64,7 +64,7 @@ class GeodesicCell
 
       wt[0] = 0.5f + 0.5f * wt[0];
       wt[1] = 0.5f + 0.5f * wt[1];
-    }
+    } 
 
     Math::Float3 get_pos() const { return pos; }
     Math::Float2 get_uv() const { return uv; }

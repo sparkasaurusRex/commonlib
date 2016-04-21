@@ -49,7 +49,7 @@ void AudioImp::deinit()
   Mix_Quit();
 }
 
-unsigned int AudioImp::load_music(string fname)
+int AudioImp::load_music(string fname)
 {
   if(!valid)
   {
@@ -68,7 +68,7 @@ unsigned int AudioImp::load_music(string fname)
   return -1;
 }
 
-unsigned int AudioImp::load_sample(string fname)
+int AudioImp::load_sample(string fname)
 {
   if(!valid)
   {

@@ -22,8 +22,8 @@ namespace Audio
     void simulate(const float game_time, const float frame_time);
     void deinit();
 
-    unsigned int load_sample(std::string fname);
-    unsigned int load_music(std::string fname);
+    int load_sample(std::string fname);
+    int load_music(std::string fname);
 
     void play_sample(unsigned int id, int num_loops);
     void play_music(unsigned int id, int num_loops);
