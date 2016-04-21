@@ -56,7 +56,7 @@ namespace Graphics {
 
     void init(Math::Float3 *hair_pos, Math::Float3 *hair_uvs);
     void deinit();
-    void simulate(const float game_time, const float dt);
+    void simulate(const double game_time, const double dt);
     void render();
 
     //only allowed to call these *before* init!!!

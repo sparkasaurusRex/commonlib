@@ -505,9 +505,9 @@ void Curve::fwrite(FILE *f)
   int file_version = CURVE_FILE_VERSION;
   ::fwrite(&file_version, sizeof(int), 1, f);
 
-  int num_segments = segments.size();
+  unsigned int num_segments = (unsigned int)segments.size();
   ::fwrite(&num_segments, sizeof(int), 1, f);
-  for(int i = 0; i < num_segments; i++)
+  for(unsigned int i = 0; i < num_segments; i++)
   {
     CurveSegment *cs = segments[i];
     InterpolationMethod im = cs->get_interpolation_method();

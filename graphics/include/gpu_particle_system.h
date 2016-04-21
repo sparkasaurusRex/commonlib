@@ -81,7 +81,7 @@ namespace Graphics
 
     void init(float particle_size, Math::Float3 *initial_particle_pos, Math::Float3 *initial_particle_vel, float *age, float *data);
     void deinit();
-    void simulate(const float game_time, const float dt);
+    void simulate(const double game_time, const double dt);
     void render();
 
     bool should_kill() {return is_dead;}
@@ -286,7 +286,7 @@ namespace Graphics
                            const char *size_handle,
                            const char *tex_file);
 
-    void simulate(const float game_time, const float dt);
+    void simulate(const double game_time, const double dt);
 
     void render();
 

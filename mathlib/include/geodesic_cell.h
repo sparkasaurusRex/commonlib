@@ -42,8 +42,8 @@ class GeodesicCell
     void generate_uvh()
     {
       //atan: [-pi, pi]
-      uv[0] = 0.5f + (atan2(pos[2], pos[0]) / M_PI) * 0.5f;
-      uv[1] = asin(pos[1]) / (M_PI) + 0.5f;
+      uv[0] = 0.5f + (atan2(pos[2], pos[0]) / (float)M_PI) * 0.5f;
+      uv[1] = asin(pos[1]) / (float)(M_PI) + 0.5f;
       //uv[1] = 0.5f * (pos[1] + 1.0f); //probably a better way to do this? asin?
       //h = pos.magnitude();
 
@@ -51,7 +51,7 @@ class GeodesicCell
       float lat = 2.0f * uv[1] - 1.0f;
       float lon = 2.0f * uv[0] - 1.0f;
       float central_meridian = 0.0f;
-      float standard_parallel = acos(2.0f / M_PI);//0.0f;
+      float standard_parallel = acos(2.0f / (float)M_PI);//0.0f;
       float lambda = lon - central_meridian;
 
       float alpha = acos(cos(lat) * cos(lambda / 2.0f));
@@ -59,7 +59,7 @@ class GeodesicCell
       float sinc_alpha = (alpha == 0.0f) ? 1.0f : sin(alpha) / alpha;
       float sin_phi = sin(lat);
 
-      wt[0] = 0.5f * (lambda * (2.0f / M_PI) + 2.0f * (cos(lat) * sin(lambda / 2.0f)) / sinc_alpha);
+      wt[0] = 0.5f * (lambda * (2.0f / (float)M_PI) + 2.0f * (cos(lat) * sin(lambda / 2.0f)) / sinc_alpha);
       wt[1] = 0.5f * (lat + sin_phi / sinc_alpha);
 
       wt[0] = 0.5f + 0.5f * wt[0];

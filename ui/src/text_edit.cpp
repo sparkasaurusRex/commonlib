@@ -19,7 +19,7 @@ void TextEdit::process_event(const SDL_Event &e)
   if(e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT)
   {
     selection[0] = 0;
-    selection[1] = text.size();
+    selection[1] = (int)text.size();
     SDL_StartTextInput();
   }
 

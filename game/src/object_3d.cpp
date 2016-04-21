@@ -14,14 +14,14 @@ Object3D::Object3D()
   birth_time = -1;
 }
 
-void Object3D::init(const float game_time)
+void Object3D::init(const double game_time)
 {
   birth_time = game_time;
 }
 
-void Object3D::simulate(const float gt, const float dt)
+void Object3D::simulate(const double gt, const double dt)
 {
-  pos = pos + (vel * dt);
+  pos = pos + (vel * (float)dt);
 
   //TODO: angular velocity
 }

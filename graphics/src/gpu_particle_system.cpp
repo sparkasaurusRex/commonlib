@@ -503,7 +503,7 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   pos_fbo[1] = tmp;
 }
 
-void GPUParticleSystem::simulate(const float game_time, const float dt)
+void GPUParticleSystem::simulate(const double game_time, const double dt)
 {
   if (start_time == 0) {
     //Initialize start_time
@@ -514,8 +514,8 @@ void GPUParticleSystem::simulate(const float game_time, const float dt)
     is_dead = true;
   }
 
-  update_velocities(game_time, dt);
-  update_positions(game_time, dt);
+  update_velocities((float)game_time, (float)dt);
+  update_positions((float)game_time, (float)dt);
 }
 
 void GPUParticleSystem::render()
@@ -694,7 +694,7 @@ void GPUParticleSim::addCurve(const char * file_name, const char * handle)
   fclose(file);
 }
 
-void GPUParticleSim::simulate(const float game_time, const float dt) {
+void GPUParticleSim::simulate(const double game_time, const double dt) {
 
   std::vector<GPUParticleSystem *>::iterator iter = particle_systems.begin();
 

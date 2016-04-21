@@ -1,7 +1,12 @@
 #ifndef __AUDIO_H__
 #define __AUDIO_H__
 
+#if defined (_WIN32)
+#include <SDL_mixer.h>
+#else
 #include <SDL2/SDL_mixer.h>
+#endif
+
 #include <string>
 #include <vector>
 

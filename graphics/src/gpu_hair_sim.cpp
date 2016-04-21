@@ -356,7 +356,7 @@ void GPUHairSim::set_simulation_shader_names(std::string vs, std::string fs)
   simulation_shader_names[1] = fs;
 }
 
-void GPUHairSim::simulate(const float game_time, const float dt)
+void GPUHairSim::simulate(const double game_time, const double dt)
 {
   //set the render target to the "current" position texture (0)
   GLint win_viewport[4];

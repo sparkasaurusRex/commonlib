@@ -304,7 +304,7 @@ void CurveEditor::process_event(const SDL_Event &event)
         case '=':
           if(selected_segment)
           {
-            for(int i = 0; i < curve->get_num_segments(); i++)
+            for(unsigned int i = 0; i < curve->get_num_segments(); i++)
             {
               CurveSegment *cs = curve->get_segment_by_index(i);
               if(cs == selected_segment)

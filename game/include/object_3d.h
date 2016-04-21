@@ -21,16 +21,16 @@ namespace Game
     Object3D();
     ~Object3D() {}
 
-    virtual void init(const float game_time);
-    virtual void simulate(const float gt, const float dt);
+    virtual void init(const double game_time);
+    virtual void simulate(const double gt, const double dt);
     virtual void render();
 
     void set_pos(const Math::Float3 p) { pos = p; }
     void set_vel(const Math::Float3 v) { vel = v; }
     void set_scale(const Math::Float3 s) { scale = s; }
 
-    float get_age(const float gt) const { return gt - birth_time; }
-    float get_birth_time() const { return birth_time; }
+    double get_age(const double gt) const { return gt - birth_time; }
+    double get_birth_time() const { return birth_time; }
 
     Math::Float3 get_pos() { return pos; }
     Math::Float3 get_vel() { return vel; }
@@ -41,7 +41,7 @@ namespace Game
     Math::Float3       vel;
     Math::Float3       scale;
 
-    float              birth_time;
+    double             birth_time;
 
     //Math::Quaternion   rot;
     //Math::Quaternion   ang_vel;

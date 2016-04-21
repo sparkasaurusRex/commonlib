@@ -65,7 +65,7 @@ void Material::init()
     ShaderUniformInt sui;
     sui.set_name(textures_3d[i].second);
     sui.set_loc(shader);
-    sui.set_var(i + textures_2d.size());
+    sui.set_var(i + (unsigned int)textures_2d.size());
 
     texture_uniforms.push_back(sui);
   }

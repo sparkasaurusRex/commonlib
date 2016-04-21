@@ -61,7 +61,8 @@ void Menu::process_event(const SDL_Event &event)
       break;
   }
 
-  if(selection < 0) { selection = items.size() - 1; }
+  if(items.size() <= 0) { return;  }
+  if(selection < 0) { selection = (unsigned int)items.size() - 1; }
   if(selection >= items.size()) { selection = 0; }
 }
 

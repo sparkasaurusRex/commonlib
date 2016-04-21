@@ -25,9 +25,9 @@ Float2 Voronoi2D::get_point(const int i) const
   return pc[i];
 }
 
-int Voronoi2D::get_num_points() const
+unsigned int Voronoi2D::get_num_points() const
 {
-  return pc.size();
+  return (unsigned int)pc.size();
 }
 
 void Voronoi2D::triangulate()
@@ -66,9 +66,9 @@ Float3 Voronoi3D::get_point(const int i) const
   return pc[i];
 }
 
-int Voronoi3D::get_num_points() const
+unsigned int Voronoi3D::get_num_points() const
 {
-  return pc.size();
+  return (unsigned int)pc.size();
 }
 
 void Voronoi3D::triangulate()

@@ -31,7 +31,7 @@ namespace Graphics {
       void add_texture(Graphics::Texture2D *t, std::string name);
       void add_texture(Graphics::Texture3D *t, std::string name);
 
-      int get_num_textures() const { return textures_2d.size() + textures_3d.size(); }
+      unsigned int get_num_textures() const { return (unsigned int)(textures_2d.size() + textures_3d.size()); }
 
       void add_uniform_var(ShaderUniformVariable *suv) { shader_uniforms.push_back(suv); }
 

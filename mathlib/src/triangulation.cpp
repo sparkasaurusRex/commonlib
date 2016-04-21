@@ -180,7 +180,7 @@ struct CompareAngle {
 void Triangulation2D::generate_convex_hull()
 {
   assert(vertices);
-  int num_verts = vertices->size();
+  unsigned int num_verts = (unsigned int)vertices->size();
   if(num_verts < 3) { return; }
   edges.clear();
 
