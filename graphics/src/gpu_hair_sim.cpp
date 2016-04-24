@@ -383,7 +383,7 @@ void GPUHairSim::simulate(const double game_time, const double dt)
   //dt, k, texel_size, spring_distance
   float texel_size = 1.0f / (float)num_segments;
   float spring_length = hair_height / (float)num_segments;
-  glUniform4f(uniform_locations[UNIFORM_SIM_CONSTANTS], dt, spring_constant, texel_size, spring_length);
+  glUniform4f(uniform_locations[UNIFORM_SIM_CONSTANTS], (float)dt, spring_constant, texel_size, spring_length);
 
   //prev pos tex (1)
   glUniform1i(uniform_locations[UNIFORM_SIM_POS_TEX], 0);

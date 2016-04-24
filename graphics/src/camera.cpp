@@ -1,6 +1,8 @@
 #include "camera.h"
+#include "gl_error.h"
 
 using namespace Math;
+using namespace Graphics;
 
 Camera::Camera()
 {
@@ -33,9 +35,13 @@ void Camera::set_camera_parameters(const float fs, const float fd, const float f
 
 void Camera::render_setup()
 {
+  gl_check_error();
+
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(fov, window_dimensions[0] / window_dimensions[1], 0.05f, 1000.0f);
+
+  gl_check_error();
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -44,6 +50,8 @@ void Camera::render_setup()
   gluLookAt(pos[0], pos[1], pos[2],
             lookat_pos[0], lookat_pos[1], lookat_pos[2],
             up[0], up[1], up[2]);
+
+  gl_check_error();
 }
 
 void Camera::render_cleanup()

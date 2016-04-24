@@ -10,6 +10,7 @@
 #endif //__APPLE__
 
 #include "shader.h"
+#include "gl_error.h"
 
 using namespace std;
 using namespace Graphics;
@@ -52,6 +53,8 @@ GLuint Shader::load_and_compile_shader(GLenum shader_type, const char *source)
   glShaderSource(my_shader, 1, &source, NULL);
   glCompileShader(my_shader);
 
+  gl_check_error();
+
   GLint compiled = false;
   glGetShaderiv(my_shader, GL_COMPILE_STATUS, &compiled);
   if(!compiled)
@@ -67,6 +70,8 @@ GLuint Shader::load_and_compile_shader(GLenum shader_type, const char *source)
   	glDeleteShader(my_shader);
 	delete errorLog;
   }
+
+  gl_check_error();
   return my_shader;
 }
 
@@ -95,14 +100,11 @@ void print_log(GLuint obj)
 
 bool Shader::load_link_and_compile()
 {
-    //GLsizei err_len;
-    //GLcharARB err_log[512];
-
     cout<<"loading vertex shader "<<gl_vertex_shader_fname<<endl;
 
     //create the shader program
     gl_shader_program = glCreateProgram();
-    //cout<<"meow"<<endl;
+    gl_check_error();
     assert(gl_shader_program);
 
     //load shader file from disk
@@ -126,8 +128,12 @@ bool Shader::load_link_and_compile()
       gl_vertex_shader = load_and_compile_shader(GL_VERTEX_SHADER_ARB, gl_vertex_source);
       print_log(gl_vertex_shader);
 
+      gl_check_error();
+
       glAttachShader(gl_shader_program, gl_vertex_shader);
       print_log(gl_shader_program);
+
+      gl_check_error();
 
       free(gl_vertex_source);
       fclose(fp);
@@ -175,4 +181,5 @@ bool Shader::load_link_and_compile()
 void Shader::render()
 {
   glUseProgram(gl_shader_program);
+  gl_check_error();
 }

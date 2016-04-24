@@ -56,11 +56,11 @@ void FadeScreen::simulate(const float dt)
 
 void FadeScreen::render_gl() const
 {
-  glPushAttrib(GL_DEPTH_BUFFER_BIT);
+  //glPushAttrib(GL_DEPTH_BUFFER_BIT);
 
   //first render the backdrop
   glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
+  //glPushMatrix();
   glLoadIdentity();
 
   glDisable(GL_LIGHTING);
@@ -75,7 +75,7 @@ void FadeScreen::render_gl() const
   glClear(GL_COLOR_BUFFER_BIT);
 
   glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
+  //glPushMatrix();
   glLoadIdentity();
 
   glColor4f(1.0f, 1.0f, 1.0f, fade_opacity);
@@ -110,9 +110,9 @@ void FadeScreen::render_gl() const
     font->print((viewport[2] - w) / 2.0f, (viewport[3] - h) / 2.0f, text.c_str());
 
   }
-  glPopMatrix();
-  glPopMatrix();
-  glPopAttrib();
+ // glPopMatrix();
+  //glPopMatrix();
+  //glPopAttrib();
 }
 
 void FadeScreen::play()

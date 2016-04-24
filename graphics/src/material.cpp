@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include "material.h"
+#include "gl_error.h"
 
 using namespace std;
 using namespace Graphics;
@@ -60,6 +61,9 @@ void Material::init()
 
     texture_uniforms.push_back(sui);
   }
+
+  gl_check_error();
+
   for(unsigned int i = 0; i < textures_3d.size(); i++)
   {
     ShaderUniformInt sui;
@@ -70,11 +74,15 @@ void Material::init()
     texture_uniforms.push_back(sui);
   }
 
+  gl_check_error();
+
   //collect all the uniform variable locations
   for(unsigned int i = 0; i < shader_uniforms.size(); i++)
   {
     shader_uniforms[i]->set_loc(shader);
   }
+
+  gl_check_error();
 
 #ifdef __DEBUG__
   if(verbose)
@@ -121,17 +129,22 @@ void Material::set_blend_mode(const GLenum src, const GLenum dst)
 
 void Material::render() const
 {
+  gl_check_error();
   shader->render();
+  gl_check_error();
 
   //set up shader uniform variables
   for(unsigned int i = 0; i < shader_uniforms.size(); i++)
   {
     shader_uniforms[i]->render();
+    gl_check_error();
   }
+
 
   for(unsigned int i = 0; i < texture_uniforms.size(); i++)
   {
     texture_uniforms[i].render();
+    gl_check_error();
   }
 
   //textures
@@ -140,6 +153,8 @@ void Material::render() const
     glActiveTexture(GL_TEXTURE0 + i);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textures_2d[i].first->get_tex_id());
+
+    gl_check_error();
   }
 
   for(unsigned int i = 0; i < textures_3d.size(); i++)
@@ -148,10 +163,13 @@ void Material::render() const
     glActiveTexture(actual_tex_slot);
     glEnable(GL_TEXTURE_3D);
     glBindTexture(GL_TEXTURE_3D, textures_3d[i].first->get_tex_id());
+    gl_check_error();
   }
 
   if(lighting) { glEnable(GL_LIGHTING); }
   else { glDisable(GL_LIGHTING); }
+
+  gl_check_error();
 
   //TODO - we should really render all transparents
   //       at once... with back to front sorting... yeah.
@@ -167,12 +185,18 @@ void Material::render() const
     glDisable(GL_BLEND);
   }
 
+  gl_check_error();
+
   //depth stuff
   if(depth_read) { glEnable(GL_DEPTH_TEST); }
   else { glDisable(GL_DEPTH_TEST); }
+  gl_check_error();
   if(depth_write) { glDepthMask(GL_TRUE); }
   else { glDepthMask(GL_FALSE); }
+  gl_check_error();
   glDepthRange(depth_range[0], depth_range[1]);
+
+  gl_check_error();
 
   //backface culling
   if(backface_cull)
@@ -181,6 +205,7 @@ void Material::render() const
     glFrontFace(backface_cull_winding);
   }
   else { glDisable(GL_CULL_FACE); }
+  gl_check_error();
 }
 
 void Material::cleanup() const

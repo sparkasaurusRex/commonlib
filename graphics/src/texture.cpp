@@ -21,6 +21,7 @@
 #include <iostream>
 #include <assert.h>
 
+#include "gl_error.h"
 
 
 using namespace std;
@@ -356,18 +357,24 @@ bool Texture3D::load(const unsigned int depth)
 //set up the texture for rendering
 bool Texture3D::render_gl(GLuint tex_stage) const
 {
-  //return true;
+  gl_check_error();
+
   glActiveTexture(tex_stage);
-  //glClientActiveTexture(GL_TEXTURE0);
   glEnable(GL_BLEND);
   glEnable(GL_TEXTURE_3D);
   glDisable(GL_TEXTURE_2D);
+
+  gl_check_error();
 
   //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);  //What does this do, really?
   //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
+  gl_check_error();
+
   glBindTexture(GL_TEXTURE_3D, gl_texture);
+
+  gl_check_error();
 
   return true;
 }

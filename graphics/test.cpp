@@ -61,6 +61,8 @@ public:
     force_tex_dim[1] = 64;
 
     zoom = 0.0f;
+
+    paused = false;
   }
   ~GraphicsApp()
   {
@@ -71,7 +73,7 @@ private:
   void render_hair()
   {
     glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
+    //glPushMatrix();
       glLoadIdentity();
       //glRotatef(25.0f, 1.0f, 0.0f, 0.0f);
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
@@ -82,13 +84,13 @@ private:
       gpu_hair.render();
       //cam.render_cleanup();
 
-    glPopMatrix();
+    //glPopMatrix();
   }
 
   void render_particles()
   {
     glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
+    //glPushMatrix();
       glLoadIdentity();
       //glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
       //glTranslatef(0.f, 0.f, cos(rot_angle));
@@ -96,7 +98,7 @@ private:
 
       gpu_particle_sim.render();
 
-    glPopMatrix();
+   // glPopMatrix();
   }
 
   void render_static_mesh()
@@ -105,6 +107,11 @@ private:
     glEnable(GL_LIGHT0);
 
     glDisable(GL_BLEND);
+
+    glActiveTexture(GL_TEXTURE0);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_TEXTURE_3D);
+  
 
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
@@ -119,8 +126,8 @@ private:
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    glDepthMask(GL_TRUE);
     glEnable(GL_DEPTH_TEST);
+    glDepthMask(GL_TRUE);
 
     cam.set_fov(65.0f);
     cam.set_pos(Float3(0.0f, 0.0f, -1.0f + zoom));
@@ -130,6 +137,7 @@ private:
     cam.render_setup();
       glRotatef(rot_angle, 0.0f, 1.0f, 0.0f);
       glRotatef(rot_angle * 0.37f, 0.0f, 0.0f, 1.0f);
+
       static_mesh.render();
     cam.render_cleanup();
 
@@ -228,7 +236,7 @@ private:
     render_fullscreen_quad();
   }
 
-  void render_pos_texture()
+  void render_hair_pos_texture()
   {
     setup_textured_quad_state();
     glBindTexture(GL_TEXTURE_2D, gpu_hair.get_pos_tex(1));
@@ -252,9 +260,15 @@ private:
   void render_gl()
   {
     glViewport(0, 0, resolution[0], resolution[1]);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glDepthRange(0.0f, 1.0f);
+    glDepthRange(0.0f, 1.0f);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
     switch(render_mode)
     {
@@ -262,7 +276,7 @@ private:
         render_hair();
         break;
       case RENDER_HAIR_TEXTURE:
-        render_pos_texture();
+        render_hair_pos_texture();
         break;
       case RENDER_FORCE_TEXTURE:
         render_force_texture();
@@ -292,6 +306,8 @@ private:
         render_hair();
         break;
     }
+
+    glFlush();
   }
 
   void update_forces(const float game_time, const float frame_time)
@@ -487,7 +503,7 @@ private:
     fopen_s(&f, "data/meshes/test_mesh.brick.bin", "rb");
     assert(f);
 
-    static_mesh.read_from_file(f);
+    static_mesh.read_from_file(f, true);
     static_mesh.init();
 
     fclose(f);
@@ -554,7 +570,6 @@ private:
         }
         break;
     }
-
   }
 
   GPUHairSim gpu_hair;

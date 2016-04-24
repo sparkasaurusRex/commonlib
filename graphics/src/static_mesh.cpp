@@ -10,6 +10,7 @@
 #endif
 
 #include "static_mesh.h"
+#include "gl_error.h"
 
 #define RENDER_METHOD_VBO   true
 
@@ -18,13 +19,13 @@ using namespace Graphics;
 
 StaticMesh::StaticMesh()
 {
-    vbo = ibo = 0;
+  vbo = ibo = 0;
 
-    num_vertices = 0;
-    vertices = NULL;
+  num_vertices = 0;
+  vertices = NULL;
 
-    num_indices = 0;
-    indices = NULL;
+  num_indices = 0;
+  indices = NULL;
 }
 
 StaticMesh::~StaticMesh()
@@ -60,12 +61,12 @@ void StaticMesh::read_from_file(FILE *f, bool verbose)
   {
     cout<<"StaticMesh::read_from_file(): "<<endl;
     cout<<"\t"<<num_vertices<<" vertices..."<<endl;
-    for(int i = 0; i < num_vertices; i++)
+    /*(for(int i = 0; i < num_vertices; i++)
     {
       cout<<"\t\tp:  "<<vertices[i].x<<", "<<vertices[i].y<<", "<<vertices[i].z<<endl;
       cout<<"\t\tn:  "<<vertices[i].nx<<", "<<vertices[i].ny<<", "<<vertices[i].nz<<endl;
       cout<<"\t\tuv: "<<vertices[i].u0<<", "<<vertices[i].v0<<endl;
-    }
+    }*/
     cout<<"\t"<<num_indices<<" indices..."<<endl;
   }
 }
@@ -77,33 +78,49 @@ void StaticMesh::init()
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBufferData(GL_ARRAY_BUFFER, sizeof(StaticMeshVertex) * num_vertices, vertices, GL_STATIC_DRAW);
 
+  gl_check_error();
+
   glGenBuffers(1, &ibo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_indices, indices, GL_STATIC_DRAW);
 
+  gl_check_error();
+
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+  gl_check_error();
 }
 
-void StaticMesh::render()
+void StaticMesh::render(GLenum primitive_type)
 {
   //TODO: use DrawCall objects
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+  gl_check_error();
 
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(3, GL_FLOAT, sizeof(StaticMeshVertex), (void *)0);
   glEnableClientState(GL_COLOR_ARRAY);
   glColorPointer(3, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 3));
 
+  gl_check_error();
+
   glEnableClientState(GL_NORMAL_ARRAY);
   glNormalPointer(GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 6));
+
+  gl_check_error();
 
   glClientActiveTexture(GL_TEXTURE0);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(StaticMeshVertex), (void *)(sizeof(float) * 9));
 
+  gl_check_error();
+
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_INT, (void *)0);
+  glDrawElements(primitive_type, num_indices, GL_UNSIGNED_INT, (void *)0);
+
+  gl_check_error();
 
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);

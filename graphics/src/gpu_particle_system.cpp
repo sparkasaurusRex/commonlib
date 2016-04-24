@@ -311,8 +311,8 @@ void GPUParticleSystem::deinit()
   forces.clear();
 }
 
-void GPUParticleSystem::update_velocities(const float game_time, const float dt) {
-
+void GPUParticleSystem::update_velocities(const float game_time, const float dt)
+{
   //Write to  vel_fbo[0]
   //Read from vel_tex[1]
   //Then swap so that vel_tex[1] is always updated
@@ -365,7 +365,7 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   //constants
   //{dt, lifespan, num_attractors, emitter_range, emitter_strength, sim_time, rand_curve_id, emitter_dir_id, data_tex_height}
   const int num_constants = 9;
-  GLfloat constants[num_constants] = {dt, particleLifespan, (float)(k / 4), emitter_range, emitter_strength, (game_time - start_time) / 1000.f, 0, (float)emitter_dir_id, (float)data_tex_height};
+  GLfloat constants[num_constants] = {dt, particleLifespan, (float)(k / 4), emitter_range, emitter_strength, (game_time - (float)start_time) / 1000.f, 0, (float)emitter_dir_id, (float)data_tex_height};
   glUniform1fv(uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS], num_constants, constants);
 
   //prev_pos_tex
@@ -401,10 +401,13 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE2);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
   glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
   glActiveTexture(GL_TEXTURE0);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
 
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
   glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);
@@ -420,7 +423,6 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
 }
 
 void GPUParticleSystem::update_positions(const float game_time, const float dt) {
-
   //Write to  pos_fbo[0]
   //Read from pos_tex[1]
   //Then swap so that pos_tex[1] is always updated
@@ -450,7 +452,7 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   //constants
   //{dt, lifespan, does_loop, emitter_radius, emitter_duration, sim_time, rand_curve_id, age_curve_id, data_tex_height}
   const int num_constants = 9;
-  GLfloat constants[num_constants] = { dt, particleLifespan, (float)does_loop, emitter_radius, emitter_duration, (game_time - start_time) / 1000.f, 0.0f, (float)age_curve_id, (float)data_tex_height };
+  GLfloat constants[num_constants] = { dt, particleLifespan, (float)does_loop, emitter_radius, emitter_duration, (game_time - (float)start_time) / 1000.f, 0.0f, (float)age_curve_id, (float)data_tex_height };
   glUniform1fv(uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS], num_constants, constants);
 
   //prev_pos_tex
@@ -485,10 +487,13 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE2);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
   glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
   glActiveTexture(GL_TEXTURE0);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
 
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
   glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);

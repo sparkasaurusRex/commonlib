@@ -193,7 +193,7 @@ namespace Graphics
     float       billboard_size;
     bool        does_loop;
     bool        is_dead;
-    float       start_time;
+    double      start_time;
     Math::Float3      emitterLocation;
 
     float emitter_range;

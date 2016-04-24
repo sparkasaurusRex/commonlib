@@ -63,6 +63,9 @@
     <ClInclude Include="..\..\graphics\include\vfx\ribbon.h">
       <Filter>Header Files\vfx</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\graphics\include\gl_error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\graphics\src\camera.cpp">
@@ -103,6 +106,9 @@
     </ClCompile>
     <ClCompile Include="..\..\graphics\src\vfx\ribbon.cpp">
       <Filter>Source Files\vfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\graphics\src\gl_error.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

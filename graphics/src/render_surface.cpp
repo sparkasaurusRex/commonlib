@@ -11,6 +11,7 @@
 #include <assert.h>
 #include "render_surface.h"
 #include "texture.h"
+#include "gl_error.h"
 
 using namespace std;
 using namespace Graphics;
@@ -176,9 +177,13 @@ void RenderSurface::deinit()
 
 void RenderSurface::capture()
 {
+  gl_check_error();
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, target_fbo);
+  gl_check_error();
   glGetIntegerv(GL_VIEWPORT, win_viewport);
+  gl_check_error();
   glViewport(0, 0, fbo_res[0], fbo_res[1]);
+  gl_check_error();
 }
 
 void RenderSurface::release()

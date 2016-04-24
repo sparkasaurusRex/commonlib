@@ -1,5 +1,13 @@
+//
+// The first push_button class (and the initial UI code) was written while on vacation
+// visiting Lila's parents in Colorado. We stayed in a funny trailer, and shot bows and arrows
+//
+// CF, 2015
+//
+
 #include <iostream>
 #include "push_button.h"
+#include "gl_error.h"
 
 using namespace std;
 using namespace UI;
@@ -56,6 +64,8 @@ void PushButton::process_event(const SDL_Event &event)
 void PushButton::render()
 {
   //cout<<"dim: "<<dim<<endl;
+
+  gl_check_error();
 
   glLineWidth(1.0f);
   if(click_capture)

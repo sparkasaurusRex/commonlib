@@ -120,6 +120,7 @@
     <ClInclude Include="..\..\graphics\include\camera.h" />
     <ClInclude Include="..\..\graphics\include\draw_call.h" />
     <ClInclude Include="..\..\graphics\include\font.h" />
+    <ClInclude Include="..\..\graphics\include\gl_error.h" />
     <ClInclude Include="..\..\graphics\include\gpu_hair_sim.h" />
     <ClInclude Include="..\..\graphics\include\gpu_particle_system.h" />
     <ClInclude Include="..\..\graphics\include\hdr_render_surface.h" />
@@ -136,6 +137,7 @@
     <ClCompile Include="..\..\graphics\src\camera.cpp" />
     <ClCompile Include="..\..\graphics\src\draw_call.cpp" />
     <ClCompile Include="..\..\graphics\src\font.cpp" />
+    <ClCompile Include="..\..\graphics\src\gl_error.cpp" />
     <ClCompile Include="..\..\graphics\src\gpu_hair_sim.cpp" />
     <ClCompile Include="..\..\graphics\src\gpu_particle_system.cpp" />
     <ClCompile Include="..\..\graphics\src\hdr_render_surface.cpp" />
