@@ -92,7 +92,7 @@ void Ribbon::init()
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Ribbon::render(const float game_time)
+void Ribbon::render(const double game_time)
 {
   glUseProgramObjectARB(0);
   glDisable(GL_CULL_FACE);
@@ -124,7 +124,7 @@ void Ribbon::render(const float game_time)
   mat->cleanup();
 }
 
-void Ribbon::simulate(const float gt, const float dt)
+void Ribbon::simulate(const double gt, const double dt)
 {
   float theta_offset = (float)M_PI;
   float phi_offset = 0.0f;
@@ -134,11 +134,11 @@ void Ribbon::simulate(const float gt, const float dt)
   for(int i = 0; i < num_segments; i++)
   {
     float seg_pct = (float)i / (float)num_segments;
-    float theta = theta_offset + PerlinNoise::scaled_octave_noise_2d(2, 1.0f, root_scale, theta_bounds[0], theta_bounds[1], gt * root_speed, seg_pct);
-    float phi = PerlinNoise::scaled_octave_noise_2d(2, 1.0f, root_scale, phi_bounds[0], phi_bounds[1], gt * root_speed + 137.9532f, seg_pct);
+    float theta = theta_offset + PerlinNoise::scaled_octave_noise_2d(2.0f, 1.0f, root_scale, theta_bounds[0], theta_bounds[1], (float)gt * root_speed, seg_pct);
+    float phi = PerlinNoise::scaled_octave_noise_2d(2.0f, 1.0f, root_scale, phi_bounds[0], phi_bounds[1], (float)gt * root_speed + 137.9532f, seg_pct);
     phi = phi_offset + phi + seg_pct * ribbon_length;
 
-    float profile_height = PerlinNoise::scaled_octave_noise_2d(3, 1.0f, profile_noise_scale, profile_noise_bounds[0], profile_noise_bounds[1], gt * profile_noise_speed + 165.132f, seg_pct * profile_noise_scale);
+    float profile_height = PerlinNoise::scaled_octave_noise_2d(3.0f, 1.0f, profile_noise_scale, profile_noise_bounds[0], profile_noise_bounds[1], (float)gt * profile_noise_speed + 165.132f, seg_pct * profile_noise_scale);
     profile_height *= profile_a.evaluate(seg_pct);
 
     Float3 root_vert_pos = polar_to_cartesian(theta, phi, 1.1f);

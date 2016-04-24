@@ -14,8 +14,8 @@ namespace Graphics
     ~Ribbon();
 
     void init();
-    void render(const float game_time);
-    void simulate(const float game_time, const float frame_time);
+    void render(const double game_time);
+    void simulate(const double game_time, const double frame_time);
 
     void set_num_segments(const int n) { num_segments = n; }
     int get_num_segments() const { return num_segments; }

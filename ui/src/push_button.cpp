@@ -115,6 +115,8 @@ void PushButton::render()
   glEnd();
   glDisable(GL_TEXTURE_2D);
 
+  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
   if(text.size() > 0)
   {
     Label::render();

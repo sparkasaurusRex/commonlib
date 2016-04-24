@@ -63,7 +63,7 @@ void Menu::process_event(const SDL_Event &event)
 
   if(items.size() <= 0) { return;  }
   if(selection < 0) { selection = (unsigned int)items.size() - 1; }
-  if(selection >= items.size()) { selection = 0; }
+  if(selection >= (int)items.size()) { selection = 0; }
 }
 
 void Menu::render()

@@ -88,7 +88,7 @@ float Math::clamp(float x, float a, float b)
 
 float Math::random(float a, float b)
 {
-	return a + (b - a) * ((rand() % 1000000) / 1000000.0f);
+	return a + (b - a) * ((rand() % RAND_MAX) / (float)RAND_MAX);
 }
 
 int Math::random(int a, int b)
