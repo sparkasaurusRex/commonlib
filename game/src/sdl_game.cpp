@@ -122,13 +122,12 @@ void SDLGame::toggle_fullscreen()
 void SDLGame::init()
 {
   //load init file and set resolution
-  FILE *init_file = NULL;
-  fopen_s(&init_file, "init.txt", "r");
+  FILE *init_file = fopen("init.txt", "r");
 
   if(init_file)
   {
-    fscanf_s(init_file, "%i", &resolution[0]);
-    fscanf_s(init_file, "%i", &resolution[1]);
+    fscanf(init_file, "%i", &resolution[0]);
+    fscanf(init_file, "%i", &resolution[1]);
     fclose(init_file);
   }
 
@@ -369,7 +368,7 @@ void SDLGame::screenshot()
   glReadPixels(0, 0, resolution[0], resolution[1], GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
 
   char filename[256];
-  sprintf_s(filename, "capture/%s%i.bmp", window_title.c_str(), movie_frame_counter++);
+  sprintf(filename, "capture/%s%i.bmp", window_title.c_str(), movie_frame_counter++);
   cout<<"writing "<<filename<<endl;
   SDL_SaveBMP(image, filename);
   SDL_FreeSurface(image);

@@ -39,7 +39,7 @@ void Camera::render_setup()
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(fov, window_dimensions[0] / window_dimensions[1], 0.05f, 1000.0f);
+  gluPerspective(fov, window_dimensions[0] / window_dimensions[1], 0.05f, 100.0f);
 
   gl_check_error();
 

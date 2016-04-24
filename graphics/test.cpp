@@ -24,8 +24,8 @@ const char passthrough_vs[] =
 #version 120\
 \
 void main(void) {\
-	gl_TexCoord[0] = gl_MultiTexCoord0;\
-	gl_Position = ftransform();\
+  gl_TexCoord[0] = gl_MultiTexCoord0;\
+  gl_Position = ftransform();\
 }\
 ";
 
@@ -111,7 +111,7 @@ private:
     glActiveTexture(GL_TEXTURE0);
     glDisable(GL_TEXTURE_2D);
     glDisable(GL_TEXTURE_3D);
-  
+
 
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
@@ -499,8 +499,8 @@ private:
   void static_mesh_init()
   {
     //mesh init
-	FILE *f;
-    fopen_s(&f, "data/meshes/test_mesh.brick.bin", "rb");
+    FILE *f;
+    f = fopen("data/meshes/test_mesh.brick.bin", "rb");
     assert(f);
 
     static_mesh.read_from_file(f, true);

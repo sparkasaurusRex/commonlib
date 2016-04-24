@@ -3,6 +3,12 @@
 #include <iostream>
 #include <assert.h>
 
+#if defined (__APPLE__)
+#include <OpenGL/gl.h>
+#endif
+
+#if defined (_GL_DEBUG)
+
 void Graphics::gl_check_error()
 {
   GLenum err = glGetError();
@@ -52,3 +58,5 @@ void Graphics::gl_check_error()
     assert(false);
   }
 }
+
+#endif //_GL_DEBUG

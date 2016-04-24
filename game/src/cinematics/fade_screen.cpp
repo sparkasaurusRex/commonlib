@@ -104,7 +104,7 @@ void FadeScreen::render_gl() const
 
     float h = font->get_height();
     char foo[256];
-    strcpy_s(foo, text.c_str());
+    strcpy(foo, text.c_str());
     float w = font->get_string_width(foo);
     //cout<<"font width: "<<w<<endl;
     font->print((viewport[2] - w) / 2.0f, (viewport[3] - h) / 2.0f, text.c_str());

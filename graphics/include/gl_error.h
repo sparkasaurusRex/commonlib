@@ -6,9 +6,14 @@
 #include <GL/glew.h>
 #endif
 
+#if defined (_GL_DEBUG)
 namespace Graphics
 {
   void gl_check_error();
 }
+#else
+namespace Graphics {}
+#define gl_check_error()
+#endif //_GL_DEBUG
 
 #endif

@@ -58,7 +58,7 @@ class DebugConsole
 
     std::string                 current_command;
 
-    unsigned int                command_history_idx;
+    int                         command_history_idx;
     std::vector<std::string>    command_history;
 
     std::vector<std::string>    boolean_var_names;

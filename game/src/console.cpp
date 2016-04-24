@@ -232,7 +232,7 @@ void DebugConsole::render_gl()
   glTranslatef(0.0f, v_offset * 256, 0.0f);
 
   char command_line[512];
-  sprintf_s(command_line, "your wish > %s", current_command.c_str());
+  sprintf(command_line, "your wish > %s", current_command.c_str());
 
   GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);

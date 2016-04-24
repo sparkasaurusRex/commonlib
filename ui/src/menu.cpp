@@ -26,7 +26,7 @@ void Menu::init()
   for(unsigned int i = 0; i < items.size(); i++)
   {
     char buffer[256];
-    strcpy_s(buffer, items[i].first.c_str());
+    strcpy(buffer, items[i].first.c_str());
     widest = max(widest, font->get_string_width(buffer));
   }
   dim[0] = widest;
@@ -84,7 +84,7 @@ void Menu::render()
     }
 
     char buffer[256];
-    strcpy_s(buffer, items[i].first.c_str());
+    strcpy(buffer, items[i].first.c_str());
     float width = font->get_string_width(buffer);
     float x = pos[0] + dim[0] / 2.0f - width / 2.0f;
 

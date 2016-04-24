@@ -287,16 +287,14 @@ void CurveEditor::process_event(const SDL_Event &event)
         }
         case 's':
         {
-		  FILE *f = NULL;
-          fopen_s(&f, "test.curve", "wb");
+          FILE *f = fopen("test.curve", "wb");
           curve->fwrite(f);
           fclose(f);
           break;
         }
         case 'l':
         {
-		  FILE *f = NULL;
-		  fopen_s(&f, "test.curve", "rb");
+          FILE *f = fopen("test.curve", "rb");
           curve->fread(f);
           fclose(f);
           break;

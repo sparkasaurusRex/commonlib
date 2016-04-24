@@ -18,7 +18,7 @@ SRCPATH=src/
 SRCS=src/font.cpp src/glutility.cpp src/material.cpp src/shader.cpp src/texture.cpp
 SRCS+=src/camera.cpp src/render_surface.cpp src/hdr_render_surface.cpp
 SRCS+=src/render_surface_combiner.cpp src/gpu_hair_sim.cpp src/static_mesh.cpp
-SRCS+=src/gpu_particle_system.cpp src/vfx/ribbon.cpp
+SRCS+=src/gpu_particle_system.cpp src/vfx/ribbon.cpp src/gl_error.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -68,6 +68,9 @@ $(BINPATH):
 #$(OBJS): $(SRCS)
 #	$(CC) $(CFLAGS) -c $< -o $@
 #	mv $@ $(BINPATH)
+
+$(BINPATH)gl_error.o: $(SRCPATH)gl_error.cpp
+	$(CC) $(CFLAGS) -c src/gl_error.cpp -o $(BINPATH)gl_error.o
 
 $(BINPATH)font.o: $(SRCPATH)font.cpp
 	$(CC) $(CFLAGS) -c src/font.cpp -o $(BINPATH)font.o

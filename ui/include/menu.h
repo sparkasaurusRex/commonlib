@@ -22,7 +22,7 @@ namespace UI
       virtual void render();
     private:
       std::vector<std::pair<std::string, void (*)(const SDL_Event &e)> > items;
-      unsigned int selection;
+      int selection;
       float item_border;
   };
 };
