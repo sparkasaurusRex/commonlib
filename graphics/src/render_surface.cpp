@@ -148,9 +148,10 @@ void RenderSurface::init()
   // create depth renderbuffer
   if(use_depth)
   {
-    glGenRenderbuffersEXT(1, &depth_fbo);
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_fbo);
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, fbo_res[0], fbo_res[1]);
+    glGenRenderbuffers(1, &depth_fbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, depth_fbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, fbo_res[0], fbo_res[1]);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
   }
   else
   {
@@ -158,16 +159,19 @@ void RenderSurface::init()
   }
 
   // create FBO
-  glGenFramebuffersEXT(1, &target_fbo);
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, target_fbo);
-  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, target_tex->get_tex_id(), 0);
+  glGenFramebuffers(1, &target_fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, target_fbo);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target_tex->get_tex_id(), 0);
   if(use_depth)
   {
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depth_fbo);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_fbo);
   }
 
+  GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  assert(status == GL_FRAMEBUFFER_COMPLETE);
+
   //undbind the hdr render target (so that we're not rendering to it by default)
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void RenderSurface::deinit()
@@ -178,7 +182,8 @@ void RenderSurface::deinit()
 void RenderSurface::capture()
 {
   gl_check_error();
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, target_fbo);
+  //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, target_fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, target_fbo);
   gl_check_error();
   glGetIntegerv(GL_VIEWPORT, win_viewport);
   gl_check_error();
@@ -188,7 +193,8 @@ void RenderSurface::capture()
 
 void RenderSurface::release()
 {
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  //glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);
 }
 

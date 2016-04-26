@@ -30,7 +30,7 @@
           file_names.push_back(fname);
           return;
         }
-        for(int i = 0; i < search_path.size(); i++)
+        for(unsigned int i = 0; i < search_path.size(); i++)
         {
           std::string full_fname = search_path[i] + fname;
           if(file_exists(full_fname))
@@ -50,7 +50,7 @@
       void load_all_data()
       {
         std::cout<<"AssetLibrary::load_all_data()..."<<std::endl;
-        for(int i = 0; i < file_names.size(); i++)
+        for(unsigned int i = 0; i < file_names.size(); i++)
         {
           std::cout<<"\t"<<file_names[i]<<std::endl;
         }
