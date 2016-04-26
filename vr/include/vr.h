@@ -13,16 +13,24 @@ namespace VR
   {
   private:
     ovrHmdDesc    hmd_desc;
-    ovrSession    session;
+    ovrSession    ovr_session;
+    ovrSizei      window_size;
+
+    GLuint        eye_tex[2];
+    GLuint        eye_fbo[2];
+    GLuint        depth_tex[2];
+
+    void create_eye_texture(const int eye_idx);
+    void create_eye_depth_texture(const int eye_idx);
   public:
-    VRContext() {}
+    VRContext();
     ~VRContext() {}
 
     void init();
     void bind(SDLGame *game);
     void deinit();
 
-    void simulate(const double game_time, const double frame_time);
+    void simulate(const double game_time, const double frame_time) {}
   };
 };
 

@@ -406,7 +406,8 @@ void SDLGame::init_sdl()
     gl_context = SDL_GL_CreateContext(win);
     assert(gl_context);
 
-    SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
+    int res = SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
+    assert(res == 0);
 
     glewInit();
 
