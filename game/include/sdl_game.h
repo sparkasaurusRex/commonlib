@@ -53,6 +53,7 @@ public:
 
   void set_resolution(const unsigned int w, const unsigned int h);
   void toggle_fullscreen();
+  void enable_vsync(const bool v) { vsync_enabled = v; }
 
   void init();
   void run();
@@ -115,6 +116,7 @@ protected:
   DebugConsole console;
 
   float sim_lock_dt;
+  bool vsync_enabled;
 };
 
 #endif //__SDL_GAME_H__

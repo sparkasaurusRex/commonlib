@@ -279,7 +279,7 @@ void DebugConsole::traverse_command_history(const int dir)
     {
       command_history_idx = 0;
     }
-    if(command_history_idx >= command_history.size())
+    if(command_history_idx >= (int)command_history.size())
     {
       command_history_idx = command_history.size() - 1;
     }

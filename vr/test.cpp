@@ -20,7 +20,7 @@ private:
   void user_process_event(const SDL_Event &event) {}
   void render_gl()
   {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   }
 public:
@@ -34,7 +34,10 @@ int main(int argc, char **argv)
   vr_context.init();
 
   VRGame game;
+  game.enable_vsync(false);
   game.init();
+
+  vr_context.bind(&game);
   
   game.run();
 
