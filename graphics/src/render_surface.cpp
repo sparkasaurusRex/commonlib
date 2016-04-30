@@ -143,6 +143,13 @@ void RenderSurface::init()
   //add_uniform_tex(target_tex, tex_name);
   mat.add_texture(target_tex, std::string("surface_tex"));
 
+  mat.enable_blending(false);
+  mat.enable_depth_write(false);
+  mat.enable_depth_read(false);
+  mat.enable_lighting(false);
+  mat.set_depth_range(Float2(0.0f, 1.0f));
+  mat.enable_backface_culling(false);
+
   mat.init();
 
   // create depth renderbuffer
@@ -150,7 +157,7 @@ void RenderSurface::init()
   {
     glGenRenderbuffers(1, &depth_fbo);
     glBindRenderbuffer(GL_RENDERBUFFER, depth_fbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, fbo_res[0], fbo_res[1]);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, fbo_res[0], fbo_res[1]);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
   }
   else
@@ -200,14 +207,14 @@ void RenderSurface::release()
 
 void RenderSurface::render()
 {
-  glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glDisable(GL_DEPTH_TEST);
+  //glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  //glDisable(GL_DEPTH_TEST);
 
   //render the HDR render surface to a full-screen quad
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f);
+  glOrtho(-1.0f, 1.0f, -1.0f, 1.0f, -100.0f, 100.0f);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -222,6 +229,13 @@ void RenderSurface::render()
     GLint uloc = glGetUniformLocation(shader->gl_shader_program, uname.c_str());
     glUniform2f(uloc, (*uval)[0], (*uval)[1]);
   }
+
+  glActiveTexture(GL_TEXTURE0); glDisable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE1); glDisable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE2); glDisable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE3); glDisable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE4); glDisable(GL_TEXTURE_2D);
+  
 
   for(unsigned int i = 0; i < float3_uniforms.size(); i++)
   {

@@ -6,6 +6,7 @@
 #endif
 
 #include "sdl_game.h"
+#include "camera.h"
 
 namespace VR
 {
@@ -39,6 +40,7 @@ namespace VR
 
     void bind(SDLGame *game);
     void retrieve_eye_poses();
+    void get_eye_camera(const unsigned int eye, Graphics::Camera *cam) const;
     void render_capture(const unsigned int eye);
     void render_release(const unsigned int eye);
     void finalize_render();
