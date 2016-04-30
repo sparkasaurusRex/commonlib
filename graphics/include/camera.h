@@ -41,7 +41,7 @@ namespace Graphics
 
     void set_camera_parameters(const float fs, const float fd, const float fl, const float ss);
 
-    void render_setup();
+    void render_setup(const float znear = 0.05f, const float zfar = 100.0f);
     void render_cleanup();
   private:
     Math::Float3 pos;

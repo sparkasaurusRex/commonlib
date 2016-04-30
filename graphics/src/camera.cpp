@@ -33,13 +33,13 @@ void Camera::set_camera_parameters(const float fs, const float fd, const float f
   shutter_speed_s = ss;
 }
 
-void Camera::render_setup()
+void Camera::render_setup(const float znear, const float zfar)
 {
   gl_check_error();
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(fov, window_dimensions[0] / window_dimensions[1], 0.05f, 100.0f);
+  gluPerspective(fov, window_dimensions[0] / window_dimensions[1], znear, zfar);
 
   gl_check_error();
 
