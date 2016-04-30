@@ -152,6 +152,8 @@ void RenderSurface::init()
 
   mat.init();
 
+  //use_depth = false;
+
   // create depth renderbuffer
   if(use_depth)
   {
