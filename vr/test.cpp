@@ -18,11 +18,10 @@ using namespace Math;
 using namespace PerlinNoise;
 using namespace Graphics;
 
-VRContext vr_context;
-
 class VRGame : public SDLGame
 {
 private:
+  VRContext vr_context;
 
   Camera cam[2];
   StaticMesh static_mesh;
@@ -30,6 +29,7 @@ private:
 
   void user_init()
   {
+    vr_context.bind(this);
     for (int eye = 0; eye < 2; eye++)
     {
       cam[eye].set_window_dimensions(Float2((float)resolution[0], (float)resolution[1]));
@@ -140,23 +140,25 @@ private:
     }
   }
 public:
-  VRGame() : SDLGame(640, 480, "VR Test") {}
-  ~VRGame() {}
+  VRGame() : SDLGame(640, 480, "VR Test")
+  {
+    vr_context.init();
+  }
+
+  ~VRGame()
+  {
+    vr_context.deinit();
+  }
 };
 
 int main(int argc, char **argv)
 {
-  vr_context.init();
+
 
   VRGame game;
   game.enable_vsync(false);
   game.init();
-
-  vr_context.bind(&game);
-  
   game.run();
-
-  vr_context.deinit();
 
   return 0;
 }

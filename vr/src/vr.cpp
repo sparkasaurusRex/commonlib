@@ -116,7 +116,7 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
 {
   // Get view and projection matrices
   static float yaw(3.141592f);
-  static Vector3f pos2(0.0f, 0.0f, -5.0f);
+  static Vector3f pos2(0.0f, 0.0f, 0.0f);
 
 
   Matrix4f rollPitchYaw = Matrix4f::RotationY(yaw);
