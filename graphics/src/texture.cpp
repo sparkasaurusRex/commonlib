@@ -89,6 +89,13 @@ void Texture2D::init()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter_mode);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter_mode);
 
+  //for depth textures
+  if (internal_format == GL_DEPTH_COMPONENT || internal_format == GL_DEPTH_COMPONENT16 || internal_format == GL_DEPTH_COMPONENT24 || internal_format == GL_DEPTH_COMPONENT32)
+  {
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+  }
+
   assert(glIsTexture(gl_texture) == GL_TRUE);
 
   glBindTexture(GL_TEXTURE_2D, 0);

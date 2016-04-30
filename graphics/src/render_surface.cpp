@@ -68,6 +68,7 @@ RenderSurface::RenderSurface(const int w, const int h)
   //TEMP (we probably don't want to actually load a new shader for each render surface)
   shader = new Shader;
   target_tex = new Texture2D(fbo_res[0], fbo_res[1]);
+  depth_tex = new Texture2D(fbo_res[0], fbo_res[1]);
 }
 
 RenderSurface::~RenderSurface()
@@ -132,6 +133,18 @@ void RenderSurface::init()
   target_tex->set_resolution(fbo_res[0], fbo_res[1]);
   target_tex->init();
 
+  //create depth texture
+  if (use_depth)
+  {
+    depth_tex->set_tex_format(GL_DEPTH_COMPONENT);
+    depth_tex->set_internal_format(GL_DEPTH_COMPONENT32);
+    depth_tex->set_data_format(GL_FLOAT);//GL_UNSIGNED_BYTE);
+    depth_tex->set_filtering_mode(GL_LINEAR);
+    depth_tex->set_wrap_mode(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    depth_tex->set_resolution(fbo_res[0], fbo_res[1]);
+    depth_tex->init();
+  }
+
   /*
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -155,7 +168,7 @@ void RenderSurface::init()
   //use_depth = false;
 
   // create depth renderbuffer
-  if(use_depth)
+  /*if(use_depth)
   {
     glGenRenderbuffers(1, &depth_fbo);
     glBindRenderbuffer(GL_RENDERBUFFER, depth_fbo);
@@ -165,7 +178,7 @@ void RenderSurface::init()
   else
   {
     depth_fbo = 0;
-  }
+  }*/
 
   // create FBO
   glGenFramebuffers(1, &target_fbo);
@@ -173,7 +186,8 @@ void RenderSurface::init()
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target_tex->get_tex_id(), 0);
   if(use_depth)
   {
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_fbo);
+    //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_tex->get_tex_id(), 0);
   }
 
   GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -209,10 +223,6 @@ void RenderSurface::release()
 
 void RenderSurface::render()
 {
-  //glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  //glDisable(GL_DEPTH_TEST);
-
   //render the HDR render surface to a full-screen quad
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();

@@ -50,6 +50,7 @@ namespace Graphics
 
     GLuint                 target_fbo;
     Texture2D              *target_tex;
+    Texture2D              *depth_tex;
 
     bool                   use_depth;
     GLuint                 depth_fbo;

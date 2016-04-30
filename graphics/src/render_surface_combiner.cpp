@@ -77,6 +77,12 @@ void RenderSurfaceCombiner::init()
   mat.add_texture(vignette, "vignette_tex");
   //mat.add_texture(lut3D, "lut_tex_3D");
 
+  mat.enable_backface_culling(false);
+  mat.enable_depth_read(false);
+  mat.enable_depth_write(false);
+  mat.enable_blending(false);
+  mat.enable_lighting(false);
+
   mat.init();
 
   glGenBuffers(1, &vbo);
@@ -96,6 +102,8 @@ void RenderSurfaceCombiner::deinit()
 void RenderSurfaceCombiner::render()
 {
   glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+  glClearDepth(1.0f);
+  glDepthMask(GL_TRUE);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDisable(GL_DEPTH_TEST);
 
