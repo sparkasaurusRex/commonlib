@@ -30,6 +30,8 @@ namespace Graphics
     void set_lookat(const Math::Float3 l) { lookat = l; }
     Math::Float3 get_lookat() const { return lookat; }
 
+    void set_projection_matrix(GLfloat *proj);
+
     void transform(const Math::Matrix3x3 &m);
 
     void set_window_dimensions(const Math::Float2 d) { window_dimensions = d; }
@@ -49,6 +51,9 @@ namespace Graphics
     Math::Float3 lookat;
 
     Math::Float2    window_dimensions;
+
+    bool            use_proj_mat;
+    GLfloat         proj_mat[16];
 
     float           fov;                    //field of vision
     float           f_stop;                 //aperture size

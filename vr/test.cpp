@@ -23,12 +23,24 @@ class VRGame : public SDLGame
 {
 private:
 
-  Camera cam;
+  Camera cam[2];
 
-  std::vector<Float3> 
+  std::vector<Float3> point_cloud;
 
   void game_loop(const double game_time, const double frame_time) {}
-  void user_init() {}
+  void user_init()
+  {
+    for (int eye = 0; eye < 2; eye++)
+    {
+      cam[eye].set_window_dimensions(Float2((float)resolution[0], (float)resolution[1]));
+    }
+
+    for (int i = 0; i < 100; i++)
+    {
+      Float3 p(random(-1.0f, 1.0f), random(-1.0f, 1.0f), random(-1.0f, 1.0f));
+      point_cloud.push_back(p);
+    }
+  }
   void user_run() {}
   void user_process_event(const SDL_Event &event) {}
   void render_gl()
@@ -46,15 +58,23 @@ private:
     {
       vr_context.render_capture(eye);
 
-      vr_context.get_eye_camera(eye, &cam);
+      vr_context.get_eye_camera(eye, &cam[eye]);
+
+      cam[eye].render_setup();
 
       glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       glPointSize(15.0f);
       glBegin(GL_POINTS);
-      glVertex3f(0.0f, 0.0f, 0.0f);
+      //glVertex3f(0.0f, 0.0f, 0.0f);
+      for (int i = 0; i < 100; i++)
+      {
+        glVertex3f(point_cloud[i][0], point_cloud[i][1], point_cloud[i][2]);
+      }
       glEnd();
+
+      cam[eye].render_cleanup();
 
       vr_context.render_release(eye);
     }

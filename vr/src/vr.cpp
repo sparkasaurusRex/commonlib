@@ -3,6 +3,7 @@
 
 #include "sdl_game.h"
 #include "vr.h"
+#include "math_utility.h"
 
 #include "Extras/OVR_Math.h"
 
@@ -10,6 +11,7 @@ using namespace VR;
 using namespace std;
 using namespace OVR;
 using namespace Graphics;
+using namespace Math;
 
 /*
 When using the Rift, the left eye sees the left half of the screen, and the right eye sees the right half.
@@ -127,6 +129,26 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
   Matrix4f proj = ovrMatrix4f_Projection(hmd_desc.DefaultEyeFov[eye], 0.2f, 1000.0f, ovrProjection_None);
 
   /*
+  GLfloat proj_mat[] = { proj.M[0][0], proj.M[0][1], proj.M[0][2], proj.M[0][3],
+  proj.M[1][0], proj.M[1][1], proj.M[1][2], proj.M[1][3],
+  proj.M[2][0], proj.M[2][1], proj.M[2][2], proj.M[2][3],
+  proj.M[3][0], proj.M[3][1], proj.M[3][2], proj.M[3][3] };
+  */
+
+  GLfloat proj_mat[] = { proj.M[0][0], proj.M[1][0], proj.M[2][0], proj.M[3][0],
+                         proj.M[0][1], proj.M[1][1], proj.M[2][1], proj.M[3][1],
+                         proj.M[0][2], proj.M[1][2], proj.M[2][2], proj.M[3][2],
+                         proj.M[0][3], proj.M[1][3], proj.M[2][3], proj.M[3][3] };
+
+  cam->set_fov(110.0f);//hmd_desc.DefaultEyeFov[eye]);
+  cam->set_pos(Float3(shiftedEyePos.x, shiftedEyePos.y, shiftedEyePos.z));
+  cam->set_up(Float3(finalUp.x, finalUp.y, finalUp.z));
+  cam->set_lookat(Float3(finalForward.x, finalForward.y, finalForward.z));
+  cam->set_projection_matrix(proj_mat);
+
+#if 0
+
+  /*
   GLfloat view_mat[] = { view.M[0][0], view.M[0][1], view.M[0][2], view.M[0][3],
                          view.M[1][0], view.M[1][1], view.M[1][2], view.M[1][3],
                          view.M[2][0], view.M[2][1], view.M[2][2], view.M[2][3],
@@ -141,20 +163,11 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
   glMatrixMode(GL_MODELVIEW);
   glLoadMatrixf(view_mat);
 
-  /*
-  GLfloat proj_mat[] = { proj.M[0][0], proj.M[0][1], proj.M[0][2], proj.M[0][3],
-                         proj.M[1][0], proj.M[1][1], proj.M[1][2], proj.M[1][3],
-                         proj.M[2][0], proj.M[2][1], proj.M[2][2], proj.M[2][3],
-                         proj.M[3][0], proj.M[3][1], proj.M[3][2], proj.M[3][3] };
-  */
 
-  GLfloat proj_mat[] = { proj.M[0][0], proj.M[1][0], proj.M[2][0], proj.M[3][0],
-                         proj.M[0][1], proj.M[1][1], proj.M[2][1], proj.M[3][1],
-                         proj.M[0][2], proj.M[1][2], proj.M[2][2], proj.M[3][2],
-                         proj.M[0][3], proj.M[1][3], proj.M[2][3], proj.M[3][3] };
 
   glMatrixMode(GL_PROJECTION);
   glLoadMatrixf(proj_mat);
+#endif
 }
 
 void VRContext::render_capture(const unsigned int eye)

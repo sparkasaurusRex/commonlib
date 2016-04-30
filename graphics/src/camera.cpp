@@ -16,6 +16,8 @@ Camera::Camera()
   shutter_speed_s = 0.01f;
 
   fov = 32.0f;
+
+  use_proj_mat = false;
 }
 
 void Camera::transform(const Matrix3x3 &m)
@@ -23,6 +25,12 @@ void Camera::transform(const Matrix3x3 &m)
   pos = m * pos;
   up = m * up;
   lookat = m * lookat;
+}
+
+void Camera::set_projection_matrix(GLfloat *proj)
+{
+  use_proj_mat = true;
+  memcpy(proj_mat, proj, sizeof(GLfloat) * 16);
 }
 
 void Camera::set_camera_parameters(const float fs, const float fd, const float fl, const float ss)
@@ -39,7 +47,15 @@ void Camera::render_setup(const float znear, const float zfar)
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(fov, window_dimensions[0] / window_dimensions[1], znear, zfar);
+
+  if (use_proj_mat)
+  {
+    glLoadMatrixf(proj_mat);
+  }
+  else
+  {
+    gluPerspective(fov, window_dimensions[0] / window_dimensions[1], znear, zfar);
+  }
 
   gl_check_error();
 
