@@ -3,12 +3,17 @@
 *.exe
 *.pdb
 *.ilk
+*.DB
+*.openDB
+*.vcxproj.user
 *.a
 *.DS_Store
 *.dSYM
 *init.txt
 *capture/
 *Debug/
+*Release/
+*runtime_dlls/
 fluids/bin/*
 fluids/test
 game/bin/*
