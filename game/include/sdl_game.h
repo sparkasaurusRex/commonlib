@@ -20,6 +20,7 @@
 #include "cinematics/fade_screen.h"
 #include "label.h"
 #include "menu.h"
+#include "game_controller.h"
 
 //TODO: framerate counter
 
@@ -82,6 +83,8 @@ protected:
   void init_sdl();
 
   void screenshot();
+
+  Game::GameControllerContext game_controller_context;
 
   unsigned int flags;
 

@@ -377,7 +377,7 @@ void SDLGame::screenshot()
 
 void SDLGame::init_sdl()
 {
-	if(SDL_Init(SDL_INIT_VIDEO) < 0)
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
   {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
   }
@@ -398,6 +398,8 @@ void SDLGame::init_sdl()
       //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, gl_context_profile);
     }
+
+    game_controller_context.init();
 
     //Create window
     win = SDL_CreateWindow(window_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, resolution[0], resolution[1], SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
@@ -423,6 +425,8 @@ void SDLGame::init_sdl()
 
 void SDLGame::quit_app()
 {
+    game_controller_context.deinit();
+
     SDL_GL_DeleteContext(gl_context);
     gl_context = NULL;
 

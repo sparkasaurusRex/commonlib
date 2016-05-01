@@ -78,7 +78,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>..\..\..\freetype-2.3.5-1-lib\lib\;..\..\..\SDL2_image-2.0.1\lib\x86\;..\..\..\SDL2-2.0.4\lib\x86\;..\..\..\glew-1.13.0\lib\Release\Win32\;..\Debug\;..\..\..\OculusSDK\LibOVR\Lib\Windows\Win32\Debug\VS2015;..\Debug\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\freetype-2.3.5-1-lib\lib\;..\..\..\SDL2_image-2.0.1\lib\x86\;..\..\..\SDL2-2.0.4\lib\x86\;..\..\..\glew-1.13.0\lib\Release\Win32\;..\Debug\;..\..\..\OculusSDK\LibOVR\Lib\Windows\Win32\Debug\VS2015;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>LibOVR.lib;vr.lib;SDL2main.lib;SDL2.lib;SDL2_Image.lib;opengl32.lib;glew32.lib;glu32.lib;freetype.lib;game.lib;graphics.lib;mathlib.lib;ui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>

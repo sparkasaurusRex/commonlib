@@ -122,12 +122,14 @@
     <ClInclude Include="..\..\game\include\asset_library.h" />
     <ClInclude Include="..\..\game\include\cinematics\fade_screen.h" />
     <ClInclude Include="..\..\game\include\console.h" />
+    <ClInclude Include="..\..\game\include\game_controller.h" />
     <ClInclude Include="..\..\game\include\object_3d.h" />
     <ClInclude Include="..\..\game\include\sdl_game.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\game\src\cinematics\fade_screen.cpp" />
     <ClCompile Include="..\..\game\src\console.cpp" />
+    <ClCompile Include="..\..\game\src\game_controller.cpp" />
     <ClCompile Include="..\..\game\src\object_3d.cpp" />
     <ClCompile Include="..\..\game\src\sdl_game.cpp" />
   </ItemGroup>

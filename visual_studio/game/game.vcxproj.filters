@@ -36,6 +36,9 @@
     <ClInclude Include="..\..\game\include\cinematics\fade_screen.h">
       <Filter>Header Files\cinematics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\game\include\game_controller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\game\src\console.cpp">
@@ -49,6 +52,9 @@
     </ClCompile>
     <ClCompile Include="..\..\game\src\cinematics\fade_screen.cpp">
       <Filter>Source Files\cinematics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\game\src\game_controller.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
