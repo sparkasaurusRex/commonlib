@@ -68,12 +68,14 @@ void GameControllerContext::poll_input(const unsigned int ci, GameControllerStat
       state->trigger_l = (float)SDL_GameControllerGetAxis(controllers[ci], SDL_CONTROLLER_AXIS_TRIGGERLEFT) / GAME_CONTROLLER_AXIS_RANGE;
       state->trigger_r = (float)SDL_GameControllerGetAxis(controllers[ci], SDL_CONTROLLER_AXIS_TRIGGERRIGHT) / GAME_CONTROLLER_AXIS_RANGE;
 
+  
       /*
-      cout << "Left Stick: (" << stick_lx << ", " << stick_ly << ")" << endl;
-      cout << "Right Stick: (" << stick_rx << ", " << stick_ry << ")" << endl;
-      cout << "Left Trigger: " << trigger_l << endl;
-      cout << "Right Trigger: " << trigger_r << endl;
+      cout << "Left Stick: (" << state->stick_lx << ", " << state->stick_ly << ")" << endl;
+      cout << "Right Stick: (" << state->stick_rx << ", " << state->stick_ry << ")" << endl;
+      cout << "Left Trigger: " << state->trigger_l << endl;
+      cout << "Right Trigger: " << state->trigger_r << endl;
       */
+ 
     }
     else
     {
