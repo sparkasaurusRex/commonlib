@@ -47,39 +47,41 @@ void Material::init()
     cout<<"\tnum 3D textures: "<<textures_3d.size()<<endl;
   }
 #endif //__DEBUG__
-  //bare minimum, we need a shader
-  assert(shader);
+
 
   //NOTE: we assume that by this point the shader has been loaded, compiled, linked, etc...
   //create uniforms for all the textures
-  for(unsigned int i = 0; i < textures_2d.size(); i++)
+  if (shader)
   {
-    ShaderUniformInt sui;
-    sui.set_name(textures_2d[i].second);
-    sui.set_loc(shader);
-    sui.set_var(i);
+    for (unsigned int i = 0; i < textures_2d.size(); i++)
+    {
+      ShaderUniformInt sui;
+      sui.set_name(textures_2d[i].second);
+      sui.set_loc(shader);
+      sui.set_var(i);
 
-    texture_uniforms.push_back(sui);
-  }
+      texture_uniforms.push_back(sui);
+    }
 
-  gl_check_error();
+    gl_check_error();
 
-  for(unsigned int i = 0; i < textures_3d.size(); i++)
-  {
-    ShaderUniformInt sui;
-    sui.set_name(textures_3d[i].second);
-    sui.set_loc(shader);
-    sui.set_var(i + (unsigned int)textures_2d.size());
+    for (unsigned int i = 0; i < textures_3d.size(); i++)
+    {
+      ShaderUniformInt sui;
+      sui.set_name(textures_3d[i].second);
+      sui.set_loc(shader);
+      sui.set_var(i + (unsigned int)textures_2d.size());
 
-    texture_uniforms.push_back(sui);
-  }
+      texture_uniforms.push_back(sui);
+    }
 
-  gl_check_error();
+    gl_check_error();
 
-  //collect all the uniform variable locations
-  for(unsigned int i = 0; i < shader_uniforms.size(); i++)
-  {
-    shader_uniforms[i]->set_loc(shader);
+    //collect all the uniform variable locations
+    for (unsigned int i = 0; i < shader_uniforms.size(); i++)
+    {
+      shader_uniforms[i]->set_loc(shader);
+    }
   }
 
   gl_check_error();
@@ -130,25 +132,33 @@ void Material::set_blend_mode(const GLenum src, const GLenum dst)
 void Material::render() const
 {
   gl_check_error();
-  shader->render();
-  gl_check_error();
-
-  //set up shader uniform variables
-  for(unsigned int i = 0; i < shader_uniforms.size(); i++)
+  if (shader)
   {
-    shader_uniforms[i]->render();
+    shader->render();
+
     gl_check_error();
+
+    //set up shader uniform variables
+    for (unsigned int i = 0; i < shader_uniforms.size(); i++)
+    {
+      shader_uniforms[i]->render();
+      gl_check_error();
+    }
+
+
+    for (unsigned int i = 0; i < texture_uniforms.size(); i++)
+    {
+      texture_uniforms[i].render();
+      gl_check_error();
+    }
   }
-
-
-  for(unsigned int i = 0; i < texture_uniforms.size(); i++)
+  else
   {
-    texture_uniforms[i].render();
-    gl_check_error();
+    glUseProgram(0);
   }
 
   //textures
-  for(unsigned int i = 0; i < textures_2d.size(); i++)
+  for (unsigned int i = 0; i < textures_2d.size(); i++)
   {
     glActiveTexture(GL_TEXTURE0 + i);
     glEnable(GL_TEXTURE_2D);
@@ -157,7 +167,7 @@ void Material::render() const
     gl_check_error();
   }
 
-  for(unsigned int i = 0; i < textures_3d.size(); i++)
+  for (unsigned int i = 0; i < textures_3d.size(); i++)
   {
     GLuint actual_tex_slot = GL_TEXTURE0 + textures_2d.size() + i;
     glActiveTexture(actual_tex_slot);
