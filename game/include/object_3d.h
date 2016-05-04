@@ -17,6 +17,16 @@ namespace Game
 {
   class Object3D
   {
+  protected:
+    Math::Float3       pos;
+    Math::Float3       vel;
+    Math::Float3       scale;
+
+    double             birth_time;
+
+    //Math::Quaternion   rot;
+    //Math::Quaternion   ang_vel;
+
   public:
     Object3D();
     ~Object3D() {}
@@ -35,16 +45,6 @@ namespace Game
     Math::Float3 get_pos() { return pos; }
     Math::Float3 get_vel() { return vel; }
     Math::Float3 get_scale() { return scale; }
-
-  protected:
-    Math::Float3       pos;
-    Math::Float3       vel;
-    Math::Float3       scale;
-
-    double             birth_time;
-
-    //Math::Quaternion   rot;
-    //Math::Quaternion   ang_vel;
   };
 };
 

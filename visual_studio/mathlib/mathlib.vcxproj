@@ -79,7 +79,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\glew-1.13.0\include;../../../SDL-2.0.4/include;../../mathlib/include/vfx;../../mathlib/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\glew-1.13.0\include;../../../SDL-2.0.4/include;../../mathlib/include/vfx;../../mathlib/include;../../mathlib/include/physics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -97,7 +97,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\..\glew-1.13.0\include;../../../SDL-2.0.4/include;../../mathlib/include/vfx;../../mathlib/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\glew-1.13.0\include;../../../SDL-2.0.4/include;../../mathlib/include/vfx;../../mathlib/include;..\..\mathlib\include\physics;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -127,6 +127,7 @@
     <ClInclude Include="..\..\mathlib\include\math_utility.h" />
     <ClInclude Include="..\..\mathlib\include\matrix.h" />
     <ClInclude Include="..\..\mathlib\include\perlin.h" />
+    <ClInclude Include="..\..\mathlib\include\physics\spring_controller.h" />
     <ClInclude Include="..\..\mathlib\include\polyhedron.h" />
     <ClInclude Include="..\..\mathlib\include\quaternion.h" />
     <ClInclude Include="..\..\mathlib\include\shapes.h" />
@@ -145,6 +146,7 @@
     <ClCompile Include="..\..\mathlib\src\math_utility.cpp" />
     <ClCompile Include="..\..\mathlib\src\matrix.cpp" />
     <ClCompile Include="..\..\mathlib\src\perlin.cpp" />
+    <ClCompile Include="..\..\mathlib\src\physics\spring_controller.cpp" />
     <ClCompile Include="..\..\mathlib\src\quaternion.cpp" />
     <ClCompile Include="..\..\mathlib\src\shapes.cpp" />
     <ClCompile Include="..\..\mathlib\src\triangulation.cpp" />

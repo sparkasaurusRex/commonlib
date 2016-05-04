@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\physics">
+      <UniqueIdentifier>{12ef6f48-2341-4a21-b19a-9be5d9e2268d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\physics">
+      <UniqueIdentifier>{1b84a6cf-9e89-4e5a-b2f3-a7a0faf8a996}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\mathlib\include\aabb.h">
@@ -69,6 +75,9 @@
     <ClInclude Include="..\..\mathlib\include\voronoi_sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\mathlib\include\physics\spring_controller.h">
+      <Filter>Header Files\physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\mathlib\src\aabb.cpp">
@@ -112,6 +121,9 @@
     </ClCompile>
     <ClCompile Include="..\..\mathlib\src\voronoi_sphere.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\mathlib\src\physics\spring_controller.cpp">
+      <Filter>Source Files\physics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
