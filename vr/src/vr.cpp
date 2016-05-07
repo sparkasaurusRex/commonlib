@@ -5,11 +5,14 @@
 #include "vr.h"
 #include "math_utility.h"
 
+#if defined (_USE_OCULUS_SDK)
 #include "Extras/OVR_Math.h"
+using namespace OVR;
+#endif //_USE_OCULUS_SDK
 
 using namespace VR;
 using namespace std;
-using namespace OVR;
+
 using namespace Graphics;
 using namespace Math;
 
@@ -22,6 +25,10 @@ The in - application cameras should be configured with the same separation.
 
 VRContext::VRContext()
 {
+  near_clip = 0.1f;
+  far_clip = 30.0f;
+
+#if defined (_USE_OCULUS_SDK)
   for (int i = 0; i < 2; i++)
   {
     eye_tex[i] = 0;
@@ -30,10 +37,26 @@ VRContext::VRContext()
   }
 
   frame_index = 0;
+#endif //_USE_OCULUS_SDK
 }
 
 void VRContext::init()
 {
+
+  //Loading the SteamVR Runtime
+  vr::EVRInitError err = vr::VRInitError_None;
+  hmd = vr::VR_Init(&err, vr::VRApplication_Scene);
+
+  if(err != vr::VRInitError_None)
+  {
+    hmd = NULL;
+    char buf[1024];
+    sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(err));
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
+    return;
+  }
+
+#if defined (_USE_OCULUS_SDK)
   //Initialize OVR system
   ovrResult result = ovr_Initialize(nullptr);
   assert(OVR_SUCCESS(result));
@@ -47,15 +70,23 @@ void VRContext::init()
   hmd_desc = ovr_GetHmdDesc(ovr_session);
 
   frame_index = 0;
+#endif //_USE_OCULUS_SDK
 }
 
 void VRContext::deinit()
 {
+#if defined (_USE_OCULUS_SDK)
   ovr_Shutdown();
+#endif //_USE_OCULUS_SDK
 }
 
 void VRContext::bind(SDLGame *game)
 {
+#if defined (_USE_OCULUS_SDK)
+  //openVR init
+  vr::EVRInitError eError = vr::VRInitError_None;
+  vr::IVRSystem *m_pHMD = vr::VR_Init(&eError, vr::VRApplication_Scene);
+
   // Setup Window and Graphics
   // Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
   window_size = { hmd_desc.Resolution.w / 2, hmd_desc.Resolution.h / 2 };
@@ -98,10 +129,12 @@ void VRContext::bind(SDLGame *game)
 
   //FloorLevel will give tracking poses where the floor height is 0
   ovr_SetTrackingOriginType(ovr_session, ovrTrackingOrigin_FloorLevel);
+#endif //_USE_OCULUS_SDK
 }
 
 void VRContext::retrieve_eye_poses()
 {
+#if defined (_USE_OCULUS_SDK)
   //retrieve eye poses to send back to the renderer
   ovrEyeRenderDesc eyeRenderDesc[2];
   eyeRenderDesc[0] = ovr_GetRenderDesc(ovr_session, ovrEye_Left, hmd_desc.DefaultEyeFov[0]);
@@ -110,14 +143,31 @@ void VRContext::retrieve_eye_poses()
   ovrVector3f hmd_to_eye_offset[2] = { eyeRenderDesc[0].HmdToEyeOffset, eyeRenderDesc[1].HmdToEyeOffset };
 
   ovr_GetEyePoses(ovr_session, frame_index, ovrTrue, hmd_to_eye_offset, eye_render_pose, &sensor_sample_time);
+#endif //_USE_OCULUS_SDK
 }
 
 void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
 {
+  assert(hmd);
+
+  vr::HmdMatrix44_t proj_mat = hmd->GetProjectionMatrix((vr::EVREye)eye, near_clip, far_clip, vr::API_OpenGL);
+  vr::HmdMatrix34_t pos_mat = hmd->GetEyeToHeadTransform((vr::EVREye)eye);
+
+  //set the camera world view matrix
+  cam->set_pos(Float3(pos_mat.m[0][3], pos_mat.m[1][3], pos_mat.m[2][3]));
+
+  //set the projection matrix
+  GLfloat proj_mat_gl[] = { proj_mat.M[0][0], proj_mat.M[1][0], proj_mat.M[2][0], proj_mat.M[3][0],
+                            proj_mat.M[0][1], proj_mat.M[1][1], proj_mat.M[2][1], proj_mat.M[3][1],
+                            proj_mat.M[0][2], proj_mat.M[1][2], proj_mat.M[2][2], proj_mat.M[3][2],
+                            proj_mat.M[0][3], proj_mat.M[1][3], proj_mat.M[2][3], proj_mat.M[3][3] };
+  
+  cam->set_projection_matrix(proj_mat_gl);
+
+#if defined (_USE_OCULUS_SDK)
   // Get view and projection matrices
   static float yaw(3.141592f);
   static Vector3f pos2(0.0f, 0.0f, 0.0f);
-
 
   Matrix4f rollPitchYaw = Matrix4f::RotationY(yaw);
   Matrix4f finalRollPitchYaw = rollPitchYaw * Matrix4f(eye_render_pose[eye].Orientation);
@@ -127,13 +177,6 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
 
   Matrix4f view = Matrix4f::LookAtRH(shiftedEyePos, shiftedEyePos + finalForward, finalUp);
   Matrix4f proj = ovrMatrix4f_Projection(hmd_desc.DefaultEyeFov[eye], 0.2f, 1000.0f, ovrProjection_None);
-
-  /*
-  GLfloat proj_mat[] = { proj.M[0][0], proj.M[0][1], proj.M[0][2], proj.M[0][3],
-  proj.M[1][0], proj.M[1][1], proj.M[1][2], proj.M[1][3],
-  proj.M[2][0], proj.M[2][1], proj.M[2][2], proj.M[2][3],
-  proj.M[3][0], proj.M[3][1], proj.M[3][2], proj.M[3][3] };
-  */
 
   GLfloat proj_mat[] = { proj.M[0][0], proj.M[1][0], proj.M[2][0], proj.M[3][0],
                          proj.M[0][1], proj.M[1][1], proj.M[2][1], proj.M[3][1],
@@ -145,33 +188,12 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
   cam->set_up(Float3(finalUp.x, finalUp.y, finalUp.z));
   cam->set_lookat(Float3(finalForward.x, finalForward.y, finalForward.z));
   cam->set_projection_matrix(proj_mat);
-
-#if 0
-
-  /*
-  GLfloat view_mat[] = { view.M[0][0], view.M[0][1], view.M[0][2], view.M[0][3],
-                         view.M[1][0], view.M[1][1], view.M[1][2], view.M[1][3],
-                         view.M[2][0], view.M[2][1], view.M[2][2], view.M[2][3],
-                         view.M[3][0], view.M[3][1], view.M[3][2], view.M[3][3] };
-  */
-
-  GLfloat view_mat[] = { view.M[0][0], view.M[1][0], view.M[2][0], view.M[3][0],
-                         view.M[0][1], view.M[1][1], view.M[2][1], view.M[3][1],
-                         view.M[0][2], view.M[1][2], view.M[2][2], view.M[3][2],
-                         view.M[0][3], view.M[1][3], view.M[2][3], view.M[3][3] };
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadMatrixf(view_mat);
-
-
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadMatrixf(proj_mat);
-#endif
+#endif //_USE_OCULUS_SDK
 }
 
 void VRContext::render_capture(const unsigned int eye)
 {
+#if defined (_USE_OCULUS_SDK)
   //set and clear render texture
   GLuint cur_tex_id;
   if (eye_tex_chain[eye])
@@ -192,10 +214,12 @@ void VRContext::render_capture(const unsigned int eye)
   glViewport(0, 0, eye_tex_size[eye].w, eye_tex_size[eye].h);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_FRAMEBUFFER_SRGB);
+#endif //_USE_OCULUS_SDK
 }
 
 void VRContext::render_release(const unsigned int eye)
 {
+#if defined (_USE_OCULUS_SDK)
   //unset render surface
   glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
@@ -206,12 +230,13 @@ void VRContext::render_release(const unsigned int eye)
   {
     ovr_CommitTextureSwapChain(ovr_session, eye_tex_chain[eye]);
   }
+#endif //_USE_OCULUS_SDK
 }
 
 void VRContext::finalize_render()
 {
+#if defined (_USE_OCULUS_SDK)
   // Do distortion rendering, Present and flush/sync
-
   ovrLayerEyeFov ld;
   ld.Header.Type = ovrLayerType_EyeFov;
   ld.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;   // Because OpenGL.
@@ -245,10 +270,12 @@ void VRContext::finalize_render()
   glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
   frame_index++;
+#endif //_USE_OCULUS_SDK
 }
 
 void VRContext::create_eye_texture(const int eye_idx)
 {
+#if defined (_USE_OCULUS_SDK)
   bool render_target = true;
 
   eye_tex_size[eye_idx] = ovr_GetFovTextureSize(ovr_session, ovrEyeType(eye_idx), hmd_desc.DefaultEyeFov[eye_idx], 1);
@@ -314,10 +341,12 @@ void VRContext::create_eye_texture(const int eye_idx)
   }*/
 
   glGenFramebuffers(1, &eye_fbo[eye_idx]);
+#endif //_USE_OCULUS_SDK
 }
 
 void VRContext::create_eye_depth_texture(const int eye_idx)
 {
+#if defined (_USE_OCULUS_SDK)
   ovrSizei ideal_tex_size = ovr_GetFovTextureSize(ovr_session, ovrEyeType(eye_idx), hmd_desc.DefaultEyeFov[eye_idx], 1);
 
   glGenTextures(1, &depth_tex[eye_idx]);
@@ -339,4 +368,5 @@ void VRContext::create_eye_depth_texture(const int eye_idx)
   */
 
   glTexImage2D(GL_TEXTURE_2D, 0, internal_format, ideal_tex_size.w, ideal_tex_size.h, 0, GL_DEPTH_COMPONENT, type, NULL);
+#endif //_USE_OCULUS_SDK
 }

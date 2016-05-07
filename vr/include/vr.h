@@ -1,9 +1,13 @@
 #ifndef __VR_H__
 #define __VR_H__
 
-#if defined (_WIN32)
+//#define __USE_OCULUS_SDK
+
+#if defined (_USE_OCULUS_SDK)
 #include "OVR_CAPI_GL.h"
 #endif
+
+#include <openvr.h>
 
 #include "sdl_game.h"
 #include "camera.h"
@@ -13,6 +17,12 @@ namespace VR
   class VRContext
   {
   private:
+    vr::IVRSystem *hmd;
+
+    float near_clip;
+    float far_clip;
+
+#if defined (_USE_OCULUS_SDK)
     ovrHmdDesc            hmd_desc;
     ovrSession            ovr_session;
     ovrSizei              window_size;
@@ -28,6 +38,7 @@ namespace VR
     double                sensor_sample_time;
     ovrPosef              eye_render_pose[2];
     long long             frame_index;
+#endif //_USE_OCULUS_SDK
 
     void create_eye_texture(const int eye_idx);
     void create_eye_depth_texture(const int eye_idx);

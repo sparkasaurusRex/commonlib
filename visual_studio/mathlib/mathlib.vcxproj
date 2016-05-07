@@ -130,6 +130,7 @@
     <ClInclude Include="..\..\mathlib\include\physics\spring_controller.h" />
     <ClInclude Include="..\..\mathlib\include\polyhedron.h" />
     <ClInclude Include="..\..\mathlib\include\quaternion.h" />
+    <ClInclude Include="..\..\mathlib\include\raytrace.h" />
     <ClInclude Include="..\..\mathlib\include\shapes.h" />
     <ClInclude Include="..\..\mathlib\include\topology.h" />
     <ClInclude Include="..\..\mathlib\include\triangulation.h" />
@@ -148,6 +149,7 @@
     <ClCompile Include="..\..\mathlib\src\perlin.cpp" />
     <ClCompile Include="..\..\mathlib\src\physics\spring_controller.cpp" />
     <ClCompile Include="..\..\mathlib\src\quaternion.cpp" />
+    <ClCompile Include="..\..\mathlib\src\raytrace.cpp" />
     <ClCompile Include="..\..\mathlib\src\shapes.cpp" />
     <ClCompile Include="..\..\mathlib\src\triangulation.cpp" />
     <ClCompile Include="..\..\mathlib\src\triangulation_3d.cpp" />
