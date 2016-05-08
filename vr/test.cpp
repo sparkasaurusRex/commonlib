@@ -136,8 +136,9 @@ private:
   {
     //if(!paused)
     {
-      rot_angle += 10.0f * (float)frame_time;
+      rot_angle += 1.0f * (float)frame_time;
     }
+    vr_context.simulate(game_time, frame_time);
   }
 public:
   VRGame() : SDLGame(640, 480, "VR Test")

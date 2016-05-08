@@ -22,6 +22,12 @@ namespace VR
     float near_clip;
     float far_clip;
 
+    GLuint eye_fbo[2];          //frame buffer object id
+    GLuint eye_dbo[2];          //depth buffer object id
+    GLuint eye_tex[2];          //eye render texture id
+    GLuint eye_resolve_fbo[2];  //resolve fbo id
+    GLuint eye_resolve_tex[2];  //resolve tex id
+
 #if defined (_USE_OCULUS_SDK)
     ovrHmdDesc            hmd_desc;
     ovrSession            ovr_session;
@@ -29,8 +35,8 @@ namespace VR
 
     ovrTextureSwapChain   eye_tex_chain[2];
     ovrSizei              eye_tex_size[2];
-    GLuint                eye_tex[2];
-    GLuint                eye_fbo[2];
+    //GLuint                eye_tex[2];
+    //GLuint                eye_fbo[2];
     GLuint                depth_tex[2];
 
     GLuint                mirror_fbo;
@@ -56,7 +62,7 @@ namespace VR
     void render_release(const unsigned int eye);
     void finalize_render();
 
-    void simulate(const double game_time, const double frame_time) {}
+    void simulate(const double game_time, const double frame_time);
   };
 };
 

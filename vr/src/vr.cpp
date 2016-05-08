@@ -42,20 +42,6 @@ VRContext::VRContext()
 
 void VRContext::init()
 {
-
-  //Loading the SteamVR Runtime
-  vr::EVRInitError err = vr::VRInitError_None;
-  hmd = vr::VR_Init(&err, vr::VRApplication_Scene);
-
-  if(err != vr::VRInitError_None)
-  {
-    hmd = NULL;
-    char buf[1024];
-    sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(err));
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
-    return;
-  }
-
 #if defined (_USE_OCULUS_SDK)
   //Initialize OVR system
   ovrResult result = ovr_Initialize(nullptr);
@@ -75,6 +61,11 @@ void VRContext::init()
 
 void VRContext::deinit()
 {
+  if (hmd)
+  {
+    vr::VR_Shutdown();
+    hmd = NULL;
+  }
 #if defined (_USE_OCULUS_SDK)
   ovr_Shutdown();
 #endif //_USE_OCULUS_SDK
@@ -82,11 +73,62 @@ void VRContext::deinit()
 
 void VRContext::bind(SDLGame *game)
 {
-#if defined (_USE_OCULUS_SDK)
-  //openVR init
-  vr::EVRInitError eError = vr::VRInitError_None;
-  vr::IVRSystem *m_pHMD = vr::VR_Init(&eError, vr::VRApplication_Scene);
+  //Loading the SteamVR Runtime
+  vr::EVRInitError err = vr::VRInitError_None;
+  hmd = vr::VR_Init(&err, vr::VRApplication_Scene);
 
+  if (err != vr::VRInitError_None)
+  {
+    hmd = NULL;
+    char buf[1024];
+    sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(err));
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
+    return;
+  }
+
+  assert(hmd);
+  
+  uint32_t render_target_dim[2];
+  hmd->GetRecommendedRenderTargetSize(&render_target_dim[0], &render_target_dim[1]);
+
+  //CreateFrameBuffer(render_target_dim[0], render_target_dim[1], leftEyeDesc);
+  //CreateFrameBuffer(m_nRenderWidth, m_nRenderHeight, rightEyeDesc);
+  for (unsigned int eye = 0; eye < 2; eye++)
+  {
+    glGenFramebuffers(1, &eye_fbo[eye]);
+    glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);
+
+    glGenRenderbuffers(1, &eye_dbo[eye]);
+    glBindRenderbuffer(GL_RENDERBUFFER, eye_dbo[eye]);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, render_target_dim[0], render_target_dim[1]);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eye_dbo[eye]);
+
+    glGenTextures(1, &eye_tex[eye]);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, eye_tex[eye]);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, render_target_dim[0], render_target_dim[1], true);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, eye_tex[eye], 0);
+
+    glGenFramebuffers(1, &eye_resolve_fbo[eye]);
+    glBindFramebuffer(GL_FRAMEBUFFER, eye_resolve_fbo[eye]);
+
+    glGenTextures(1, &eye_resolve_tex[eye]);
+    glBindTexture(GL_TEXTURE_2D, eye_resolve_tex[eye]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, render_target_dim[0], render_target_dim[1], 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, eye_resolve_tex[eye], 0);
+
+    // check FBO status
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE)
+    {
+      assert(false);
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  }
+
+#if defined (_USE_OCULUS_SDK)
   // Setup Window and Graphics
   // Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
   window_size = { hmd_desc.Resolution.w / 2, hmd_desc.Resolution.h / 2 };
@@ -155,12 +197,14 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
 
   //set the camera world view matrix
   cam->set_pos(Float3(pos_mat.m[0][3], pos_mat.m[1][3], pos_mat.m[2][3]));
+  cam->set_up(Float3(pos_mat.m[2][1], pos_mat.m[2][2], pos_mat.m[2][3]));
+  cam->set_up(Float3(pos_mat.m[0][1], pos_mat.m[0][2], pos_mat.m[0][3]));
 
   //set the projection matrix
-  GLfloat proj_mat_gl[] = { proj_mat.M[0][0], proj_mat.M[1][0], proj_mat.M[2][0], proj_mat.M[3][0],
-                            proj_mat.M[0][1], proj_mat.M[1][1], proj_mat.M[2][1], proj_mat.M[3][1],
-                            proj_mat.M[0][2], proj_mat.M[1][2], proj_mat.M[2][2], proj_mat.M[3][2],
-                            proj_mat.M[0][3], proj_mat.M[1][3], proj_mat.M[2][3], proj_mat.M[3][3] };
+  GLfloat proj_mat_gl[] = { proj_mat.m[0][0], proj_mat.m[1][0], proj_mat.m[2][0], proj_mat.m[3][0],
+                            proj_mat.m[0][1], proj_mat.m[1][1], proj_mat.m[2][1], proj_mat.m[3][1],
+                            proj_mat.m[0][2], proj_mat.m[1][2], proj_mat.m[2][2], proj_mat.m[3][2],
+                            proj_mat.m[0][3], proj_mat.m[1][3], proj_mat.m[2][3], proj_mat.m[3][3] };
   
   cam->set_projection_matrix(proj_mat_gl);
 
@@ -369,4 +413,45 @@ void VRContext::create_eye_depth_texture(const int eye_idx)
 
   glTexImage2D(GL_TEXTURE_2D, 0, internal_format, ideal_tex_size.w, ideal_tex_size.h, 0, GL_DEPTH_COMPONENT, type, NULL);
 #endif //_USE_OCULUS_SDK
+}
+
+void VRContext::simulate(const double game_time, const double frame_time)
+{
+  assert(hmd);
+
+  // Process SteamVR events
+  vr::VREvent_t event;
+  while (hmd->PollNextEvent(&event, sizeof(event)))
+  {
+    /*switch (event.eventType)
+    {
+    case vr::VREvent_TrackedDeviceActivated:
+    {
+      SetupRenderModelForTrackedDevice(event.trackedDeviceIndex);
+      dprintf("Device %u attached. Setting up render model.\n", event.trackedDeviceIndex);
+    }
+    break;
+    case vr::VREvent_TrackedDeviceDeactivated:
+    {
+      dprintf("Device %u detached.\n", event.trackedDeviceIndex);
+    }
+    break;
+    case vr::VREvent_TrackedDeviceUpdated:
+    {
+      dprintf("Device %u updated.\n", event.trackedDeviceIndex);
+    }
+    break;
+    }
+    */
+  }
+
+  // Process SteamVR controller state
+  for (vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; unDevice++)
+  {
+    vr::VRControllerState_t state;
+    if (hmd->GetControllerState(unDevice, &state))
+    {
+      //m_rbShowTrackedDevice[unDevice] = state.ulButtonPressed == 0;
+    }
+  }
 }
