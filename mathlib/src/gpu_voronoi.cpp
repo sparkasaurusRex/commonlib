@@ -39,8 +39,6 @@ void GPUVoronoi2D::init()
   glGetIntegerv(GL_MAX_ELEMENTS_INDICES, &max_draw_indices);
   glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &max_draw_verts);
 
-
-
   //allocate vertex data for the cones (GL_TRIANGLE_FAN)
   cone_vertex_data = new ConeVert[num_cone_verts];
   cone_index_data = new unsigned int[num_cone_verts];
@@ -51,9 +49,9 @@ void GPUVoronoi2D::init()
   cone_vertex_data[0].y = 0.0f;
   cone_vertex_data[0].z = 1.0f;
   cone_index_data[0] = 0;
-  for(int i = 0; i < num_cone_verts; i++)
+  for(unsigned int i = 0; i < num_cone_verts; i++)
   {
-    float theta = 2.0f * M_PI * (float)i / (float)num_cone_segments;
+    float theta = 2.0f * (float)M_PI * (float)i / (float)num_cone_segments;
     cone_vertex_data[i + 1].x = r * cos(theta);
     cone_vertex_data[i + 1].y = r * sin(theta);
     cone_vertex_data[i + 1].z = 0.0f;
@@ -161,7 +159,7 @@ void GPUVoronoi2D::build_voronoi_diagram()
   glMatrixMode(GL_MODELVIEW);
 
   //render a cone for each site
-  for(int i = 0; i < sites.size(); i++)
+  for(unsigned int i = 0; i < sites.size(); i++)
   {
     glLoadIdentity();
     glTranslatef(sites[i][0], sites[i][1], -1.0f);
@@ -202,8 +200,8 @@ unsigned int GPUVoronoi2D::query_nearest_site(const Float2 p)
   assert(p[0] >= 0.0f && p[0] <= 1.0f);
   assert(p[1] >= 0.0f && p[1] <= 1.0f);
 
-  int x = p[0] * (float)fbo_res[0];
-  int y = p[1] * (float)fbo_res[1];
+  unsigned int x = (int)(p[0] * (float)fbo_res[0]);
+  unsigned int y = (int)(p[1] * (float)fbo_res[1]);
 
   if(x >= fbo_res[0]) { x = fbo_res[0] - 1; }
   if(y >= fbo_res[1]) { y = fbo_res[1] - 1; }

@@ -80,7 +80,7 @@ CurveSegmentCosine::CurveSegmentCosine() : CurveSegment()
 float CurveSegmentCosine::evaluate(const float _x) const
 {
   float x_pct = (_x - end_points[0].p[0]) / (end_points[1].p[0] - end_points[0].p[0]);
-  return clamp(amplitude * (cos(frequency * x_pct * M_PI * 2.0f + phase) + y_offset), 0.0f, 1.0f);
+  return clamp(amplitude * (cos(frequency * x_pct * (float)M_PI * 2.0f + phase) + y_offset), 0.0f, 1.0f);
 }
 
 CurveSegmentPerlin::CurveSegmentPerlin() : CurveSegment()
@@ -95,7 +95,7 @@ CurveSegmentPerlin::CurveSegmentPerlin() : CurveSegment()
 float CurveSegmentPerlin::evaluate(const float _x) const
 {
   float x_pct = (_x - end_points[0].p[0]) / (end_points[1].p[0] - end_points[0].p[0]);
-  return clamp(amplitude * (PerlinNoise::octave_noise_2d(octaves, 1.0f, frequency, x_pct + phase, 0.0f) + y_offset), 0.0f, 1.0f);
+  return clamp(amplitude * (PerlinNoise::octave_noise_2d((float)octaves, 1.0f, frequency, x_pct + phase, 0.0f) + y_offset), 0.0f, 1.0f);
 }
 
 /*
@@ -111,7 +111,7 @@ Curve::Curve(InterpolationMethod im, Float2 a, Float2 b, Float2 ta, Float2 tb)
 
 Curve::~Curve()
 {
-  for(int i = 0; i < segments.size(); i++)
+  for(unsigned int i = 0; i < segments.size(); i++)
   {
     delete segments[i];
   }
@@ -145,7 +145,7 @@ void Curve::init(InterpolationMethod im, Float2 a, Float2 b, Float2 ta, Float2 t
   new_cs->end_points[0] = ep_a;
   new_cs->end_points[1] = ep_b;
 
-  for(int i = 0; i < segments.size(); i++)
+  for(unsigned int i = 0; i < segments.size(); i++)
   {
     delete segments[i];
   }
@@ -157,7 +157,7 @@ void Curve::init(InterpolationMethod im, Float2 a, Float2 b, Float2 ta, Float2 t
 //redundant
 void Curve::reset()
 {
-  for(int i = 0; i < segments.size(); i++)
+  for(unsigned int i = 0; i < segments.size(); i++)
   {
     delete segments[i];
   }
@@ -286,7 +286,7 @@ CurveSegment *Curve::insert_end_point(InterpolationMethod m, CurveEndPoint new_p
 
 void CurveHandle::translate(const Math::Float2 p)
 {
-  for(int i = 0; i < locations.size(); i++)
+  for(unsigned int i = 0; i < locations.size(); i++)
   {
     Float2 *hp = locations[i];
     assert(hp);
@@ -297,7 +297,7 @@ void CurveHandle::translate(const Math::Float2 p)
 
 float Curve::evaluate(const float _x)
 {
-  for(int i = 0; i < segments.size(); i++)
+  for(unsigned int i = 0; i < segments.size(); i++)
   {
     if(segments[i]->in_range(_x))
     {
@@ -313,13 +313,13 @@ void Curve::delete_handle(const CurveHandle *ch)
 
   //need to find the curve segment(s) this handle belongs to
   std::vector<CurveSegment *> matching_segments;
-  for(int i = 0; i < segments.size(); i++)
+  for(unsigned int i = 0; i < segments.size(); i++)
   {
     CurveSegment *cs = segments[i];
     for(int j = 0; j < 2; j++)
     {
       CurveEndPoint *cep = &cs->end_points[j];
-      for(int k = 0; k < ch->locations.size(); k++)
+      for(unsigned int k = 0; k < ch->locations.size(); k++)
       {
         Float2 *loc = ch->locations[k];
         if(loc == &cep->p || loc == &cep->t)
@@ -347,7 +347,7 @@ void Curve::delete_handle(const CurveHandle *ch)
     //delete the right one
     left->end_points[1].p = right->end_points[0].p;
     left->end_points[1].t = right->end_points[0].t;
-    for(int i = 0; i < segments.size(); i++)
+    for(unsigned int i = 0; i < segments.size(); i++)
     {
       if(segments[i] == right)
       {
@@ -363,7 +363,7 @@ void Curve::delete_handle(const CurveHandle *ch)
 
 CurveSegment *Curve::get_segment(const float x)
 {
-  for(int i = 0; i < segments.size(); i++)
+  for(unsigned int i = 0; i < segments.size(); i++)
   {
     CurveSegment *cs = segments[i];
     if(cs->end_points[0].p[0] <= x && cs->end_points[1].p[0] >= x)
@@ -418,7 +418,7 @@ void Curve::build_handle_list()
 {
   handles.clear();
 
-  for(int i = 0; i < segments.size(); i++)
+  for(unsigned int i = 0; i < segments.size(); i++)
   {
     CurveSegment *cs = segments[i];
     CurveHandle left_handle, right_handle;
@@ -466,14 +466,14 @@ void Curve::enforce_segment_ranges()
   segments[0]->end_points[0].p[0] = 0.0f;
   segments[segments.size() - 1]->end_points[1].p[0] = 1.0f;
 
-  for(int i = 1; i < segments.size(); i++)
+  for(unsigned int i = 1; i < segments.size(); i++)
   {
     CurveSegment *left = segments[i - 1];
     CurveSegment *right = segments[i];
 
-    for(int j = 0; j < 2; j++)
+    for(unsigned int j = 0; j < 2; j++)
     {
-      for(int k = 0; k < 2; k++)
+      for(unsigned int k = 0; k < 2; k++)
       {
         left->end_points[j].p[k] = clamp(left->end_points[j].p[k], 0.0f, 1.0f);
         left->end_points[j].t[k] = clamp(left->end_points[j].t[k], 0.0f, 1.0f);
@@ -484,9 +484,9 @@ void Curve::enforce_segment_ranges()
 
     if(right->end_points[1].p[0] < left->end_points[1].p[0])
     {
-      for(int j = 0; j < handles.size(); j++)
+      for(unsigned int j = 0; j < handles.size(); j++)
       {
-        for(int k = 0; k < handles[j].locations.size(); k++)
+        for(unsigned int k = 0; k < handles[j].locations.size(); k++)
         {
           if(handles[j].locations[k] == &right->end_points[1].p)
           {
@@ -505,9 +505,9 @@ void Curve::fwrite(FILE *f)
   int file_version = CURVE_FILE_VERSION;
   ::fwrite(&file_version, sizeof(int), 1, f);
 
-  int num_segments = segments.size();
+  unsigned int num_segments = (unsigned int)segments.size();
   ::fwrite(&num_segments, sizeof(int), 1, f);
-  for(int i = 0; i < num_segments; i++)
+  for(unsigned int i = 0; i < num_segments; i++)
   {
     CurveSegment *cs = segments[i];
     InterpolationMethod im = cs->get_interpolation_method();

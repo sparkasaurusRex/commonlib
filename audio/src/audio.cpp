@@ -49,7 +49,7 @@ void AudioImp::deinit()
   Mix_Quit();
 }
 
-unsigned int AudioImp::load_music(string fname)
+int AudioImp::load_music(string fname)
 {
   if(!valid)
   {
@@ -62,13 +62,13 @@ unsigned int AudioImp::load_music(string fname)
   if(music)
   {
     music_tracks.push_back(music);
-    return music_tracks.size() - 1;
+    return (unsigned int)music_tracks.size() - 1;
   }
   cout<<"Mix_LoadMus: "<<Mix_GetError()<<endl;
   return -1;
 }
 
-unsigned int AudioImp::load_sample(string fname)
+int AudioImp::load_sample(string fname)
 {
   if(!valid)
   {
@@ -82,7 +82,7 @@ unsigned int AudioImp::load_sample(string fname)
   if(sample)
   {
     samples.push_back(sample);
-    return samples.size() - 1;
+    return (unsigned int)samples.size() - 1;
   }
 
   cout<<"Mix_LoadWAV: "<<Mix_GetError()<<endl;

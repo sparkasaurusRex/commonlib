@@ -2,6 +2,7 @@
 #define __RENDER_SURFACE_H__
 
 #include "material.h"
+#include "texture.h"
 #include <vector>
 
 namespace Graphics
@@ -25,11 +26,12 @@ namespace Graphics
     void set_shader_names(std::string vs, std::string fs);
 
     void add_uniform_ptr(Math::Float2 *u, std::string name);
-    void add_uniform_tex(GLuint t, std::string name);
+    void add_uniform_tex(Texture2D *t, std::string name) { mat.add_texture(t, name); }
+    void add_uniform_tex(Texture3D *t, std::string name) { mat.add_texture(t, name); }
     void add_uniform(Math::Float2 &u, std::string name);
     void add_uniform(Math::Float3 &u, std::string name);
 
-    GLuint get_tex() const { return target_tex; }
+    Texture2D *get_tex() const { return target_tex; }
     Material *get_mat() { return &mat; }
     //void set_mat(Material *m) { mat = m; }
 
@@ -47,7 +49,8 @@ namespace Graphics
     GLuint                 ibo;
 
     GLuint                 target_fbo;
-    GLuint                 target_tex;
+    Texture2D              *target_tex;
+    Texture2D              *depth_tex;
 
     bool                   use_depth;
     GLuint                 depth_fbo;
@@ -60,15 +63,15 @@ namespace Graphics
     GLenum                 tex_filter;
 
     Material               mat;
+    Shader                 *shader;
     std::string            vertex_shader_name;
     std::string            fragment_shader_name;
 
-    //TODO: clean all this uniform BS up
-    std::vector<Math::Float2> f2_uni_const;
-
-    std::vector<std::pair<Float2 *, std::string> > uniforms;
-    std::vector<std::pair<Float3, std::string> > float3_uniforms;
-    std::vector<std::pair<GLuint, std::string> > tex_uniforms;
+    //TODO: clean all this uniform BS up - this should just use the Material / Shader system
+    std::vector<Math::Float2>                                f2_uni_const;
+    std::vector<std::pair<Math::Float2 *, std::string> >     uniforms;
+    std::vector<std::pair<Math::Float3, std::string> >       float3_uniforms;
+    //std::vector<std::pair<GLuint, std::string> >             tex_uniforms;
   };
 };
 

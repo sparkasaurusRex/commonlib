@@ -3,11 +3,6 @@
 #include <string>
 #include <assert.h>
 
-#if defined(__APPLE__)
-#include <OpenGL/glu.h>
-#else
-#include <GL/glu.h>
-#endif
 #include "font.h"
 
 using namespace std;
@@ -68,7 +63,11 @@ void Font::print(float x, float y, const char *fmt, ...)
     *text = 0;                                    // Do Nothing
   else {
     va_start(ap, fmt);                              // Parses The String For Variables
-    vsprintf(text, fmt, ap);                            // And Converts Symbols To Actual Numbers
+#if defined(_WIN32)
+    vsprintf_s(text, fmt, ap);                            // And Converts Symbols To Actual Numbers
+#else
+    vsprintf(text, fmt, ap);
+#endif
     va_end(ap);                                 // Results Are Stored In Text
   }
 
@@ -116,7 +115,8 @@ void Font::print(float x, float y, const char *fmt, ...)
   // Down By h. This Is Because When Each Character Is
   // Drawn It Modifies The Current Matrix So That The Next Character
   // Will Be Drawn Immediately After It.
-  for(int i = 0; i < lines.size(); i++) {
+  for(unsigned int i = 0; i < lines.size(); i++)
+  {
     glPushMatrix();
     glLoadIdentity();
     glTranslatef(x, (y + height * i), 0);
@@ -144,8 +144,12 @@ void Font::print(float x, float y, const char *fmt, ...)
 
 Font::Font(const char *fname, unsigned int height)
 {
-  h = height;
+  h = (float)height;
+#if defined (_WIN32)
+  strcpy_s(face_fname, fname);
+#else
   strcpy(face_fname, fname);
+#endif
 }
 
 Font::~Font()
@@ -254,27 +258,27 @@ void Font::create_display_list(FT_Face face, char ch, GLuint list_base, GLuint *
   glPushMatrix();
 
   //move over a little, and down by whatever we need to
-  glTranslatef(bitmap_glyph->left, 0, 0);
-  glTranslatef(0, vertical_offset, 0);
+  glTranslatef((float)bitmap_glyph->left, 0.0f, 0.0f);
+  glTranslatef(0.0f, (float)vertical_offset, 0.0f);
 
   //account for padding space in the texture
   float x = (float)bitmap.width / (float)width;
   float y = (float)bitmap.rows / (float)height;
 
   int idx = (int)ch;
-  character_w[idx] = face->glyph->advance.x >> 6;
+  character_w[idx] = (float)(face->glyph->advance.x >> 6);
 
   //draw the textured quad
   glBegin(GL_QUADS);
-    glTexCoord2d(0, 0); glVertex2f(0, bitmap.rows);
-    glTexCoord2d(0, y); glVertex2f(0, 0);
-    glTexCoord2d(x, y); glVertex2f(bitmap.width, 0);
-    glTexCoord2d(x, 0); glVertex2f(bitmap.width, bitmap.rows);
+    glTexCoord2d(0.0f, 0.0f); glVertex2f(0.0f, (float)bitmap.rows);
+    glTexCoord2d(0.0f, (float)y); glVertex2f(0.0f, 0.0f);
+    glTexCoord2d((float)x, (float)y); glVertex2f((float)bitmap.width, 0.0f);
+    glTexCoord2d((float)x, 0.0f); glVertex2f((float)bitmap.width, (float)bitmap.rows);
   glEnd();
 
   glPopMatrix();
 
-  glTranslatef(face->glyph->advance.x >> 6, 0, 0);
+  glTranslatef((float)(face->glyph->advance.x >> 6), 0.0f, 0.0f);
 
   glEndList();
 }

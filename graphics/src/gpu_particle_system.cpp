@@ -12,13 +12,12 @@ using namespace Graphics;
 
 GPUParticleSystem::GPUParticleSystem(const char * shader_directory)
 {
-  billboard_size = 0.025f;
+  billboard_size = 0.25f;
   does_loop = false;
   is_dead = false;
   start_time = 0;
 
   num_particles = 0;
-
   numAttractors = 0;
 
   pos_fbo[0] = pos_fbo[1] = 0;
@@ -42,17 +41,24 @@ GPUParticleSystem::GPUParticleSystem(const char * shader_directory)
   update_vel_shader_names[1] = shader_directory + std::string("particle_update_vel.fs");
   render_shader_names[0] = shader_directory + std::string("particle_render.vs");
   render_shader_names[1] = shader_directory + std::string("particle_render.fs");
+
+  render_shader = new Shader;
+  update_pos_shader = new Shader;
+  update_vel_shader = new Shader;
 }
 
 GPUParticleSystem::~GPUParticleSystem()
 {
   deinit();
+
+  delete render_shader;
+  delete update_pos_shader;
+  delete update_vel_shader;
 }
 
-void GPUParticleSystem::init(float particle_size, Float3 * initial_particle_pos, Float3 * initial_particle_vel, float * age, float * data)
+void GPUParticleSystem::init(float particle_size, Float3 *initial_particle_pos, Float3 *initial_particle_vel, float *age, float *data)
 {
   billboard_size = particle_size;
-
   GLuint pixel_mode = GL_RGBA;
 
   //create textures
@@ -89,10 +95,10 @@ void GPUParticleSystem::init(float particle_size, Float3 * initial_particle_pos,
 
   assert(glIsTexture(data_tex) == GL_TRUE);
 
-  for (int i = 0; i < 2; i++)
+  for(int i = 0; i < 2; i++)
   {
     /* Position Texture */
-    GLfloat * pixels = new GLfloat[num_particles * 4];
+    GLfloat *pixels = new GLfloat[num_particles * 4];
 
     int pixel_idx = 0;
 
@@ -230,18 +236,27 @@ void GPUParticleSystem::init(float particle_size, Float3 * initial_particle_pos,
 
 
   //Set up shaders
-  render_mat.set_shader_filenames(render_shader_names[0], render_shader_names[1]);
+  //render_mat.set_shader_filenames(render_shader_names[0], render_shader_names[1]);
+  render_shader->set_shader_filenames(render_shader_names[0], render_shader_names[1]);
+  render_shader->load_link_and_compile();
+  render_mat.set_shader(render_shader);
   render_mat.init();
 
-  update_pos_mat.set_shader_filenames(update_pos_shader_names[0], update_pos_shader_names[1]);
+  //update_pos_mat.set_shader_filenames(update_pos_shader_names[0], update_pos_shader_names[1]);
+  update_pos_shader->set_shader_filenames(update_pos_shader_names[0], update_pos_shader_names[1]);
+  update_pos_shader->load_link_and_compile();
+  update_pos_mat.set_shader(update_pos_shader);
   update_pos_mat.init();
 
-  update_vel_mat.set_shader_filenames(update_vel_shader_names[0], update_vel_shader_names[1]);
+  //update_vel_mat.set_shader_filenames(update_vel_shader_names[0], update_vel_shader_names[1]);
+  update_vel_shader->set_shader_filenames(update_vel_shader_names[0], update_vel_shader_names[1]);
+  update_vel_shader->load_link_and_compile();
+  update_vel_mat.set_shader(update_vel_shader);
   update_vel_mat.init();
 
 
   //Get shader uniform locations
-  update_pos_mat.render_gl();
+  update_pos_mat.render();
   Shader * shader = update_pos_mat.get_shader();
 
   uniform_locations[UNIFORM_UPDATEPOS_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
@@ -251,7 +266,7 @@ void GPUParticleSystem::init(float particle_size, Float3 * initial_particle_pos,
   uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
 
 
-  update_vel_mat.render_gl();
+  update_vel_mat.render();
   shader = update_vel_mat.get_shader();
 
   uniform_locations[UNIFORM_UPDATEVEL_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "prev_pos_tex");
@@ -260,7 +275,7 @@ void GPUParticleSystem::init(float particle_size, Float3 * initial_particle_pos,
   uniform_locations[UNIFORM_UPDATEVEL_ATTRACTORS] = glGetUniformLocation(shader->gl_shader_program, "attractors");
   uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS] = glGetUniformLocation(shader->gl_shader_program, "constants");
 
-  render_mat.render_gl();
+  render_mat.render();
   shader = render_mat.get_shader();
 
   uniform_locations[UNIFORM_RENDER_POS_TEX] = glGetUniformLocation(shader->gl_shader_program, "particle_tex");
@@ -296,8 +311,8 @@ void GPUParticleSystem::deinit()
   forces.clear();
 }
 
-void GPUParticleSystem::update_velocities(const float game_time, const float dt) {
-
+void GPUParticleSystem::update_velocities(const float game_time, const float dt)
+{
   //Write to  vel_fbo[0]
   //Read from vel_tex[1]
   //Then swap so that vel_tex[1] is always updated
@@ -319,15 +334,17 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   glLoadIdentity();
 
 
-  update_vel_mat.render_gl();
+  update_vel_mat.render();
 
   //attractors
   GLfloat * attractors = new GLfloat[4 * MAX_NUM_ATTRACTORS];
 
   int k = 0;
 
-  for (int i = 0; i < forces.size(); i++) {
-    if (forces[i]->getForceType() == ATTRACTOR) {
+  for(unsigned int i = 0; i < forces.size(); i++)
+  {
+    if(forces[i]->getForceType() == ATTRACTOR)
+	{
 
       Attractor * a = static_cast<Attractor *>(forces[i]);
 
@@ -348,7 +365,7 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   //constants
   //{dt, lifespan, num_attractors, emitter_range, emitter_strength, sim_time, rand_curve_id, emitter_dir_id, data_tex_height}
   const int num_constants = 9;
-  GLfloat constants[num_constants] = {dt, particleLifespan, k / 4, emitter_range, emitter_strength, (game_time - start_time) / 1000.f, 0, emitter_dir_id, data_tex_height};
+  GLfloat constants[num_constants] = {dt, particleLifespan, (float)(k / 4), emitter_range, emitter_strength, (game_time - (float)start_time) / 1000.f, 0, (float)emitter_dir_id, (float)data_tex_height};
   glUniform1fv(uniform_locations[UNIFORM_UPDATEVEL_CONSTANTS], num_constants, constants);
 
   //prev_pos_tex
@@ -384,10 +401,13 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE2);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
   glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
   glActiveTexture(GL_TEXTURE0);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
 
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
   glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);
@@ -403,7 +423,6 @@ void GPUParticleSystem::update_velocities(const float game_time, const float dt)
 }
 
 void GPUParticleSystem::update_positions(const float game_time, const float dt) {
-
   //Write to  pos_fbo[0]
   //Read from pos_tex[1]
   //Then swap so that pos_tex[1] is always updated
@@ -415,7 +434,7 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
 
   //glClearColor(0.f, 0.f, 0.f, 0.f);
   //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glDisable(GL_DEPTH_TEST);
+  glEnable(GL_DEPTH_TEST);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
@@ -425,7 +444,7 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   glLoadIdentity();
 
 
-  update_pos_mat.render_gl();
+  update_pos_mat.render();
 
   //emitterLocation
   glUniform3f(uniform_locations[UNIFORM_UPDATEPOS_EMITTER_LOC], emitterLocation[0], emitterLocation[1], emitterLocation[2]);
@@ -433,7 +452,7 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   //constants
   //{dt, lifespan, does_loop, emitter_radius, emitter_duration, sim_time, rand_curve_id, age_curve_id, data_tex_height}
   const int num_constants = 9;
-  GLfloat constants[num_constants] = {dt, particleLifespan, does_loop, emitter_radius, emitter_duration, (game_time - start_time) / 1000.f, 0, age_curve_id, data_tex_height};
+  GLfloat constants[num_constants] = { dt, particleLifespan, (float)does_loop, emitter_radius, emitter_duration, (game_time - (float)start_time) / 1000.f, 0.0f, (float)age_curve_id, (float)data_tex_height };
   glUniform1fv(uniform_locations[UNIFORM_UPDATEPOS_CONSTANTS], num_constants, constants);
 
   //prev_pos_tex
@@ -468,10 +487,13 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   glUseProgramObjectARB(0);
   glActiveTexture(GL_TEXTURE2);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
   glActiveTexture(GL_TEXTURE1);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
   glActiveTexture(GL_TEXTURE0);
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_3D);
 
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
   glViewport(win_viewport[0], win_viewport[1], win_viewport[2], win_viewport[3]);
@@ -484,37 +506,42 @@ void GPUParticleSystem::update_positions(const float game_time, const float dt) 
   tmp = pos_fbo[0];
   pos_fbo[0] = pos_fbo[1];
   pos_fbo[1] = tmp;
-
 }
 
-void GPUParticleSystem::simulate(const float game_time, const float dt)
+void GPUParticleSystem::simulate(const double game_time, const double dt)
 {
-
   if (start_time == 0) {
     //Initialize start_time
     start_time = game_time;
   }
-  if (!does_loop && (game_time - start_time) / 1000.f > system_duration) {
+  if (!does_loop && (game_time - start_time) / 1000.f > system_duration)
+  {
     is_dead = true;
   }
 
-  update_velocities(game_time, dt);
-  update_positions(game_time, dt);
+  update_velocities((float)game_time, (float)dt);
+  update_positions((float)game_time, (float)dt);
 }
 
 void GPUParticleSystem::render()
 {
   glDisable(GL_CULL_FACE);
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_LIGHTING);
+
+  glDepthMask(GL_FALSE);
 
   //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+  glDisable(GL_ALPHA_TEST);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-  render_mat.render_gl();
+  render_mat.render();
 
-  //constants
-  //{lifespan, color_curve_id, size_curve_id, data_tex_height}
+  // constants
+  // { lifespan, color_curve_id, size_curve_id, data_tex_height }
   const int num_constants = 4;
-  GLfloat constants[num_constants] = {particleLifespan, color_curve_id, size_curve_id, data_tex_height};
+  GLfloat constants[num_constants] = {particleLifespan, (float)color_curve_id, (float)size_curve_id, (float)data_tex_height};
   glUniform1fv(uniform_locations[UNIFORM_RENDER_CONSTANTS], num_constants, constants);
 
   //pos_tex
@@ -565,34 +592,52 @@ void GPUParticleSystem::render()
 
   glClientActiveTexture(GL_TEXTURE0);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthMask(GL_TRUE);
 }
 
 
 GPUParticleSim::GPUParticleSim() {
-
   // Populate random texture
-  for (int i = 0; i < DATA_TEXTURE_LENGTH * 4; i++) {
+  for(int i = 0; i < DATA_TEXTURE_LENGTH * 4; i++)
+  {
     rand_data.push_back(random(-1.f, 1.f));
   }
 }
 
 GPUParticleSim::~GPUParticleSim() {
-  for (int i = 0; i < pSystems.size(); i++) {
-    delete pSystems[i];
+  for(unsigned int i = 0; i < particle_systems.size(); i++)
+  {
+    delete particle_systems[i];
   }
-  pSystems.clear();
+  particle_systems.clear();
 }
 
-void GPUParticleSim::addCurveVec4(const char * file_name_r, const char * file_name_g, const char * file_name_b, const char * file_name_a, const char * handle) {
+void GPUParticleSim::addCurveVec4(const char *file_name_r,
+                                  const char *file_name_g,
+                                  const char *file_name_b,
+                                  const char *file_name_a,
+                                  const char *handle)
+{
 
-  FILE * file_r = fopen(file_name_r, "rb");
-  FILE * file_g = fopen(file_name_g, "rb");
-  FILE * file_b = fopen(file_name_b, "rb");
-  FILE * file_a = fopen(file_name_a, "rb");
+  FILE *file_r, *file_g, *file_b, *file_a;
+#if defined (_WIN32)
+  fopen_s(&file_r, file_name_r, "rb");
+  fopen_s(&file_g, file_name_g, "rb");
+  fopen_s(&file_b, file_name_b, "rb");
+  fopen_s(&file_a, file_name_a, "rb");
+#else
+  file_r = fopen(file_name_r, "rb");
+  file_g = fopen(file_name_g, "rb");
+  file_b = fopen(file_name_b, "rb");
+  file_a = fopen(file_name_a, "rb");
+#endif
 
-  if (file_r == NULL || file_g == NULL || file_b == NULL || file_a == NULL) {
+  if(file_r == NULL || file_g == NULL || file_b == NULL || file_a == NULL)
+  {
     cout << "Error! No file named " << file_name_r << ".....or one of the other ones.\n";
-    exit(0);
+	assert(false);
     return;
   }
 
@@ -610,7 +655,8 @@ void GPUParticleSim::addCurveVec4(const char * file_name_r, const char * file_na
 
   curve_handles.push_back(handle);
   float x;
-  for (int i = 0; i < DATA_TEXTURE_LENGTH; i++) {
+  for(int i = 0; i < DATA_TEXTURE_LENGTH; i++)
+  {
     x = (float)i / DATA_TEXTURE_LENGTH;
     rand_data.push_back(curve_r.evaluate(x));
     rand_data.push_back(curve_g.evaluate(x));
@@ -622,14 +668,19 @@ void GPUParticleSim::addCurveVec4(const char * file_name_r, const char * file_na
   fclose(file_g);
   fclose(file_b);
   fclose(file_a);
-
 }
 
-void GPUParticleSim::addCurve(const char * file_name, const char * handle) {
+void GPUParticleSim::addCurve(const char * file_name, const char * handle)
+{
+  FILE *file;
+#if defined (_WIN32)
+  fopen_s(&file, file_name, "rb");
+#else
+  file = fopen(file_name, "rb");
+#endif
 
-  FILE * file = fopen(file_name, "rb");
-
-  if (file_name == NULL) {
+  if(file_name == NULL)
+  {
     cout << "Error! No file named " << file_name << ".\n";
     exit(0);
     return;
@@ -640,22 +691,23 @@ void GPUParticleSim::addCurve(const char * file_name, const char * handle) {
 
   curve_handles.push_back(handle);
 
-  for (int i = 0; i < DATA_TEXTURE_LENGTH * 4; i++) {
+  for (int i = 0; i < DATA_TEXTURE_LENGTH * 4; i++)
+  {
     rand_data.push_back(curve.evaluate((float)i / (DATA_TEXTURE_LENGTH * 4)));
   }
 
   fclose(file);
 }
 
-void GPUParticleSim::simulate(const float game_time, const float dt) {
+void GPUParticleSim::simulate(const double game_time, const double dt) {
 
-  std::vector<GPUParticleSystem *>::iterator iter = pSystems.begin();
+  std::vector<GPUParticleSystem *>::iterator iter = particle_systems.begin();
 
-  while (iter != pSystems.end())
+  while (iter != particle_systems.end())
   {
     if ((*iter)->should_kill())
     {
-      iter = pSystems.erase(iter);
+      iter = particle_systems.erase(iter);
     }
     else
     {
@@ -666,20 +718,37 @@ void GPUParticleSim::simulate(const float game_time, const float dt) {
 }
 
 void GPUParticleSim::render() {
-  for (int i = 0; i < pSystems.size(); i++) {
-    pSystems[i]->render();
+  for(unsigned int i = 0; i < particle_systems.size(); i++)
+  {
+    particle_systems[i]->render();
   }
 }
 
-void GPUParticleSim::addParticleSystem(int numParticles, float particle_size, ParticleForce * * forces, int numForces, const char * emitter_dir_handle, Float3 emitterLoc, float emitterRadius, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, bool loop, const char * age_handle, const char * color_handle, const char * size_handle, const char * sprite_tex_file) {
+void GPUParticleSim::addParticleSystem(int numParticles,
+                                       float particle_size,
+                                       ParticleForce **forces,
+                                       int numForces,
+                                       const char *emitter_dir_handle,
+                                       Float3 emitterLoc,
+                                       float emitterRadius,
+                                       float emitterRange,
+                                       float emitterStrength,
+                                       float emitterDuration,
+                                       float lifespan,
+                                       bool loop,
+                                       const char *age_handle,
+                                       const char *color_handle,
+                                       const char *size_handle,
+                                       const char *sprite_tex_file)
+{
+  GPUParticleSystem *ps = new GPUParticleSystem(shader_directory);
 
-  GPUParticleSystem * ps = new GPUParticleSystem(shader_directory);
+  Float3 *particle_pos = new Float3[numParticles];
+  Float3 *particle_vel = new Float3[numParticles];
+  float *age = new float[numParticles];
 
-  Float3 * particle_pos = new Float3[numParticles];
-  Float3 * particle_vel = new Float3[numParticles];
-  float * age = new float[numParticles];
-
-  for (int i = 0; i < numParticles; i++) {
+  for (int i = 0; i < numParticles; i++)
+  {
     particle_pos[i] = Float3(0, 0, 0);
     particle_vel[i] = Float3(0, 0, 0);
     age[i] = -1;
@@ -690,17 +759,17 @@ void GPUParticleSim::addParticleSystem(int numParticles, float particle_size, Pa
   int emitter_dir_id = 0;
   int age_id = 0;
 
-  for (int i = 0; i < curve_handles.size(); i++)
+  for(unsigned int i = 0; i < curve_handles.size(); i++)
   {
-    if (curve_handles[i] == color_handle)
+    if(curve_handles[i] == color_handle)
     {
       color_curve_id = i;
     }
-    else if (curve_handles[i] == size_handle)
+    else if(curve_handles[i] == size_handle)
     {
       size_curve_id = i;
     }
-    else if (curve_handles[i] == emitter_dir_handle)
+    else if(curve_handles[i] == emitter_dir_handle)
     {
       emitter_dir_id = i;
     }
@@ -713,16 +782,16 @@ void GPUParticleSim::addParticleSystem(int numParticles, float particle_size, Pa
   ps->set_curve_values(emitter_dir_id, age_id, color_curve_id, size_curve_id, curve_handles.size());
   ps->set_system_values(emitterRadius, emitterStrength, emitterRange, emitterDuration, emitterLoc, numParticles, lifespan, lifespan + emitterDuration, loop, sprite_tex_file);
 
-  for (int i = 0; i < numForces; i++) {
+  for (int i = 0; i < numForces; i++)
+  {
     ps->add_force(forces[i]);
   }
 
   ps->init(particle_size, particle_pos, particle_vel, age, rand_data.data());
 
-
   delete particle_pos;
   delete particle_vel;
   delete age;
 
-  pSystems.push_back(ps);
+  particle_systems.push_back(ps);
 }

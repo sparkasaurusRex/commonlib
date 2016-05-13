@@ -1,9 +1,19 @@
 *.o
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.VC.db
+*.openDB
+*.vcxproj.user
 *.a
 *.DS_Store
 *.dSYM
 *init.txt
 *capture/
+*Debug/
+*Release/
+*runtime_dlls/
 fluids/bin/*
 fluids/test
 game/bin/*
@@ -21,3 +31,5 @@ openCL/test
 audio/test
 graphics/blender_scripts/io_mesh/__pycache__
 tools/bake
+visual_studio/.vs
+visual_studio/ipch

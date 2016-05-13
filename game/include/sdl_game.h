@@ -3,11 +3,15 @@
 
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
 #endif
 
+#if defined(_WIN32)
+#include <Windows.h>
+#include <GL/glew.h>
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif //_WIN32
 
 #include <string>
 #include <assert.h>
@@ -16,6 +20,7 @@
 #include "cinematics/fade_screen.h"
 #include "label.h"
 #include "menu.h"
+#include "game_controller.h"
 
 //TODO: framerate counter
 
@@ -49,6 +54,7 @@ public:
 
   void set_resolution(const unsigned int w, const unsigned int h);
   void toggle_fullscreen();
+  void enable_vsync(const bool v) { vsync_enabled = v; }
 
   void init();
   void run();
@@ -58,12 +64,15 @@ public:
 
   void set_pause_menu(UI::Menu *menu) { assert(!(flags & SDL_GAME_GENERATE_PAUSE_MENU)); pause_menu = menu; }
 
+  void set_main_font(std::string font_face_name, unsigned int size);
+  void set_widget_font(std::string font_face_name, unsigned int size);
+
   void begin_video_capture() { recording_movie = true; movie_frame_counter = 0; }
   void end_video_capture() { recording_movie = false; movie_frame_counter = 0; }
 
   void quit_app();
 protected:
-  virtual void game_loop(const float game_time, const float frame_time) = 0;
+  virtual void game_loop(const double game_time, const double frame_time) = 0;
 
   virtual void user_init() = 0;
   virtual void user_run() = 0;
@@ -74,6 +83,8 @@ protected:
   void init_sdl();
 
   void screenshot();
+
+  Game::GameControllerContext game_controller_context;
 
   unsigned int flags;
 
@@ -90,12 +101,12 @@ protected:
   double last_game_time;
 
   std::string font_face;
-  unsigned int font_height;
-
   Font *font;    //font we want to use for mostly everything
-  DebugConsole console;
+  unsigned int font_size;
 
+  std::string widget_font_face;
   Font *widget_font;
+  unsigned int widget_font_size;
 
   int fps_idx;
   float prev_fps[SDL_GAME_NUM_FPS_FRAMES];
@@ -105,8 +116,10 @@ protected:
 
   UI::Menu *pause_menu;
   FadeScreen title_screen;
+  DebugConsole console;
 
   float sim_lock_dt;
+  bool vsync_enabled;
 };
 
 #endif //__SDL_GAME_H__

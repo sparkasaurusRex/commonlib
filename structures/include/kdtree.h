@@ -54,7 +54,7 @@ namespace Structures    {
      * infinity is used in the findMin function
      */
     float epsilon = 0.0000000001f;
-    float infinity = 99999999999999;
+    float infinity = (float)99999999999999;
 
     int DIM = 3;
 

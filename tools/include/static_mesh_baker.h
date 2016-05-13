@@ -12,13 +12,13 @@ namespace Tool
   class MeshFace
   {
   public:
-    Float3 normal;
+    Math::Float3 normal;
     //Float2 uvs[2];
 
     unsigned int mat_idx;
     unsigned int vert_idx[3];
-    Float3 rgb[3];
-    Float2 uvs[3];
+    Math::Float3 rgb[3];
+    Math::Float2 uvs[3];
   };
 
   class StaticMeshBaker

@@ -158,10 +158,10 @@ namespace Math {
 
       float evaluate(const float _x);
 
-      int get_num_segments() const { return segments.size(); }
+      unsigned int get_num_segments() const { return (unsigned int)segments.size(); }
       CurveSegment *get_segment_by_index(const int i) { return segments[i]; }
 
-      int get_num_handles() const { return handles.size(); }
+      unsigned int get_num_handles() const { return (unsigned int)handles.size(); }
       CurveHandle *get_handle_by_index(const int i) { return &handles[i]; }
       void delete_handle(const CurveHandle *ch);
 

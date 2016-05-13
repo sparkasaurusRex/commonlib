@@ -60,8 +60,8 @@ bool DebugConsole::is_active() const
 
 void DebugConsole::init()
 {
-  font = new Font(DEFAULT_CONSOLE_FONT_FACE, DEFAULT_CONSOLE_FONT_SIZE);
-  font->init();
+  //font = new Font(DEFAULT_CONSOLE_FONT_FACE, DEFAULT_CONSOLE_FONT_SIZE);
+  //font->init();
 
   current_command.clear();
   command_history.clear();
@@ -129,7 +129,7 @@ void DebugConsole::execute()
     if(words.size() == 2)
     {
       //cout<<"idx: "<<idx<<endl;
-      float val = atof(words[1].c_str());
+      float val = (float)atof(words[1].c_str());
       *f = val;
     }
   }
@@ -147,9 +147,9 @@ void DebugConsole::execute()
     else if(words.size() == 4)
     {
       float val[3];
-      val[0] = atof(words[1].c_str());
-      val[1] = atof(words[2].c_str());
-      val[2] = atof(words[3].c_str());
+      val[0] = (float)atof(words[1].c_str());
+      val[1] = (float)atof(words[2].c_str());
+      val[2] = (float)atof(words[3].c_str());
 
       *f = Float3(val[0], val[1], val[2]);
     }
@@ -163,7 +163,7 @@ void DebugConsole::execute()
 
     if(words.size() == 2)
     {
-      bool val = (bool)atoi(words[1].c_str());
+      bool val = (atoi(words[1].c_str()) != 0);
       *b = val;
     }
     else if(words.size() == 1)
@@ -279,7 +279,7 @@ void DebugConsole::traverse_command_history(const int dir)
     {
       command_history_idx = 0;
     }
-    if(command_history_idx >= command_history.size())
+    if(command_history_idx >= (int)command_history.size())
     {
       command_history_idx = command_history.size() - 1;
     }
@@ -296,7 +296,7 @@ void DebugConsole::tab_complete(int depth)
 
   if((last_tab_complete_idx + 1) < float_var_names.size())
   {
-    for(int i = last_tab_complete_idx + 1; i < float_var_names.size(); i++)
+    for(unsigned int i = last_tab_complete_idx + 1; i < float_var_names.size(); i++)
     {
       if(float_var_names[i].find(tab_complete_string) != std::string::npos)
       {
@@ -312,7 +312,7 @@ void DebugConsole::tab_complete(int depth)
     last_tab_complete_idx = float_var_names.size();
   }
 
-  for(int i = float_var_names.size() - last_tab_complete_idx; i < float3_var_names.size(); i++)
+  for(unsigned int i = float_var_names.size() - last_tab_complete_idx; i < float3_var_names.size(); i++)
   {
     if(float3_var_names[i].find(tab_complete_string) != std::string::npos)
     {
@@ -322,12 +322,12 @@ void DebugConsole::tab_complete(int depth)
     }
   }
 
-  int idx_offset = float3_var_names.size() + float_var_names.size();
+  unsigned int idx_offset = float3_var_names.size() + float_var_names.size();
   if(last_tab_complete_idx < idx_offset)
   {
     last_tab_complete_idx = idx_offset;
   }
-  for(int i = idx_offset - last_tab_complete_idx; i < boolean_var_names.size(); i++)
+  for(unsigned int i = idx_offset - last_tab_complete_idx; i < boolean_var_names.size(); i++)
   {
     if(boolean_var_names[i].find(tab_complete_string) != std::string::npos)
     {
@@ -343,7 +343,7 @@ void DebugConsole::tab_complete(int depth)
   {
     last_tab_complete_idx = idx_offset;
   }
-  for(int i = idx_offset - last_tab_complete_idx; i < func_var_names.size(); i++)
+  for(unsigned int i = idx_offset - last_tab_complete_idx; i < func_var_names.size(); i++)
   {
     if(func_var_names[i].find(tab_complete_string) != std::string::npos)
     {

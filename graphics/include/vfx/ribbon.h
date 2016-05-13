@@ -14,14 +14,13 @@ namespace Graphics
     ~Ribbon();
 
     void init();
-    void render(const float game_time);
-    void simulate(const float game_time, const float frame_time);
+    void render(const double game_time);
+    void simulate(const double game_time, const double frame_time);
 
     void set_num_segments(const int n) { num_segments = n; }
     int get_num_segments() const { return num_segments; }
 
     void set_material(Graphics::Material *m) { mat = m; }
-    void set_textures(Graphics::Texture *a, Graphics::Texture *b) { tex_a = a; tex_b = b; }
   private:
 
     //These two curves multiply by each other to determine the height of each
@@ -29,8 +28,7 @@ namespace Graphics
     Math::Curve profile_a;
     Math::Curve profile_b;
 
-    Material *mat;
-    Texture *tex_a, *tex_b;
+    Material  *mat; //it is assumed that the material here has a valid shader
 
     GLuint vbo, ibo;
 

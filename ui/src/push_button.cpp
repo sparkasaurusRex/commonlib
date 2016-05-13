@@ -1,5 +1,13 @@
+//
+// The first push_button class (and the initial UI code) was written while on vacation
+// visiting Lila's parents in Colorado. We stayed in a funny trailer, and shot bows and arrows
+//
+// CF, 2015
+//
+
 #include <iostream>
 #include "push_button.h"
+#include "gl_error.h"
 
 using namespace std;
 using namespace UI;
@@ -19,7 +27,7 @@ void PushButton::set_click_callback(void (*cb)(const SDL_Event &e))
   click_callback = cb;
 }
 
-void PushButton::set_texture(const int i, Texture *t)
+void PushButton::set_texture(const int i, Texture2D *t)
 {
   textures[i] = t;
 }
@@ -56,6 +64,8 @@ void PushButton::process_event(const SDL_Event &event)
 void PushButton::render()
 {
   //cout<<"dim: "<<dim<<endl;
+
+  gl_check_error();
 
   glLineWidth(1.0f);
   if(click_capture)
@@ -104,6 +114,8 @@ void PushButton::render()
     glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
   glEnd();
   glDisable(GL_TEXTURE_2D);
+
+  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
   if(text.size() > 0)
   {

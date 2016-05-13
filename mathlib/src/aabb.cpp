@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "aabb.h"
 
 using namespace Math;
@@ -11,11 +12,11 @@ Float2 AABB2D::dim() const { return max_pt - min_pt; }
 
 void AABB2D::grow(const Float2 p)
 {
-  min_pt[0] = min(min_pt[0], p[0]);
-  max_pt[0] = max(max_pt[0], p[0]);
+  min_pt[0] = std::min(min_pt[0], p[0]);
+  max_pt[0] = std::max(max_pt[0], p[0]);
 
-  min_pt[1] = min(min_pt[1], p[1]);
-  max_pt[1] = max(max_pt[1], p[1]);
+  min_pt[1] = std::min(min_pt[1], p[1]);
+  max_pt[1] = std::max(max_pt[1], p[1]);
 }
 
 int AABB2D::get_min_axis() const
@@ -47,8 +48,8 @@ void AABB3D::grow(const Float3 p)
 {
   for(int i = 0; i < 3; i++)
   {
-    min_pt[i] = min(min_pt[i], p[i]);
-    max_pt[i] = max(max_pt[i], p[i]);
+    min_pt[i] = std::min(min_pt[i], p[i]);
+    max_pt[i] = std::max(max_pt[i], p[i]);
   }
 }
 

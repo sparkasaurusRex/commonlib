@@ -1,10 +1,15 @@
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
 #endif
 
+#if defined(_WIN32)
+#include <Windows.h>
+#include <GL/glew.h>
+#include <SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
+
 #include <iostream>
 #include <assert.h>
 
@@ -19,6 +24,8 @@
 #include "fluid2d_angle_snapper.h"
 
 using namespace std;
+using namespace Graphics;
+using namespace Math;
 
 class FluidGame : public SDLGame
 {
@@ -82,7 +89,7 @@ private:
     glEnd();
   }
 
-  void game_loop(const float game_time, const float frame_time)
+  void game_loop(const double game_time, const double frame_time)
   {
     float sim_time = frame_time * time_scale;
     //sim_time = 0.005f;
@@ -92,7 +99,7 @@ private:
 
   void user_init()
   {
-    fluid_tex = new Texture(fluid_dim, fluid_dim, GL_RGB);
+    fluid_tex = new Texture2D(fluid_dim, fluid_dim, GL_RGB);
     fluid_tex->init();
 
     fluid = new Fluid2D(fluid_dim, fluid_dim);
@@ -152,9 +159,46 @@ private:
   void user_run()
   {
   }
+
   void user_process_event(const SDL_Event &event)
   {
+    int mouse_x, mouse_y, num_keys;
+    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    const Uint8 *keyboard_state = SDL_GetKeyboardState(&num_keys);
+    if(button_state & SDL_BUTTON(SDL_BUTTON_LEFT))
+    {
+      float fluid_amt =  fluid_add_amount;
+      if(keyboard_state[SDL_SCANCODE_LCTRL])
+      {
+        fluid_amt = -fluid_amt;
+      }
+      int w, h;
+      fluid_tex->get_dim(w, h);
+      Float2 click_pt((float)mouse_x / resolution[0], (float)mouse_y / resolution[1]);
+      fluid->add_density_at_point(click_pt, Float3(fluid_amt, fluid_amt, fluid_amt), 0.025f);
+    }
 
+    switch(event.type)
+    {
+      case SDL_MOUSEWHEEL:
+        //zoom += (float)event.wheel.y * 0.08f;
+        break;
+      case SDL_KEYUP:
+        switch(event.key.keysym.sym)
+        {
+          case SDL_MOUSEMOTION:
+          {
+            if(event.motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT))
+            {
+              //cout<<"button 1 pressed and mouse moving"<<endl;
+              Float2 pt((float)event.motion.x / resolution[0], (float)event.motion.y / resolution[1]);
+              Float2 vel(velocity_scale * (float)event.motion.xrel, velocity_scale * (float)event.motion.yrel);
+              fluid->add_velocity_at_point(pt, vel, 0.03f);
+            }
+            break;
+          }
+        }
+    }
   }
 
   void fill_fluid_texture()
@@ -167,7 +211,7 @@ private:
     Float3 color_a(80.0f, 55.0f, 35.0f);
     Float3 color_b(255.0f, 255.0f, 255.0f);
 
-    GLuint mode = fluid_tex->get_pixel_mode();
+    GLuint mode = fluid_tex->get_tex_format();
     int num_bytes = (mode == GL_RGBA) ? 4 : 3;
 
     GLubyte *pixels = new GLubyte[w * h * num_bytes];
@@ -198,21 +242,21 @@ private:
     delete pixels;
   }
 
-  int fluid_dim;
-  float previous_game_time;
-  float time_scale;
-  float velocity_scale;
-  float fluid_add_amount;
+  int                       fluid_dim;
+  float                     previous_game_time;
+  float                     time_scale;
+  float                     velocity_scale;
+  float                     fluid_add_amount;
 
-  int fluid_channel_display;
+  int                       fluid_channel_display;
 
-  Texture *fluid_tex;
-  Fluid2D *fluid;
-  Fluid2DInflow *inflow;
-  Fluid2DTurbulenceField *turb, *turb2;
-  Fluid2DTurbulenceInflow *turb_in[3];
-  Fluid2DTurbulenceInflow *turb_out[3];
-  Fluid2DAngleSnapper *angle_snapper;
+  Texture2D                 *fluid_tex;
+  Fluid2D                   *fluid;
+  Fluid2DInflow             *inflow;
+  Fluid2DTurbulenceField    *turb, *turb2;
+  Fluid2DTurbulenceInflow   *turb_in[3];
+  Fluid2DTurbulenceInflow   *turb_out[3];
+  Fluid2DAngleSnapper       *angle_snapper;
 };
 
 

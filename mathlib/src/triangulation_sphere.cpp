@@ -27,7 +27,7 @@ void TriangulationSphere::generate_delaunay_triangulation()
 
   //put all the points into a priority_queue sorted by y-coordinate
   assert(vertices);
-  for(int i = 0; i < vertices->size(); i++)
+  for(unsigned int i = 0; i < vertices->size(); i++)
   {
     Float3 p = (*vertices)[i];
     site_events.push(std::pair<Float3, int>(p, i));

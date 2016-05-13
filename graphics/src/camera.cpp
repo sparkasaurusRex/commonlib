@@ -1,14 +1,8 @@
 #include "camera.h"
-
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
+#include "gl_error.h"
 
 using namespace Math;
+using namespace Graphics;
 
 Camera::Camera()
 {
@@ -22,6 +16,8 @@ Camera::Camera()
   shutter_speed_s = 0.01f;
 
   fov = 32.0f;
+
+  use_proj_mat = false;
 }
 
 void Camera::transform(const Matrix3x3 &m)
@@ -29,6 +25,12 @@ void Camera::transform(const Matrix3x3 &m)
   pos = m * pos;
   up = m * up;
   lookat = m * lookat;
+}
+
+void Camera::set_projection_matrix(GLfloat *proj)
+{
+  use_proj_mat = true;
+  memcpy(proj_mat, proj, sizeof(GLfloat) * 16);
 }
 
 void Camera::set_camera_parameters(const float fs, const float fd, const float fl, const float ss)
@@ -39,11 +41,23 @@ void Camera::set_camera_parameters(const float fs, const float fd, const float f
   shutter_speed_s = ss;
 }
 
-void Camera::render_setup()
+void Camera::render_setup(const float znear, const float zfar)
 {
+  gl_check_error();
+
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(fov, window_dimensions[0] / window_dimensions[1], 0.05f, 1000.0f);
+
+  if (use_proj_mat)
+  {
+    glLoadMatrixf(proj_mat);
+  }
+  else
+  {
+    gluPerspective(fov, window_dimensions[0] / window_dimensions[1], znear, zfar);
+  }
+
+  gl_check_error();
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -52,6 +66,8 @@ void Camera::render_setup()
   gluLookAt(pos[0], pos[1], pos[2],
             lookat_pos[0], lookat_pos[1], lookat_pos[2],
             up[0], up[1], up[2]);
+
+  gl_check_error();
 }
 
 void Camera::render_cleanup()

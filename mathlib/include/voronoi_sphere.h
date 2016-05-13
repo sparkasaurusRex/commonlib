@@ -15,7 +15,7 @@ namespace Math
     void          add_point(const Float3 &p);
     Float3        get_point(const int i) const;
 
-    int           get_num_points() const { return pc.size(); }
+    unsigned int  get_num_points() const { return (unsigned int)pc.size(); }
 
     void          triangulate();
 

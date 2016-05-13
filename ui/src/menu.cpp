@@ -23,7 +23,7 @@ void Menu::init()
   dim[1] = (float)items.size() * font->get_height() + item_border;
 
   float widest = 0.0f;
-  for(int i = 0; i < items.size(); i++)
+  for(unsigned int i = 0; i < items.size(); i++)
   {
     char buffer[256];
     strcpy(buffer, items[i].first.c_str());
@@ -61,8 +61,9 @@ void Menu::process_event(const SDL_Event &event)
       break;
   }
 
-  if(selection < 0) { selection = items.size() - 1; }
-  if(selection >= items.size()) { selection = 0; }
+  if(items.size() <= 0) { return;  }
+  if(selection < 0) { selection = (unsigned int)items.size() - 1; }
+  if(selection >= (int)items.size()) { selection = 0; }
 }
 
 void Menu::render()
@@ -71,7 +72,7 @@ void Menu::render()
 
   float font_height = font->get_height() + item_border;
   float height = pos[1];
-  for(int i = 0; i < items.size(); i++)
+  for(unsigned int i = 0; i < items.size(); i++)
   {
     if(selection == i)
     {

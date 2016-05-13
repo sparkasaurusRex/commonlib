@@ -6,6 +6,7 @@
 
 using namespace Tool;
 using namespace Graphics;
+using namespace Math;
 using namespace std;
 
 StaticMeshBaker::StaticMeshBaker()

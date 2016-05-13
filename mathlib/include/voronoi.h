@@ -13,12 +13,12 @@ namespace Math {
      Voronoi2D();
     ~Voronoi2D();
 
-    void      reset();
-    void      add_point(const Float2 &p);
-    Float2    get_point(const int i) const;
-    int       get_num_points() const;
+    void          reset();
+    void          add_point(const Float2 &p);
+    Float2        get_point(const int i) const;
+    unsigned int  get_num_points() const;
 
-    void      triangulate();
+    void          triangulate();
 
     Triangulation2D *get_triangulation();
   private:
@@ -36,7 +36,7 @@ namespace Math {
     void      reset();
     void      add_point(const Float3 &p);
     Float3    get_point(const int i) const;
-    int       get_num_points() const;
+    unsigned int       get_num_points() const;
 
     void      triangulate();
     Triangulation3D *get_triangulation();

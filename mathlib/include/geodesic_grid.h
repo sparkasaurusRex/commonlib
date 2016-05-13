@@ -748,12 +748,14 @@ class GeodesicGrid
         }
       }
 
-      generate_neighbor_centroids();
+      //generate_neighbor_centroids();
       //std::cout<<"edge_count: "<<edge_count<<std::endl;
 
       delete[] cells;
       cells = new_cells;
       num_cells = new_num_verts;
+
+      generate_neighbor_centroids();
 
       //std::cout<<"new_vert_idx: "<<new_vert_idx<<std::endl;
       //std::cout<<"new_num_verts: "<<new_num_verts<<std::endl;

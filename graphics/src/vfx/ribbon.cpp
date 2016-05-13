@@ -31,8 +31,8 @@ Ribbon::Ribbon()
   profile_a.bell_curve_cerp(0.45f, 0.55f);
 
   mat = NULL;
-  tex_a = NULL;
-  tex_b = NULL;
+  vertex_data = NULL;
+  index_data = NULL;
 }
 
 Ribbon::~Ribbon()
@@ -92,7 +92,7 @@ void Ribbon::init()
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void Ribbon::render(const float game_time)
+void Ribbon::render(const double game_time)
 {
   glUseProgramObjectARB(0);
   glDisable(GL_CULL_FACE);
@@ -103,39 +103,7 @@ void Ribbon::render(const float game_time)
 
   glPointSize(5.0f);
 
-  Shader *shader = NULL;
-  if(mat)
-  {
-    shader = mat->get_shader();
-    mat->render_gl();
-  }
-
-  if(tex_a && shader)
-  {
-    GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "noise_1d_tex");
-    glUniform1i(tex_loc, 0);
-    glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, tex_a->get_tex_id());
-    //tex_a->render_gl(0);
-  }
-  if(tex_b && shader)
-  {
-    GLuint tex_loc = glGetUniformLocation(shader->gl_shader_program, "grad_vert_tex");
-    glUniform1i(tex_loc, 1);
-    glActiveTexture(GL_TEXTURE1);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, tex_b->get_tex_id());
-    //tex_b->render_gl(1);
-  }
-
-  GLuint gt_loc = glGetUniformLocation(shader->gl_shader_program, "game_time");
-  glUniform1f(gt_loc, game_time);
-
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_ONE, GL_ONE);
-
-  //glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+  mat->render();
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -149,17 +117,16 @@ void Ribbon::render(const float game_time)
   glClientActiveTexture(GL_TEXTURE0);
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 9));
-  //glClientActiveTexture(GL_TEXTURE1);
-  //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  //glTexCoordPointer(2, GL_FLOAT, sizeof(AtmosVert), (void *)(sizeof(float) * 11));
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   glDrawElements(GL_QUAD_STRIP, num_indices, GL_UNSIGNED_INT, (void *)0);
+
+  mat->cleanup();
 }
 
-void Ribbon::simulate(const float gt, const float dt)
+void Ribbon::simulate(const double gt, const double dt)
 {
-  float theta_offset = M_PI;
+  float theta_offset = (float)M_PI;
   float phi_offset = 0.0f;
   float ribbon_length = 0.6f; //in radians?
 
@@ -167,11 +134,11 @@ void Ribbon::simulate(const float gt, const float dt)
   for(int i = 0; i < num_segments; i++)
   {
     float seg_pct = (float)i / (float)num_segments;
-    float theta = theta_offset + PerlinNoise::scaled_octave_noise_2d(2, 1.0f, root_scale, theta_bounds[0], theta_bounds[1], gt * root_speed, seg_pct);
-    float phi = PerlinNoise::scaled_octave_noise_2d(2, 1.0f, root_scale, phi_bounds[0], phi_bounds[1], gt * root_speed + 137.9532f, seg_pct);
+    float theta = theta_offset + PerlinNoise::scaled_octave_noise_2d(2.0f, 1.0f, root_scale, theta_bounds[0], theta_bounds[1], (float)gt * root_speed, seg_pct);
+    float phi = PerlinNoise::scaled_octave_noise_2d(2.0f, 1.0f, root_scale, phi_bounds[0], phi_bounds[1], (float)gt * root_speed + 137.9532f, seg_pct);
     phi = phi_offset + phi + seg_pct * ribbon_length;
 
-    float profile_height = PerlinNoise::scaled_octave_noise_2d(3, 1.0f, profile_noise_scale, profile_noise_bounds[0], profile_noise_bounds[1], gt * profile_noise_speed + 165.132f, seg_pct * profile_noise_scale);
+    float profile_height = PerlinNoise::scaled_octave_noise_2d(3.0f, 1.0f, profile_noise_scale, profile_noise_bounds[0], profile_noise_bounds[1], (float)gt * profile_noise_speed + 165.132f, seg_pct * profile_noise_scale);
     profile_height *= profile_a.evaluate(seg_pct);
 
     Float3 root_vert_pos = polar_to_cartesian(theta, phi, 1.1f);

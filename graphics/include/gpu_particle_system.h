@@ -1,10 +1,13 @@
 #ifndef __GPU_PARTICLE_SYSTEM_H__
 #define __GPU_PARTICLE_SYSTEM_H__
 
+#if defined (_WIN32)
+#include <Windows.h>
+#include <GL/glew.h>
+#endif //_WIN32
+
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
 #endif
 
 #include <vector>
@@ -19,13 +22,11 @@
 #define MAX_AGE 100.f
 #define DATA_TEXTURE_LENGTH 10000
 
-
-namespace Graphics {
-
-  enum ParticleForceType {
-
+namespace Graphics
+{
+  enum ParticleForceType
+  {
     ATTRACTOR,
-
     EMPTY
   };
 
@@ -33,47 +34,70 @@ namespace Graphics {
   {
   public:
     ParticleForce(int fType) : forceType(fType) {}
-    int getForceType() {return forceType;}
+    int getForceType() { return forceType; }
 
   private:
     int forceType;
   };
 
-  class Attractor : public ParticleForce {
+  class Attractor : public ParticleForce
+  {
   public:
-    Attractor(Float3 loc, float s) : ParticleForce(ATTRACTOR), location(loc), strength(s) {}
-    virtual Float3 getLocation() {return location;}
-    virtual float getStrength() {return strength;}
+    Attractor(Math::Float3 loc, float s) : ParticleForce(ATTRACTOR), location(loc), strength(s) {}
+    virtual Math::Float3 getLocation() { return location; }
+    virtual float getStrength() { return strength; }
 
   private:
-    Float3 location;
+    Math::Float3 location;
     float strength;
   };
 
+  struct GPUParticleSystemTemplate
+  {
+    int               num_particles;
+    float             particle_size;
+    ParticleForce     **forces;
+    int               num_forces;
+    const char        *emitter_dir_handle;
+    Math::Float3      emitter_loc;
+    float             emitterRadius;
+    float             emitter_range;
+    float             emitter_strength;
+    float             emitter_duration;
+    float             lifespan;
+    bool              loop;
+    char              *age_handle;
+    char              *color_handle;
+    char              *size_handle;
+    char              *tex_file;
+  };
 
   class GPUParticleSystem
   {
 
   public:
-    GPUParticleSystem(const char * shader_directory);
+    GPUParticleSystem(const char *shader_directory);
     ~GPUParticleSystem();
 
-    void init(float particle_size, Float3 * initial_particle_pos, Float3 * initial_particle_vel, float * age, float * data);
+    void init(float particle_size, Math::Float3 *initial_particle_pos, Math::Float3 *initial_particle_vel, float *age, float *data);
     void deinit();
-    void simulate(const float game_time, const float dt);
+    void simulate(const double game_time, const double dt);
     void render();
 
     bool should_kill() {return is_dead;}
 
-    void set_render_shader_names(std::string vs, std::string fs) {
+    void set_render_shader_names(std::string vs, std::string fs)
+    {
       update_pos_shader_names[0] = vs;
       update_pos_shader_names[1] = fs;
     }
-    void set_update_pos_shader_names(std::string vs, std::string fs) {
+    void set_update_pos_shader_names(std::string vs, std::string fs)
+    {
       update_vel_shader_names[0] = vs;
       update_vel_shader_names[1] = fs;
     }
-    void set_update_vel_shader_names(std::string vs, std::string fs)  {
+    void set_update_vel_shader_names(std::string vs, std::string fs)
+    {
       render_shader_names[0] = vs;
       render_shader_names[1] = fs;
     }
@@ -91,7 +115,8 @@ namespace Graphics {
       }
     }
 
-    void set_curve_values(int e_dir_id, int a_id, int color_id, int size_id, int num_curves) {
+    void set_curve_values(int e_dir_id, int a_id, int color_id, int size_id, int num_curves)
+    {
       data_tex_height = num_curves + 1;
       color_curve_id = color_id + 1;
       size_curve_id = size_id + 1;
@@ -99,7 +124,17 @@ namespace Graphics {
       age_curve_id = a_id + 1;
     }
 
-    void set_system_values(float eRadius, float eStrength, float eRange, float eDur, Float3 eLoc, int numP, float life, float dur, bool loop, const char * sprite_tex_file) {
+    void set_system_values(float eRadius,
+                           float eStrength,
+                           float eRange,
+                           float eDur,
+                           Math::Float3 eLoc,
+                           int numP,
+                           float life,
+                           float dur,
+                           bool loop,
+                           const char *sprite_tex_file)
+    {
       emitter_radius = eRadius;
       emitter_strength = eStrength;
       emitter_range = eRange;
@@ -109,9 +144,11 @@ namespace Graphics {
       system_duration = dur;
       emitter_duration = eDur;
       does_loop = loop;
-      sprite = new Texture(sprite_tex_file);
+      sprite = new Texture2D(sprite_tex_file);
       sprite->load();
     }
+
+    void update_emitter_location(const Math::Float3 &new_pos) { emitterLocation = new_pos; }
 
   private:
 
@@ -152,20 +189,22 @@ namespace Graphics {
 
     std::vector<ParticleForce *> forces;
 
-    int numAttractors;
+    int         numAttractors;
+    float       billboard_size;
+    bool        does_loop;
+    bool        is_dead;
+    double      start_time;
+    Math::Float3      emitterLocation;
 
-    float billboard_size;
+    float emitter_range;
+    float emitter_strength;
+    float emitter_radius;
+    float emitter_duration;
 
-    bool does_loop;
-
-    bool is_dead;
-
-    float start_time;
-
-    Float3 emitterLocation;
-
-    float emitter_range, emitter_strength, emitter_radius, emitter_duration;
-    int color_curve_id, size_curve_id, emitter_dir_id, age_curve_id;
+    int color_curve_id;
+    int size_curve_id;
+    int emitter_dir_id;
+    int age_curve_id;
     int data_tex_height;
 
     float particleLifespan;
@@ -178,8 +217,13 @@ namespace Graphics {
     int num_particles;
 
     Material render_mat;
+    Shader   *render_shader;
+
     Material update_pos_mat;
+    Shader   *update_pos_shader;
+
     Material update_vel_mat;
+    Shader   *update_vel_shader;
 
     GLuint pos_fbo[2];
     GLuint pos_tex[2];
@@ -189,14 +233,13 @@ namespace Graphics {
 
     GLuint data_tex;
 
-    Texture * sprite;
+    Texture2D *sprite;
 
     GLuint vbo;
     GLuint ibo;
 
-    ParticleVert * verts;
-
-    unsigned int * indices;
+    ParticleVert *verts;
+    unsigned int *indices;
 
     GLuint fbo_vbo;
     GLuint fbo_ibo;
@@ -215,37 +258,52 @@ namespace Graphics {
   public:
 
     GPUParticleSim();
-
     ~GPUParticleSim();
 
-    void set_shader_directory(const char * shader_dir) {shader_directory = shader_dir;}
+    void set_shader_directory(const char * shader_dir) { shader_directory = shader_dir; }
 
-    void addCurve(const char * fileName, const char * handle);
-    void addCurveVec4(const char * file_name_r, const char * file_name_g, const char * file_name_b, const char * file_name_a, const char * handle);
+    void addCurve(const char *fileName, const char *handle);
+    void addCurveVec4(const char *file_name_r,
+                      const char *file_name_g,
+                      const char *file_name_b,
+                      const char *file_name_a,
+                      const char *handle);
 
+    void addParticleSystem(int numParticles,
+                           float particle_size,
+                           ParticleForce **forces,
+                           int numForces,
+                           const char *emitter_dir_handle,
+                           Math::Float3 emitterLoc,
+                           float emitterRadius,
+                           float emitterRange,
+                           float emitterStrength,
+                           float emitterDuration,
+                           float lifespan,
+                           bool loop,
+                           const char *age_handle,
+                           const char *color_handle,
+                           const char *size_handle,
+                           const char *tex_file);
 
-    void addParticleSystem(int numParticles, float particle_size, ParticleForce * * forces, int numForces, const char * emitter_dir_handle, Float3 emitterLoc, float emitterRadius, float emitterRange, float emitterStrength, float emitterDuration, float lifespan, bool loop, const char * age_handle, const char * color_handle, const char * size_handle, const char * tex_file);
-
-    void simulate(const float game_time, const float dt);
+    void simulate(const double game_time, const double dt);
 
     void render();
 
-    GLuint get_pos_tex(const int i) { return pSystems[i]->get_pos_tex(1); }
-    GLuint get_vel_tex(const int i) { return pSystems[i]->get_vel_tex(1); }
-    GLuint get_data_tex() { return pSystems[0]->get_data_tex(); }
+    GLuint get_pos_tex(const int i) { return particle_systems[i]->get_pos_tex(1); }
+    GLuint get_vel_tex(const int i) { return particle_systems[i]->get_vel_tex(1); }
+    GLuint get_data_tex() { return particle_systems[0]->get_data_tex(); }
+
+    GPUParticleSystem *get_particle_system_by_index(const unsigned int idx) { return particle_systems[idx]; }
 
   private:
 
-    std::vector<GPUParticleSystem *> pSystems;
+    std::vector<GPUParticleSystem *>    particle_systems;
+    std::vector<float>                  rand_data;
+    std::vector<const char *>           curve_handles;
 
-    std::vector<float> rand_data;
-
-    std::vector<const char *> curve_handles;
-
-    const char * shader_directory;
-
+    const char *shader_directory;
   };
-
 };
 
 #endif //__GPU_PARTICLE_SYSTEM_H__

@@ -57,8 +57,14 @@ SDLGame::SDLGame(const int w, const int h,
   font = NULL;
 #if defined(__APPLE__)
   font_face = "/Library/Fonts/Andale Mono.ttf";
+  widget_font_face = "/Library/Fonts/Andale Mono.ttf";
 #endif //__APPLE__
-  font_height = 24;
+#if defined(_WIN32)
+  font_face = "C:\\Windows\\Fonts\\Arial.ttf";
+  widget_font_face = "C:\\Windows\\Fonts\\Arial.ttf";
+#endif
+  font_size = 24;
+  widget_font_size = 12;
 
   pause_menu = NULL;
   if(flags & SDL_GAME_GENERATE_PAUSE_MENU)
@@ -69,6 +75,7 @@ SDLGame::SDLGame(const int w, const int h,
   game_state = 0;
 
   sim_lock_dt = 1.0f / 30.0f;
+  vsync_enabled = true;
 }
 
 SDLGame::~SDLGame()
@@ -126,12 +133,13 @@ void SDLGame::init()
   }
 
   init_sdl();
-  font = new Font(font_face.c_str(), font_height);
+  font = new Font(font_face.c_str(), font_size);
   font->init();
   title_screen.set_font(font);
 
-  widget_font = new Font(font_face.c_str(), 12);
+  widget_font = new Font(widget_font_face.c_str(), widget_font_size);
   widget_font->init();
+  console.set_font(widget_font);
 
   fps_label.set_font(widget_font);
   fps_label.set_text(std::string("fps"));
@@ -183,7 +191,7 @@ void SDLGame::run()
     }
 
     //average the last n frames
-    float actual_fps = 1.0f / frame_time;
+    float actual_fps = (float)(1.0f / frame_time);
     prev_fps[fps_idx] = actual_fps;
     fps_idx = (fps_idx + 1) % SDL_GAME_NUM_FPS_FRAMES;
     float avg_fps = 0.0f;
@@ -208,11 +216,11 @@ void SDLGame::run()
 
     std::string fps_text = std::string("fps: ") + ss.str();
     fps_label.set_text(fps_text);
-    fps_label.simulate(frame_time);
+    fps_label.simulate((float)frame_time);
 
     if(title_screen.is_active())
     {
-      title_screen.simulate(frame_time);
+      title_screen.simulate((float)frame_time);
       title_screen.render_gl();
     }
     else
@@ -228,11 +236,11 @@ void SDLGame::run()
 
       if(pause_menu)
       {
-        pause_menu->simulate(frame_time);
+        pause_menu->simulate((float)frame_time);
         pause_menu->render();
       }
 
-      console.simulate(frame_time);
+      console.simulate((float)frame_time);
       console.render_gl();
     }
 
@@ -340,6 +348,19 @@ void SDLGame::process_events()
   }
 }
 
+
+void SDLGame::set_main_font(std::string font_face_name, unsigned int size)
+{
+  font_face = font_face_name;
+  font_size = size;
+}
+
+void SDLGame::set_widget_font(std::string font_face_name, unsigned int size)
+{
+  widget_font_face = font_face_name;
+  widget_font_size = size;
+}
+
 void SDLGame::screenshot()
 {
   cout<<"taking screenshot..."<<endl;
@@ -356,7 +377,7 @@ void SDLGame::screenshot()
 
 void SDLGame::init_sdl()
 {
-	if(SDL_Init(SDL_INIT_VIDEO) < 0)
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
   {
     printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
   }
@@ -378,6 +399,8 @@ void SDLGame::init_sdl()
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, gl_context_profile);
     }
 
+    game_controller_context.init();
+
     //Create window
     win = SDL_CreateWindow(window_title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, resolution[0], resolution[1], SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     assert(win);
@@ -385,13 +408,14 @@ void SDLGame::init_sdl()
     gl_context = SDL_GL_CreateContext(win);
     assert(gl_context);
 
-    SDL_GL_SetSwapInterval(1);
+    int res = SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
+    assert(res == 0);
 
     glewInit();
 
     cout<<"Initializing OpenGL..."<<endl;
     cout<<"version "<<glGetString(GL_VERSION)<<endl;//major_version<<"."<<minor_version<<endl;
-    //cout<<"extensions: "<<endl<<glGetString(GL_EXTENSIONS)<<endl;
+    cout<<"extensions: "<<endl<<glGetString(GL_EXTENSIONS)<<endl;
 
     int max_vertex_attribs;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attribs);
@@ -401,6 +425,8 @@ void SDLGame::init_sdl()
 
 void SDLGame::quit_app()
 {
+    game_controller_context.deinit();
+
     SDL_GL_DeleteContext(gl_context);
     gl_context = NULL;
 
