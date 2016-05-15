@@ -154,8 +154,6 @@ public:
 
 int main(int argc, char **argv)
 {
-
-
   VRGame game;
   game.enable_vsync(false);
   game.init();
