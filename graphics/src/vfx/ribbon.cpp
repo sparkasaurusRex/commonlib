@@ -127,7 +127,7 @@ void Ribbon::render(const double game_time)
 void Ribbon::simulate(const double gt, const double dt)
 {
   float theta_offset = (float)M_PI;
-  float phi_offset = 0.0f;
+  float phi_offset = (float)M_PI;
   float ribbon_length = 0.6f; //in radians?
 
   //TODO: use dynamic texture and vertex-shader displacement
