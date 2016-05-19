@@ -28,6 +28,8 @@ namespace VR
     GLuint eye_resolve_fbo[2];  //resolve fbo id
     GLuint eye_resolve_tex[2];  //resolve tex id
 
+    uint32_t render_target_dim[2];
+
 #if defined (_USE_OCULUS_SDK)
     ovrHmdDesc            hmd_desc;
     ovrSession            ovr_session;
@@ -48,6 +50,9 @@ namespace VR
 
     void create_eye_texture(const int eye_idx);
     void create_eye_depth_texture(const int eye_idx);
+
+	  void init_compositor();
+    void render_stereo_targets();
   public:
     VRContext();
     ~VRContext() {}

@@ -88,7 +88,6 @@ void VRContext::bind(SDLGame *game)
 
   assert(hmd);
   
-  uint32_t render_target_dim[2];
   hmd->GetRecommendedRenderTargetSize(&render_target_dim[0], &render_target_dim[1]);
 
   //CreateFrameBuffer(render_target_dim[0], render_target_dim[1], leftEyeDesc);
@@ -127,6 +126,8 @@ void VRContext::bind(SDLGame *game)
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
   }
+
+  init_compositor();
 
 #if defined (_USE_OCULUS_SDK)
   // Setup Window and Graphics
@@ -237,6 +238,13 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
 
 void VRContext::render_capture(const unsigned int eye)
 {
+  glClearColor(0.15f, 0.15f, 0.18f, 1.0f); // nice background color, but not black
+  glEnable(GL_MULTISAMPLE);
+
+  // Left Eye
+  glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);//leftEyeDesc.m_nRenderFramebufferId);
+  glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
+
 #if defined (_USE_OCULUS_SDK)
   //set and clear render texture
   GLuint cur_tex_id;
@@ -263,6 +271,21 @@ void VRContext::render_capture(const unsigned int eye)
 
 void VRContext::render_release(const unsigned int eye)
 {
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  glDisable(GL_MULTISAMPLE);
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, eye_fbo[eye]);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eye_resolve_fbo[eye]);// leftEyeDesc.m_nResolveFramebufferId);
+
+  glBlitFramebuffer(0, 0, render_target_dim[0], render_target_dim[1], 0, 0, render_target_dim[0], render_target_dim[1],
+    GL_COLOR_BUFFER_BIT,
+    GL_LINEAR);
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+  glEnable(GL_MULTISAMPLE);
 #if defined (_USE_OCULUS_SDK)
   //unset render surface
   glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);
@@ -277,8 +300,92 @@ void VRContext::render_release(const unsigned int eye)
 #endif //_USE_OCULUS_SDK
 }
 
+void VRContext::render_stereo_targets()
+{
+
+/*  RenderScene(vr::Eye_Left);
+  
+  
+  
+
+
+  // Right Eye
+  glBindFramebuffer(GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId);
+  glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
+
+  RenderScene(vr::Eye_Right);
+  
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  glDisable(GL_MULTISAMPLE);
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rightEyeDesc.m_nResolveFramebufferId);
+
+  glBlitFramebuffer(0, 0, render_target_dim[0], render_target_dim[1], 0, 0, render_target_dim[0], render_target_dim[1],
+    GL_COLOR_BUFFER_BIT,
+    GL_LINEAR);
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  */
+}
+
 void VRContext::finalize_render()
 {
+  // for now as fast as possible
+  if (hmd)
+  {
+    //DrawControllers();
+    //render_stereo_targets();
+    render_distortion();
+
+    vr::Texture_t leftEyeTexture = { (void*)leftEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
+    vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
+    vr::Texture_t rightEyeTexture = { (void*)rightEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
+    vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+  }
+
+  if (m_bVblank && m_bGlFinishHack)
+  {
+    //$ HACKHACK. From gpuview profiling, it looks like there is a bug where two renders and a present
+    // happen right before and after the vsync causing all kinds of jittering issues. This glFinish()
+    // appears to clear that up. Temporary fix while I try to get nvidia to investigate this problem.
+    // 1/29/2014 mikesart
+    glFinish();
+  }
+
+  // SwapWindow
+  {
+    SDL_GL_SwapWindow(m_pWindow);
+  }
+
+  // Clear
+  {
+    // We want to make sure the glFinish waits for the entire present to complete, not just the submission
+    // of the command. So, we do a clear here right here so the glFinish will wait fully for the swap.
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
+
+  // Flush and wait for swap.
+  if (m_bVblank)
+  {
+    glFlush();
+    glFinish();
+  }
+
+  // Spew out the controller and pose count whenever they change.
+  if (m_iTrackedControllerCount != m_iTrackedControllerCount_Last || m_iValidPoseCount != m_iValidPoseCount_Last)
+  {
+    m_iValidPoseCount_Last = m_iValidPoseCount;
+    m_iTrackedControllerCount_Last = m_iTrackedControllerCount;
+
+    dprintf("PoseCount:%d(%s) Controllers:%d\n", m_iValidPoseCount, m_strPoseClasses.c_str(), m_iTrackedControllerCount);
+  }
+
+  UpdateHMDMatrixPose();
+
 #if defined (_USE_OCULUS_SDK)
   // Do distortion rendering, Present and flush/sync
   ovrLayerEyeFov ld;
@@ -413,6 +520,16 @@ void VRContext::create_eye_depth_texture(const int eye_idx)
 
   glTexImage2D(GL_TEXTURE_2D, 0, internal_format, ideal_tex_size.w, ideal_tex_size.h, 0, GL_DEPTH_COMPONENT, type, NULL);
 #endif //_USE_OCULUS_SDK
+}
+
+void VRContext::init_compositor()
+{
+  vr::EVRInitError peError = vr::VRInitError_None;
+
+  if (!vr::VRCompositor())
+  {
+    assert(false);
+  }
 }
 
 void VRContext::simulate(const double game_time, const double frame_time)

@@ -7,16 +7,20 @@
 
 #include "math_utility.h"
 
+#include "meter.h"
+#include "label.h"
+
 #define EXPOSE_PERCENT_RATE 5.0f
 
 using namespace Math;
+using namespace UI;
 using namespace std;
 
 DebugConsole::DebugConsole()
 {
   font = NULL;
   pct_exposed = 0.0f;
-  active = false;
+  state = CONSOLE_INACTIVE;
 
   command_history_idx = 0;
 
@@ -40,14 +44,15 @@ DebugConsole::~DebugConsole()
   delete font;
 }
 
-void DebugConsole::activate(bool a)
+void DebugConsole::activate(ConsoleState s)
 {
-  active = a;
+  state = s;
 }
+
 
 bool DebugConsole::is_active() const
 {
-  if(active)
+  if((state == CONSOLE_ACTIVE_DEFAULT))
   {
     return true;
   }
@@ -58,20 +63,49 @@ bool DebugConsole::is_active() const
   return true;
 }
 
+bool DebugConsole::is_control_board_active() const
+{
+  return (state == CONSOLE_ACTIVE_CONTROL_BOARD);
+}
+
 void DebugConsole::init()
 {
-  //font = new Font(DEFAULT_CONSOLE_FONT_FACE, DEFAULT_CONSOLE_FONT_SIZE);
-  //font->init();
-
   current_command.clear();
   command_history.clear();
   tab_complete_string.clear();
   last_tab_complete_idx = -1;
+
+  //initialized the control board
+  float v_offset = 50.0f;
+  float h_offset = 100.0f;
+  for (unsigned int i = 0; i < float_vars.size(); i++)
+  {
+    Meter *m = new Meter;
+    m->translate(Float2(h_offset, v_offset));
+    m->scale(Float2(100.0f, 20.0f));
+    m->init();
+    m->show();
+    m->set_percent(0.0f);
+
+    console_ww.add_widget(m);
+    float_var_sliders.push_back(m);
+
+    Label *l = new Label;
+    l->set_font(font);
+    l->translate(Float2(h_offset + 120.0f, v_offset - 5.0f));
+    l->scale(Float2(500.0f, 20.0f));
+    l->set_text(float_var_names[i]);
+    l->init();
+    l->show();
+    console_ww.add_widget(l);
+
+    v_offset += 30.0f;
+  }
 }
 
 void DebugConsole::simulate(const float dt)
 {
-  if(active)
+  if(state == CONSOLE_ACTIVE_DEFAULT)
   {
     pct_exposed += dt * EXPOSE_PERCENT_RATE;
   }
@@ -80,6 +114,20 @@ void DebugConsole::simulate(const float dt)
     pct_exposed -= dt * EXPOSE_PERCENT_RATE;
   }
   pct_exposed = Math::clamp(pct_exposed, 0.0f, 1.0f);
+
+  if (state == CONSOLE_ACTIVE_CONTROL_BOARD)
+  {
+    console_ww.simulate(dt);
+    for (unsigned int i = 0; i < float_vars.size(); i++)
+    {
+      Meter *m = float_var_sliders[i];
+      Float2 range = float_var_ranges[i];
+      float val = *(float_vars[i]);
+
+      float pct = (val - range[0]) / (range[1] - range[0]);
+      m->set_percent(pct);
+    }
+  }
 }
 
 void DebugConsole::receive_char(const char c)
@@ -192,8 +240,28 @@ void DebugConsole::execute()
 
 void DebugConsole::render_gl()
 {
-  if(!is_active()) { return; }
+  switch (state)
+  {
+  case CONSOLE_ACTIVE_DEFAULT:
+    render_default();
+    break;
+  case CONSOLE_ACTIVE_CONTROL_BOARD:
+    render_control_board();
+    break;
+  default:
+    if (pct_exposed > 0.01f) { render_default();  }
+    return;
+    break;
+  }
+}
 
+void DebugConsole::render_control_board()
+{
+  console_ww.render();
+}
+
+void DebugConsole::render_default()
+{
   //animation
   float v_offset = Math::cerp(-0.5f, 0.0f, pct_exposed);
 
@@ -217,6 +285,7 @@ void DebugConsole::render_gl()
   glTranslatef(0.0f, v_offset, 0.0f);
   glColor4f(bg_color[0], bg_color[1], bg_color[2], bg_opacity);
 
+  //TODO: VBO rendering
   glBegin(GL_QUADS);
     glVertex2f(-1.0f, -0.4f);              // Top Left
     glVertex2f( 1.0f, -0.4f);              // Top Right
@@ -231,7 +300,7 @@ void DebugConsole::render_gl()
   glLoadIdentity();
   glTranslatef(0.0f, v_offset * 256, 0.0f);
 
-  char command_line[512];
+  static char command_line[1024];
   sprintf(command_line, "your wish > %s", current_command.c_str());
 
   GLint viewport[4];
@@ -248,11 +317,12 @@ void DebugConsole::register_variable(bool *b, const char *name)
   boolean_vars.push_back(b);
 }
 
-void DebugConsole::register_variable(float *f, const char *name)
+void DebugConsole::register_variable(float *f, const char *name, const Float2 range)
 {
   std::string n(name);
   float_var_names.push_back(n);
   float_vars.push_back(f);
+  float_var_ranges.push_back(range);
 }
 
 void DebugConsole::register_variable(Float3 *f, const char *name)

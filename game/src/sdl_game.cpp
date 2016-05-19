@@ -292,7 +292,14 @@ void SDLGame::process_events()
       switch(event.key.keysym.sym)
       {
       case '`':
-        console.activate(!console.is_active());
+        if (keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT])
+        {
+          console.activate(console.is_control_board_active() ? CONSOLE_INACTIVE : CONSOLE_ACTIVE_CONTROL_BOARD);
+        }
+        else
+        {
+          console.activate(console.is_active() ? CONSOLE_INACTIVE : CONSOLE_ACTIVE_DEFAULT);
+        }
         break;
       case SDLK_ESCAPE:
         if(pause_menu && !pause_menu->is_visible())
