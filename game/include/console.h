@@ -30,6 +30,7 @@ private:
   Math::Float3                text_color;
 
   std::string                 current_command;
+  std::string                 console_buffer;
 
   int                         command_history_idx;
   std::vector<std::string>    command_history;
@@ -66,6 +67,8 @@ public:
   void backspace();
   void execute();
   void simulate(const float dt);
+
+  void print_line(std::string s);
   
   void render_gl();
   void render_default();

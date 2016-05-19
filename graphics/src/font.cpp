@@ -56,7 +56,7 @@ void Font::print(float x, float y, const char *fmt, ...)
   GLuint font = list_base;
   // We Make The Height A Little Bigger.  There Will Be Some Space Between Lines.
   float height = h / 0.63f;
-  char text[256];                                  // Holds Our String
+  char text[1024];                                  // Holds Our String
   va_list ap;                                     // Pointer To List Of Arguments
 
   if(fmt == NULL)                                    // If There's No Text

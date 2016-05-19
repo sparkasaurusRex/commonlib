@@ -31,6 +31,7 @@ DebugConsole::DebugConsole()
   bg_opacity = 0.55f;
   float_var_names.push_back("console.bg_opacity");
   float_vars.push_back(&bg_opacity);
+  float_var_ranges.push_back(Float2(0.0f, 1.0f));
 
   text_color = Float3(0.0f, 0.0f, 0.0f);
   float3_var_names.push_back("console.text_color");
@@ -122,9 +123,9 @@ void DebugConsole::simulate(const float dt)
     {
       Meter *m = float_var_sliders[i];
       Float2 range = float_var_ranges[i];
-      float val = *(float_vars[i]);
+      float *val = float_vars[i];
 
-      float pct = (val - range[0]) / (range[1] - range[0]);
+      float pct = (*val - range[0]) / (range[1] - range[0]);
       m->set_percent(pct);
     }
   }
@@ -169,12 +170,13 @@ void DebugConsole::execute()
   {
     int idx = std::distance(float_var_names.begin(), i);
     float *f = float_vars[idx];
-    if(words.size() == 1)
+    if(words.size() == 1 || (words.size() == 2 && words[1] == ""))
     {
       //just output the current value
       cout<<float_var_names[idx].c_str()<<": "<<*f<<endl;
+      print_line(float_var_names[idx].c_str() + std::string(": ") + std::to_string(*f));
     }
-    if(words.size() == 2)
+    else if(words.size() == 2)
     {
       //cout<<"idx: "<<idx<<endl;
       float val = (float)atof(words[1].c_str());
@@ -190,7 +192,13 @@ void DebugConsole::execute()
     Float3 *f = float3_vars[idx];
     if(words.size() == 1)
     {
+      /*
+      std::ostringstream ss;
+      ss<<*f;
+      std::string float_string(ss.str());
+      */
       cout<<float3_var_names[idx].c_str()<<": "<<*f<<endl;
+      print_line(float3_var_names[idx] + std::string(": ") + std::to_string((*f)[0]));
     }
     else if(words.size() == 4)
     {
@@ -233,9 +241,16 @@ void DebugConsole::execute()
 
   command_history.push_back(current_command);
   command_history_idx = command_history.size();
+  //console_buffer += "\n" + current_command;
+  print_line(current_command);
   current_command.clear();
   tab_complete_string.clear();
   last_tab_complete_idx = -1;
+}
+
+void DebugConsole::print_line(std::string s)
+{
+  console_buffer = s + std::string("\n") + console_buffer;
 }
 
 void DebugConsole::render_gl()
@@ -308,6 +323,17 @@ void DebugConsole::render_default()
 
   float v_pixels = (float)viewport[3] - 0.25f * (float)viewport[3];
   font->print(10, v_pixels, command_line);
+
+  //can't print the whole thing at once (buffer overflow), so do it line by line
+  //split string by carriage returns
+  std::vector<std::string> lines;
+  boost::split(lines, console_buffer, boost::is_any_of("\n"), boost::token_compress_on);
+  float v_h = font->get_height() + 5.0f;
+  for(unsigned int i = 0; i < lines.size(); i++)
+  {
+    font->print(10, v_pixels + 15.0f + i * v_h, lines[i].c_str());
+  }
+  //font->print(10, v_pixels + 10, console_buffer.c_str());
 }
 
 void DebugConsole::register_variable(bool *b, const char *name)
