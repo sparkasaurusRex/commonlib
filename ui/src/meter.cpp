@@ -12,7 +12,6 @@ void Meter::render()
 {
   if(visible)
   {
-
     //draw background
     glColor3f(0.2f, 0.2f, 0.2f);
     glBegin(GL_TRIANGLE_STRIP);
@@ -39,7 +38,7 @@ void Meter::render()
 void Meter::process_event(const SDL_Event &e)
 {
   //cout << "Meter::process_event()" << endl;
-  if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+  if (e.type == SDL_MOUSEMOTION && (e.motion.state & SDL_BUTTON(SDL_BUTTON_LEFT)))
   {
     int mouse_x, mouse_y;
     Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);

@@ -51,7 +51,7 @@ void WidgetWrangler::process_event(const SDL_Event &e)
   for(unsigned int i = 0; i < widgets.size(); i++)
   {
     Widget *w = widgets[i];
-    if(e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT)
+    if(e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
     {
       int mouse_x, mouse_y;
       Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
