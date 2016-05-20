@@ -67,6 +67,7 @@ public:
   void backspace();
   void execute();
   void simulate(const float dt);
+  void process_event(const SDL_Event &e);
 
   void print_line(std::string s);
   

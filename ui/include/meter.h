@@ -11,7 +11,7 @@ namespace UI
     Meter(Font *f = NULL);
     ~Meter() {}
 
-    virtual void process_event(const SDL_Event &e) {}
+    virtual void process_event(const SDL_Event &e);
 
     virtual void init() {}
     virtual void simulate(const float dt) {}

@@ -352,6 +352,7 @@ void SDLGame::process_events()
 
     if(event.type == SDL_QUIT) { quit_app(); }
     if(!console.is_active()) { user_process_event(event); }
+    if(console.is_control_board_active()) { console.process_event(event); }
   }
 }
 

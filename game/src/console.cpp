@@ -77,8 +77,8 @@ void DebugConsole::init()
   last_tab_complete_idx = -1;
 
   //initialized the control board
-  float v_offset = 50.0f;
-  float h_offset = 100.0f;
+  float v_offset = 120.0f;
+  float h_offset = 10.0f;
   for (unsigned int i = 0; i < float_vars.size(); i++)
   {
     Meter *m = new Meter;
@@ -116,7 +116,7 @@ void DebugConsole::simulate(const float dt)
   }
   pct_exposed = Math::clamp(pct_exposed, 0.0f, 1.0f);
 
-  if (state == CONSOLE_ACTIVE_CONTROL_BOARD)
+  //if (state == CONSOLE_ACTIVE_CONTROL_BOARD)
   {
     console_ww.simulate(dt);
     for (unsigned int i = 0; i < float_vars.size(); i++)
@@ -128,6 +128,21 @@ void DebugConsole::simulate(const float dt)
       float pct = (*val - range[0]) / (range[1] - range[0]);
       m->set_percent(pct);
     }
+  }
+}
+
+void DebugConsole::process_event(const SDL_Event &e)
+{
+  console_ww.process_event(e);
+
+  //gather data
+  for (unsigned int i = 0; i < float_var_sliders.size(); i++)
+  {
+    Meter *m = float_var_sliders[i];
+    Float2 range = float_var_ranges[i];
+    float val = range[0] + m->get_percent() * (range[1] - range[0]);
+    float *target = float_vars[i];
+    *target = val;
   }
 }
 

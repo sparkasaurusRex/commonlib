@@ -34,3 +34,19 @@ void Meter::render()
     glEnd();
   }
 }
+
+
+void Meter::process_event(const SDL_Event &e)
+{
+  //cout << "Meter::process_event()" << endl;
+  if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+  {
+    int mouse_x, mouse_y;
+    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    if (hit_test(mouse_x, mouse_y))
+    {
+      float pct = (mouse_x - pos[0]) / dim[0];
+      set_percent(pct);
+    }
+  }
+}
