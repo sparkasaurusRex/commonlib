@@ -38,6 +38,8 @@ DebugConsole::DebugConsole()
   float3_vars.push_back(&text_color);
 
   last_tab_complete_idx = -1;
+
+  control_board_scroll = 0.0f;
 }
 
 DebugConsole::~DebugConsole()
@@ -78,7 +80,7 @@ void DebugConsole::init()
 
   //initialized the control board
   float v_offset = 120.0f;
-  float h_offset = 10.0f;
+  float h_offset = 50.0f;
   for (unsigned int i = 0; i < float_vars.size(); i++)
   {
     Meter *m = new Meter;
@@ -143,6 +145,17 @@ void DebugConsole::process_event(const SDL_Event &e)
     float val = range[0] + m->get_percent() * (range[1] - range[0]);
     float *target = float_vars[i];
     *target = val;
+  }
+
+  //handle control board scrolling
+  const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+  if(keystate[SDL_SCANCODE_UP])
+  {
+    control_board_scroll += 10.0f;
+  }
+  if (keystate[SDL_SCANCODE_DOWN])
+  {
+    control_board_scroll -= 10.0f;
   }
 }
 
@@ -287,7 +300,8 @@ void DebugConsole::render_gl()
 
 void DebugConsole::render_control_board()
 {
-  console_ww.render();
+  //glTranslatef(0.0f, control_board_scroll, 0.0f);
+  console_ww.render(Float3(0.0f, control_board_scroll, 0.0f));
 }
 
 void DebugConsole::render_default()

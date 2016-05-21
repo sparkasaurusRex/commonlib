@@ -54,6 +54,7 @@ private:
   unsigned int                last_tab_complete_idx;
 
   UI::WidgetWrangler          console_ww;
+  float                       control_board_scroll;
 
 public:
   DebugConsole();

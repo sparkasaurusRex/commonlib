@@ -25,16 +25,15 @@ inline int next_p2(int a)
 // A Fairly Straightforward Function That Pushes
 // A Projection Matrix That Will Make Object World
 // Coordinates Identical To Window Coordinates.
-inline void pushScreenCoordinateMatrix()
+void Font::pushScreenCoordinateMatrix()
 {
   glPushAttrib(GL_TRANSFORM_BIT);
-  GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  //gluOrtho2D(viewport[0],viewport[2],viewport[1],viewport[3]);
-  gluOrtho2D(viewport[0], viewport[2], viewport[3], viewport[1]);
+  gluOrtho2D(viewport[0],viewport[2],viewport[1],viewport[3]);
+  //gluOrtho2D(viewport[0], viewport[2], viewport[3], viewport[1]);
   glPopAttrib();
 }
 
@@ -52,6 +51,8 @@ void Font::print(float x, float y, const char *fmt, ...)
 {
   // We Want A Coordinate System Where Distance Is Measured In Window Pixels.
   pushScreenCoordinateMatrix();
+  
+  y = (float)viewport[3] - y;
 
   GLuint font = list_base;
   // We Make The Height A Little Bigger.  There Will Be Some Space Between Lines.
@@ -120,7 +121,7 @@ void Font::print(float x, float y, const char *fmt, ...)
     glPushMatrix();
     glLoadIdentity();
     glTranslatef(x, (y + height * i), 0);
-    glScalef(1.0f, -1.0f, 1.0f);
+    //glScalef(1.0f, -1.0f, 1.0f);
     glMultMatrixf(modelview_matrix);
 
 

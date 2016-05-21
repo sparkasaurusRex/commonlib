@@ -1,6 +1,10 @@
 #ifndef __VR_H__
 #define __VR_H__
 
+//TODO:
+// InitGL() - distortion init, etc... vAO
+
+
 //#define __USE_OCULUS_SDK
 
 #if defined (_USE_OCULUS_SDK)
@@ -14,6 +18,14 @@
 
 namespace VR
 {
+  struct VertexDataLens
+  {
+    Math::Float2 position;
+    Math::Float2 texCoordRed;
+    Math::Float2 texCoordGreen;
+    Math::Float2 texCoordBlue;
+  };
+
   class VRContext
   {
   private:
@@ -27,8 +39,17 @@ namespace VR
     GLuint eye_tex[2];          //eye render texture id
     GLuint eye_resolve_fbo[2];  //resolve fbo id
     GLuint eye_resolve_tex[2];  //resolve tex id
+    
+    GLuint lens_vao;            //vertex array object for lens distortion
+    GLuint lens_vbo;
+    GLuint lens_ibo;
+    GLuint lens_shader_id;
+
+    uint32_t num_lens_indices;
+    
 
     uint32_t render_target_dim[2];
+    uint32_t window_dim[2];
 
 #if defined (_USE_OCULUS_SDK)
     ovrHmdDesc            hmd_desc;
@@ -53,6 +74,8 @@ namespace VR
 
 	  void init_compositor();
     void render_stereo_targets();
+    void setup_distortion();
+    void render_distortion();
   public:
     VRContext();
     ~VRContext() {}

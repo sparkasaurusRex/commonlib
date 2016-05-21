@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "widget.h"
+#include "math_utility.h"
 
 namespace UI
 {
@@ -13,7 +14,7 @@ namespace UI
     ~WidgetWrangler() {}
 
     void add_widget(Widget *w) { widgets.push_back(w); }
-    void render() const;
+    void render(const Math::Float3 offset = Math::Float3()) const;
     void process_event(const SDL_Event &e);
     void simulate(const float dt);
   private:

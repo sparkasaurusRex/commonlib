@@ -73,6 +73,10 @@ void VRContext::deinit()
 
 void VRContext::bind(SDLGame *game)
 {
+  assert(game);
+
+  game->get_resolution(window_dim[0], window_dim[1]);
+
   //Loading the SteamVR Runtime
   vr::EVRInitError err = vr::VRInitError_None;
   hmd = vr::VR_Init(&err, vr::VRApplication_Scene);
@@ -331,6 +335,166 @@ void VRContext::render_stereo_targets()
   */
 }
 
+//set up the geo for distortion
+void VRContext::setup_distortion()
+{
+  if (!hmd)
+    return;
+
+  GLushort m_iLensGridSegmentCountH = 43;
+  GLushort m_iLensGridSegmentCountV = 43;
+
+  float w = (float)(1.0 / float(m_iLensGridSegmentCountH - 1));
+  float h = (float)(1.0 / float(m_iLensGridSegmentCountV - 1));
+
+  float u, v = 0;
+
+  std::vector<VertexDataLens> vVerts(0);
+  VertexDataLens vert;
+
+  //left eye distortion verts
+  float Xoffset = -1;
+  for (int y = 0; y<m_iLensGridSegmentCountV; y++)
+  {
+    for (int x = 0; x<m_iLensGridSegmentCountH; x++)
+    {
+      u = x*w; v = 1 - y*h;
+      vert.position = Float2(Xoffset + u, -1 + 2 * y*h);
+      
+      vr::DistortionCoordinates_t dc0 = hmd->ComputeDistortion(vr::Eye_Left, u, v);
+
+      vert.texCoordRed = Float2(dc0.rfRed[0], 1 - dc0.rfRed[1]);
+      vert.texCoordGreen = Float2(dc0.rfGreen[0], 1 - dc0.rfGreen[1]);
+      vert.texCoordBlue = Float2(dc0.rfBlue[0], 1 - dc0.rfBlue[1]);
+
+      vVerts.push_back(vert);
+    }
+  }
+
+  //right eye distortion verts
+  Xoffset = 0;
+  for (int y = 0; y<m_iLensGridSegmentCountV; y++)
+  {
+    for (int x = 0; x<m_iLensGridSegmentCountH; x++)
+    {
+      u = x*w; v = 1 - y*h;
+      vert.position = Float2(Xoffset + u, -1 + 2 * y*h);
+
+      vr::DistortionCoordinates_t dc0 = hmd->ComputeDistortion(vr::Eye_Right, u, v);
+
+      vert.texCoordRed = Float2(dc0.rfRed[0], 1 - dc0.rfRed[1]);
+      vert.texCoordGreen = Float2(dc0.rfGreen[0], 1 - dc0.rfGreen[1]);
+      vert.texCoordBlue = Float2(dc0.rfBlue[0], 1 - dc0.rfBlue[1]);
+
+      vVerts.push_back(vert);
+    }
+  }
+
+  std::vector<GLushort> vIndices;
+  GLushort a, b, c, d;
+
+  GLushort offset = 0;
+  for (GLushort y = 0; y<m_iLensGridSegmentCountV - 1; y++)
+  {
+    for (GLushort x = 0; x<m_iLensGridSegmentCountH - 1; x++)
+    {
+      a = m_iLensGridSegmentCountH*y + x + offset;
+      b = m_iLensGridSegmentCountH*y + x + 1 + offset;
+      c = (y + 1)*m_iLensGridSegmentCountH + x + 1 + offset;
+      d = (y + 1)*m_iLensGridSegmentCountH + x + offset;
+      vIndices.push_back(a);
+      vIndices.push_back(b);
+      vIndices.push_back(c);
+
+      vIndices.push_back(a);
+      vIndices.push_back(c);
+      vIndices.push_back(d);
+    }
+  }
+
+  offset = (m_iLensGridSegmentCountH)*(m_iLensGridSegmentCountV);
+  for (GLushort y = 0; y<m_iLensGridSegmentCountV - 1; y++)
+  {
+    for (GLushort x = 0; x<m_iLensGridSegmentCountH - 1; x++)
+    {
+      a = m_iLensGridSegmentCountH*y + x + offset;
+      b = m_iLensGridSegmentCountH*y + x + 1 + offset;
+      c = (y + 1)*m_iLensGridSegmentCountH + x + 1 + offset;
+      d = (y + 1)*m_iLensGridSegmentCountH + x + offset;
+      vIndices.push_back(a);
+      vIndices.push_back(b);
+      vIndices.push_back(c);
+
+      vIndices.push_back(a);
+      vIndices.push_back(c);
+      vIndices.push_back(d);
+    }
+  }
+
+  num_lens_indices = vIndices.size();
+
+  glGenVertexArrays(1, &lens_vao);
+  glBindVertexArray(lens_vao);
+
+  glGenBuffers(1, &lens_vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, lens_vbo);
+  glBufferData(GL_ARRAY_BUFFER, vVerts.size() * sizeof(VertexDataLens), &vVerts[0], GL_STATIC_DRAW);
+
+  glGenBuffers(1, &lens_ibo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lens_ibo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, vIndices.size() * sizeof(GLushort), &vIndices[0], GL_STATIC_DRAW);
+
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(VertexDataLens), (void *)offsetof(VertexDataLens, position));
+
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexDataLens), (void *)offsetof(VertexDataLens, texCoordRed));
+
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexDataLens), (void *)offsetof(VertexDataLens, texCoordGreen));
+
+  glEnableVertexAttribArray(3);
+  glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(VertexDataLens), (void *)offsetof(VertexDataLens, texCoordBlue));
+
+  glBindVertexArray(0);
+
+  glDisableVertexAttribArray(0);
+  glDisableVertexAttribArray(1);
+  glDisableVertexAttribArray(2);
+  glDisableVertexAttribArray(3);
+
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void VRContext::render_distortion()
+{
+  glDisable(GL_DEPTH_TEST);
+  glViewport(0, 0, window_dim[0], window_dim[1]);
+
+  glBindVertexArray(lens_vao);
+  glUseProgram(lens_shader_id);
+
+  //render left lens (first half of index array )
+  glBindTexture(GL_TEXTURE_2D, eye_resolve_tex[0]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glDrawElements(GL_TRIANGLES, num_lens_indices / 2, GL_UNSIGNED_SHORT, 0);
+
+  //render right lens (second half of index array )
+  glBindTexture(GL_TEXTURE_2D, eye_resolve_tex[1]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glDrawElements(GL_TRIANGLES, num_lens_indices / 2, GL_UNSIGNED_SHORT, (const void *)(m_uiIndexSize));
+
+  glBindVertexArray(0);
+  glUseProgram(0);
+}
+
 void VRContext::finalize_render()
 {
   // for now as fast as possible
@@ -340,13 +504,13 @@ void VRContext::finalize_render()
     //render_stereo_targets();
     render_distortion();
 
-    vr::Texture_t leftEyeTexture = { (void*)leftEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
-    vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture);
-    vr::Texture_t rightEyeTexture = { (void*)rightEyeDesc.m_nResolveTextureId, vr::API_OpenGL, vr::ColorSpace_Gamma };
-    vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture);
+    vr::Texture_t left_eye_tex = { (void*)eye_resolve_tex[0], vr::API_OpenGL, vr::ColorSpace_Gamma };
+    vr::VRCompositor()->Submit(vr::Eye_Left, &left_eye_tex);
+    vr::Texture_t right_eye_tex = { (void*)eye_resolve_tex[1], vr::API_OpenGL, vr::ColorSpace_Gamma };
+    vr::VRCompositor()->Submit(vr::Eye_Right, &right_eye_tex);
   }
 
-  if (m_bVblank && m_bGlFinishHack)
+  if (false)//(m_bVblank && m_bGlFinishHack)
   {
     //$ HACKHACK. From gpuview profiling, it looks like there is a bug where two renders and a present
     // happen right before and after the vsync causing all kinds of jittering issues. This glFinish()
@@ -357,11 +521,11 @@ void VRContext::finalize_render()
 
   // SwapWindow
   {
-    SDL_GL_SwapWindow(m_pWindow);
+  //  SDL_GL_SwapWindow(m_pWindow);
   }
 
   // Clear
-  {
+  if(false) {
     // We want to make sure the glFinish waits for the entire present to complete, not just the submission
     // of the command. So, we do a clear here right here so the glFinish will wait fully for the swap.
     glClearColor(0, 0, 0, 1);
@@ -369,22 +533,22 @@ void VRContext::finalize_render()
   }
 
   // Flush and wait for swap.
-  if (m_bVblank)
+  if (false) //(m_bVblank)
   {
     glFlush();
     glFinish();
   }
 
   // Spew out the controller and pose count whenever they change.
-  if (m_iTrackedControllerCount != m_iTrackedControllerCount_Last || m_iValidPoseCount != m_iValidPoseCount_Last)
+  /*if (m_iTrackedControllerCount != m_iTrackedControllerCount_Last || m_iValidPoseCount != m_iValidPoseCount_Last)
   {
     m_iValidPoseCount_Last = m_iValidPoseCount;
     m_iTrackedControllerCount_Last = m_iTrackedControllerCount;
 
     dprintf("PoseCount:%d(%s) Controllers:%d\n", m_iValidPoseCount, m_strPoseClasses.c_str(), m_iTrackedControllerCount);
-  }
+  }*/
 
-  UpdateHMDMatrixPose();
+  //UpdateHMDMatrixPose();
 
 #if defined (_USE_OCULUS_SDK)
   // Do distortion rendering, Present and flush/sync

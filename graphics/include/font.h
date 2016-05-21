@@ -32,12 +32,14 @@ class Font
     float get_height() const { return h; }
   private:
     void create_display_list(FT_Face face, char ch, GLuint list_base, GLuint *tex_base);
+    void pushScreenCoordinateMatrix();
 
     float h;                //font height
     float character_w[128]; //character widths
     char face_fname[256];   //font face name
     GLuint *textures;       //texture ids
     GLuint list_base;       //first display list id
+    GLint viewport[4];
 };
 
 //void gl_print(const Font &font, float x, float y, const char *fmt, ...);

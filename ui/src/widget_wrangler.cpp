@@ -4,13 +4,14 @@
 using namespace UI;
 using namespace std;
 using namespace Graphics;
+using namespace Math;
 
 WidgetWrangler::WidgetWrangler()
 {
   focus_idx = 0;
 }
 
-void WidgetWrangler::render() const
+void WidgetWrangler::render(const Float3 offset) const
 {
   GLint viewport[4];
   gl_check_error();
@@ -35,6 +36,8 @@ void WidgetWrangler::render() const
   glLoadIdentity();
 
   gl_check_error();
+
+  glTranslatef(offset[0], offset[1], offset[2]);
 
   for(unsigned int i = 0; i < widgets.size(); i++)
   {
