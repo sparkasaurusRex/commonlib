@@ -22,7 +22,7 @@ void RadialPushButton::init()
 
 }
 
-void RadialPushButton::process_event(const SDL_Event &event)
+void RadialPushButton::process_event(const SDL_Event &event, const Float2 offset)
 {
   if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
   {

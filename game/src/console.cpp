@@ -135,7 +135,7 @@ void DebugConsole::simulate(const float dt)
 
 void DebugConsole::process_event(const SDL_Event &e)
 {
-  console_ww.process_event(e, Float2(0.0f, control_board_scroll));
+  console_ww.process_event(e, Float2(0.0f, -control_board_scroll));
 
   //gather data
   for (unsigned int i = 0; i < float_var_sliders.size(); i++)
@@ -158,7 +158,7 @@ void DebugConsole::process_event(const SDL_Event &e)
     control_board_scroll += 10.0f;
   }
 }
- 
+
 void DebugConsole::receive_char(const char c)
 {
   switch(c)

@@ -17,7 +17,7 @@ namespace UI
     void set_click_color(const Math::Float3 c) { click_rgb = c; }
 
     virtual void init();
-    virtual void process_event(const SDL_Event &event);
+    virtual void process_event(const SDL_Event &event, const Math::Float2 offset = Math::Float2());
     virtual void render();
   protected:
     void (*click_callback)(const SDL_Event &e); //callback func
