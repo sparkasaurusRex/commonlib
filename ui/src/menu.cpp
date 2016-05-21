@@ -1,7 +1,9 @@
 #include "menu.h"
+#include "math_utility.h"
 
 using namespace UI;
 using namespace std;
+using namespace Math;
 
 Menu::Menu(Font *f) : RectangularWidget(f)
 {
@@ -32,7 +34,7 @@ void Menu::init()
   dim[0] = widest;
 }
 
-void Menu::process_event(const SDL_Event &event)
+void Menu::process_event(const SDL_Event &event, const Float2 offset)
 {
   if(!visible) { return; }
 

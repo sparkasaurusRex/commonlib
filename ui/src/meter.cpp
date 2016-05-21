@@ -2,6 +2,7 @@
 
 using namespace UI;
 using namespace std;
+using namespace Math;
 
 Meter::Meter(Font *f) : RectangularWidget(f)
 {
@@ -35,13 +36,16 @@ void Meter::render()
 }
 
 
-void Meter::process_event(const SDL_Event &e)
+void Meter::process_event(const SDL_Event &e, const Float2 offset)
 {
   //cout << "Meter::process_event()" << endl;
   if (e.type == SDL_MOUSEMOTION && (e.motion.state & SDL_BUTTON(SDL_BUTTON_LEFT)))
   {
     int mouse_x, mouse_y;
     Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+    mouse_x += (int)offset[0];
+    mouse_y += (int)offset[1];
+
     if (hit_test(mouse_x, mouse_y))
     {
       float pct = (mouse_x - pos[0]) / dim[0];

@@ -175,7 +175,7 @@ void CurveEditor::render()
   }
 }
 
-void CurveEditor::process_event(const SDL_Event &event)
+void CurveEditor::process_event(const SDL_Event &event, const Float2 offset)
 {
 
   for(int i = 0; i < 2; i++)
@@ -199,12 +199,15 @@ void CurveEditor::process_event(const SDL_Event &event)
   assert(curve);
 
   //cout<<"CurveEditor::process_event"<<endl;
+  
+  int mouse_x, mouse_y;
+  Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+  mouse_x += (int)offset[0];
+  mouse_y += (int)offset[1];
   switch(event.type)
   {
     case SDL_MOUSEMOTION:
     {
-      int mouse_x, mouse_y;
-      Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
       if(button_state & SDL_BUTTON_LEFT)
       {
         float fx = ((float)mouse_x - pos[0]) / dim[0];
@@ -219,8 +222,6 @@ void CurveEditor::process_event(const SDL_Event &event)
     //   break;
     case SDL_MOUSEBUTTONUP:
     {
-      int mouse_x, mouse_y;
-      Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
       if(event.button.button == SDL_BUTTON_LEFT)
       {
         for(int i = 0; i < 2; i++)
@@ -253,9 +254,6 @@ void CurveEditor::process_event(const SDL_Event &event)
     {
       if(event.button.button == SDL_BUTTON_LEFT)
       {
-        int mouse_x, mouse_y;
-        Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-
         float fx = ((float)mouse_x - pos[0]) / dim[0];
         float fy = 1.0f - ((float)mouse_y - pos[1]) / dim[1];
         select_control_point(fx, fy);

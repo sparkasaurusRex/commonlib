@@ -3,16 +3,20 @@
 
 using namespace std;
 using namespace UI;
+using namespace Math;
 
-void CheckButton::process_event(const SDL_Event &event)
+void CheckButton::process_event(const SDL_Event &event, const Float2 offset)
 {
   //PushButton::process_event(event);
   //cout<<"checkbutton::process_event"<<endl;
 
+  int mouse_x, mouse_y;
+  Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+  mouse_x += (int)offset[0];
+  mouse_y += (int)offset[1];
+
   if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
   {
-    int mouse_x, mouse_y;
-    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
     if(hit_test(mouse_x, mouse_y))
     {
       click_capture = true;
@@ -20,9 +24,6 @@ void CheckButton::process_event(const SDL_Event &event)
   }
   if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT)
   {
-    int mouse_x, mouse_y;
-    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-
     if(click_capture && hit_test(mouse_x, mouse_y))
     {
       checked = !checked;
@@ -31,7 +32,6 @@ void CheckButton::process_event(const SDL_Event &event)
       {
         click_callback(event);
       }
-      //cout<<"button clicked!"<<endl;
     }
     click_capture = false;
   }

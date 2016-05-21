@@ -32,7 +32,7 @@ namespace UI
 
     virtual bool hit_test(const int x, const int y) const = 0;
 
-    virtual void process_event(const SDL_Event &e) = 0;
+    virtual void process_event(const SDL_Event &e, const Math::Float2 offset = Math::Float2()) = 0;
 
     virtual void init() = 0;
     virtual void simulate(const float dt) = 0;

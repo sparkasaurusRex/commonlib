@@ -21,7 +21,7 @@ namespace UI
     virtual void simulate(const float dt) {}
     virtual void render();
 
-    virtual void process_event(const SDL_Event &e);
+    virtual void process_event(const SDL_Event &e, const Math::Float2 offset = Math::Float2());
 
     void set_curve(Math::Curve *c) { curve = c; }
 

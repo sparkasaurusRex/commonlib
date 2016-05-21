@@ -46,7 +46,7 @@ void WidgetWrangler::render(const Float3 offset) const
   }
 }
 
-void WidgetWrangler::process_event(const SDL_Event &e)
+void WidgetWrangler::process_event(const SDL_Event &e, const Float2 offset)
 {
   //cout<<"WidgetWrangler::process_event()"<<endl;
   //first, figure out which widget has the focus
@@ -58,6 +58,8 @@ void WidgetWrangler::process_event(const SDL_Event &e)
     {
       int mouse_x, mouse_y;
       Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+      mouse_x += offset[0];
+      mouse_y += offset[1];
       if(w->hit_test(mouse_x, mouse_y))
       {
         //w->process_event(e);
@@ -84,7 +86,7 @@ void WidgetWrangler::process_event(const SDL_Event &e)
   }
 
   Widget *focused = widgets[focus_idx];
-  focused->process_event(e);
+  focused->process_event(e, offset);
 }
 
 void WidgetWrangler::simulate(const float dt)

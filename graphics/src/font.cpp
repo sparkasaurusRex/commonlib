@@ -109,6 +109,9 @@ void Font::print(float x, float y, const char *fmt, ...)
   float modelview_matrix[16];
   glGetFloatv(GL_MODELVIEW_MATRIX, modelview_matrix);
 
+  //HACK HACK HACK - negate the "y" translation (allows font transforms to appear identical to all other ui transforms)
+  modelview_matrix[13] = -modelview_matrix[13];
+
   // This Is Where The Text Display Actually Happens.
   // For Each Line Of Text We Reset The Modelview Matrix
   // So That The Line's Text Will Start In The Correct Position.
