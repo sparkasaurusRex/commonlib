@@ -151,9 +151,9 @@ void SDLGame::init()
   {
     pause_menu->translate(Float2(100.0f, 100.0f));
 
-    pause_menu->add_menu_item(std::string("Options"), quit_cb);
-    pause_menu->add_menu_item(std::string("Save"), quit_cb);
-    pause_menu->add_menu_item(std::string("Quite a long string"), quit_cb);
+    //pause_menu->add_menu_item(std::string("Options"), quit_cb);
+    //pause_menu->add_menu_item(std::string("Save"), quit_cb);
+    //pause_menu->add_menu_item(std::string("Quite a long string"), quit_cb);
     pause_menu->add_menu_item(std::string("Quit"), quit_cb);
 
     pause_menu->set_font(font);
