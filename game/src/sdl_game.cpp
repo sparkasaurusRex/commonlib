@@ -267,29 +267,29 @@ void SDLGame::process_events()
   SDL_Event event;
   while(SDL_PollEvent(&event))
   {
-    //pass the game pointer along through the event chain
-    //event.user.data1 = this;
-
-    if(event.type == SDL_KEYUP || event.type == SDL_MOUSEBUTTONDOWN)
+    //this bit here is pretty terrible
+    if (pause_menu && pause_menu->is_visible())
     {
-      if(title_screen.is_active())
+      pause_menu->process_event(event);
+      if (!pause_menu->is_visible())
+      {
+        game_state &= ~SDL_GAME_STATE_PAUSED;
+      }
+      return;
+    }
+
+    if (event.type == SDL_KEYUP || event.type == SDL_MOUSEBUTTONDOWN)
+    {
+      if (title_screen.is_active())
       {
         title_screen.stop();
         return;
       }
+    }
 
-      //this bit here is pretty terrible
-      if(pause_menu && pause_menu->is_visible())
-      {
-        pause_menu->process_event(event);
-        if(!pause_menu->is_visible())
-        {
-          game_state &= ~SDL_GAME_STATE_PAUSED;
-        }
-        return;
-      }
-
-      switch(event.key.keysym.sym)
+    if (event.type == SDL_KEYUP)
+    {
+      switch (event.key.keysym.sym)
       {
       case '`':
         if (keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT])
@@ -302,34 +302,34 @@ void SDLGame::process_events()
         }
         break;
       case SDLK_ESCAPE:
-        if(pause_menu && !pause_menu->is_visible())
+        if (pause_menu && !pause_menu->is_visible())
         {
           game_state |= SDL_GAME_STATE_PAUSED;
           pause_menu->show();
         }
         break;
       case SDLK_UP:
-        if(console.is_active()) { console.traverse_command_history(1); }
+        if (console.is_active()) { console.traverse_command_history(1); }
         break;
       case SDLK_DOWN:
-        if(console.is_active()) { console.traverse_command_history(-1); }
+        if (console.is_active()) { console.traverse_command_history(-1); }
         break;
       case SDLK_RETURN:
-      //case SDLK_ENTER:
-        if(console.is_active()) { console.execute(); }
-        if(keystate[SDL_SCANCODE_LALT]) { toggle_fullscreen(); }
+        //case SDLK_ENTER:
+        if (console.is_active()) { console.execute(); }
+        if (keystate[SDL_SCANCODE_LALT]) { toggle_fullscreen(); }
         break;
       case SDLK_TAB:
-        if(console.is_active()) { console.tab_complete(); }
+        if (console.is_active()) { console.tab_complete(); }
         break;
       case SDLK_BACKSPACE:
-        if(console.is_active()) { console.backspace(); }
+        if (console.is_active()) { console.backspace(); }
         break;
       case SDLK_F12:
-        if(keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT])
+        if (keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT])
         {
           recording_movie = !recording_movie;
-          if(recording_movie) { begin_video_capture(); }
+          if (recording_movie) { begin_video_capture(); }
           else { end_video_capture(); }
         }
         else { screenshot(); }
