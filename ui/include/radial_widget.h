@@ -7,6 +7,10 @@ namespace UI
 {
   class RadialWidget : public Widget
   {
+  protected:
+    Math::Float2 radii;
+    Math::Float2 arc;
+    Math::Float2 center;
   public:
     RadialWidget(Font *f = NULL) : Widget(f) {}
     ~RadialWidget() {}
@@ -17,10 +21,8 @@ namespace UI
 
     virtual bool hit_test(const int x, const int y) const;
     virtual void simulate(const float dt) {}
-  protected:
-    Math::Float2 radii;
-    Math::Float2 arc;
-    Math::Float2 center;
+
+    virtual void render_tooltip();
   };
 };
 

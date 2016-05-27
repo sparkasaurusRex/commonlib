@@ -7,6 +7,9 @@ namespace UI
 {
   class RectangularWidget : public Widget
   {
+  protected:
+    Math::Float2 pos;
+    Math::Float2 dim;
   public:
     RectangularWidget(Font *f = NULL) : Widget(f) {}
     ~RectangularWidget() {}
@@ -23,9 +26,7 @@ namespace UI
     virtual void init() = 0;
     virtual void simulate(const float dt) = 0;
     virtual void render() = 0;
-  protected:
-    Math::Float2 pos;
-    Math::Float2 dim;
+    virtual void render_tooltip();
   };
 };
 

@@ -121,4 +121,5 @@ void PushButton::render()
   {
     Label::render();
   }
+  if (has_tooltip) { render_tooltip(); }
 }
