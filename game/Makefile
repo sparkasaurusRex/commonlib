@@ -6,6 +6,7 @@ CFLAGS+=-I../mathlib/include/
 CFLAGS+=$(shell pkg-config --cflags sdl2)
 CFLAGS+=$(shell pkg-config --cflags freetype2)
 CFLAGS+=-Ofast
+#CFLAGS += -g3 -O0
 CFLAGS+=-std=c++11
 
 LDFLAGS=$(shell pkg-config --libs sdl2)
