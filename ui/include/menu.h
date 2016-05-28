@@ -18,7 +18,7 @@ namespace UI
 
       virtual void init();
       virtual void simulate(const float dt) {}
-      virtual void process_event(const SDL_Event &event);
+      virtual void process_event(const SDL_Event &event, const Math::Float2 offset = Math::Float2());
       virtual void render();
     private:
       std::vector<std::pair<std::string, void (*)(const SDL_Event &e)> > items;

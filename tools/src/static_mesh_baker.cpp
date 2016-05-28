@@ -147,7 +147,7 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
   StaticMeshVertex *render_verts = new StaticMeshVertex[num_render_verts];
   int rvi = 0;
 
-  for(int i = 0; i < mesh_faces.size(); i++)
+  for(unsigned int i = 0; i < mesh_faces.size(); i++)
   {
     MeshFace *mf = &mesh_faces[i];
     cout<<"\tvert_idx:\n";
@@ -157,8 +157,8 @@ void StaticMeshBaker::bake(mxml_node_t *tree, std::string output_fname)
       indices[index_counter] = index_counter;//vert_idx;
       index_counter++;
 
-      cout<<"\t\t"<<mf->vert_idx[j]<<" ";
-      cout<<vertex_xyz[i]<<endl;
+      //cout<<"\t\t"<<mf->vert_idx[j]<<" ";
+      //cout<<vertex_xyz[i]<<endl;
 
       render_verts[rvi].x = vertex_xyz[vert_idx][0];
       render_verts[rvi].y = vertex_xyz[vert_idx][1];

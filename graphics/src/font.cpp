@@ -25,16 +25,15 @@ inline int next_p2(int a)
 // A Fairly Straightforward Function That Pushes
 // A Projection Matrix That Will Make Object World
 // Coordinates Identical To Window Coordinates.
-inline void pushScreenCoordinateMatrix()
+void Font::pushScreenCoordinateMatrix()
 {
   glPushAttrib(GL_TRANSFORM_BIT);
-  GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  //gluOrtho2D(viewport[0],viewport[2],viewport[1],viewport[3]);
-  gluOrtho2D(viewport[0], viewport[2], viewport[3], viewport[1]);
+  gluOrtho2D(viewport[0],viewport[2],viewport[1],viewport[3]);
+  //gluOrtho2D(viewport[0], viewport[2], viewport[3], viewport[1]);
   glPopAttrib();
 }
 
@@ -52,11 +51,13 @@ void Font::print(float x, float y, const char *fmt, ...)
 {
   // We Want A Coordinate System Where Distance Is Measured In Window Pixels.
   pushScreenCoordinateMatrix();
+  
+  y = (float)viewport[3] - y;
 
   GLuint font = list_base;
   // We Make The Height A Little Bigger.  There Will Be Some Space Between Lines.
   float height = h / 0.63f;
-  char text[256];                                  // Holds Our String
+  char text[1024];                                  // Holds Our String
   va_list ap;                                     // Pointer To List Of Arguments
 
   if(fmt == NULL)                                    // If There's No Text
@@ -108,6 +109,9 @@ void Font::print(float x, float y, const char *fmt, ...)
   float modelview_matrix[16];
   glGetFloatv(GL_MODELVIEW_MATRIX, modelview_matrix);
 
+  //HACK HACK HACK - negate the "y" translation (allows font transforms to appear identical to all other ui transforms)
+  modelview_matrix[13] = -modelview_matrix[13];
+
   // This Is Where The Text Display Actually Happens.
   // For Each Line Of Text We Reset The Modelview Matrix
   // So That The Line's Text Will Start In The Correct Position.
@@ -120,7 +124,7 @@ void Font::print(float x, float y, const char *fmt, ...)
     glPushMatrix();
     glLoadIdentity();
     glTranslatef(x, (y + height * i), 0);
-    glScalef(1.0f, -1.0f, 1.0f);
+    //glScalef(1.0f, -1.0f, 1.0f);
     glMultMatrixf(modelview_matrix);
 
 

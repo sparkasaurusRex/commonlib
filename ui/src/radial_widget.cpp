@@ -24,3 +24,5 @@ bool RadialWidget::hit_test(const int x, const int y) const
   //         (theta < arc[0]) && (theta > arc[1]));
   // }
 }
+
+void RadialWidget::render_tooltip() { }

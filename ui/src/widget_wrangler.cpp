@@ -4,13 +4,14 @@
 using namespace UI;
 using namespace std;
 using namespace Graphics;
+using namespace Math;
 
 WidgetWrangler::WidgetWrangler()
 {
   focus_idx = 0;
 }
 
-void WidgetWrangler::render() const
+void WidgetWrangler::render(const Float3 offset) const
 {
   GLint viewport[4];
   gl_check_error();
@@ -36,6 +37,8 @@ void WidgetWrangler::render() const
 
   gl_check_error();
 
+  glTranslatef(offset[0], offset[1], offset[2]);
+
   for(unsigned int i = 0; i < widgets.size(); i++)
   {
     widgets[i]->render();
@@ -43,7 +46,7 @@ void WidgetWrangler::render() const
   }
 }
 
-void WidgetWrangler::process_event(const SDL_Event &e)
+void WidgetWrangler::process_event(const SDL_Event &e, const Float2 offset)
 {
   //cout<<"WidgetWrangler::process_event()"<<endl;
   //first, figure out which widget has the focus
@@ -51,10 +54,12 @@ void WidgetWrangler::process_event(const SDL_Event &e)
   for(unsigned int i = 0; i < widgets.size(); i++)
   {
     Widget *w = widgets[i];
-    if(e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT)
+    if(e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
     {
       int mouse_x, mouse_y;
       Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+      mouse_x += offset[0];
+      mouse_y += offset[1];
       if(w->hit_test(mouse_x, mouse_y))
       {
         //w->process_event(e);
@@ -81,7 +86,7 @@ void WidgetWrangler::process_event(const SDL_Event &e)
   }
 
   Widget *focused = widgets[focus_idx];
-  focused->process_event(e);
+  focused->process_event(e, offset);
 }
 
 void WidgetWrangler::simulate(const float dt)

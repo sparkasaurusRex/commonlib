@@ -1,6 +1,9 @@
 #include <math.h>
 #include "glutility.h"
 
+
+using namespace Graphics;
+
 void gl_init()
 {
     //int argc;

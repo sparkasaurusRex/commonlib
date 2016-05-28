@@ -15,7 +15,7 @@ namespace UI
     void set_text(const std::string t) { text = t; }
     void set_color(const Math::Float3 c) { rgb = c; }
 
-    virtual void process_event(const SDL_Event &e) {}
+    virtual void process_event(const SDL_Event &e, const Math::Float2 offset = Math::Float2()) {}
 
     virtual void init() {}
     virtual void simulate(const float dt) {}

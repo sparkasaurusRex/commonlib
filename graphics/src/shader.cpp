@@ -17,7 +17,7 @@ using namespace Graphics;
 
 Shader::Shader()
 {
-  name[0] = '\0';
+  //name[0] = '\0';
 
   gl_fragment_shader =  0;
   gl_vertex_shader =    0;

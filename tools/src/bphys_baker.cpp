@@ -99,7 +99,7 @@ void BPhysBaker::read_smoke_data(FILE *f)
   char version[5];
   int fluid_fields = -1;
   int active_fields = -1;
-  unsigned int res[3] = { -1, -1, -1 };
+  unsigned int res[3] = { 0, 0, 0 };
   float dx = -1.0f;
 
   version[4] = '\0';

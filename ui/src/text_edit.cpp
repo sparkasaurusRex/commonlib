@@ -3,6 +3,7 @@
 
 using namespace UI;
 using namespace std;
+using namespace Math;
 
 TextEdit::TextEdit(Font *f) : RectangularWidget(f)
 {
@@ -14,7 +15,7 @@ TextEdit::TextEdit(Font *f) : RectangularWidget(f)
   selection[1] = -1;
 }
 
-void TextEdit::process_event(const SDL_Event &e)
+void TextEdit::process_event(const SDL_Event &e, const Float2 offset)
 {
   if(e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT)
   {

@@ -42,20 +42,6 @@ VRContext::VRContext()
 
 void VRContext::init()
 {
-
-  //Loading the SteamVR Runtime
-  vr::EVRInitError err = vr::VRInitError_None;
-  hmd = vr::VR_Init(&err, vr::VRApplication_Scene);
-
-  if(err != vr::VRInitError_None)
-  {
-    hmd = NULL;
-    char buf[1024];
-    sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(err));
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
-    return;
-  }
-
 #if defined (_USE_OCULUS_SDK)
   //Initialize OVR system
   ovrResult result = ovr_Initialize(nullptr);
@@ -75,6 +61,11 @@ void VRContext::init()
 
 void VRContext::deinit()
 {
+  if (hmd)
+  {
+    vr::VR_Shutdown();
+    hmd = NULL;
+  }
 #if defined (_USE_OCULUS_SDK)
   ovr_Shutdown();
 #endif //_USE_OCULUS_SDK
@@ -82,11 +73,67 @@ void VRContext::deinit()
 
 void VRContext::bind(SDLGame *game)
 {
-#if defined (_USE_OCULUS_SDK)
-  //openVR init
-  vr::EVRInitError eError = vr::VRInitError_None;
-  vr::IVRSystem *m_pHMD = vr::VR_Init(&eError, vr::VRApplication_Scene);
+  assert(game);
 
+  game->get_resolution(window_dim[0], window_dim[1]);
+
+  //Loading the SteamVR Runtime
+  vr::EVRInitError err = vr::VRInitError_None;
+  hmd = vr::VR_Init(&err, vr::VRApplication_Scene);
+
+  if (err != vr::VRInitError_None)
+  {
+    hmd = NULL;
+    char buf[1024];
+    sprintf_s(buf, sizeof(buf), "Unable to init VR runtime: %s", vr::VR_GetVRInitErrorAsEnglishDescription(err));
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "VR_Init Failed", buf, NULL);
+    return;
+  }
+
+  assert(hmd);
+  
+  hmd->GetRecommendedRenderTargetSize(&render_target_dim[0], &render_target_dim[1]);
+
+  //CreateFrameBuffer(render_target_dim[0], render_target_dim[1], leftEyeDesc);
+  //CreateFrameBuffer(m_nRenderWidth, m_nRenderHeight, rightEyeDesc);
+  for (unsigned int eye = 0; eye < 2; eye++)
+  {
+    glGenFramebuffers(1, &eye_fbo[eye]);
+    glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);
+
+    glGenRenderbuffers(1, &eye_dbo[eye]);
+    glBindRenderbuffer(GL_RENDERBUFFER, eye_dbo[eye]);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, render_target_dim[0], render_target_dim[1]);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eye_dbo[eye]);
+
+    glGenTextures(1, &eye_tex[eye]);
+    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, eye_tex[eye]);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, render_target_dim[0], render_target_dim[1], true);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, eye_tex[eye], 0);
+
+    glGenFramebuffers(1, &eye_resolve_fbo[eye]);
+    glBindFramebuffer(GL_FRAMEBUFFER, eye_resolve_fbo[eye]);
+
+    glGenTextures(1, &eye_resolve_tex[eye]);
+    glBindTexture(GL_TEXTURE_2D, eye_resolve_tex[eye]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, render_target_dim[0], render_target_dim[1], 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, eye_resolve_tex[eye], 0);
+
+    // check FBO status
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE)
+    {
+      assert(false);
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  }
+
+  init_compositor();
+
+#if defined (_USE_OCULUS_SDK)
   // Setup Window and Graphics
   // Note: the mirror window can be any size, for this sample we use 1/2 the HMD resolution
   window_size = { hmd_desc.Resolution.w / 2, hmd_desc.Resolution.h / 2 };
@@ -155,12 +202,14 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
 
   //set the camera world view matrix
   cam->set_pos(Float3(pos_mat.m[0][3], pos_mat.m[1][3], pos_mat.m[2][3]));
+  cam->set_up(Float3(pos_mat.m[2][1], pos_mat.m[2][2], pos_mat.m[2][3]));
+  cam->set_up(Float3(pos_mat.m[0][1], pos_mat.m[0][2], pos_mat.m[0][3]));
 
   //set the projection matrix
-  GLfloat proj_mat_gl[] = { proj_mat.M[0][0], proj_mat.M[1][0], proj_mat.M[2][0], proj_mat.M[3][0],
-                            proj_mat.M[0][1], proj_mat.M[1][1], proj_mat.M[2][1], proj_mat.M[3][1],
-                            proj_mat.M[0][2], proj_mat.M[1][2], proj_mat.M[2][2], proj_mat.M[3][2],
-                            proj_mat.M[0][3], proj_mat.M[1][3], proj_mat.M[2][3], proj_mat.M[3][3] };
+  GLfloat proj_mat_gl[] = { proj_mat.m[0][0], proj_mat.m[1][0], proj_mat.m[2][0], proj_mat.m[3][0],
+                            proj_mat.m[0][1], proj_mat.m[1][1], proj_mat.m[2][1], proj_mat.m[3][1],
+                            proj_mat.m[0][2], proj_mat.m[1][2], proj_mat.m[2][2], proj_mat.m[3][2],
+                            proj_mat.m[0][3], proj_mat.m[1][3], proj_mat.m[2][3], proj_mat.m[3][3] };
   
   cam->set_projection_matrix(proj_mat_gl);
 
@@ -193,6 +242,13 @@ void VRContext::get_eye_camera(const unsigned int eye, Camera *cam) const
 
 void VRContext::render_capture(const unsigned int eye)
 {
+  glClearColor(0.15f, 0.15f, 0.18f, 1.0f); // nice background color, but not black
+  glEnable(GL_MULTISAMPLE);
+
+  // Left Eye
+  glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);//leftEyeDesc.m_nRenderFramebufferId);
+  glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
+
 #if defined (_USE_OCULUS_SDK)
   //set and clear render texture
   GLuint cur_tex_id;
@@ -219,6 +275,21 @@ void VRContext::render_capture(const unsigned int eye)
 
 void VRContext::render_release(const unsigned int eye)
 {
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  glDisable(GL_MULTISAMPLE);
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, eye_fbo[eye]);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eye_resolve_fbo[eye]);// leftEyeDesc.m_nResolveFramebufferId);
+
+  glBlitFramebuffer(0, 0, render_target_dim[0], render_target_dim[1], 0, 0, render_target_dim[0], render_target_dim[1],
+    GL_COLOR_BUFFER_BIT,
+    GL_LINEAR);
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+  glEnable(GL_MULTISAMPLE);
 #if defined (_USE_OCULUS_SDK)
   //unset render surface
   glBindFramebuffer(GL_FRAMEBUFFER, eye_fbo[eye]);
@@ -233,8 +304,252 @@ void VRContext::render_release(const unsigned int eye)
 #endif //_USE_OCULUS_SDK
 }
 
+void VRContext::render_stereo_targets()
+{
+
+/*  RenderScene(vr::Eye_Left);
+  
+  
+  
+
+
+  // Right Eye
+  glBindFramebuffer(GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId);
+  glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
+
+  RenderScene(vr::Eye_Right);
+  
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  glDisable(GL_MULTISAMPLE);
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rightEyeDesc.m_nResolveFramebufferId);
+
+  glBlitFramebuffer(0, 0, render_target_dim[0], render_target_dim[1], 0, 0, render_target_dim[0], render_target_dim[1],
+    GL_COLOR_BUFFER_BIT,
+    GL_LINEAR);
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  */
+}
+
+//set up the geo for distortion
+void VRContext::setup_distortion()
+{
+  if (!hmd)
+    return;
+
+  GLushort m_iLensGridSegmentCountH = 43;
+  GLushort m_iLensGridSegmentCountV = 43;
+
+  float w = (float)(1.0 / float(m_iLensGridSegmentCountH - 1));
+  float h = (float)(1.0 / float(m_iLensGridSegmentCountV - 1));
+
+  float u, v = 0;
+
+  std::vector<VertexDataLens> vVerts(0);
+  VertexDataLens vert;
+
+  //left eye distortion verts
+  float Xoffset = -1;
+  for (int y = 0; y<m_iLensGridSegmentCountV; y++)
+  {
+    for (int x = 0; x<m_iLensGridSegmentCountH; x++)
+    {
+      u = x*w; v = 1 - y*h;
+      vert.position = Float2(Xoffset + u, -1 + 2 * y*h);
+      
+      vr::DistortionCoordinates_t dc0 = hmd->ComputeDistortion(vr::Eye_Left, u, v);
+
+      vert.texCoordRed = Float2(dc0.rfRed[0], 1 - dc0.rfRed[1]);
+      vert.texCoordGreen = Float2(dc0.rfGreen[0], 1 - dc0.rfGreen[1]);
+      vert.texCoordBlue = Float2(dc0.rfBlue[0], 1 - dc0.rfBlue[1]);
+
+      vVerts.push_back(vert);
+    }
+  }
+
+  //right eye distortion verts
+  Xoffset = 0;
+  for (int y = 0; y<m_iLensGridSegmentCountV; y++)
+  {
+    for (int x = 0; x<m_iLensGridSegmentCountH; x++)
+    {
+      u = x*w; v = 1 - y*h;
+      vert.position = Float2(Xoffset + u, -1 + 2 * y*h);
+
+      vr::DistortionCoordinates_t dc0 = hmd->ComputeDistortion(vr::Eye_Right, u, v);
+
+      vert.texCoordRed = Float2(dc0.rfRed[0], 1 - dc0.rfRed[1]);
+      vert.texCoordGreen = Float2(dc0.rfGreen[0], 1 - dc0.rfGreen[1]);
+      vert.texCoordBlue = Float2(dc0.rfBlue[0], 1 - dc0.rfBlue[1]);
+
+      vVerts.push_back(vert);
+    }
+  }
+
+  std::vector<GLushort> vIndices;
+  GLushort a, b, c, d;
+
+  GLushort offset = 0;
+  for (GLushort y = 0; y<m_iLensGridSegmentCountV - 1; y++)
+  {
+    for (GLushort x = 0; x<m_iLensGridSegmentCountH - 1; x++)
+    {
+      a = m_iLensGridSegmentCountH*y + x + offset;
+      b = m_iLensGridSegmentCountH*y + x + 1 + offset;
+      c = (y + 1)*m_iLensGridSegmentCountH + x + 1 + offset;
+      d = (y + 1)*m_iLensGridSegmentCountH + x + offset;
+      vIndices.push_back(a);
+      vIndices.push_back(b);
+      vIndices.push_back(c);
+
+      vIndices.push_back(a);
+      vIndices.push_back(c);
+      vIndices.push_back(d);
+    }
+  }
+
+  offset = (m_iLensGridSegmentCountH)*(m_iLensGridSegmentCountV);
+  for (GLushort y = 0; y<m_iLensGridSegmentCountV - 1; y++)
+  {
+    for (GLushort x = 0; x<m_iLensGridSegmentCountH - 1; x++)
+    {
+      a = m_iLensGridSegmentCountH*y + x + offset;
+      b = m_iLensGridSegmentCountH*y + x + 1 + offset;
+      c = (y + 1)*m_iLensGridSegmentCountH + x + 1 + offset;
+      d = (y + 1)*m_iLensGridSegmentCountH + x + offset;
+      vIndices.push_back(a);
+      vIndices.push_back(b);
+      vIndices.push_back(c);
+
+      vIndices.push_back(a);
+      vIndices.push_back(c);
+      vIndices.push_back(d);
+    }
+  }
+
+  num_lens_indices = vIndices.size();
+
+  glGenVertexArrays(1, &lens_vao);
+  glBindVertexArray(lens_vao);
+
+  glGenBuffers(1, &lens_vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, lens_vbo);
+  glBufferData(GL_ARRAY_BUFFER, vVerts.size() * sizeof(VertexDataLens), &vVerts[0], GL_STATIC_DRAW);
+
+  glGenBuffers(1, &lens_ibo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lens_ibo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, vIndices.size() * sizeof(GLushort), &vIndices[0], GL_STATIC_DRAW);
+
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(VertexDataLens), (void *)offsetof(VertexDataLens, position));
+
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexDataLens), (void *)offsetof(VertexDataLens, texCoordRed));
+
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexDataLens), (void *)offsetof(VertexDataLens, texCoordGreen));
+
+  glEnableVertexAttribArray(3);
+  glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(VertexDataLens), (void *)offsetof(VertexDataLens, texCoordBlue));
+
+  glBindVertexArray(0);
+
+  glDisableVertexAttribArray(0);
+  glDisableVertexAttribArray(1);
+  glDisableVertexAttribArray(2);
+  glDisableVertexAttribArray(3);
+
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void VRContext::render_distortion()
+{
+  glDisable(GL_DEPTH_TEST);
+  glViewport(0, 0, window_dim[0], window_dim[1]);
+
+  glBindVertexArray(lens_vao);
+  glUseProgram(lens_shader_id);
+
+  //render left lens (first half of index array )
+  glBindTexture(GL_TEXTURE_2D, eye_resolve_tex[0]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glDrawElements(GL_TRIANGLES, num_lens_indices / 2, GL_UNSIGNED_SHORT, 0);
+
+  //render right lens (second half of index array )
+  glBindTexture(GL_TEXTURE_2D, eye_resolve_tex[1]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glDrawElements(GL_TRIANGLES, num_lens_indices / 2, GL_UNSIGNED_SHORT, (const void *)(m_uiIndexSize));
+
+  glBindVertexArray(0);
+  glUseProgram(0);
+}
+
 void VRContext::finalize_render()
 {
+  // for now as fast as possible
+  if (hmd)
+  {
+    //DrawControllers();
+    //render_stereo_targets();
+    render_distortion();
+
+    vr::Texture_t left_eye_tex = { (void*)eye_resolve_tex[0], vr::API_OpenGL, vr::ColorSpace_Gamma };
+    vr::VRCompositor()->Submit(vr::Eye_Left, &left_eye_tex);
+    vr::Texture_t right_eye_tex = { (void*)eye_resolve_tex[1], vr::API_OpenGL, vr::ColorSpace_Gamma };
+    vr::VRCompositor()->Submit(vr::Eye_Right, &right_eye_tex);
+  }
+
+  if (false)//(m_bVblank && m_bGlFinishHack)
+  {
+    //$ HACKHACK. From gpuview profiling, it looks like there is a bug where two renders and a present
+    // happen right before and after the vsync causing all kinds of jittering issues. This glFinish()
+    // appears to clear that up. Temporary fix while I try to get nvidia to investigate this problem.
+    // 1/29/2014 mikesart
+    glFinish();
+  }
+
+  // SwapWindow
+  {
+  //  SDL_GL_SwapWindow(m_pWindow);
+  }
+
+  // Clear
+  if(false) {
+    // We want to make sure the glFinish waits for the entire present to complete, not just the submission
+    // of the command. So, we do a clear here right here so the glFinish will wait fully for the swap.
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
+
+  // Flush and wait for swap.
+  if (false) //(m_bVblank)
+  {
+    glFlush();
+    glFinish();
+  }
+
+  // Spew out the controller and pose count whenever they change.
+  /*if (m_iTrackedControllerCount != m_iTrackedControllerCount_Last || m_iValidPoseCount != m_iValidPoseCount_Last)
+  {
+    m_iValidPoseCount_Last = m_iValidPoseCount;
+    m_iTrackedControllerCount_Last = m_iTrackedControllerCount;
+
+    dprintf("PoseCount:%d(%s) Controllers:%d\n", m_iValidPoseCount, m_strPoseClasses.c_str(), m_iTrackedControllerCount);
+  }*/
+
+  //UpdateHMDMatrixPose();
+
 #if defined (_USE_OCULUS_SDK)
   // Do distortion rendering, Present and flush/sync
   ovrLayerEyeFov ld;
@@ -369,4 +684,55 @@ void VRContext::create_eye_depth_texture(const int eye_idx)
 
   glTexImage2D(GL_TEXTURE_2D, 0, internal_format, ideal_tex_size.w, ideal_tex_size.h, 0, GL_DEPTH_COMPONENT, type, NULL);
 #endif //_USE_OCULUS_SDK
+}
+
+void VRContext::init_compositor()
+{
+  vr::EVRInitError peError = vr::VRInitError_None;
+
+  if (!vr::VRCompositor())
+  {
+    assert(false);
+  }
+}
+
+void VRContext::simulate(const double game_time, const double frame_time)
+{
+  assert(hmd);
+
+  // Process SteamVR events
+  vr::VREvent_t event;
+  while (hmd->PollNextEvent(&event, sizeof(event)))
+  {
+    /*switch (event.eventType)
+    {
+    case vr::VREvent_TrackedDeviceActivated:
+    {
+      SetupRenderModelForTrackedDevice(event.trackedDeviceIndex);
+      dprintf("Device %u attached. Setting up render model.\n", event.trackedDeviceIndex);
+    }
+    break;
+    case vr::VREvent_TrackedDeviceDeactivated:
+    {
+      dprintf("Device %u detached.\n", event.trackedDeviceIndex);
+    }
+    break;
+    case vr::VREvent_TrackedDeviceUpdated:
+    {
+      dprintf("Device %u updated.\n", event.trackedDeviceIndex);
+    }
+    break;
+    }
+    */
+  }
+
+  // Process SteamVR controller state
+  for (vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; unDevice++)
+  {
+    vr::VRControllerState_t state;
+    if (hmd->GetControllerState(unDevice, &state))
+    {
+      //m_rbShowTrackedDevice[unDevice] = state.ulButtonPressed == 0;
+    }
+  }
 }

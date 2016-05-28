@@ -14,7 +14,7 @@ namespace UI
     bool get_state() const { return checked; }
     void set_state(const bool s) { checked = s; }
 
-    virtual void process_event(const SDL_Event &event);
+    virtual void process_event(const SDL_Event &event, const Math::Float2 offset = Math::Float2());
     virtual void render();
   protected:
     bool checked;

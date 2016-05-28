@@ -19,6 +19,9 @@
     <Filter Include="Source Files\minilzo">
       <UniqueIdentifier>{93ab4700-b582-4efc-937e-480d3ab7aed4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\mxml">
+      <UniqueIdentifier>{73450b76-36a6-4ab1-8444-c2bc3bae503f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\tools\include\bakery.h">
@@ -64,6 +67,39 @@
     </ClCompile>
     <ClCompile Include="..\..\tools\src\minilzo\minilzo.cpp">
       <Filter>Source Files\minilzo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-attr.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-entity.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-file.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-get.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-index.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-node.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-private.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-search.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-set.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\src\mxml-2.9\mxml-string.c">
+      <Filter>Source Files\mxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tools\bake.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

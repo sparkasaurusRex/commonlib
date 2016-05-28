@@ -1,6 +1,7 @@
 #ifndef __METER_H__
 #define __METER_H__
 
+#include "math_utility.h"
 #include "rectangular_widget.h"
 
 namespace UI
@@ -11,7 +12,7 @@ namespace UI
     Meter(Font *f = NULL);
     ~Meter() {}
 
-    virtual void process_event(const SDL_Event &e) {}
+    virtual void process_event(const SDL_Event &e, const Math::Float2 offset = Math::Float2());
 
     virtual void init() {}
     virtual void simulate(const float dt) {}

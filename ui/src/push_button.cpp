@@ -32,12 +32,15 @@ void PushButton::set_texture(const int i, Texture2D *t)
   textures[i] = t;
 }
 
-void PushButton::process_event(const SDL_Event &event)
+void PushButton::process_event(const SDL_Event &event, const Math::Float2 offset)
 {
+  int mouse_x, mouse_y;
+  Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+  mouse_x += (int)offset[0];
+  mouse_y += (int)offset[1];
+
   if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
   {
-    int mouse_x, mouse_y;
-    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
     if(hit_test(mouse_x, mouse_y))
     {
       click_capture = true;
@@ -45,9 +48,6 @@ void PushButton::process_event(const SDL_Event &event)
   }
   if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT)
   {
-    int mouse_x, mouse_y;
-    Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-
     if(click_capture && hit_test(mouse_x, mouse_y))
     {
       cout<<"PushButton::process_event(): button clicked!"<<endl;
@@ -121,4 +121,5 @@ void PushButton::render()
   {
     Label::render();
   }
+  if (has_tooltip) { render_tooltip(); }
 }

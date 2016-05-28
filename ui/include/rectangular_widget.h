@@ -7,6 +7,9 @@ namespace UI
 {
   class RectangularWidget : public Widget
   {
+  protected:
+    Math::Float2 pos;
+    Math::Float2 dim;
   public:
     RectangularWidget(Font *f = NULL) : Widget(f) {}
     ~RectangularWidget() {}
@@ -18,14 +21,12 @@ namespace UI
     Math::Float2 get_dim() const { return dim; }
     Math::Float2 get_pos() const { return pos; }
 
-    virtual void process_event(const SDL_Event &e) = 0;
+    virtual void process_event(const SDL_Event &e, const Math::Float2 offset = Math::Float2()) = 0;
 
     virtual void init() = 0;
     virtual void simulate(const float dt) = 0;
     virtual void render() = 0;
-  protected:
-    Math::Float2 pos;
-    Math::Float2 dim;
+    virtual void render_tooltip();
   };
 };
 

@@ -73,13 +73,13 @@ void ToolBox::render()
   }
 }
 
-void ToolBox::process_event(const SDL_Event &event)
+void ToolBox::process_event(const SDL_Event &event, const Math::Float2 offset)
 {
   //std::cout<<"meow"<<std::endl;
   //SDL_Event event_copy = event;
   //event_copy.
   for(unsigned int i = 0; i < buttons.size(); i++)
   {
-    buttons[i]->process_event(event);
+    buttons[i]->process_event(event, offset);
   }
 }
