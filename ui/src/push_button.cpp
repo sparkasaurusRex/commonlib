@@ -42,6 +42,8 @@ void PushButton::process_event(const SDL_Event &event, const Math::Float2 offset
   bool mouse_over = hit_test(mouse_x, mouse_y);
   hovering = mouse_over;
 
+  if (!enabled) { return; } //TODO another callback function to handle (play a sound or something)
+
   if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
   {
     if(mouse_over)
@@ -93,13 +95,20 @@ void PushButton::render()
     glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
   glEnd();*/
 
-  if(textures[0] && !click_capture)
+  if (enabled)
   {
-    textures[0]->render_gl();
+    if (textures[0] && !click_capture)
+    {
+      textures[0]->render_gl();
+    }
+    else if (textures[1] && click_capture)
+    {
+      textures[1]->render_gl();
+    }
   }
-  else if(textures[1] && click_capture)
+  else
   {
-    textures[1]->render_gl();
+    textures[2]->render_gl();
   }
   glDisable(GL_CULL_FACE);
   glEnable(GL_BLEND);

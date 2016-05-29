@@ -46,6 +46,7 @@ namespace UI
     virtual void render_tooltip() = 0;
 
     void set_hovering(const bool h) { hovering = h; }
+    void enable(const bool e) { enabled = e; }
 
   protected:
     void render_prep();
@@ -62,6 +63,8 @@ namespace UI
     
     bool hovering;
     float hover_timer;
+
+    bool enabled;
   };
 };
 

@@ -10,7 +10,7 @@ namespace UI
   {
   protected:
     bool                  click_capture; //true if we are clicking 
-    Graphics::Texture2D   *textures[2];  // 2 to switch textures upon click
+    Graphics::Texture2D   *textures[3];  // 3 to switch textures upon click
     Math::Float3          click_rgb;     // tint color while button is clicked
   public:
     PushButton(Font *f = NULL);

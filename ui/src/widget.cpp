@@ -10,6 +10,7 @@ Widget::Widget(Font *f)
   has_tooltip = false;
   hover_timer = -1.0f;
   hovering = false;
+  enabled = true;
 }
 
 void Widget::render_prep()

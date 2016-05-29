@@ -41,6 +41,7 @@ void RectangularWidget::render_tooltip()
     //glTexCoord2f(1.0f, 0.0f);
     glVertex3f(pos[0] + tooltip_offset[0] + w, pos[1] + tooltip_offset[1] - h, 0.0f);
   glEnd();
+  
 
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
