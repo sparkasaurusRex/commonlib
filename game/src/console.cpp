@@ -106,21 +106,21 @@ void DebugConsole::init()
   }
 }
 
-void DebugConsole::simulate(const float dt)
+void DebugConsole::simulate(const double game_time, const double frame_time)
 {
   if(state == CONSOLE_ACTIVE_DEFAULT)
   {
-    pct_exposed += dt * EXPOSE_PERCENT_RATE;
+    pct_exposed += (float)frame_time * EXPOSE_PERCENT_RATE;
   }
   else
   {
-    pct_exposed -= dt * EXPOSE_PERCENT_RATE;
+    pct_exposed -= (float)frame_time * EXPOSE_PERCENT_RATE;
   }
   pct_exposed = Math::clamp(pct_exposed, 0.0f, 1.0f);
 
   //if (state == CONSOLE_ACTIVE_CONTROL_BOARD)
   {
-    console_ww.simulate(dt);
+    console_ww.simulate(game_time, frame_time);
     for (unsigned int i = 0; i < float_vars.size(); i++)
     {
       Meter *m = float_var_sliders[i];

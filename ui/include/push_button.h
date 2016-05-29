@@ -8,6 +8,10 @@ namespace UI
 {
   class PushButton : public Label
   {
+  protected:
+    bool                  click_capture; //true if we are clicking 
+    Graphics::Texture2D   *textures[2];  // 2 to switch textures upon click
+    Math::Float3          click_rgb;     // tint color while button is clicked
   public:
     PushButton(Font *f = NULL);
     ~PushButton() {}
@@ -19,11 +23,9 @@ namespace UI
     //void init();
     virtual void process_event(const SDL_Event &event, const Math::Float2 offset = Math::Float2());
     virtual void render();
+    virtual void simulate(const double game_time, const double frame_time);
   protected:
-    void (*click_callback)(const SDL_Event &e); //callback func
-    bool click_capture;
-    Graphics::Texture2D *textures[2]; //2 to switch textures upon click
-    Math::Float3 click_rgb;
+    void(*click_callback)(const SDL_Event &e); //callback function
   };
 };
 #endif //__PUSH_BUTTON_H__

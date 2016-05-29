@@ -63,9 +63,9 @@ void TextEdit::init()
 {
 }
 
-void TextEdit::simulate(const float dt)
+void TextEdit::simulate(const double game_time, const double frame_time)
 {
-
+  RectangularWidget::simulate(game_time, frame_time);
 }
 
 void TextEdit::render()

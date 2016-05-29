@@ -19,3 +19,8 @@ void Label::render()
     font->print(pos[0], pos[1], text.c_str());
   }
 }
+
+void Label::simulate(const double game_time, const double frame_time)
+{
+  Widget::simulate(game_time, frame_time);
+}

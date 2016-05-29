@@ -123,7 +123,7 @@ void Font::print(float x, float y, const char *fmt, ...)
   {
     glPushMatrix();
     glLoadIdentity();
-    glTranslatef(x, (y + height * i), 0);
+    glTranslatef(x, (y - height * i), 0);
     //glScalef(1.0f, -1.0f, 1.0f);
     glMultMatrixf(modelview_matrix);
 

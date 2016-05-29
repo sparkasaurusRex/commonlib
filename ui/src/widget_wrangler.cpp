@@ -51,25 +51,32 @@ void WidgetWrangler::process_event(const SDL_Event &e, const Float2 offset)
   //cout<<"WidgetWrangler::process_event()"<<endl;
   //first, figure out which widget has the focus
   //focus_idx = 0;
+
+  int mouse_x, mouse_y;
+  Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+  mouse_x += (int)offset[0];
+  mouse_y += (int)offset[1];
+
   for(unsigned int i = 0; i < widgets.size(); i++)
   {
     Widget *w = widgets[i];
-    if(e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+    if (w->is_visible())
     {
-      int mouse_x, mouse_y;
-      Uint32 button_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-      mouse_x += offset[0];
-      mouse_y += offset[1];
-      if(w->hit_test(mouse_x, mouse_y))
+      bool mouse_over = w->hit_test(mouse_x, mouse_y);
+      if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
       {
-        //w->process_event(e);
-        focus_idx = i;
-        cout<<"focus_id: "<<focus_idx<<endl;
-        //cout<<"pos: "<<w->get_pos()<<endl;
+        if (mouse_over)
+        {
+          focus_idx = i;
+          cout << "focus_id: " << focus_idx << endl;
+          //cout<<"pos: "<<w->get_pos()<<endl;
+        }
       }
+      w->process_event(e, offset);
     }
   }
 
+  return;
   //next, dispatch event messages
   for(unsigned int i = 0; i < widgets.size(); i++)
   {
@@ -89,10 +96,10 @@ void WidgetWrangler::process_event(const SDL_Event &e, const Float2 offset)
   focused->process_event(e, offset);
 }
 
-void WidgetWrangler::simulate(const float dt)
+void WidgetWrangler::simulate(const double game_time, const double frame_time)
 {
   for(unsigned int i = 0; i < widgets.size(); i++)
   {
-    widgets[i]->simulate(dt);
+    widgets[i]->simulate(game_time, frame_time);
   }
 }

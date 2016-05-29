@@ -24,7 +24,7 @@ namespace UI
     virtual void process_event(const SDL_Event &e, const Math::Float2 offset = Math::Float2()) = 0;
 
     virtual void init() = 0;
-    virtual void simulate(const float dt) = 0;
+    virtual void simulate(const double game_time, const double frame_time) { Widget::simulate(game_time, frame_time); }
     virtual void render() = 0;
     virtual void render_tooltip();
   };

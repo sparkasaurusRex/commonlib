@@ -23,7 +23,7 @@ namespace UI
   class Widget
   {
   public:
-    Widget(Font *f = NULL) { font = f; visible = false; has_focus = false; has_tooltip = false; }
+    Widget(Font *f = NULL);
     ~Widget() {}
 
     void show(const bool d = true) { visible = d; }
@@ -35,7 +35,7 @@ namespace UI
     virtual void process_event(const SDL_Event &e, const Math::Float2 offset = Math::Float2()) = 0;
 
     virtual void init() = 0;
-    virtual void simulate(const float dt) = 0;
+    virtual void simulate(const double game_time, const double frame_time);
     virtual void render() = 0;
 
     void set_focus(bool f) { has_focus = f; }
@@ -44,6 +44,8 @@ namespace UI
     void set_tooltip(const std::string tt) { tooltip = tt; has_tooltip = true; }
     std::string get_tooltip() const { return tooltip; }
     virtual void render_tooltip() = 0;
+
+    void set_hovering(const bool h) { hovering = h; }
 
   protected:
     void render_prep();
@@ -57,6 +59,9 @@ namespace UI
     bool has_tooltip;
     std::string tooltip;
     Math::Float2 tooltip_offset;
+    
+    bool hovering;
+    float hover_timer;
   };
 };
 

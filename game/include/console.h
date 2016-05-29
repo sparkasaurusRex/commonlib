@@ -67,7 +67,7 @@ public:
   void receive_char(const char c);
   void backspace();
   void execute();
-  void simulate(const float dt);
+  void simulate(const double game_time, const double frame_time);
   void process_event(const SDL_Event &e);
 
   void print_line(std::string s);

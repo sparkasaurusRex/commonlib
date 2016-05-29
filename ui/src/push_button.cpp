@@ -39,18 +39,21 @@ void PushButton::process_event(const SDL_Event &event, const Math::Float2 offset
   mouse_x += (int)offset[0];
   mouse_y += (int)offset[1];
 
+  bool mouse_over = hit_test(mouse_x, mouse_y);
+  hovering = mouse_over;
+
   if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
   {
-    if(hit_test(mouse_x, mouse_y))
+    if(mouse_over)
     {
       click_capture = true;
     }
   }
   if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT)
   {
-    if(click_capture && hit_test(mouse_x, mouse_y))
+    if(click_capture && mouse_over)
     {
-      cout<<"PushButton::process_event(): button clicked!"<<endl;
+      //cout<<"PushButton::process_event(): button clicked!"<<endl;
       if(click_callback)
       {
         click_callback(event);
@@ -63,8 +66,6 @@ void PushButton::process_event(const SDL_Event &event, const Math::Float2 offset
 
 void PushButton::render()
 {
-  //cout<<"dim: "<<dim<<endl;
-
   gl_check_error();
 
   glLineWidth(1.0f);
@@ -121,5 +122,10 @@ void PushButton::render()
   {
     Label::render();
   }
-  if (has_tooltip) { render_tooltip(); }
+  if (hovering) { render_tooltip(); }
+}
+
+void PushButton::simulate(const double game_time, const double frame_time)
+{
+  cout << "PushButton::simulate()" << endl;
 }
