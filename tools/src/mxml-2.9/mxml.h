@@ -1,4 +1,4 @@
-/*
+ /*
  * "$Id: mxml.h 451 2014-01-04 21:50:06Z msweet $"
  *
  * Header file for Mini-XML, a small XML-like file parsing library.
