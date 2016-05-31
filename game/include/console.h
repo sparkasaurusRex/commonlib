@@ -18,6 +18,24 @@ enum ConsoleState
   CONSOLE_ACTIVE_CONTROL_BOARD
 };
 
+class ConsoleVariable
+{
+private:
+  std::string name;
+  void *data_ptr;
+public:
+  ConsoleVariable(std::string n) { name = n; }
+  ~ConsoleVariable() {}
+}; 
+
+class ConsoleVariableFloat : public ConsoleVariable
+{
+private:
+public:
+  ConsoleVariableFloat(std::string n) : ConsoleVariable(n) {}
+  ~ConsoleVariableFloat() {}
+};
+
 class DebugConsole
 {
 private:
@@ -67,7 +85,7 @@ public:
   void receive_char(const char c);
   void backspace();
   void execute();
-  void simulate(const float dt);
+  void simulate(const double game_time, const double frame_time);
   void process_event(const SDL_Event &e);
 
   void print_line(std::string s);

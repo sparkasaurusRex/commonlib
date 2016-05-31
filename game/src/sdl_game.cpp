@@ -216,7 +216,7 @@ void SDLGame::run()
 
     std::string fps_text = std::string("fps: ") + ss.str();
     fps_label.set_text(fps_text);
-    fps_label.simulate((float)frame_time);
+    fps_label.simulate(game_time, frame_time);
 
     if(title_screen.is_active())
     {
@@ -236,11 +236,11 @@ void SDLGame::run()
 
       if(pause_menu)
       {
-        pause_menu->simulate((float)frame_time);
+        pause_menu->simulate(game_time, frame_time);
         pause_menu->render();
       }
 
-      console.simulate((float)frame_time);
+      console.simulate(game_time, frame_time);
       console.render_gl();
     }
 

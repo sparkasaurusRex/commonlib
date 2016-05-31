@@ -1,3 +1,5 @@
+#if defined (_USE_OCULUS_SDK) || defined (_USE_OPENVR_SDK)
+
 #include <iostream>
 #include <assert.h>
 
@@ -489,7 +491,7 @@ void VRContext::render_distortion()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glDrawElements(GL_TRIANGLES, num_lens_indices / 2, GL_UNSIGNED_SHORT, (const void *)(m_uiIndexSize));
+  glDrawElements(GL_TRIANGLES, num_lens_indices / 2, GL_UNSIGNED_SHORT, (const void *)(num_lens_indices));
 
   glBindVertexArray(0);
   glUseProgram(0);
@@ -736,3 +738,5 @@ void VRContext::simulate(const double game_time, const double frame_time)
     }
   }
 }
+
+#endif //_USE_OCULUS_SDK || _USE_OPENVR_SDK

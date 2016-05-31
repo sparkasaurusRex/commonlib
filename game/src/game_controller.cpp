@@ -45,18 +45,18 @@ void GameControllerContext::poll_input(const unsigned int ci, GameControllerStat
     if (controllers[ci] && SDL_GameControllerGetAttached(controllers[ci]))
     {
       // NOTE: We have a controller with index ci.
-      state->up = (bool)SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_DPAD_UP);
-      state->down = (bool)SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-      state->left = (bool)SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-      state->right = (bool)SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-      state->start = (bool)SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_START);
-      state->back = (bool)SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_BACK);
-      state->leftShoulder = (bool)SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-      state->rightShoulder = (bool)SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
-      state->aButton = (bool)SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_A);
-      state->bButton = (bool)SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_B);
-      state->xButton = (bool)SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_X);
-      state->yButton = (bool)SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_Y);
+      state->up = SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_DPAD_UP) != 0;
+      state->down = SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_DPAD_DOWN) != 0;
+      state->left = SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_DPAD_LEFT) != 0;
+      state->right = SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_DPAD_RIGHT) != 0;
+      state->start = SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_START) != 0;
+      state->back = SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_BACK) != 0;
+      state->leftShoulder = SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_LEFTSHOULDER) != 0;
+      state->rightShoulder = SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) != 0;
+      state->aButton = SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_A) != 0;
+      state->bButton = SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_B) != 0;
+      state->xButton = SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_X) != 0;
+      state->yButton = SDL_GameControllerGetButton(controllers[ci], SDL_CONTROLLER_BUTTON_Y) != 0;
 
       //analog sticks
       state->stick_lx = (float)SDL_GameControllerGetAxis(controllers[ci], SDL_CONTROLLER_AXIS_LEFTX) / GAME_CONTROLLER_AXIS_RANGE;

@@ -68,7 +68,7 @@ GLuint Shader::load_and_compile_shader(GLenum shader_type, const char *source)
     cout<<errorLog<<endl;
 
   	glDeleteShader(my_shader);
-	delete errorLog;
+	  delete [] errorLog;
   }
 
   gl_check_error();

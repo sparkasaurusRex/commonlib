@@ -10,10 +10,10 @@ bool RectangularWidget::hit_test(const int x, const int y) const
   bool hit =  ((x > pos[0]) && (x < (pos[0] + dim[0])) &&
           (y < pos[1]) && (y > (pos[1] - dim[1])));
 
-  if(hit)
+  /*if(hit)
   {
     cout<<"hit: "<<pos<<endl;
-  }
+  }*/
   return hit;
 }
 
@@ -41,6 +41,7 @@ void RectangularWidget::render_tooltip()
     //glTexCoord2f(1.0f, 0.0f);
     glVertex3f(pos[0] + tooltip_offset[0] + w, pos[1] + tooltip_offset[1] - h, 0.0f);
   glEnd();
+  
 
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 

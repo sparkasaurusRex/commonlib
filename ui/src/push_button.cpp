@@ -39,18 +39,23 @@ void PushButton::process_event(const SDL_Event &event, const Math::Float2 offset
   mouse_x += (int)offset[0];
   mouse_y += (int)offset[1];
 
+  bool mouse_over = hit_test(mouse_x, mouse_y);
+  hovering = mouse_over;
+
+  if (!enabled) { return; } //TODO another callback function to handle (play a sound or something)
+
   if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
   {
-    if(hit_test(mouse_x, mouse_y))
+    if(mouse_over)
     {
       click_capture = true;
     }
   }
   if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT)
   {
-    if(click_capture && hit_test(mouse_x, mouse_y))
+    if(click_capture && mouse_over)
     {
-      cout<<"PushButton::process_event(): button clicked!"<<endl;
+      //cout<<"PushButton::process_event(): button clicked!"<<endl;
       if(click_callback)
       {
         click_callback(event);
@@ -63,8 +68,6 @@ void PushButton::process_event(const SDL_Event &event, const Math::Float2 offset
 
 void PushButton::render()
 {
-  //cout<<"dim: "<<dim<<endl;
-
   gl_check_error();
 
   glLineWidth(1.0f);
@@ -92,13 +95,20 @@ void PushButton::render()
     glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
   glEnd();*/
 
-  if(textures[0] && !click_capture)
+  if (enabled)
   {
-    textures[0]->render_gl();
+    if (textures[0] && !click_capture)
+    {
+      textures[0]->render_gl();
+    }
+    else if (textures[1] && click_capture)
+    {
+      textures[1]->render_gl();
+    }
   }
-  else if(textures[1] && click_capture)
+  else
   {
-    textures[1]->render_gl();
+    textures[2]->render_gl();
   }
   glDisable(GL_CULL_FACE);
   glEnable(GL_BLEND);
@@ -121,5 +131,10 @@ void PushButton::render()
   {
     Label::render();
   }
-  if (has_tooltip) { render_tooltip(); }
+  if (hovering) { render_tooltip(); }
+}
+
+void PushButton::simulate(const double game_time, const double frame_time)
+{
+  cout << "PushButton::simulate()" << endl;
 }
