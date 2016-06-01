@@ -1,5 +1,6 @@
 #include <iostream>
 #include "check_button.h"
+#include "radio_group.h"
 
 using namespace std;
 using namespace UI;
@@ -27,7 +28,11 @@ void CheckButton::process_event(const SDL_Event &event, const Float2 offset)
     if(click_capture && hit_test(mouse_x, mouse_y))
     {
       checked = !checked;
-      cout<<(int)checked<<endl;
+      if (checked && radio_group)
+      {
+        radio_group->set_active(this);
+      }
+      //cout<<(int)checked<<endl;
       if(click_callback)
       {
         click_callback(event);
