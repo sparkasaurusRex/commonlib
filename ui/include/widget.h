@@ -26,7 +26,7 @@ namespace UI
     Widget(Font *f = NULL);
     ~Widget() {}
 
-    void show(const bool d = true) { visible = d; }
+    virtual void show(const bool d = true) { visible = d; }
     bool is_visible() const { return visible; }
     void set_font(Font *f) { font = f; }
 

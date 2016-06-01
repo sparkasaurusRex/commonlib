@@ -24,31 +24,28 @@ void FadeScreen::set_font(Font *f)
 
 void FadeScreen::simulate(const float dt)
 {
-  if(fade_in_timer.is_active())
+  if(!fade_in_timer.elapsed())
   {
     //cout<<"fade in"<<endl;
-    fade_in_timer.simulate(dt);
     fade_opacity = fade_in_timer.pct_elapsed();
     if(fade_opacity >= 1.0f)
     {
       fade_opacity = 1.0f;
-      linger_timer.activate();
+      linger_timer.set(5.0);
     }
   }
-  else if(linger_timer.is_active())
+  else if(!linger_timer.elapsed())
   {
     //cout<<"linger"<<endl;
-    linger_timer.simulate(dt);
     fade_opacity = 1.0f;
     if(linger_timer.pct_elapsed() >= 1.0f)
     {
-      fade_out_timer.activate();
+      fade_out_timer.set(1.0);
     }
   }
-  else if(fade_out_timer.is_active())
+  else if(!fade_out_timer.elapsed())
   {
     //cout<<"fade out"<<endl;
-    fade_out_timer.simulate(dt);
     fade_opacity = clamp(1.0f - fade_out_timer.pct_elapsed(), 0.0f, 1.0f);
   }
   //cout<<"title screen opacity: "<<fade_opacity<<endl;
@@ -117,13 +114,13 @@ void FadeScreen::render_gl() const
 
 void FadeScreen::play()
 {
-  fade_in_timer.activate();
+  fade_in_timer.set(1.0);
 }
 
 bool FadeScreen::is_active() const
 {
-  if(fade_in_timer.is_active()) return true;
-  if(linger_timer.is_active()) return true;
-  if(fade_out_timer.is_active()) return true;
+  if(!fade_in_timer.elapsed()) return true;
+  if(!linger_timer.elapsed()) return true;
+  if(!fade_out_timer.elapsed()) return true;
   return false;
 }
