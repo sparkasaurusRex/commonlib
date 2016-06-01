@@ -27,7 +27,7 @@ void CheckButton::process_event(const SDL_Event &event, const Float2 offset)
   {
     if(click_capture && hit_test(mouse_x, mouse_y))
     {
-      checked = !checked;
+      checked = (radio_group != NULL) ? true : !checked; //only toggle if we're not in a radio-button group, otherwise just set to "true"
       if (checked && radio_group)
       {
         radio_group->set_active(this);
