@@ -56,11 +56,11 @@ protected:
   double last_game_time;
 
   std::string font_face;
-  Font *font;    //font we want to use for mostly everything
+  Graphics::Font *font;    //font we want to use for mostly everything
   unsigned int font_size;
 
   std::string widget_font_face;
-  Font *widget_font;
+  Graphics::Font *widget_font;
   unsigned int widget_font_size;
 
   int fps_idx;

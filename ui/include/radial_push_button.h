@@ -9,7 +9,7 @@ namespace UI
   class RadialPushButton : public RadialWidget
   {
   public:
-    RadialPushButton(Font *f = NULL);
+    RadialPushButton(Graphics::Font *f = NULL);
     ~RadialPushButton() {}
 
     void set_click_callback(void (*cb)(const SDL_Event &e));

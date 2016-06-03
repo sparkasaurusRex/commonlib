@@ -17,10 +17,10 @@
 #include <ftoutln.h>
 #include <fttrigon.h>
 
-
-
-class Font
+namespace Graphics
 {
+  class Font
+  {
   public:
     //Font();
     Font(const char *fname, unsigned int height);
@@ -40,6 +40,7 @@ class Font
     GLuint *textures;       //texture ids
     GLuint list_base;       //first display list id
     GLint viewport[4];
+  };
 };
 
 //void gl_print(const Font &font, float x, float y, const char *fmt, ...);

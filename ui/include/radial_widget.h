@@ -12,7 +12,7 @@ namespace UI
     Math::Float2 arc;
     Math::Float2 center;
   public:
-    RadialWidget(Font *f = NULL) : Widget(f) {}
+    RadialWidget(Graphics::Font *f = NULL) : Widget(f) {}
     ~RadialWidget() {}
 
     void set_radii(const Math::Float2 r) { radii = r; }

@@ -11,7 +11,7 @@ namespace UI
     Math::Float2 pos;
     Math::Float2 dim;
   public:
-    RectangularWidget(Font *f = NULL) : Widget(f) {}
+    RectangularWidget(Graphics::Font *f = NULL) : Widget(f) {}
     ~RectangularWidget() {}
 
     virtual bool hit_test(const int x, const int y) const;

@@ -6,6 +6,7 @@
 #include "font.h"
 
 using namespace std;
+using namespace Graphics;
 
 /*
 Largely taken from NeHe:

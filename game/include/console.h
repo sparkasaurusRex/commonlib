@@ -42,7 +42,7 @@ private:
   float                       pct_exposed;
   ConsoleState                state;
 
-  Font                        *font;
+  Graphics::Font              *font;
   Math::Float3                bg_color;
   float                       bg_opacity;
   Math::Float3                text_color;
@@ -105,7 +105,7 @@ public:
   void traverse_command_history(const int dir);
   void tab_complete(int depth = 0);
 
-	void set_font(Font *f) { font = f; }
+	void set_font(Graphics::Font *f) { font = f; }
 };
 
 #endif // __CONSOLE_H__

@@ -11,6 +11,7 @@
 using namespace std;
 using namespace Math;
 using namespace UI;
+using namespace Graphics;
 
 void quit()
 {

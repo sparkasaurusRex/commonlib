@@ -36,7 +36,7 @@ public:
   FadeScreen();
   ~FadeScreen() {}
 
-  void set_font(Font *f);
+  void set_font(Graphics::Font *f);
   void simulate(const float dt);
 
   void render_gl() const;
@@ -50,7 +50,7 @@ public:
   void set_text(std::string t) { text = t; }
   void set_backdrop_texture(Graphics::Texture2D *tex) { backdrop_texture = tex; }
 private:
-  Font *font;
+  Graphics::Font *font;
 
   UI::Timer fade_in_timer;
   UI::Timer linger_timer;     //do you have to let it?

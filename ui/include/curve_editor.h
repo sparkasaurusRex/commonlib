@@ -14,7 +14,7 @@ namespace UI
   class CurveEditor : public RectangularWidget
   {
   public:
-    CurveEditor(Font *f = NULL);
+    CurveEditor(Graphics::Font *f = NULL);
     ~CurveEditor();
 
     virtual void init();

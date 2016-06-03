@@ -1,6 +1,7 @@
 #include "widget.h"
 
 using namespace UI;
+using namespace Graphics;
 
 Widget::Widget(Font *f)
 {
