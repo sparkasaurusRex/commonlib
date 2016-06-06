@@ -293,8 +293,24 @@ void DebugConsole::render_gl()
     break;
   default:
     if (pct_exposed > 0.01f) { render_default();  }
-    return;
+    render_console_log();
     break;
+  }
+}
+
+void DebugConsole::render_console_log()
+{
+  //display console log
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+  float v_pixels = (float)viewport[3] - 0.25f * (float)viewport[3];
+  std::vector<std::string> lines;
+  boost::split(lines, log.buffer, boost::is_any_of("\n"), boost::token_compress_on);
+  float v_h = font->get_height() + 5.0f;
+  for (unsigned int i = 0; i < lines.size(); i++)
+  {
+    glColor4f(0.0f, 0.5f, 0.5f, 0.7f);
+    font->print(10, v_pixels + 15.0f + i * v_h, lines[i].c_str());
   }
 }
 

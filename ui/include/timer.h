@@ -23,6 +23,7 @@ namespace UI
 
     void start() { start_time = SDL_GetTicks(); running = true; }
     void set(const double t) { duration = t; }
+    double time_elapsed() const { Uint32 curr_time = SDL_GetTicks(); return (double)(curr_time - start_time) / 1000.0; }
     double time_remaining() const { Uint32 curr_time = SDL_GetTicks(); return duration - (double)(curr_time - start_time) / 1000.0; }
     float pct_elapsed() const { return (float)(time_remaining() / duration); }
     bool elapsed() const { return time_remaining() <= 0.0; }

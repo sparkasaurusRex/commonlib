@@ -35,8 +35,13 @@ namespace Game
     ~Event() {}
 
     void set_delay(const float d) { delay.set(d); }
+    void set_duration(const float d) { duration.set(d); }
 
-    virtual void start() { delay.start(); }
+    virtual void start()
+    {
+      delay.start();
+      running = true;
+    }
 
     virtual void init() = 0;
     virtual void simulate(const double game_time, const double frame_time)
@@ -57,7 +62,7 @@ namespace Game
     MessageEvent() : Event() { msg = NULL; font = NULL; }
     ~MessageEvent() { if (msg) { delete msg; } }
 
-    void set_font(Graphics::Font *f) { font = f; }
+    UI::Message *get_message_ui() { return msg; }
 
     virtual void init() { assert(font); msg = new UI::Message(font); msg->set_text(std::string("Message Event")); }
     virtual void simulate(const double game_time, const double frame_time)
@@ -69,8 +74,8 @@ namespace Game
   class Sequence
   {
   private:
-    bool      running;
-    UI::Timer sequence_timer;
+    bool                 running;
+    UI::Timer            sequence_timer;
 
     std::vector<Event *> events;            //all the events in the sequence
     std::vector<Event *> active_events;     //just the events that are currently active
@@ -78,10 +83,22 @@ namespace Game
     Event *tmp_current; //this really only works for a perfectly linear sequence
  
   public:
-    Sequence() {}
+    Sequence() { tmp_current = NULL; }
     ~Sequence() {}
 
-    void start() { if (events.size() > 0) { running = true; tmp_current = events[0]; } }
+    std::ostream *log;
+
+    void start()
+    {
+      (*log) << "Sequence::start()" << std::endl;
+      if (events.size() > 0)
+      {
+        running = true;
+        sequence_timer.start();
+        tmp_current = events[0];
+      }
+    }
+
     void reset() { }
 
     void add_event(Event *e) { events.push_back(e); }
@@ -91,6 +108,7 @@ namespace Game
     {
       if (running)
       {
+        (*log) << "Sequence::simulate(): timer: " << sequence_timer.time_elapsed() << std::endl;
         //see which events should be active
         active_events.clear();
         for (int i = 0; i < (int)events.size(); i++)
@@ -105,14 +123,18 @@ namespace Game
   {
   private:
     std::vector<Sequence *> sequences;
+
   public:
     Sequencer() {}
     ~Sequencer() {}
 
-    void add_sequence(Sequence *s) { sequences.push_back(s); }
+    std::ostream *log;
+
+    void add_sequence(Sequence *s) { s->log = log; sequences.push_back(s); }
 
     void simulate(const double game_time, const double frame_time)
     {
+      //(*log) << "Sequencer::simulate()" << std::endl;
       for (int i = 0; i < (int)sequences.size(); i++)
       {
         sequences[i]->simulate(game_time, frame_time);
