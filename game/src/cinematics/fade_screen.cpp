@@ -21,7 +21,7 @@ void FadeScreen::set_font(Font *f)
 
 void FadeScreen::simulate(const float dt)
 {
-  if(!fade_in_timer.elapsed())
+  if(!fade_in_timer.has_elapsed())
   {
     cout<<"fade in"<<endl;
     fade_opacity = fade_in_timer.pct_elapsed();
@@ -31,7 +31,7 @@ void FadeScreen::simulate(const float dt)
       linger_timer.start();
     }
   }
-  else if(!linger_timer.elapsed())
+  else if(!linger_timer.has_elapsed())
   {
     cout<<"linger"<<endl;
     fade_opacity = 1.0f;
@@ -41,7 +41,7 @@ void FadeScreen::simulate(const float dt)
       fade_out_timer.start();
     }
   }
-  else if(!fade_out_timer.elapsed())
+  else if(!fade_out_timer.has_elapsed())
   {
     cout<<"fade out"<<endl;
     fade_opacity = clamp(1.0f - fade_out_timer.pct_elapsed(), 0.0f, 1.0f);
@@ -110,8 +110,8 @@ void FadeScreen::play()
 
 bool FadeScreen::is_active() const
 {
-  if(fade_in_timer.is_running()) return true;
-  if(linger_timer.is_running()) return true;
-  if(fade_out_timer.is_running()) return true;
+  if(fade_in_timer.is_running() && !fade_in_timer.has_elapsed()) return true;
+  if(linger_timer.is_running() && !fade_in_timer.has_elapsed()) return true;
+  if(fade_out_timer.is_running() && !fade_in_timer.has_elapsed()) return true;
   return false;
 }

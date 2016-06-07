@@ -3,9 +3,10 @@
 using namespace UI;
 using namespace Graphics;
 
-Message::Message(Font *f) : RectangularWidget(f)
+Message::Message(Font *f, bool has_timer) : RectangularWidget(f)
 {
   main_text = "Useful message";
+  use_timer = has_timer;
   //buttons = NULL;
   timer.set(5.0);
 }
@@ -13,7 +14,7 @@ Message::Message(Font *f) : RectangularWidget(f)
 void Message::show(const bool d)
 {
   visible = d;
-  if (visible)
+  if (visible && use_timer)
   {
     timer.start();
   }
@@ -23,7 +24,7 @@ void Message::simulate(const double game_time, const double frame_time)
 {
   Widget::simulate(game_time, frame_time);
 
-  if (visible && timer.elapsed())
+  if (visible && use_timer && timer.has_elapsed())
   {
     visible = false;
   }

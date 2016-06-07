@@ -12,8 +12,9 @@ namespace UI
     std::string   main_text;
     //ToolBox       *buttons;
     Timer         timer;
+    bool          use_timer;
   public:
-    Message(Graphics::Font *f = NULL);
+    Message(Graphics::Font *f = NULL, bool has_timer = true);
     ~Message() {}
 
     virtual void show(const bool d);
