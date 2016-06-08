@@ -9,6 +9,8 @@
 #include "message_box.h"
 #include "font.h"
 #include "event.h"
+#include "widget_wrangler.h"
+#include "font.h"
 
 
 namespace Game
@@ -44,12 +46,19 @@ namespace Game
   private:
     std::vector<Sequence *> sequences;
 
+    UI::WidgetWrangler   *ww;
+    Graphics::Font       *font;
+
   public:
-    Sequencer() {}
+    Sequencer() { ww = NULL; font = NULL; }
     ~Sequencer() {}
 
-    void read_xml(FILE *fp);
-    void write_xml(FILE *fp) {}
+    Sequence *get_sequence(const int i) { return sequences[i]; }
+
+    void bind_ui(UI::WidgetWrangler *w, Graphics::Font *f, std::ostream *cl) { ww = w; font = f; console_log = cl; }
+
+    void read_sequence_xml(FILE *fp);
+    void write_sequence_xml(FILE *fp) { assert(false); } //not yet implemented
 
     std::ostream *console_log;
 

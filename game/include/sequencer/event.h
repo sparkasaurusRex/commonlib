@@ -25,8 +25,8 @@ namespace Game
 
     std::ostream *console_log;
 
-    void set_delay(const float d) { delay.set(d); }
-    void set_duration(const float d) { duration.set(d); }
+    void set_delay(const double d) { delay.set(d); }
+    void set_duration(const double d) { duration.set(d); }
 
     virtual void start();
 
