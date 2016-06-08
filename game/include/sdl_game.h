@@ -41,40 +41,40 @@ class SDLGame
 protected:
   Game::GameControllerContext game_controller_context;
 
-  unsigned int flags;
+  uint32_t         flags;
 
-  bool recording_movie;
-  int movie_frame_counter;
+  bool             recording_movie;
+  int              movie_frame_counter;
 
-  int resolution[2];
-  SDL_Window *win;
-  SDL_GLContext gl_context;
-  int gl_version[2];
-  int gl_context_profile;
-  std::string window_title;
+  int              resolution[2];
+  SDL_Window       *win;
+  SDL_GLContext    gl_context;
+  int              gl_version[2];
+  int              gl_context_profile;
+  std::string      window_title;
 
-  double last_game_time;
+  double           last_game_time;
 
-  std::string font_face;
-  Graphics::Font *font;    //font we want to use for mostly everything
-  unsigned int font_size;
+  std::string      font_face;
+  Graphics::Font   *font;    //font we want to use for mostly everything
+  unsigned int     font_size;
 
-  std::string widget_font_face;
-  Graphics::Font *widget_font;
-  unsigned int widget_font_size;
+  std::string      widget_font_face;
+  Graphics::Font   *widget_font;
+  unsigned int     widget_font_size;
 
-  int fps_idx;
-  float prev_fps[SDL_GAME_NUM_FPS_FRAMES];
-  UI::Label fps_label;
+  int              fps_idx;
+  float            prev_fps[SDL_GAME_NUM_FPS_FRAMES];
+  UI::Label        fps_label;
 
-  unsigned int game_state; //paused, full-screen, etc...
+  unsigned int     game_state; //paused, full-screen, etc...
 
-  UI::Menu *pause_menu;
-  FadeScreen title_screen;
-  DebugConsole console;
+  UI::Menu         *pause_menu;
+  FadeScreen       title_screen;
+  DebugConsole     console;
 
-  float sim_lock_dt;
-  bool vsync_enabled;
+  float            sim_lock_dt;
+  bool             vsync_enabled;
 
 public:
   //SDLGame();
