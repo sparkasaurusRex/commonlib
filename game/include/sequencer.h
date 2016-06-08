@@ -116,7 +116,6 @@ namespace Game
       assert(font);
       msg = new UI::Message(font, false);
       msg->set_text(std::string("Message Event"));
-      msg->translate(Math::Float2(100.0f, 100.0f));
       msg->init();
       msg->show(false);
     }
@@ -174,11 +173,28 @@ namespace Game
         if (tmp_current)
         {
           tmp_current->simulate(game_time, frame_time);
+          if (!tmp_current->running)
+          {
+            std::vector<Event *>::iterator curr = std::find(events.begin(), events.end(), tmp_current);
+            assert(curr != events.end()); //this would be very strange, not to find the event in the list
+            std::vector<Event *>::iterator next_event = curr + 1;
+            if (next_event == events.end())
+            {
+              running = false; //we're done!
+              sequence_timer.stop();
+            }
+            else
+            {
+              tmp_current = (*next_event);
+              tmp_current->start();
+            }
+          }
         }
         else
         {
           (*log) << "sequence finished... stopping." << std::endl;
           running = false;
+          sequence_timer.stop();
         }
 
         //see which events should be active
