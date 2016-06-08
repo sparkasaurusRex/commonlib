@@ -14,11 +14,22 @@ void MessageEvent::init()
 void MessageEvent::start()
 {
   Event::start();
-  (*log) << "Starting MessageEvent - " << msg->get_text().c_str() << std::endl;
+  (*console_log) << "Starting MessageEvent - " << msg->get_text().c_str() << std::endl;
 }
 
 void MessageEvent::simulate(const double game_time, const double frame_time)
 {
-  (*log) << "MessageEvent::simulate() - " << msg->get_text().c_str() << std::endl;
+  (*console_log) << "MessageEvent::simulate() - " << msg->get_text().c_str() << std::endl;
   Event::simulate(game_time, frame_time);
+}
+
+void MessageEvent::on_event_start()
+{
+  (*console_log) << "MessageEvent::on_event_start()" << std::endl;
+  msg->show(true);
+}
+
+void MessageEvent::on_event_end()
+{
+  msg->show(false);
 }

@@ -3,11 +3,13 @@
 
 #include <assert.h>
 #include <vector>
+#include <stdio.h>
 
 #include "timer.h"
 #include "message_box.h"
 #include "font.h"
 #include "event.h"
+
 
 namespace Game
 {
@@ -26,7 +28,7 @@ namespace Game
     Sequence() { tmp_current = NULL; }
     ~Sequence() {}
 
-    std::ostream *log;
+    std::ostream *console_log;
 
     void start();
 
@@ -46,9 +48,12 @@ namespace Game
     Sequencer() {}
     ~Sequencer() {}
 
-    std::ostream *log;
+    void read_xml(FILE *fp);
+    void write_xml(FILE *fp) {}
 
-    void add_sequence(Sequence *s) { s->log = log; sequences.push_back(s); }
+    std::ostream *console_log;
+
+    void add_sequence(Sequence *s) { s->console_log = console_log; sequences.push_back(s); }
     void simulate(const double game_time, const double frame_time);
   };
 };

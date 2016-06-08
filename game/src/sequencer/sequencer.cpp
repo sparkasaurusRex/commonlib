@@ -1,11 +1,12 @@
 #include "sequencer.h"
+#include "tool.h"
 
 using namespace Game;
 using namespace std;
 
 void Sequence::start()
 {
-  (*log) << "Sequence::start()" << std::endl;
+  (*console_log) << "Sequence::start()" << std::endl;
   if (events.size() > 0)
   {
     running = true;
@@ -20,7 +21,7 @@ void Sequence::simulate(const double game_time, const double frame_time)
 {
   if (running)
   {
-    (*log) << "Sequence::simulate(): timer: " << sequence_timer.time_elapsed() << std::endl;
+    (*console_log) << "Sequence::simulate(): timer: " << sequence_timer.time_elapsed() << std::endl;
 
     if (tmp_current)
     {
@@ -44,7 +45,7 @@ void Sequence::simulate(const double game_time, const double frame_time)
     }
     else
     {
-      (*log) << "sequence finished... stopping." << std::endl;
+      (*console_log) << "sequence finished... stopping." << std::endl;
       running = false;
       sequence_timer.stop();
     }
@@ -58,6 +59,20 @@ void Sequence::simulate(const double game_time, const double frame_time)
   }
 }
 
+void Sequencer::read_xml(FILE *fp)
+{
+  (*console_log) << "Sequencer::read_xml()" << endl;
+  
+  mxml_node_t *tree = mxmlLoadFile(NULL, fp, MXML_TEXT_CALLBACK);
+  assert(tree);
+
+  mxml_node_t *event_node = NULL;
+  mxml_node_t *start_node = tree;
+  do
+  {
+    material_node = mxmlFindElement(start_node, tree, "", NULL, NULL, MXML_DESCEND);
+  } while (event_node);
+}
 
 void Sequencer::simulate(const double game_time, const double frame_time)
 {

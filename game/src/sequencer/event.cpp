@@ -2,6 +2,13 @@
 
 using namespace Game;
 
+void Event::start()
+{
+  (*console_log) << "Event::start()" << std::endl;
+  delay.start();
+  running = true;
+}
+
 void Event::simulate(const double game_time, const double frame_time)
 {
   if (!running) { return; }
@@ -14,7 +21,7 @@ void Event::simulate(const double game_time, const double frame_time)
       duration.start();
       on_event_start();
     }
-    (*log) << "    Delayed: " << delay.time_remaining() << std::endl;
+    (*console_log) << "    Delayed: " << delay.time_remaining() << std::endl;
   }
 
   if (duration.is_running())
@@ -25,6 +32,6 @@ void Event::simulate(const double game_time, const double frame_time)
       running = false;
       on_event_end();
     }
-    (*log) << "    Running: " << duration.time_remaining() << std::endl;
+    (*console_log) << "    Running: " << duration.time_remaining() << std::endl;
   }
 }

@@ -372,14 +372,14 @@ void SDLGame::set_widget_font(std::string font_face_name, unsigned int size)
 
 void SDLGame::screenshot()
 {
-  console.log<<"taking screenshot..."<<endl;
+  console.console_log<<"taking screenshot..."<<endl;
   SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, resolution[0], resolution[1], 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
 
   glReadPixels(0, 0, resolution[0], resolution[1], GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
 
   char filename[256];
   sprintf(filename, "capture/%s%i.bmp", window_title.c_str(), movie_frame_counter++);
-  console.log<<"writing "<<filename<<endl;
+  console.console_log<<"writing "<<filename<<endl;
   SDL_SaveBMP(image, filename);
   SDL_FreeSurface(image);
 }
@@ -422,13 +422,13 @@ void SDLGame::init_sdl()
 
     glewInit();
 
-    console.log<<"Initializing OpenGL..."<<endl;
-    console.log<<"version "<<glGetString(GL_VERSION)<<endl;//major_version<<"."<<minor_version<<endl;
+    console.console_log<<"Initializing OpenGL..."<<endl;
+    console.console_log<<"version "<<glGetString(GL_VERSION)<<endl;//major_version<<"."<<minor_version<<endl;
     //console.log<<"extensions: "<<endl<<glGetString(GL_EXTENSIONS)<<endl;
 
     int max_vertex_attribs;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attribs);
-    console.log<<"Max Vertex Attribs: "<<max_vertex_attribs<<endl;
+    console.console_log<<"Max Vertex Attribs: "<<max_vertex_attribs<<endl;
   }
 }
 

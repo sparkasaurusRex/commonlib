@@ -10,16 +10,8 @@ namespace Game
     UI::Message     *msg;
     Graphics::Font  *font;
 
-    virtual void on_event_start()
-    {
-      (*log) << "MessageEvent::on_event_start()" << std::endl;
-      msg->show(true);
-    }
-
-    virtual void on_event_end()
-    {
-      msg->show(false);
-    }
+    virtual void on_event_start();
+    virtual void on_event_end();
 
   public:
     MessageEvent() : Event() { msg = NULL; font = NULL; }

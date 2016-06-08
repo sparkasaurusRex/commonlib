@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <stdio.h>
 
 #include "math_utility.h"
 #include "font.h"
@@ -39,7 +40,7 @@ public:
 //logging / console output
 struct ConsoleLog : std::ostream, std::streambuf
 {
-  ConsoleLog() : std::ostream(this) { max_display_lines = 10; }
+  ConsoleLog() : std::ostream(this) { max_display_lines = 10; log_file = NULL; }
 
   int overflow(int c)
   {
@@ -50,6 +51,11 @@ struct ConsoleLog : std::ostream, std::streambuf
   void handle_char(char c)
   {
     buffer = buffer + c;
+
+    if (log_file)
+    {
+      fwrite(&c, sizeof(char), 1, log_file);
+    }
 
     //count lines
     uint32_t num_lines = 0;
@@ -79,6 +85,8 @@ struct ConsoleLog : std::ostream, std::streambuf
   //void set_text_color(const Math::Float3 c) { text_color = c; }
   std::string buffer;
   uint32_t max_display_lines;
+
+  FILE *log_file;
 };
 
 class DebugConsole
@@ -123,7 +131,7 @@ public:
   DebugConsole();
   ~DebugConsole();
 
-  ConsoleLog log; //debug output, etc.
+  ConsoleLog console_log; //debug output, etc.
 
   void init();
   void activate(ConsoleState s);

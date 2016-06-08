@@ -40,11 +40,18 @@ DebugConsole::DebugConsole()
   last_tab_complete_idx = -1;
 
   control_board_scroll = 0.0f;
+
+  FILE *log_file = fopen("console.log", "w");
+  assert(log_file);
+  console_log.log_file = log_file;
 }
 
 DebugConsole::~DebugConsole()
 {
-  delete font;
+  if (console_log.log_file)
+  {
+    fclose(console_log.log_file);
+  }
 }
 
 void DebugConsole::activate(ConsoleState s)
@@ -305,7 +312,7 @@ void DebugConsole::render_console_log()
   glGetIntegerv(GL_VIEWPORT, viewport);
   float v_pixels = (float)viewport[3] - 0.25f * (float)viewport[3];
   std::vector<std::string> lines;
-  boost::split(lines, log.buffer, boost::is_any_of("\n"), boost::token_compress_on);
+  boost::split(lines, console_log.buffer, boost::is_any_of("\n"), boost::token_compress_on);
   float v_h = font->get_height() + 5.0f;
   for (unsigned int i = 0; i < lines.size(); i++)
   {
