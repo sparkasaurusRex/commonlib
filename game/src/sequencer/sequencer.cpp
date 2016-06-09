@@ -1,5 +1,6 @@
 #include "sequencer.h"
 #include "message_event.h"
+#include "wait_condition_event.h"
 #include "tool.h"
 
 using namespace Game;
@@ -121,6 +122,20 @@ void Sequencer::read_sequence_xml(FILE *fp)
       else if (!_stricmp(element, "wait"))
       {
         //handle wait event
+        const char *buff = mxmlElementGetAttr(event_node, "condition_name");
+        if (buff)
+        {
+          uint32_t hash_val = Math::hash_value_from_string(buff);
+          (*console_log) << "    condition name: " << buff << endl;
+          (*console_log) << "    hash value: " << hash_val << endl;
+        }
+
+
+        /*
+        WaitConditionEvent *wc_event = new WaitConditionEvent;
+        wc_event->init();
+        seq->add_event(wc_event);
+        */
       }
     }
     event_node = mxmlGetNextSibling(event_node);
