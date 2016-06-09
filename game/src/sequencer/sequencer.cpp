@@ -62,6 +62,19 @@ void Sequence::simulate(const double game_time, const double frame_time)
   }
 }
 
+Condition *Sequencer::find_condition_by_hash_id(const uint32_t hash_id)
+{
+  for (uint32_t i = 0; i < conditions.size(); i++)
+  {
+    Condition *c = conditions[i];
+    if (c->get_hash_id() == hash_id)
+    {
+      return c;
+    }
+  }
+  return NULL;
+}
+
 void Sequencer::read_sequence_xml(FILE *fp)
 {
   (*console_log) << "Sequencer::read_xml()" << endl;
@@ -122,23 +135,26 @@ void Sequencer::read_sequence_xml(FILE *fp)
       else if (!_stricmp(element, "wait"))
       {
         //handle wait event
+        WaitConditionEvent *wc_event = new WaitConditionEvent;
+
         const char *buff = mxmlElementGetAttr(event_node, "condition_name");
         if (buff)
         {
           uint32_t hash_val = Math::hash_value_from_string(buff);
           (*console_log) << "    condition name: " << buff << endl;
           (*console_log) << "    hash value: " << hash_val << endl;
+
+          //find the condition in the condition list
+          Condition *c = find_condition_by_hash_id(hash_val);
+          assert(c);
+
+          wc_event->set_condition(c);
         }
-
-
-        /*
-        WaitConditionEvent *wc_event = new WaitConditionEvent;
         wc_event->init();
         seq->add_event(wc_event);
-        */
       }
     }
-    event_node = mxmlGetNextSibling(event_node);
+    event_node = mxmlGetNextSibling(event_node); 
   }
 
   seq->init();

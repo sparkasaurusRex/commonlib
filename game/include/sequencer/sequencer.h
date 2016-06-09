@@ -11,6 +11,7 @@
 #include "event.h"
 #include "widget_wrangler.h"
 #include "font.h"
+#include "condition.h"
 
 
 namespace Game
@@ -45,9 +46,12 @@ namespace Game
   {
   private:
     std::vector<Sequence *> sequences;
+    std::vector<Condition *> conditions; //TODO: pull this out and make more global?
 
     UI::WidgetWrangler   *ww;
     Graphics::Font       *font;
+
+    Condition *find_condition_by_hash_id(const uint32_t hash_id);
 
   public:
     Sequencer() { ww = NULL; font = NULL; }
@@ -63,6 +67,8 @@ namespace Game
     std::ostream *console_log;
 
     void add_sequence(Sequence *s) { s->console_log = console_log; sequences.push_back(s); }
+    void add_condition(Condition *c) { conditions.push_back(c); }
+
     void simulate(const double game_time, const double frame_time);
   };
 };

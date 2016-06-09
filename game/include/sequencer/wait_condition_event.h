@@ -1,36 +1,14 @@
 #pragma once
 
 #include "event.h"
+#include "condition.h"
 
 namespace Game
 {
-  class Condition
-  {
-  protected:
-  public:
-    Condition() {}
-    ~Condition() {}
-
-    virtual bool condition_met() const = 0;
-  };
-
-  class ConditionBool : public Condition
-  {
-  protected:
-    bool *var;
-  public:
-    ConditionBool() : Condition() {}
-    ~ConditionBool() {}
-
-    virtual bool condition_met() { return *var; }
-
-    void set_var_ptr(bool *b) { var = b; }
-  };
-
   class WaitConditionEvent : public Event
   {
   private:
-    Condition *c;
+    Condition *condition;
 
     virtual void on_event_start() {}
     virtual void on_event_end() {}
@@ -38,8 +16,20 @@ namespace Game
     WaitConditionEvent() {}
     ~WaitConditionEvent() {}
 
+    void set_condition(Condition *c) { condition = c; }
+
     virtual void init() {}
-    virtual void start() {}
-    virtual void simulate(const double game_time, const double frame_time) {}
+    virtual void start() { running = true; }
+    virtual void simulate(const double game_time, const double frame_time)
+    {
+      if (condition)
+      {
+        running = !condition->condition_met();
+      }
+      else
+      {
+        running = false;
+      }
+    }
   };
 };

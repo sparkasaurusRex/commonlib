@@ -12,9 +12,9 @@ namespace Game
   {
     friend class Sequence;
   protected:
-    bool running;
-    UI::Timer delay;
-    UI::Timer duration;
+    bool        running;
+    UI::Timer   delay;
+    UI::Timer   duration;
 
     virtual void on_event_start() = 0;
     virtual void on_event_end() = 0;
@@ -25,7 +25,7 @@ namespace Game
 
     std::ostream *console_log;
 
-    void set_delay(const double d) { delay.set(d); }
+    void set_delay(const double d)    { delay.set(d); }
     void set_duration(const double d) { duration.set(d); }
 
     virtual void start();
