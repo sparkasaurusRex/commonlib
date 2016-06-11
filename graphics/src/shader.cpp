@@ -78,7 +78,7 @@ GLuint Shader::load_and_compile_shader(GLenum shader_type, const char *source)
 void print_log(GLuint obj)
 {
 	int infologLength = 0;
-	int maxLength;
+	int maxLength = 1024;
 
 	if(glIsShader(obj))
 		glGetShaderiv(obj,GL_INFO_LOG_LENGTH, &maxLength);

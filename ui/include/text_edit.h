@@ -8,7 +8,7 @@ namespace UI
   class TextEdit : public RectangularWidget
   {
   public:
-    TextEdit(Font *f = NULL);
+    TextEdit(Graphics::Font *f = NULL);
     ~TextEdit() {}
 
     virtual void process_event(const SDL_Event &e, const Math::Float2 offset = Math::Float2());

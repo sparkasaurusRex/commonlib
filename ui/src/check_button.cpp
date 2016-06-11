@@ -1,5 +1,6 @@
 #include <iostream>
 #include "check_button.h"
+#include "radio_group.h"
 
 using namespace std;
 using namespace UI;
@@ -15,19 +16,26 @@ void CheckButton::process_event(const SDL_Event &event, const Float2 offset)
   mouse_x += (int)offset[0];
   mouse_y += (int)offset[1];
 
+  bool mouse_over = hit_test(mouse_x, mouse_y);
+  hovering = mouse_over;
+
   if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
   {
-    if(hit_test(mouse_x, mouse_y))
+    if(mouse_over)
     {
       click_capture = true;
     }
   }
   if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT)
   {
-    if(click_capture && hit_test(mouse_x, mouse_y))
+    if(click_capture && mouse_over)
     {
-      checked = !checked;
-      cout<<(int)checked<<endl;
+      checked = (radio_group != NULL) ? true : !checked; //only toggle if we're not in a radio-button group, otherwise just set to "true"
+      if (checked && radio_group)
+      {
+        radio_group->set_active(this);
+      }
+      //cout<<(int)checked<<endl;
       if(click_callback)
       {
         click_callback(event);
@@ -87,4 +95,6 @@ void CheckButton::render()
     glVertex3f(pos[0] + dim[0], pos[1] - dim[1], 0.0f);
   glEnd();
   glDisable(GL_TEXTURE_2D);
+
+  if (hovering) { render_tooltip(); }
 }

@@ -3,6 +3,7 @@
 using namespace UI;
 using namespace std;
 using namespace Math;
+using namespace Graphics;
 
 RadialPushButton::RadialPushButton(Font *f) : RadialWidget(f)
 {

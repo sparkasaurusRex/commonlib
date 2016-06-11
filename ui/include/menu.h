@@ -11,7 +11,7 @@ namespace UI
   class Menu : public RectangularWidget
   {
     public:
-      Menu(Font *f = NULL);
+      Menu(Graphics::Font *f = NULL);
       ~Menu();
 
       void add_menu_item(std::string name, void (*cb)(const SDL_Event &e));

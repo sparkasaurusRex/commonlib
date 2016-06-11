@@ -136,5 +136,5 @@ void PushButton::render()
 
 void PushButton::simulate(const double game_time, const double frame_time)
 {
-  cout << "PushButton::simulate()" << endl;
+  //cout << "PushButton::simulate()" << endl;
 }

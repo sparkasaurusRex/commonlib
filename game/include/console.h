@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <stdio.h>
 
 #include "math_utility.h"
 #include "font.h"
@@ -36,13 +37,65 @@ public:
   ~ConsoleVariableFloat() {}
 };
 
+//logging / console output
+struct ConsoleLog : std::ostream, std::streambuf
+{
+  ConsoleLog() : std::ostream(this) { max_display_lines = 10; log_file = NULL; }
+
+  int overflow(int c)
+  {
+    handle_char(c);
+    return 0;
+  }
+
+  void handle_char(char c)
+  {
+    buffer = buffer + c;
+
+    if (log_file)
+    {
+      fwrite(&c, sizeof(char), 1, log_file);
+    }
+
+    //count lines
+    uint32_t num_lines = 0;
+    for (uint32_t i = 0; i < buffer.size(); i++)
+    {
+      num_lines = buffer[i] == '\n' ? num_lines + 1 : num_lines;
+    }
+
+    uint32_t counter = 0;
+    while (num_lines > max_display_lines)
+    {
+      if (buffer[counter] == '\n')
+      {
+        buffer.erase(buffer.begin(), buffer.begin() + counter + 1);
+
+        counter = 0;
+        num_lines--;
+      }
+      else
+      {
+        counter++;
+      }
+    }
+    buffer.shrink_to_fit();
+  }
+
+  //void set_text_color(const Math::Float3 c) { text_color = c; }
+  std::string buffer;
+  uint32_t max_display_lines;
+
+  FILE *log_file;
+};
+
 class DebugConsole
 {
 private:
   float                       pct_exposed;
   ConsoleState                state;
 
-  Font                        *font;
+  Graphics::Font              *font;
   Math::Float3                bg_color;
   float                       bg_opacity;
   Math::Float3                text_color;
@@ -78,6 +131,8 @@ public:
   DebugConsole();
   ~DebugConsole();
 
+  ConsoleLog console_log; //debug output, etc.
+
   void init();
   void activate(ConsoleState s);
   bool is_active() const;
@@ -91,6 +146,7 @@ public:
   void print_line(std::string s);
   
   void render_gl();
+  void render_console_log();
   void render_default();
   void render_control_board();
 
@@ -105,7 +161,7 @@ public:
   void traverse_command_history(const int dir);
   void tab_complete(int depth = 0);
 
-	void set_font(Font *f) { font = f; }
+	void set_font(Graphics::Font *f) { font = f; }
 };
 
 #endif // __CONSOLE_H__

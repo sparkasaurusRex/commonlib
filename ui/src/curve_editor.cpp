@@ -6,6 +6,7 @@
 using namespace UI;
 using namespace Math;
 using namespace std;
+using namespace Graphics;
 
 CurveEditor::CurveEditor(Font *f) : RectangularWidget(f)
 {

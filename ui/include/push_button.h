@@ -13,7 +13,7 @@ namespace UI
     Graphics::Texture2D   *textures[3];  // 3 to switch textures upon click
     Math::Float3          click_rgb;     // tint color while button is clicked
   public:
-    PushButton(Font *f = NULL);
+    PushButton(Graphics::Font *f = NULL);
     ~PushButton() {}
 
     void set_click_callback(void (*cb)(const SDL_Event &e));

@@ -4,6 +4,7 @@
 using namespace UI;
 using namespace std;
 using namespace Math;
+using namespace Graphics;
 
 Menu::Menu(Font *f) : RectangularWidget(f)
 {

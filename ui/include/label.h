@@ -9,7 +9,7 @@ namespace UI
   class Label : public RectangularWidget
   {
   public:
-    Label(Font *f = NULL);
+    Label(Graphics::Font *f = NULL);
     ~Label() {}
 
     void set_text(const std::string t) { text = t; }

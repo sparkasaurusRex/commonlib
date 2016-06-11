@@ -23,12 +23,12 @@ namespace UI
   class Widget
   {
   public:
-    Widget(Font *f = NULL);
+    Widget(Graphics::Font *f = NULL);
     ~Widget() {}
 
-    void show(const bool d = true) { visible = d; }
+    virtual void show(const bool d = true) { visible = d; }
     bool is_visible() const { return visible; }
-    void set_font(Font *f) { font = f; }
+    void set_font(Graphics::Font *f) { font = f; }
 
     virtual bool hit_test(const int x, const int y) const = 0;
 
@@ -53,7 +53,7 @@ namespace UI
     void render_cleanup();
 
     bool visible;
-    Font *font;
+    Graphics::Font *font;
 
     bool has_focus;
 

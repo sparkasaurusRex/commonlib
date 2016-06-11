@@ -4,6 +4,7 @@
 using namespace UI;
 using namespace std;
 using namespace Math;
+using namespace Graphics;
 
 Label::Label(Font *f) : RectangularWidget(f)
 {

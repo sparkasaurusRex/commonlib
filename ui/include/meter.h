@@ -9,7 +9,7 @@ namespace UI
   class Meter : public RectangularWidget
   {
   public:
-    Meter(Font *f = NULL);
+    Meter(Graphics::Font *f = NULL);
     ~Meter() {}
 
     virtual void process_event(const SDL_Event &e, const Math::Float2 offset = Math::Float2());

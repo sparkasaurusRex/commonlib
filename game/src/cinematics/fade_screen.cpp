@@ -4,13 +4,10 @@
 
 using namespace std;
 using namespace Math;
+using namespace Graphics;
 
 FadeScreen::FadeScreen()
 {
-  fade_in_timer.set(1.0f);
-  linger_timer.set(1.0f);
-  fade_out_timer.set(1.0f);
-
   font = NULL;
 
   fade_opacity = 0.0f;
@@ -24,43 +21,38 @@ void FadeScreen::set_font(Font *f)
 
 void FadeScreen::simulate(const float dt)
 {
-  if(fade_in_timer.is_active())
+  if(!fade_in_timer.has_elapsed())
   {
-    //cout<<"fade in"<<endl;
-    fade_in_timer.simulate(dt);
+    cout<<"fade in"<<endl;
     fade_opacity = fade_in_timer.pct_elapsed();
     if(fade_opacity >= 1.0f)
     {
       fade_opacity = 1.0f;
-      linger_timer.activate();
+      linger_timer.start();
     }
   }
-  else if(linger_timer.is_active())
+  else if(!linger_timer.has_elapsed())
   {
-    //cout<<"linger"<<endl;
-    linger_timer.simulate(dt);
+    cout<<"linger"<<endl;
     fade_opacity = 1.0f;
     if(linger_timer.pct_elapsed() >= 1.0f)
     {
-      fade_out_timer.activate();
+      fade_out_timer.set(1.0);
+      fade_out_timer.start();
     }
   }
-  else if(fade_out_timer.is_active())
+  else if(!fade_out_timer.has_elapsed())
   {
-    //cout<<"fade out"<<endl;
-    fade_out_timer.simulate(dt);
+    cout<<"fade out"<<endl;
     fade_opacity = clamp(1.0f - fade_out_timer.pct_elapsed(), 0.0f, 1.0f);
   }
-  //cout<<"title screen opacity: "<<fade_opacity<<endl;
+  cout<<"title screen opacity: "<<fade_opacity<<endl;
 }
 
 void FadeScreen::render_gl() const
 {
-  //glPushAttrib(GL_DEPTH_BUFFER_BIT);
-
   //first render the backdrop
   glMatrixMode(GL_PROJECTION);
-  //glPushMatrix();
   glLoadIdentity();
 
   glDisable(GL_LIGHTING);
@@ -75,7 +67,6 @@ void FadeScreen::render_gl() const
   glClear(GL_COLOR_BUFFER_BIT);
 
   glMatrixMode(GL_MODELVIEW);
-  //glPushMatrix();
   glLoadIdentity();
 
   glColor4f(1.0f, 1.0f, 1.0f, fade_opacity);
@@ -106,24 +97,21 @@ void FadeScreen::render_gl() const
     char foo[256];
     strcpy(foo, text.c_str());
     float w = font->get_string_width(foo);
-    //cout<<"font width: "<<w<<endl;
     font->print((viewport[2] - w) / 2.0f, (viewport[3] - h) / 2.0f, text.c_str());
-
   }
- // glPopMatrix();
-  //glPopMatrix();
-  //glPopAttrib();
 }
 
 void FadeScreen::play()
 {
-  fade_in_timer.activate();
+  cout << "FadeScreen::play()" << endl;
+  fade_in_timer.set(1.0);
+  fade_in_timer.start();
 }
 
 bool FadeScreen::is_active() const
 {
-  if(fade_in_timer.is_active()) return true;
-  if(linger_timer.is_active()) return true;
-  if(fade_out_timer.is_active()) return true;
+  if(fade_in_timer.is_running() && !fade_in_timer.has_elapsed()) return true;
+  if(linger_timer.is_running() && !fade_in_timer.has_elapsed()) return true;
+  if(fade_out_timer.is_running() && !fade_in_timer.has_elapsed()) return true;
   return false;
 }

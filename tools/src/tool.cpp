@@ -2,6 +2,26 @@
 #include <iomanip>
 #include "tool.h"
 
+std::string Tool::mxml_read_text(mxml_node_t *node)
+{
+  assert(node);
+
+  std::string text_string;
+  const char *buff;
+  mxml_node_t *text_node = mxmlGetFirstChild(node);
+  while (text_node)
+  {
+    buff = mxmlGetText(text_node, NULL);
+    if (buff)
+    {
+      text_string = text_string + std::string(" ") + buff;
+    }
+    text_node = mxmlGetNextSibling(text_node);
+  }
+
+  return text_string;
+}
+
 Math::Float2 Tool::mxml_read_float2(const mxml_node_t *node)
 {
   assert(node);

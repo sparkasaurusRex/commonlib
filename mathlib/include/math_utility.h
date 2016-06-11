@@ -190,7 +190,7 @@ namespace Math {
     return Float3(r * ct * cp, r * sp, r * st * cp);
   }
 
-	unsigned int hash(const char *str);
+	uint32_t hash_value_from_string(const char *str);
 }
 
 #endif // _MATH_UTILITY_H_

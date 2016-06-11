@@ -5,7 +5,10 @@
 #include <string>
 #include "texture.h"
 
+#include "timer.h"
+
 //TODO: find a better home for this
+/*
 class Timer
 {
 public:
@@ -25,6 +28,7 @@ private:
   float time_left;      //how time is currently left
   bool active;          //true if the timer is actively counting down
 };
+*/
 
 class FadeScreen //: UIElement
 {
@@ -32,13 +36,13 @@ public:
   FadeScreen();
   ~FadeScreen() {}
 
-  void set_font(Font *f);
+  void set_font(Graphics::Font *f);
   void simulate(const float dt);
 
   void render_gl() const;
 
   void play();
-  void stop() { fade_in_timer.deactivate(); linger_timer.deactivate(); fade_out_timer.deactivate(); }
+  void stop() { /*fade_in_timer.deactivate(); linger_timer.deactivate(); fade_out_timer.deactivate();*/ }
   bool is_active() const;
 
   void set_linger_seconds(const float ls) { linger_timer.set(ls); }
@@ -46,11 +50,11 @@ public:
   void set_text(std::string t) { text = t; }
   void set_backdrop_texture(Graphics::Texture2D *tex) { backdrop_texture = tex; }
 private:
-  Font *font;
+  Graphics::Font *font;
 
-  Timer fade_in_timer;
-  Timer linger_timer;     //do you have to let it?
-  Timer fade_out_timer;
+  UI::Timer fade_in_timer;
+  UI::Timer linger_timer;     //do you have to let it?
+  UI::Timer fade_out_timer;
 
   float fade_opacity;
   std::string text;
