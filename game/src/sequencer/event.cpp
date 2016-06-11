@@ -9,6 +9,14 @@ void Event::start()
   running = true;
 }
 
+void Event::halt()
+{
+  delay.stop();
+  duration.stop();
+  running = false;
+  on_event_end();
+}
+
 void Event::simulate(const double game_time, const double frame_time)
 {
   if (!running) { return; }
@@ -17,21 +25,26 @@ void Event::simulate(const double game_time, const double frame_time)
   {
     if (delay.has_elapsed())
     {
+      if (!condition)
+      {
+        duration.start();
+      }
       delay.stop();
-      duration.start();
       on_event_start();
     }
-    (*console_log) << "    Delayed: " << delay.time_remaining() << std::endl;
+    //(*console_log) << "    Delayed: " << delay.time_remaining() << std::endl;
   }
 
-  if (duration.is_running())
+  if (condition && condition->condition_met())
   {
-    if (duration.has_elapsed())
+    halt();
+  }
+  else
+  {
+    if (duration.is_running() && duration.has_elapsed())
     {
-      duration.stop();
-      running = false;
-      on_event_end();
+       halt();
+      //(*console_log) << "    Running: " << duration.time_remaining() << std::endl;
     }
-    (*console_log) << "    Running: " << duration.time_remaining() << std::endl;
   }
 }

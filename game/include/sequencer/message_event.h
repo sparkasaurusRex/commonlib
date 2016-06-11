@@ -1,6 +1,7 @@
 #pragma once
 
 #include "event.h"
+#include "message_box.h"
 
 namespace Game
 {

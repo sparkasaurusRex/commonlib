@@ -24,7 +24,7 @@ void Sequence::simulate(const double game_time, const double frame_time)
 {
   if (running)
   {
-    (*console_log) << "Sequence::simulate(): timer: " << sequence_timer.time_elapsed() << std::endl;
+    //(*console_log) << "Sequence::simulate(): timer: " << sequence_timer.time_elapsed() << std::endl;
 
     if (tmp_current)
     {
@@ -103,22 +103,33 @@ void Sequencer::read_sequence_xml(FILE *fp)
       if (!_stricmp(element, "message"))
       {
         //handle message event
+        MessageEvent *msg_event = new MessageEvent;
+
         double msg_delay = 0;
         double msg_duration = 10;
+        uint32_t condition_hash_id;
 
         const char *buff = mxmlElementGetAttr(event_node, "delay");
         if (buff) { msg_delay = atof(buff); }
         buff = mxmlElementGetAttr(event_node, "duration");
         if (buff) { msg_duration = atof(buff); }
+        buff = mxmlElementGetAttr(event_node, "condition");
+        if (buff)
+        {
+          condition_hash_id = Math::hash_value_from_string(buff);
+          Condition *c = find_condition_by_hash_id(condition_hash_id);
+          assert(c);
+          msg_event->set_condition(c);
+        }
 
         (*console_log) << "    delay: " << msg_delay << endl;
         (*console_log) << "    duration: " << msg_duration << endl;
+        (*console_log) << "    condition: " << condition_hash_id << endl;
 
         std::string message_text = Tool::mxml_read_text(event_node);
 
         (*console_log) << message_text.c_str() << endl;
 
-        MessageEvent *msg_event = new MessageEvent;
         msg_event->set_delay(msg_delay);
         msg_event->set_duration(msg_duration);
         msg_event->set_font(font);

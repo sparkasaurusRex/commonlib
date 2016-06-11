@@ -1,5 +1,7 @@
 #pragma once
 
+#include "math_utility.h"
+
 namespace Game
 {
   class Condition
@@ -43,5 +45,19 @@ namespace Game
     void set_var_ptr(float *f) { var = f; }
 
     virtual bool condition_met() { return (fabs(*var - target) < error); }
+  };
+
+  class ConditionTimer : public Condition
+  {
+  protected:
+    UI::Timer timer;
+  public:
+    ConditionTimer() : Condition() {}
+    ~ConditionTimer() {}
+
+    void set_timer_duration(const double d) { timer.set(d); }
+    void start_timer() { timer.start(); }
+
+    virtual bool condition_met() const { return timer.has_elapsed(); }
   };
 };
