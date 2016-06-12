@@ -183,7 +183,7 @@ private:
     float bh = point_cloud.get_triangulation()->get_beach_line_height();
 
     glBegin(GL_POINTS);
-      for(int i = 0; i < point_cloud.get_num_points(); i++)
+      for(uint32_t i = 0; i < point_cloud.get_num_points(); i++)
       {
         Float3 p = point_cloud.get_point(i);
         if(p[1] < bh) { glColor3f(1.0f, 0.0f, 0.0f); }
@@ -197,7 +197,7 @@ private:
 
     glPointSize(2.0f);
     glBegin(GL_POINTS);
-      for(int i = 0; i < point_cloud.get_num_points(); i++)
+      for(uint32_t i = 0; i < point_cloud.get_num_points(); i++)
       {
         Float3 p = point_cloud.get_point(i);
         if(p[1] < bh) { glColor3f(1.0f, 0.0f, 0.0f); }

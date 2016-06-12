@@ -122,13 +122,13 @@ void Sequencer::read_sequence_xml(FILE *fp)
           msg_event->set_condition(c);
         }
 
-        (*console_log) << "    delay: " << msg_delay << endl;
-        (*console_log) << "    duration: " << msg_duration << endl;
-        (*console_log) << "    condition: " << condition_hash_id << endl;
+        //(*console_log) << "    delay: " << msg_delay << endl;
+        //(*console_log) << "    duration: " << msg_duration << endl;
+        //(*console_log) << "    condition: " << condition_hash_id << endl;
 
         std::string message_text = Tool::mxml_read_text(event_node);
 
-        (*console_log) << message_text.c_str() << endl;
+        //(*console_log) << message_text.c_str() << endl;
 
         msg_event->set_delay(msg_delay);
         msg_event->set_duration(msg_duration);
@@ -152,14 +152,19 @@ void Sequencer::read_sequence_xml(FILE *fp)
         if (buff)
         {
           uint32_t hash_val = Math::hash_value_from_string(buff);
-          (*console_log) << "    condition name: " << buff << endl;
-          (*console_log) << "    hash value: " << hash_val << endl;
+          //(*console_log) << "    condition name: " << buff << endl;
+          //(*console_log) << "    hash value: " << hash_val << endl;
 
           //find the condition in the condition list
           Condition *c = find_condition_by_hash_id(hash_val);
-          assert(c);
-
-          wc_event->set_condition(c);
+          if (c)
+          {
+            wc_event->set_condition(c);
+          }
+          else
+          {
+            (*console_log) << "Unknown condition: " << buff << endl;
+          }
         }
         wc_event->init();
         seq->add_event(wc_event);

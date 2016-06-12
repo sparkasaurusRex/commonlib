@@ -4,23 +4,30 @@
 #include "curve.h"
 #include "material.h"
 #include "texture.h"
+#include "renderable.h"
 
 namespace Graphics
 {
-  class Ribbon
+  struct RibbonVertex
+  {
+    float x, y, z;
+    float nx, ny, nz;
+    float r, g, b;
+    float u0, v0;
+  };
+
+  class Ribbon : public Renderable<RibbonVertex>
   {
   public:
     Ribbon();
     ~Ribbon();
 
-    void init();
-    void render(const double game_time);
-    void simulate(const double game_time, const double frame_time);
+    virtual void init();
+    //virtual void render(const double game_time);
+    virtual void simulate(const double game_time, const double frame_time);
 
     void set_num_segments(const int n) { num_segments = n; }
     int get_num_segments() const { return num_segments; }
-
-    void set_material(Graphics::Material *m) { mat = m; }
   private:
 
     //These two curves multiply by each other to determine the height of each
@@ -28,25 +35,7 @@ namespace Graphics
     Math::Curve profile_a;
     Math::Curve profile_b;
 
-    Material  *mat; //it is assumed that the material here has a valid shader
-
-    GLuint vbo, ibo;
-
     int num_segments;
-
-    struct RibbonVertex
-    {
-      float x, y, z;
-      float nx, ny, nz;
-      float r, g, b;
-      float u0, v0;
-    };
-
-    int num_verts;
-    RibbonVertex *vertex_data;
-
-    int num_indices;
-    unsigned int *index_data;
 
     //we should probably move this out of here to generalize ribbons
     float root_speed;

@@ -18,12 +18,46 @@ using namespace std;
 using namespace Graphics;
 using namespace Math;
 
-/*
-When using the Rift, the left eye sees the left half of the screen, and the right eye sees the right half.
-Although varying from person - to - person, human eye pupils are approximately 65 mm apart.
-This is known as interpupillary distance(IPD).
-The in - application cameras should be configured with the same separation.
-*/
+// vertex shader
+static char distortion_vertex_shader[] =
+"#version 410 core\n"
+"layout(location = 0) in vec4 position;\n"
+"layout(location = 1) in vec2 v2UVredIn;\n"
+"layout(location = 2) in vec2 v2UVGreenIn;\n"
+"layout(location = 3) in vec2 v2UVblueIn;\n"
+"noperspective  out vec2 v2UVred;\n"
+"noperspective  out vec2 v2UVgreen;\n"
+"noperspective  out vec2 v2UVblue;\n"
+"void main()\n"
+"{\n"
+"	v2UVred = v2UVredIn;\n"
+"	v2UVgreen = v2UVGreenIn;\n"
+"	v2UVblue = v2UVblueIn;\n"
+"	gl_Position = position;\n"
+"}\n";
+
+static char distortion_fragment_shader[] =
+"#version 410 core\n"
+"uniform sampler2D mytexture;\n"
+
+"noperspective  in vec2 v2UVred;\n"
+"noperspective  in vec2 v2UVgreen;\n"
+"noperspective  in vec2 v2UVblue;\n"
+
+"out vec4 outputColor;\n"
+
+"void main()\n"
+"{\n"
+"	float fBoundsCheck = ( (dot( vec2( lessThan( v2UVgreen.xy, vec2(0.05, 0.05)) ), vec2(1.0, 1.0))+dot( vec2( greaterThan( v2UVgreen.xy, vec2( 0.95, 0.95)) ), vec2(1.0, 1.0))) );\n"
+"	if( fBoundsCheck > 1.0 )\n"
+"	{ outputColor = vec4( 0, 0, 0, 1.0 ); }\n"
+"	else\n"
+"	{\n"
+"		float red = texture(mytexture, v2UVred).x;\n"
+"		float green = texture(mytexture, v2UVgreen).y;\n"
+"		float blue = texture(mytexture, v2UVblue).z;\n"
+"		outputColor = vec4( red, green, blue, 1.0  ); }\n"
+"}\n";
 
 VRContext::VRContext()
 {
@@ -63,11 +97,14 @@ void VRContext::init()
 
 void VRContext::deinit()
 {
+#if defined (_USE_OPENVR_SDK)
   if (hmd)
   {
     vr::VR_Shutdown();
     hmd = NULL;
   }
+#endif //_USE_OPENVR_SDK
+
 #if defined (_USE_OCULUS_SDK)
   ovr_Shutdown();
 #endif //_USE_OCULUS_SDK
@@ -76,9 +113,9 @@ void VRContext::deinit()
 void VRContext::bind(SDLGame *game)
 {
   assert(game);
-
   game->get_resolution(window_dim[0], window_dim[1]);
 
+#if defined (_USE_OPENVR_SDK)
   //Loading the SteamVR Runtime
   vr::EVRInitError err = vr::VRInitError_None;
   hmd = vr::VR_Init(&err, vr::VRApplication_Scene);
@@ -95,6 +132,10 @@ void VRContext::bind(SDLGame *game)
   assert(hmd);
   
   hmd->GetRecommendedRenderTargetSize(&render_target_dim[0], &render_target_dim[1]);
+
+  //load distortion shader
+  lens_shader.load_and_compile_shader(GL_VERTEX_SHADER_ARB, distortion_vertex_shader);
+  lens_shader.load_and_compile_shader(GL_FRAGMENT_SHADER_ARB, distortion_fragment_shader);
 
   //CreateFrameBuffer(render_target_dim[0], render_target_dim[1], leftEyeDesc);
   //CreateFrameBuffer(m_nRenderWidth, m_nRenderHeight, rightEyeDesc);
@@ -134,6 +175,7 @@ void VRContext::bind(SDLGame *game)
   }
 
   init_compositor();
+#endif //_USE_OPENVR_SDK
 
 #if defined (_USE_OCULUS_SDK)
   // Setup Window and Graphics
@@ -308,19 +350,34 @@ void VRContext::render_release(const unsigned int eye)
 
 void VRContext::render_stereo_targets()
 {
+  glClearColor(0.15f, 0.15f, 0.18f, 1.0f); // nice background color, but not black
+  glEnable(GL_MULTISAMPLE);
 
-/*  RenderScene(vr::Eye_Left);
-  
-  
-  
+  // Left Eye
+  glBindFramebuffer(GL_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId);
+  glViewport(0, 0, m_nRenderWidth, m_nRenderHeight);
 
+  RenderScene(vr::Eye_Left);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  glDisable(GL_MULTISAMPLE);
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, leftEyeDesc.m_nRenderFramebufferId);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, leftEyeDesc.m_nResolveFramebufferId);
+
+  glBlitFramebuffer(0, 0, m_nRenderWidth, m_nRenderHeight, 0, 0, m_nRenderWidth, m_nRenderHeight,
+    GL_COLOR_BUFFER_BIT,
+    GL_LINEAR);
+
+  glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+  glEnable(GL_MULTISAMPLE);
 
   // Right Eye
   glBindFramebuffer(GL_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId);
-  glViewport(0, 0, render_target_dim[0], render_target_dim[1]);
-
+  glViewport(0, 0, m_nRenderWidth, m_nRenderHeight);
   RenderScene(vr::Eye_Right);
-  
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   glDisable(GL_MULTISAMPLE);
@@ -328,18 +385,18 @@ void VRContext::render_stereo_targets()
   glBindFramebuffer(GL_READ_FRAMEBUFFER, rightEyeDesc.m_nRenderFramebufferId);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rightEyeDesc.m_nResolveFramebufferId);
 
-  glBlitFramebuffer(0, 0, render_target_dim[0], render_target_dim[1], 0, 0, render_target_dim[0], render_target_dim[1],
+  glBlitFramebuffer(0, 0, m_nRenderWidth, m_nRenderHeight, 0, 0, m_nRenderWidth, m_nRenderHeight,
     GL_COLOR_BUFFER_BIT,
     GL_LINEAR);
 
   glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-  */
 }
 
 //set up the geo for distortion
 void VRContext::setup_distortion()
 {
+#if defined (_USE_OPENVR_SDK)
   if (!hmd)
     return;
 
@@ -467,15 +524,18 @@ void VRContext::setup_distortion()
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#endif //_USE_OPENVR_SDK
 }
 
 void VRContext::render_distortion()
 {
+
+#if defined (_USE_OPENVR_SDK)
   glDisable(GL_DEPTH_TEST);
   glViewport(0, 0, window_dim[0], window_dim[1]);
 
   glBindVertexArray(lens_vao);
-  glUseProgram(lens_shader_id);
+  lens_shader.render();
 
   //render left lens (first half of index array )
   glBindTexture(GL_TEXTURE_2D, eye_resolve_tex[0]);
@@ -495,10 +555,12 @@ void VRContext::render_distortion()
 
   glBindVertexArray(0);
   glUseProgram(0);
+#endif //_USE_OPENVR_SDK
 }
 
 void VRContext::finalize_render()
 {
+#if defined (_USE_OPENVR_SDK)
   // for now as fast as possible
   if (hmd)
   {
@@ -551,6 +613,7 @@ void VRContext::finalize_render()
   }*/
 
   //UpdateHMDMatrixPose();
+#endif //_USE_OPENVR_SDK
 
 #if defined (_USE_OCULUS_SDK)
   // Do distortion rendering, Present and flush/sync
@@ -690,12 +753,14 @@ void VRContext::create_eye_depth_texture(const int eye_idx)
 
 void VRContext::init_compositor()
 {
+#if defined (_USE_OPENVR_SDK)
   vr::EVRInitError peError = vr::VRInitError_None;
 
   if (!vr::VRCompositor())
   {
     assert(false);
   }
+#endif //_USE_OPENVR_SDK
 }
 
 void VRContext::simulate(const double game_time, const double frame_time)

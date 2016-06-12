@@ -103,27 +103,13 @@ private:
     for (int eye = 0; eye < 2; eye++)
     {
       vr_context.render_capture(eye);
-
       vr_context.get_eye_camera(eye, &cam[eye]);
-
       cam[eye].render_setup();
 
       glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
       render_static_mesh();
-
-      /*
-      glPointSize(15.0f);
-      glBegin(GL_POINTS);
-      //glVertex3f(0.0f, 0.0f, 0.0f);
-      for (int i = 0; i < 100; i++)
-      {
-        glVertex3f(point_cloud[i][0], point_cloud[i][1], point_cloud[i][2]);
-      }
-      glEnd();
-      */
 
       cam[eye].render_cleanup();
 
