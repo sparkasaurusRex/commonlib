@@ -23,7 +23,7 @@ namespace Graphics
     ~Ribbon();
 
     virtual void init();
-    //virtual void render(const double game_time);
+    virtual void render(const double game_time);
     virtual void simulate(const double game_time, const double frame_time);
 
     void set_num_segments(const int n) { num_segments = n; }

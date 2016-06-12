@@ -29,18 +29,15 @@ Ribbon::Ribbon() : Renderable<RibbonVertex>()
 
 Ribbon::~Ribbon()
 {
-  //tear down vbo, ibo
-  glDeleteBuffers(1, &vbo);
-  glDeleteBuffers(1, &ibo);
-
-  if(vertex_data) { delete vertex_data; }
-  if(index_data) { delete index_data; }
+  deallocate_buffers();
 }
 
 void Ribbon::init()
 {
   num_vertices = num_segments * 2;
   num_indices = num_vertices;
+  
+  gl_usage = GL_DYNAMIC_DRAW;
 
   Renderable::allocate_buffers();
 
@@ -120,4 +117,27 @@ void Ribbon::simulate(const double gt, const double dt)
   //update the vbo, and release
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(RibbonVertex) * num_vertices, &vertex_data[0].x);
+}
+
+void Ribbon::render(const double game_time)
+{
+  material->render();
+
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, sizeof(RibbonVertex), (void *)0);
+
+  glEnableClientState(GL_NORMAL_ARRAY);
+  glNormalPointer(GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 3));
+
+  glEnableClientState(GL_COLOR_ARRAY);
+  glColorPointer(3, GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 6));
+  glClientActiveTexture(GL_TEXTURE0);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glTexCoordPointer(2, GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 9));
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  glDrawElements(geo_mode, num_indices, GL_UNSIGNED_INT, (void *)0);
+
+  material->cleanup();
 }
