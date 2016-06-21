@@ -6,6 +6,7 @@ CFLAGS+=$(shell pkg-config --cflags freetype2)
 CFLAGS+=-D__USE_BOOST__
 CFLAGS+=-D__USE_CGAL3D__
 CFLAGS+=-Ofast
+CFLAGS+=-std=c++11
 #CFLAGS+= -g3 -O0
 LDFLAGS=$(shell pkg-config --libs sdl2)
 LDFLAGS+=$(shell pkg-config --libs SDL2_image)

@@ -58,11 +58,7 @@ private:
   }
   void game_loop(const double game_time, const double frame_time)
   {
-<<<<<<< HEAD
-    ww.simulate(frame_time, frame_time);
-=======
     ww.simulate(game_time, frame_time);
->>>>>>> chadmiral/master
 
     meter.set_percent(0.5f * cos(game_time * 0.001f) + 0.5f);
   }
