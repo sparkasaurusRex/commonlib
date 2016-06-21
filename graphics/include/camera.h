@@ -14,6 +14,7 @@
 
 #include "math_utility.h"
 #include "matrix.h"
+#include <cstring>
 
 namespace Graphics
 {

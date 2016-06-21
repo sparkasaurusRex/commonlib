@@ -6,6 +6,8 @@ CFLAGS+= -Ofast
 CFLAGS+=$(shell pkg-config sdl2 --cflags)
 CFLAGS+=$(shell pkg-config SDL2_image --cflags)
 CFLAGS+=$(shell pkg-config freetype2 --cflags)
+CFLAGS+=-std=c++11
+
 LDFLAGS=-lmath $(shell pkg-config sdl2 --libs)
 LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 LDFLAGS+=$(shell pkg-config freetype2 --libs)

@@ -8,6 +8,8 @@ CFLAGS+=$(shell pkg-config sdl2 --cflags)
 CFLAGS+=$(shell pkg-config SDL2_image --cflags)
 #CFLAGS+=-Ofast
 CFLAGS+= -g3 -O0 -D__DEBUG__
+CFLAGS+=-std=c++11
+
 
 LDFLAGS=$(shell pkg-config freetype2 --libs)
 LDFLAGS+=$(shell pkg-config glew --libs)

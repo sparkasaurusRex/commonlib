@@ -58,7 +58,7 @@ private:
   }
   void game_loop(const double game_time, const double frame_time)
   {
-    ww.simulate(frame_time);
+    ww.simulate(frame_time, frame_time);
 
     meter.set_percent(0.5f * cos(game_time * 0.001f) + 0.5f);
   }

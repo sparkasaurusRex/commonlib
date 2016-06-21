@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <iostream>
+#include <stdint.h>
 
 #ifndef M_PHI
 #define M_PHI   1.61803398874989484820
