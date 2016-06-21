@@ -32,8 +32,8 @@ namespace Math {
       //dot product
       inline float operator*(const Float2 &b) const { return b._val[0] * _val[0] + b._val[1] * _val[1]; }
 
-      inline float x() const { return _val[0]; }
-      inline float y() const { return _val[1]; }
+      inline float &x() { return _val[0]; }
+      inline float &y() { return _val[1]; }
 
       //swizzle
       //inline Float2 xy() const { return Float2(_val[0], _val[1]); }
@@ -72,9 +72,13 @@ namespace Math {
                                                                        _val[0] * r._val[1] - _val[1] * r._val[0]); }
 
 
-        inline float x() const { return _val[0]; }
-        inline float y() const { return _val[1]; }
-        inline float z() const { return _val[2]; }
+        inline float &x() { return _val[0]; }
+        inline float &y() { return _val[1]; }
+        inline float &z() { return _val[2]; }
+
+        inline float &phi() { return _val[0]; }
+        inline float &theta() { return _val[1]; }
+        inline float &rad() { return _val[2]; }
 
         //swizzle
         inline Float3 xzy() const { return Float3(_val[0], _val[2], _val[1]); }
@@ -189,6 +193,20 @@ namespace Math {
     float sp = sin(phi);
     float st = sin(theta);
     return Float3(r * ct * cp, r * sp, r * st * cp);
+  }
+
+  inline Float3 cartesian_to_polar(const Float3 p)
+  {
+    Float3 p_copy = p;
+    Float3 phi_theta_r;
+    float mag = p_copy.magnitude();
+    phi_theta_r.rad() = mag;
+    p_copy = p_copy / mag;
+  
+    phi_theta_r.phi() = 0.5f + (atan2(p_copy[2], p_copy[0]) / (float)M_PI) * 0.5f;
+    phi_theta_r.theta() = asin(p_copy[1]) / (float)(M_PI) + 0.5f;
+    
+    return phi_theta_r;
   }
 
 	uint32_t hash_value_from_string(const char *str);

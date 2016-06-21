@@ -15,6 +15,7 @@
 
 #include "sdl_game.h"
 #include "camera.h"
+#include "shader.h"
 
 namespace VR
 {
@@ -43,11 +44,11 @@ namespace VR
     GLuint lens_vao;            //vertex array object for lens distortion
     GLuint lens_vbo;
     GLuint lens_ibo;
-    GLuint lens_shader_id;
+
+    Graphics::Shader lens_shader;
 
     uint32_t num_lens_indices;
     
-
     uint32_t render_target_dim[2];
     uint32_t window_dim[2];
 

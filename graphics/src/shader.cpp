@@ -48,7 +48,6 @@ void Shader::set_shader_filenames(std::string vs_fname, std::string fs_fname)
 
 GLuint Shader::load_and_compile_shader(GLenum shader_type, const char *source)
 {
-  //GLuint my_shader = glCreateShaderObjectARB(shader_type);
   GLuint my_shader = glCreateShader(shader_type);
   glShaderSource(my_shader, 1, &source, NULL);
   glCompileShader(my_shader);

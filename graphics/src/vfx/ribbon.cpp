@@ -6,12 +6,8 @@ using namespace Graphics;
 using namespace Math;
 using namespace std;
 
-Ribbon::Ribbon()
+Ribbon::Ribbon() : Renderable<RibbonVertex>()
 {
-  vbo = 0;
-  ibo = 0;
-
-  num_verts = 0;
   num_segments = 20;
 
   root_scale = 0.7f;
@@ -29,31 +25,21 @@ Ribbon::Ribbon()
   phi_bounds[1] = 0.5f;
 
   profile_a.bell_curve_cerp(0.45f, 0.55f);
-
-  mat = NULL;
-  vertex_data = NULL;
-  index_data = NULL;
 }
 
 Ribbon::~Ribbon()
 {
-  //tear down vbo, ibo
-  glDeleteBuffers(1, &vbo);
-  glDeleteBuffers(1, &ibo);
-
-  if(vertex_data) { delete vertex_data; }
-  if(index_data) { delete index_data; }
+  deallocate_buffers();
 }
 
 void Ribbon::init()
 {
-  num_verts = num_segments * 2;
-  num_indices = num_verts;
+  num_vertices = num_segments * 2;
+  num_indices = num_vertices;
+  
+  gl_usage = GL_DYNAMIC_DRAW;
 
-  if(vertex_data) { delete vertex_data; }
-  if(index_data) { delete index_data; }
-  vertex_data = new RibbonVertex[num_verts];
-  index_data = new unsigned int[num_indices];
+  Renderable::allocate_buffers();
 
   for(int i = 0; i < num_segments; i++)
   {
@@ -79,49 +65,7 @@ void Ribbon::init()
     vertex_data[2 * i + 1].v0 = 1.0f;
   }
 
-  //create vbo / ibo
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(RibbonVertex) * num_verts, vertex_data, GL_DYNAMIC_DRAW);
-
-  glGenBuffers(1, &ibo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_indices, index_data, GL_DYNAMIC_DRAW);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-void Ribbon::render(const double game_time)
-{
-  glUseProgramObjectARB(0);
-  glDisable(GL_CULL_FACE);
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthRange(0.0f, 1.0f);
-  glDepthMask(GL_FALSE);
-
-  glPointSize(5.0f);
-
-  mat->render();
-
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(3, GL_FLOAT, sizeof(RibbonVertex), (void *)0);
-
-  glEnableClientState(GL_NORMAL_ARRAY);
-  glNormalPointer(GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 3));
-
-  glEnableClientState(GL_COLOR_ARRAY);
-  glColorPointer(3, GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 6));
-  glClientActiveTexture(GL_TEXTURE0);
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glTexCoordPointer(2, GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 9));
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glDrawElements(GL_QUAD_STRIP, num_indices, GL_UNSIGNED_INT, (void *)0);
-
-  mat->cleanup();
+  Renderable::init_buffers();
 }
 
 void Ribbon::simulate(const double gt, const double dt)
@@ -144,6 +88,7 @@ void Ribbon::simulate(const double gt, const double dt)
     Float3 root_vert_pos = polar_to_cartesian(theta, phi, 1.1f);
     Float3 top_vert_pos = root_vert_pos + root_vert_pos * profile_height;
 
+    //TODO: actually normal correctly
     Float3 n = root_vert_pos;
     Float3 tmp = n ^ Float3(0.0f, 1.0f, 0.0f);
     n = n ^ tmp;
@@ -171,5 +116,28 @@ void Ribbon::simulate(const double gt, const double dt)
 
   //update the vbo, and release
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(RibbonVertex) * num_verts, &vertex_data[0].x);
+  glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(RibbonVertex) * num_vertices, &vertex_data[0].x);
+}
+
+void Ribbon::render(const double game_time)
+{
+  material->render();
+
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, sizeof(RibbonVertex), (void *)0);
+
+  glEnableClientState(GL_NORMAL_ARRAY);
+  glNormalPointer(GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 3));
+
+  glEnableClientState(GL_COLOR_ARRAY);
+  glColorPointer(3, GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 6));
+  glClientActiveTexture(GL_TEXTURE0);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  glTexCoordPointer(2, GL_FLOAT, sizeof(RibbonVertex), (void *)(sizeof(float) * 9));
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  glDrawElements(geo_mode, num_indices, GL_UNSIGNED_INT, (void *)0);
+
+  material->cleanup();
 }

@@ -203,7 +203,7 @@ void DebugConsole::execute()
   i = std::find(float_var_names.begin(), float_var_names.end(), words[0]);
   if(i != float_var_names.end())
   {
-    int idx = std::distance(float_var_names.begin(), i);
+    int idx = (int)std::distance(float_var_names.begin(), i);
     float *f = float_vars[idx];
     if(words.size() == 1 || (words.size() == 2 && words[1] == ""))
     {
@@ -249,7 +249,7 @@ void DebugConsole::execute()
   i = std::find(boolean_var_names.begin(), boolean_var_names.end(), words[0]);
   if(i != boolean_var_names.end())
   {
-    int idx = std::distance(boolean_var_names.begin(), i);
+    int idx = (int)std::distance(boolean_var_names.begin(), i);
     bool *b = boolean_vars[idx];
 
     if(words.size() == 2)
@@ -269,7 +269,7 @@ void DebugConsole::execute()
   i = std::find(func_var_names.begin(), func_var_names.end(), words[0]);
   if(i != func_var_names.end())
   {
-    int idx = std::distance(func_var_names.begin(), i);
+    int idx = (int)std::distance(func_var_names.begin(), i);
     void (*f)() = func_vars[idx];
     f();
   }

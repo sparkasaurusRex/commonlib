@@ -43,7 +43,7 @@ namespace Structures    {
     KDNode<T> *find_nearest_neighbor(Math::Float3 query)
     {
       KDNode<T> *closest = NULL;
-      float best_d2 = findNearestNeighborHelper(&closest, &query, root, 0);
+      /*float best_d2 = */findNearestNeighborHelper(&closest, &query, root, 0);
       return closest;
     }
 
