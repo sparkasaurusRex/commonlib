@@ -2,6 +2,7 @@
 #include "message_event.h"
 #include "wait_condition_event.h"
 #include "tool.h"
+#include "platform.h"
 
 using namespace Game;
 using namespace std;
@@ -100,7 +101,7 @@ void Sequencer::read_sequence_xml(FILE *fp)
     if (element)
     {
       (*console_log) << "  " << element << endl;
-      if (!_stricmp(element, "message"))
+      if (!stricmp(element, "message"))
       {
         //handle message event
         MessageEvent *msg_event = new MessageEvent;
@@ -143,7 +144,7 @@ void Sequencer::read_sequence_xml(FILE *fp)
 
         seq->add_event(msg_event);
       }
-      else if (!_stricmp(element, "wait"))
+      else if (!stricmp(element, "wait"))
       {
         //handle wait event
         WaitConditionEvent *wc_event = new WaitConditionEvent;

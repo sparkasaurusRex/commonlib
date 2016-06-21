@@ -13,25 +13,7 @@ void gl_init()
 
 void gl_sphere(const float *_pos, const float *_dim, const float _radius)
 {
-    int num_segments = 16;
-    int num_rings = 8;
 
-    glTranslatef(_pos[0], _pos[1], _pos[2]);
-    glScalef(_dim[0], _dim[1], _dim[2]);
-
-    //glutSolidSphere(_radius, num_segments, num_rings);
-    /*glBegin(GL_POINTS);
-
-      for(int i = 0; i < num_segments; i++)
-      {
-        float theta = (M_PI * 2.0f) / (float)i;
-        for(int j = 0; j < num_rings; j++)
-        {
-
-        }
-      }
-
-    glEnd();*/
 }
 
 //draw a cube

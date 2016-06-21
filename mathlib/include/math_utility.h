@@ -204,6 +204,8 @@ namespace Math {
   
     phi_theta_r.phi() = 0.5f + (atan2(p_copy[2], p_copy[0]) / (float)M_PI) * 0.5f;
     phi_theta_r.theta() = asin(p_copy[1]) / (float)(M_PI) + 0.5f;
+    
+    return phi_theta_r;
   }
 
 	uint32_t hash_value_from_string(const char *str);
