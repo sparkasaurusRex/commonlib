@@ -66,7 +66,7 @@ void Triangulation2D::delaunay_boost()
   voronoi_diagram<double> vd;
 
   std::vector<VPoint> points;
-  for(int i = 0; i < vertices->size(); i++)
+  for(uint32_t i = 0; i < vertices->size(); i++)
   {
     VPoint vp((*vertices)[i][0] * 1000000, (*vertices)[i][1] * 1000000);
     points.push_back(vp);

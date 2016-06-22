@@ -9,6 +9,7 @@
 #include <OpenGL/gl.h>
 #endif //__APPLE__
 
+#include "platform.h"
 #include "shader.h"
 #include "gl_error.h"
 
@@ -108,11 +109,7 @@ bool Shader::load_link_and_compile()
 
     //load shader file from disk
     FILE *fp = NULL;
-#if defined (_WIN32)
-    fopen_s(&fp, gl_vertex_shader_fname, "r");
-#else
-    fp = fopen(gl_vertex_shader_fname, "r");
-#endif //(_WIN32)
+    FOPEN(fp, gl_vertex_shader_fname, "r");
     if(fp)
     {
       fseek(fp, 0, SEEK_END);
@@ -144,11 +141,7 @@ bool Shader::load_link_and_compile()
 
     cout<<"loading fragment shader "<<gl_fragment_shader_fname<<endl;
     fp = NULL;
-#if defined (_WIN32)
-    fopen_s(&fp, gl_fragment_shader_fname, "r");
-#else
-    fp = fopen(gl_fragment_shader_fname, "r");
-#endif //(_WIN32)
+    FOPEN(fp, gl_fragment_shader_fname, "r");
     if(fp)
     {
       fseek(fp, 0, SEEK_END);
