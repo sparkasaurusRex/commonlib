@@ -109,7 +109,8 @@ bool Shader::load_link_and_compile()
 
     //load shader file from disk
     FILE *fp = NULL;
-    FOPEN(fp, gl_vertex_shader_fname, "r");
+    fopen_s(&fp, gl_vertex_shader_fname, "r");
+    //FOPEN(fp, gl_vertex_shader_fname, "r");
     if(fp)
     {
       fseek(fp, 0, SEEK_END);
