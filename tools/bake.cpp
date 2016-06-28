@@ -1,6 +1,6 @@
 #include <iostream>
-
 #include "bakery.h"
+#include "platform.h"
 
 using namespace std;
 using namespace Tool;

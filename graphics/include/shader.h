@@ -25,8 +25,6 @@ namespace Graphics
     
     bool load_link_and_compile();
     void render();
-  //private:
-    //char name[256];
 
     GLuint gl_fragment_shader;
     GLuint gl_vertex_shader;
@@ -34,11 +32,6 @@ namespace Graphics
 
     char gl_fragment_shader_fname[512];
     char gl_vertex_shader_fname[512];
-
-  	//HACK
-    int gl_pos_loc;
-    int gl_col_loc;
-    int gl_uv_loc;
   };
 
   class ShaderUniformVariable
