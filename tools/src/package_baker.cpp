@@ -174,16 +174,20 @@ void PackageBaker::write_package(std::string output_filename)
       uint32_t hash_id = Math::hash_value_from_string(s->get_name().c_str());
       cout << "\"" << s->get_name().c_str() << "\"" << " -> " << hash_id << endl;
 
-      uint32_t vs_length = s->vs_source.size();
-      uint32_t fs_length = s->fs_source.size();
+      uint32_t vs_length = (s->vs_source.size() + 1) * sizeof(char);
+      uint32_t fs_length = (s->fs_source.size() + 1) * sizeof(char);
 
       fwrite(&hash_id, sizeof(uint32_t), 1, fp);
       fwrite(&vs_length, sizeof(uint32_t), 1, fp);
       fwrite(&fs_length, sizeof(uint32_t), 1, fp);
 
+      char null_char = '\0';
+
       //write the actual source
       fwrite(s->vs_source.c_str(), sizeof(char), vs_length, fp);
+      //fwrite(&null_char, sizeof(char), 1, fp);
       fwrite(s->fs_source.c_str(), sizeof(char), fs_length, fp);
+      //fwrite(&null_char, sizeof(char), 1, fp);
     }
 
     fclose(fp);
