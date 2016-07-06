@@ -43,13 +43,33 @@ namespace Tool
     std::string fs_source;
   };
 
+  class TexturePackageAsset : public PackageAsset
+  {
+  public:
+    TexturePackageAsset() { tex_data = NULL; }
+    ~TexturePackageAsset() { if (tex_data) { delete tex_data; } }
+
+    uint32_t width;  //texture width
+    uint32_t height; //texture height
+    uint32_t bpp;    //bytes per pixel
+
+    void     *tex_data;       //pointer to the actual texture data
+    uint32_t tex_data_size;   //size of the texture data
+  };
+
+
   class PackageBaker
   {
   private:
     uint32_t file_version;
     std::vector<PackageAsset *> assets;
 
+    void read_shader_file(mxml_node_t *shader_node);
+    void read_texture_file(mxml_node_t *texture_node);
+
     void write_package(std::string output_fname);
+    void write_shader_packlet(FILE *fp, ShaderPackageAsset *s);
+    void write_texture_packlet(FILE *fp, TexturePackageAsset *t);
   public:
     PackageBaker() { file_version = PACKAGE_FILE_VERSION; }
     ~PackageBaker() {}

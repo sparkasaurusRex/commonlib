@@ -11,6 +11,111 @@ using namespace Math;
 using namespace Graphics;
 using namespace PerlinNoise;
 
+static char *hair_sim_vs =
+"#version 120\
+\
+void main(void) {\
+  gl_TexCoord[0] = gl_MultiTexCoord0;\
+  gl_TexCoord[1] = gl_MultiTexCoord1;\
+  gl_Position = ftransform();\
+}\
+";
+
+static char *hair_sim_fs =
+"#version 120\
+\
+uniform sampler2D prev_pos_tex;\
+uniform sampler2D force_tex;\
+uniform sampler2D uv_tex;\
+uniform vec4 constants;\
+\
+uniform float texel_size;\
+\
+// F = -k(x - d) (Hooke's Spring Law)\
+void main()\
+{\
+  float dt = clamp(constants.x, 0.0, 0.02);\
+  float k = constants.y;\
+  float texel_size = constants.z;\
+  float spring_length = constants.w;\
+  float wind_strength = 0.5;\
+  float drag = 0.1;\
+\
+  vec3 force_uvs = texture2D(uv_tex, gl_TexCoord[0].st).rgb;\
+  vec4 prev_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st);\
+  vec4 parent_pos = texture2D(prev_pos_tex, gl_TexCoord[0].st - vec2(0.0, texel_size));\
+  vec4 external_force = wind_strength * texture2D(force_tex, force_uvs.xy);\
+\
+  spring_length = spring_length * external_force.w * force_uvs.z; //scale by height\
+\
+  vec3 v_spring = prev_pos.xyz - parent_pos.xyz;\
+  float r = length(v_spring);\
+\
+  vec3 spring_force = vec3(0.0, 0.0, 0.0);\
+  if (r > 0.0)\
+  {\
+    spring_force = -k * (v_spring / r) * (r - spring_length);\
+  }\
+\
+  vec3 final_force = dt * (external_force.xyz + spring_force);\
+  if (gl_TexCoord[0].t < texel_size)\
+  {\
+    final_force = vec3(0.0, 0.0, 0.0);\
+  }\
+\
+  gl_FragColor = prev_pos + vec4(final_force, 0.0);// + offset;\
+}\
+";
+
+static char *hair_render_vs =
+"#version 120\
+\
+uniform sampler2D hair_tex;\
+uniform sampler2D uv_tex;\
+uniform sampler2D color_tex;\
+uniform vec3 sun_pos;\
+uniform vec3 sun_diff_rgb;\
+uniform vec3 light_amb_rgb;\
+\
+varying vec4 vertex_color;\
+varying vec3 view_dir;\
+varying vec3 light_dir;\
+\
+void main()\
+{\
+  gl_TexCoord[0] = gl_MultiTexCoord0;\
+\
+  view_dir = -vec3(gl_ProjectionMatrix[2][0], gl_ProjectionMatrix[2][1], gl_ProjectionMatrix[2][2]);\
+\
+  vec4 pos_offset = texture2D(hair_tex, gl_TexCoord[0].st);\
+  vec3 uvs = texture2D(uv_tex, gl_TexCoord[0].st).rgb;\
+\
+  vec4 pos = gl_Vertex + pos_offset;\
+  vec3 n = normalize(gl_NormalMatrix * pos.xyz);\
+\
+  light_dir = normalize(sun_pos - pos.xyz);\
+  float n_dot_l = clamp(dot(n, light_dir), 0.0, 1.0);\
+  vec3 diffuse_term = n_dot_l * sun_diff_rgb;\
+  vec3 tint_color = texture2D(color_tex, uvs.xy).rgb;\
+  vec3 ambient_term = light_amb_rgb;\
+  vertex_color = vec4(diffuse_term * tint_color * gl_Color.rgb + ambient_term * tint_color, 1.0);\
+\
+  gl_Position = gl_ModelViewProjectionMatrix * pos;\
+}\
+";
+
+static char *hair_render_fs =
+"#version 120\
+\
+varying vec4 vertex_color;\
+\
+void main()\
+{\
+  //vec4 tint = texture2D(color_tex, gl_TexCoord[0].st);\
+  gl_FragColor = vertex_color;\
+}\
+";
+
 GPUHairSim::GPUHairSim()
 {
   num_hairs = 4;
@@ -64,11 +169,6 @@ GPUHairSim::GPUHairSim()
   fbo_vbo = fbo_ibo = 0;
 
   spring_constant = 60.0f;
-
-  simulation_shader_names[0] = std::string("data/shaders/hair_sim.vs");
-  simulation_shader_names[1] = std::string("data/shaders/hair_sim.fs");
-  render_shader_names[0] = std::string("data/shaders/hair_render.vs");
-  render_shader_names[1] = std::string("data/shaders/hair_render.fs");
 
   sun_pos_xyz = Float3(10.0f, 10.0f, 2.0f);
   sun_diff_rgb = Float3(3.0f, 2.5f, 1.0f);
@@ -272,13 +372,11 @@ void GPUHairSim::init(Float3 *hair_pos, Float3 *hair_uvs)
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * num_indices, indices, GL_STATIC_DRAW);
 
   //load textures and shaders
-  render_shader->set_shader_filenames(render_shader_names[0], render_shader_names[1]);
-  render_shader->load_link_and_compile();
+  render_shader->compile_and_link_from_source(hair_render_vs, hair_render_fs);
   render_mat.set_shader(render_shader);
   render_mat.init();
 
-  sim_shader->set_shader_filenames(simulation_shader_names[0], simulation_shader_names[1]);
-  sim_shader->load_link_and_compile();
+  sim_shader->compile_and_link_from_source(hair_sim_vs, hair_sim_fs);
   sim_mat.set_shader(sim_shader);
   sim_mat.init();
 
@@ -344,17 +442,20 @@ void GPUHairSim::update_lighting(Float3 sun_pos, Float3 sun_diff, Float3 sun_spe
   cam_distance = cam_dist;
 }
 
+/*
 void GPUHairSim::set_render_shader_names(std::string vs, std::string fs)
 {
   render_shader_names[0] = vs;
   render_shader_names[1] = fs;
 }
 
+
 void GPUHairSim::set_simulation_shader_names(std::string vs, std::string fs)
 {
   simulation_shader_names[0] = vs;
   simulation_shader_names[1] = fs;
 }
+*/
 
 void GPUHairSim::simulate(const double game_time, const double dt)
 {

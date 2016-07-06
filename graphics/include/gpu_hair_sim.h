@@ -74,8 +74,8 @@ namespace Graphics {
     void update_forces(const GLfloat *force_data);
     void update_lighting(Math::Float3 sun_pos, Math::Float3 sun_diff, Math::Float3 sun_spec, Math::Float3 ambient, float cam_dist);
 
-    void set_render_shader_names(std::string vs, std::string fs);
-    void set_simulation_shader_names(std::string vs, std::string fs);
+    //void set_render_shader_names(std::string vs, std::string fs);
+    //void set_simulation_shader_names(std::string vs, std::string fs);
   private:
     GLuint create_texture();
 

@@ -39,16 +39,15 @@ namespace Game
     Graphics::Shader *s;
   };
   
-  /*
   class TextureAsset : public GameAsset
   {
   public:
     TextureAsset() : GameAsset(TEXTURE_ASSET) {}
     ~TextureAsset() {}
 
-    Graphics::Texture *t;
+    Graphics::Texture2D *t;
   };
-  */
+  
   class AssetLibrary
   {
   protected:
@@ -88,7 +87,18 @@ namespace Game
     {
       ShaderAsset *shader_asset = (ShaderAsset *)retrieve_asset(fname);
       assert(shader_asset);
+      assert(shader_asset->type == SHADER_ASSET);
+      assert(shader_asset->s);
       return shader_asset->s;
+    }
+
+    Graphics::Texture2D *retrieve_texture(std::string fname)
+    {
+      TextureAsset *tex_asset = (TextureAsset *)retrieve_asset(fname);
+      assert(tex_asset);
+      assert(tex_asset->type == TEXTURE_ASSET);
+      assert(tex_asset->t);
+      return tex_asset->t;
     }
   };
 }

@@ -103,14 +103,6 @@ void Texture2D::init()
 
 bool Texture2D::load()
 {
-    /*
-    if(gl_texture != 0)
-    {
-        assert(glIsTexture(gl_texture) == GL_TRUE);
-        cerr<<"texture already loaded???"<<endl;
-        return true; //already loaded
-    }*/
-
     int width, height;
 
 #if defined(__USE_SOIL__)

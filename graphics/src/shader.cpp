@@ -136,7 +136,7 @@ bool Shader::load_link_and_compile()
     if(fp)
     {
       fseek(fp, 0, SEEK_END);
-      int string_size = ftell(fp);
+      uint32_t string_size = ftell(fp);
       rewind(fp);
 
       char *gl_vertex_source = (char *)malloc(sizeof(char) * (string_size + 1));
@@ -161,7 +161,7 @@ bool Shader::load_link_and_compile()
     if(fp)
     {
       fseek(fp, 0, SEEK_END);
-      int string_size = ftell(fp);
+      uint32_t string_size = ftell(fp);
       rewind(fp);
 
       char *gl_fragment_source = (char *)malloc(sizeof(char) * (string_size + 1));
