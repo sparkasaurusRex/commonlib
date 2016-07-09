@@ -24,6 +24,7 @@ namespace Tool
     StaticMeshBaker   static_mesh_baker;
     BPhysBaker        bphys_baker;
     ShaderBaker       shader_baker;
+
   };
 };
 

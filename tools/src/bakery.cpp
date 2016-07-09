@@ -9,6 +9,8 @@ using namespace Math;
 
 void Bakery::init()
 {
+  //init openGL / glew so we can compile shaders n shi
+
   package_baker.init();
   static_mesh_baker.init();
   bphys_baker.init();

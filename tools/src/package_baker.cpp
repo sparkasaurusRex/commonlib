@@ -2,9 +2,15 @@
 #include <Windows.h>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <GL/glew.h>
+#include <GL/gl.h>
 #else
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#endif
+
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
 #endif
 
 #include <iostream>
@@ -13,10 +19,17 @@
 #include "package_baker.h"
 #include "math_utility.h"
 #include "platform.h"
+#include "shader.h"
 
 using namespace Math;
 using namespace std;
 using namespace Tool;
+using namespace Graphics;
+
+void PackageBaker::init()
+{
+
+}
 
 void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
 {
@@ -96,6 +109,7 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
   if (vs_node)
   {
     buffer = mxmlGetText(vs_node, NULL);
+    shader_asset->fname = buffer;
     cout << "\tvs: " << buffer << " ... ";
 
     FILE *fp = NULL;
@@ -146,7 +160,7 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
       shader_asset->fs_source = glsl_source;
       free(glsl_source);
       fclose(fp);
-      //TODO: compile / check for errors?
+
       SET_TEXT_COLOR(CONSOLE_COLOR_GREEN);
       cout << "OK" << endl;
       SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
@@ -158,6 +172,10 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
       SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
     }
   }
+
+  //TODO
+  //Shader s;
+  //s.compile_and_link_from_source(shader_asset->vs_source.c_str(), shader_asset->fs_source.c_str());
 }
 
 void PackageBaker::read_texture_file(mxml_node_t *texture_node)
@@ -179,6 +197,7 @@ void PackageBaker::read_texture_file(mxml_node_t *texture_node)
   cout << "\t\ttexture format: " << buffer << endl;
 
   buffer = mxmlGetText(texture_node, NULL);
+  texture_asset->fname = buffer;
   cout << "\t\tsource file: " << buffer << " ... ";
 
   SDL_Surface *image = IMG_Load(buffer);
@@ -199,6 +218,17 @@ void PackageBaker::read_texture_file(mxml_node_t *texture_node)
   texture_asset->bpp = image->format->BytesPerPixel;
   texture_asset->width = image->w;
   texture_asset->height = image->h;
+
+  buffer = mxmlElementGetAttr(texture_node, "wrap_u");
+  if (buffer && !stricmp(buffer, "clamp"))
+  {
+    texture_asset->wrap_u = GL_CLAMP;
+  }
+  buffer = mxmlElementGetAttr(texture_node, "wrap_v");
+  if (buffer && !stricmp(buffer, "clamp"))
+  {
+    texture_asset->wrap_v = GL_CLAMP;
+  }
 
   //copy the texture data to the asset object to be written to the package
   texture_asset->tex_data_size = texture_asset->bpp * image->w * image->h;
@@ -276,14 +306,20 @@ void PackageBaker::write_shader_packlet(FILE *fp, ShaderPackageAsset *s)
   uint32_t hash_id = Math::hash_value_from_string(s->get_name().c_str());
   cout << "\"" << s->get_name().c_str() << "\"" << " -> " << hash_id << endl;
 
+  uint32_t name_length = (s->name.size() + 1) * sizeof(char);
+  uint32_t fname_length = (s->fname.size() + 1) * sizeof(char);
+
   uint32_t vs_length = (s->vs_source.size() + 1) * sizeof(char);
   uint32_t fs_length = (s->fs_source.size() + 1) * sizeof(char);
 
   fwrite(&hash_id, sizeof(uint32_t), 1, fp);
+  fwrite(&name_length, sizeof(uint32_t), 1, fp);
+  fwrite(&fname_length, sizeof(uint32_t), 1, fp);
   fwrite(&vs_length, sizeof(uint32_t), 1, fp);
   fwrite(&fs_length, sizeof(uint32_t), 1, fp);
 
-  char null_char = '\0';
+  fwrite(s->name.c_str(), sizeof(char), name_length, fp);
+  fwrite(s->fname.c_str(), sizeof(char), fname_length, fp);
 
   //write the actual source code
   fwrite(s->vs_source.c_str(), sizeof(char), vs_length, fp);
@@ -295,15 +331,28 @@ void PackageBaker::write_texture_packlet(FILE *fp, TexturePackageAsset *t)
   uint32_t hash_id = Math::hash_value_from_string(t->get_name().c_str());
   cout << "\"" << t->get_name().c_str() << "\"" << " -> " << hash_id << endl;
 
-  cout << "\tbpp: " << t->bpp << endl;
-  cout << "\twidth: " << t->width << endl;
-  cout << "\theight: " << t->height << endl;
-  cout << "\tdata size: " << t->tex_data_size << endl;
+  uint32_t name_length = (t->name.size() + 1) * sizeof(char);
+  uint32_t fname_length = (t->fname.size() + 1) * sizeof(char);
+
+  //cout << "\tbpp: " << t->bpp << endl;
+  //cout << "\twidth: " << t->width << endl;
+  //cout << "\theight: " << t->height << endl;
+  //cout << "\tdata size: " << t->tex_data_size << endl;
+  //cout << "\twrap_u: " << t->wrap_u << endl;
+  //cout << "\twrap_v: " << t->wrap_v << endl;
 
   fwrite(&hash_id, sizeof(uint32_t), 1, fp);
+  fwrite(&name_length, sizeof(uint32_t), 1, fp);
+  fwrite(&fname_length, sizeof(uint32_t), 1, fp);
   fwrite(&t->bpp, sizeof(uint32_t), 1, fp);
   fwrite(&t->width, sizeof(uint32_t), 1, fp);
   fwrite(&t->height, sizeof(uint32_t), 1, fp);
+  fwrite(&t->wrap_u, sizeof(uint32_t), 1, fp);
+  fwrite(&t->wrap_v, sizeof(uint32_t), 1, fp);
   fwrite(&(t->tex_data_size), sizeof(uint32_t), 1, fp);
+
+  fwrite(t->name.c_str(), sizeof(char), name_length, fp);
+  fwrite(t->fname.c_str(), sizeof(char), fname_length, fp);
+
   fwrite(t->tex_data, t->tex_data_size, 1, fp);
 }

@@ -21,6 +21,7 @@ namespace Tool
     friend class PackageBaker;
   protected:
     std::string name;
+    std::string fname;
     PackageAssetType type;
   public:
     PackageAsset() {}
@@ -46,15 +47,29 @@ namespace Tool
   class TexturePackageAsset : public PackageAsset
   {
   public:
-    TexturePackageAsset() { tex_data = NULL; }
+    TexturePackageAsset() { tex_data = NULL; wrap_u = GL_REPEAT; wrap_v = GL_REPEAT; }
     ~TexturePackageAsset() { if (tex_data) { delete tex_data; } }
 
     uint32_t width;  //texture width
     uint32_t height; //texture height
     uint32_t bpp;    //bytes per pixel
+    uint32_t wrap_u; //wrap mode for u axis
+    uint32_t wrap_v; //wrap mode for v axis
 
     void     *tex_data;       //pointer to the actual texture data
     uint32_t tex_data_size;   //size of the texture data
+  };
+
+  class MeshPackageAsset : public PackageAsset
+  {
+  public:
+    MeshPackageAsset() {}
+    ~MeshPackageAsset() {}
+
+    uint32_t num_verts;
+    void *vertices;
+    uint32_t num_indices;
+    void *indices;
   };
 
 
@@ -74,7 +89,7 @@ namespace Tool
     PackageBaker() { file_version = PACKAGE_FILE_VERSION; }
     ~PackageBaker() {}
 
-    void init() {}
+    void init();
     void bake(mxml_node_t *tree, std::string output_filename);
   };
 };
