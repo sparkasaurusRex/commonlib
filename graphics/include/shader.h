@@ -20,6 +20,8 @@ namespace Graphics
     Shader();
     ~Shader();
 
+    void deinit();
+
     void set_shader_filenames(std::string vs_fname, std::string fs_fname);
     void compile_and_link_from_source(const char *vs, const char *fs);
     GLuint compile_shader_from_source(GLenum shader_type, const char *source);

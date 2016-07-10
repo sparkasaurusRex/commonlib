@@ -109,7 +109,7 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
   if (vs_node)
   {
     buffer = mxmlGetText(vs_node, NULL);
-    shader_asset->fname = buffer;
+    shader_asset->vs_fname = buffer;
     cout << "\tvs: " << buffer << " ... ";
 
     FILE *fp = NULL;
@@ -144,6 +144,7 @@ void PackageBaker::read_shader_file(mxml_node_t *shader_node)
   if (fs_node)
   {
     buffer = mxmlGetText(fs_node, NULL);
+    shader_asset->fs_fname = buffer;
     cout << "\tfs: " << buffer << " ... ";
 
     FILE *fp = NULL;
@@ -307,19 +308,22 @@ void PackageBaker::write_shader_packlet(FILE *fp, ShaderPackageAsset *s)
   cout << "\"" << s->get_name().c_str() << "\"" << " -> " << hash_id << endl;
 
   uint32_t name_length = (s->name.size() + 1) * sizeof(char);
-  uint32_t fname_length = (s->fname.size() + 1) * sizeof(char);
+  uint32_t vs_fname_length = (s->vs_fname.size() + 1) * sizeof(char);
+  uint32_t fs_fname_length = (s->fs_fname.size() + 1) * sizeof(char);
 
   uint32_t vs_length = (s->vs_source.size() + 1) * sizeof(char);
   uint32_t fs_length = (s->fs_source.size() + 1) * sizeof(char);
 
   fwrite(&hash_id, sizeof(uint32_t), 1, fp);
   fwrite(&name_length, sizeof(uint32_t), 1, fp);
-  fwrite(&fname_length, sizeof(uint32_t), 1, fp);
+  fwrite(&vs_fname_length, sizeof(uint32_t), 1, fp);
+  fwrite(&fs_fname_length, sizeof(uint32_t), 1, fp);
   fwrite(&vs_length, sizeof(uint32_t), 1, fp);
   fwrite(&fs_length, sizeof(uint32_t), 1, fp);
 
   fwrite(s->name.c_str(), sizeof(char), name_length, fp);
-  fwrite(s->fname.c_str(), sizeof(char), fname_length, fp);
+  fwrite(s->vs_fname.c_str(), sizeof(char), vs_fname_length, fp);
+  fwrite(s->fs_fname.c_str(), sizeof(char), fs_fname_length, fp);
 
   //write the actual source code
   fwrite(s->vs_source.c_str(), sizeof(char), vs_length, fp);

@@ -23,7 +23,7 @@ namespace Game
   class GameAsset
   {
   public:
-    GameAsset(GameAssetType t) { type = t; file_mod_time = 666; }
+    GameAsset(GameAssetType t);
     ~GameAsset() {}
 
     virtual void reload_from_disk() = 0;
@@ -31,8 +31,12 @@ namespace Game
     GameAssetType    type;
 
     //for file monitoring
-    std::string      fname;
-    uint32_t         file_mod_time;
+    struct FileMonitorInfo
+    {
+      uint32_t      mod_time;
+      std::string   fname;
+    };
+    std::vector<FileMonitorInfo> files_monitored;
   };
 
   class ShaderAsset : public GameAsset

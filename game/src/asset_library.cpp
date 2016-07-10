@@ -8,6 +8,16 @@ using namespace Graphics;
 
 using namespace std;
 
+GameAsset::GameAsset(GameAssetType t)
+{
+  type = t;
+  /*FileMonitorInfo fmi;
+  fmi.mod_time = 666;
+  fmi.fname = "dingleberry";
+  files_monitored.push_back(fmi);
+  */
+}
+
 void AssetLibrary::init()
 {
   file_monitor_timer.set(file_monitor_interval_s);
@@ -37,22 +47,28 @@ void AssetLibrary::simulate(const double game_time, const double frame_time)
       assert(asset);
       //cout << asset->fname.c_str() << endl;
 
-      struct stat attrib;
-      stat(asset->fname.c_str(), &attrib);
-      //cout << "The file was last modified at " << attrib.st_mtime << endl;
-
-      if (asset->file_mod_time != 666)
+      for (uint32_t j = 0; j < asset->files_monitored.size(); j++)
       {
-        if (asset->file_mod_time != attrib.st_mtime)
+        struct stat attrib;
+        auto mod_time = asset->files_monitored[j].mod_time;
+        auto fname = asset->files_monitored[j].fname;
+        stat(fname.c_str(), &attrib);
+        //cout << "The file was last modified at " << attrib.st_mtime << endl;
+
+        
+        if (mod_time != 666)
         {
-          SET_TEXT_COLOR(CONSOLE_COLOR_YELLOW);
-          cout << "FILE HAS BEEN MODIFIED!!!" << endl;
-          SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
-          asset->reload_from_disk();
+          if (mod_time != attrib.st_mtime)
+          {
+            SET_TEXT_COLOR(CONSOLE_COLOR_YELLOW);
+            cout << "FILE HAS BEEN MODIFIED!!!" << endl;
+            SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+            asset->reload_from_disk();
+          }
         }
+        asset->files_monitored[j].mod_time = (uint32_t)attrib.st_mtime;
+        //compare to the last file mod time we're aware of
       }
-      asset->file_mod_time = (uint32_t)attrib.st_mtime;
-      //compare to the last file mod time we're aware of
     }
   }
 }
@@ -91,6 +107,12 @@ Texture2D *AssetLibrary::retrieve_texture(std::string name)
 void ShaderAsset::reload_from_disk()
 {
   cout << "Reloading shader from disk" << endl;
+
+  //tear-down the current shader
+  s->deinit();
+  assert(files_monitored.size() == 2);
+  s->set_shader_filenames(files_monitored[0].fname, files_monitored[1].fname);
+  s->load_link_and_compile();
 }
 
 void TextureAsset::reload_from_disk()
@@ -99,6 +121,7 @@ void TextureAsset::reload_from_disk()
   
   //tear-down the current texture
   t->deinit();
-  t->set_filename(fname.c_str());
+  assert(files_monitored.size() == 1);
+  t->set_filename(files_monitored[0].fname.c_str());
   t->load();
 }

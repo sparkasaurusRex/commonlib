@@ -31,6 +31,11 @@ Shader::Shader()
 
 Shader::~Shader()
 {
+  deinit();
+}
+
+void Shader::deinit()
+{
   glDeleteObjectARB(gl_shader_program);
   glDeleteObjectARB(gl_vertex_shader);
   glDeleteObjectARB(gl_fragment_shader);

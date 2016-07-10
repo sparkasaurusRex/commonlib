@@ -40,6 +40,9 @@ namespace Tool
     ShaderPackageAsset() {}
     ~ShaderPackageAsset() {}
 
+    std::string vs_fname;
+    std::string fs_fname;
+
     std::string vs_source;
     std::string fs_source;
   };
