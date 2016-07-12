@@ -35,8 +35,8 @@ namespace Graphics
     GLuint gl_vertex_shader;
     GLuint gl_shader_program;
 
-    char gl_fragment_shader_fname[512];
-    char gl_vertex_shader_fname[512];
+    std::string gl_fragment_shader_fname;
+    std::string gl_vertex_shader_fname;
   };
 
   class ShaderUniformVariable

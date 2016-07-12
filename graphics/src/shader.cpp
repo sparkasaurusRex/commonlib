@@ -43,13 +43,8 @@ void Shader::deinit()
 
 void Shader::set_shader_filenames(std::string vs_fname, std::string fs_fname)
 {
-#if defined (_WIN32)
-  strcpy_s(gl_fragment_shader_fname, fs_fname.c_str());
-  strcpy_s(gl_vertex_shader_fname, vs_fname.c_str());
-#else
-  strcpy(gl_fragment_shader_fname, fs_fname.c_str());
-  strcpy(gl_vertex_shader_fname, vs_fname.c_str());
-#endif //(_WIN32)
+  gl_vertex_shader_fname = vs_fname;
+  gl_fragment_shader_fname = fs_fname;
 }
 
 void print_log(GLuint obj)
@@ -128,7 +123,7 @@ void Shader::link_shader()
 
 bool Shader::load_link_and_compile()
 {
-    cout<<"loading vertex shader "<<gl_vertex_shader_fname<<endl;
+    cout<<"loading vertex shader "<<gl_vertex_shader_fname.c_str()<<endl;
 
     //create the shader program
     gl_shader_program = glCreateProgram();
@@ -137,7 +132,7 @@ bool Shader::load_link_and_compile()
 
     //load shader file from disk
     FILE *fp = NULL;
-    FOPEN(fp, gl_vertex_shader_fname, "r");
+    FOPEN(fp, gl_vertex_shader_fname.c_str(), "r");
     if(fp)
     {
       fseek(fp, 0, SEEK_END);
@@ -160,9 +155,9 @@ bool Shader::load_link_and_compile()
       cout<<"could not open vertex shader file! (no file handle)"<<endl;
     }
 
-    cout<<"loading fragment shader "<<gl_fragment_shader_fname<<endl;
+    cout<<"loading fragment shader "<<gl_fragment_shader_fname.c_str()<<endl;
     fp = NULL;
-    FOPEN(fp, gl_fragment_shader_fname, "r");
+    FOPEN(fp, gl_fragment_shader_fname.c_str(), "r");
     if(fp)
     {
       fseek(fp, 0, SEEK_END);
