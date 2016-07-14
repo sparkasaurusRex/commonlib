@@ -29,10 +29,12 @@ namespace Graphics
     Math::Float3 get_up() const { return up; }
     void set_lookat(const Math::Float3 l) { lookat = l; }
     Math::Float3 get_lookat() const { return lookat; }
+    Math::Float3 get_right() const { return lookat ^ up; }
 
     void set_projection_matrix(GLfloat *proj);
 
     void transform(const Math::Matrix3x3 &m);
+    void rotate_in_place(const Math::Matrix3x3 &m);
 
     void set_window_dimensions(const Math::Float2 d) { window_dimensions = d; }
     void set_fov(const float f) { fov = f; }

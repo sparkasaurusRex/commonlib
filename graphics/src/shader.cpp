@@ -77,7 +77,9 @@ void Shader::compile_and_link_from_source(const char *vs, const char *fs)
   gl_check_error();
   assert(gl_shader_program);
 
+  cout << "compiling vertex shader..." << endl;
   gl_vertex_shader = compile_shader_from_source(GL_VERTEX_SHADER, vs);
+  cout << "compiling fragment shader..." << endl;
   gl_fragment_shader = compile_shader_from_source(GL_FRAGMENT_SHADER, fs);
   link_shader();
 }

@@ -95,7 +95,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\SDL2_image-2.0.1\lib\x86\;..\..\..\SDL2-2.0.4\lib\x86;..\Debug;..\..\..\glew-1.13.0\lib\Release\Win32\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\SDL2_image-2.0.1\VisualC\Win32\Debug;..\..\..\SDL2-2.0.4\lib\x86;..\Debug;..\..\..\glew-1.13.0\lib\Release\Win32\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_Image.lib;glew32.lib;mathlib.lib;graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -130,7 +130,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\SDL2_image-2.0.1\lib\x86\;..\..\..\SDL2-2.0.4\lib\x86;%(AdditionalLibraryDirectories);..\..\..\glew-1.13.0\lib\Release\Win32\;..\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\..\SDL2_image-2.0.1\VisualC\Win32\Release;..\..\..\SDL2-2.0.4\lib\x86;%(AdditionalLibraryDirectories);..\..\..\glew-1.13.0\lib\Release\Win32\;..\Release</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_Image.lib;glew32.lib;mathlib.lib;graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
