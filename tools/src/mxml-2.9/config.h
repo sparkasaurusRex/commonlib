@@ -61,6 +61,12 @@
 
 #define HAVE_STRDUP 1
 
+#if defined(_WIN32)
+
+#else
+#define _strdup strdup
+#endif //_WIN32
+
 
 /*
  * Do we have threading support?

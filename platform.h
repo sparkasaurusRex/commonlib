@@ -64,6 +64,7 @@ The different color codes are
 #define CHDIR chdir
 #define FOPEN(f, fname, mode) f = fopen(fname, mode)
 #define stricmp strcasecmp
+#define SET_TEXT_COLOR(C) {}
+#define _strdup strdup
 
-void set_text_color(ConsoleColor c) {}
 #endif
