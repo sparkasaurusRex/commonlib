@@ -26,7 +26,7 @@ void Object3D::simulate(const double gt, const double dt)
   //TODO: angular velocity
 }
 
-void Object3D::render()
+void Object3D::render(const double game_time)
 {
   glTranslatef(pos._val[0], pos._val[1], pos._val[2]);
   glScalef(scale._val[0], scale._val[1], scale._val[2]);
