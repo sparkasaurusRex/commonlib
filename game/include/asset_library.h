@@ -9,6 +9,7 @@
 #include "shader.h"
 #include "texture.h"
 #include "timer.h"
+#include "layout.h"
 
 namespace Game
 {
@@ -16,7 +17,8 @@ namespace Game
   {
     SHADER_ASSET,
     TEXTURE_ASSET,
-    MESH_ASSET,  
+    MESH_ASSET,
+    UI_LAYOUT_ASSET,
     AUDIO_ASSET
   };
 
@@ -59,6 +61,17 @@ namespace Game
     virtual void reload_from_disk();
 
     Graphics::Texture2D *t;
+  };
+
+  class UILayoutAsset : public GameAsset
+  {
+  public:
+    UILayoutAsset() : GameAsset(UI_LAYOUT_ASSET) {}
+    ~UILayoutAsset() {}
+
+    virtual void reload_from_disk() {}
+
+    UI::Layout *l;
   };
   
   class AssetLibrary

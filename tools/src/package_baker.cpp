@@ -75,6 +75,7 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
     start_node = asset_node;
   } while (asset_node);
 
+  //read all the texture assets
   start_node = tree;
   do
   {
@@ -85,6 +86,23 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
     }
     start_node = asset_node;
   } while (asset_node);
+
+  //read all the mesh assets
+
+  //read all the ui layout assets
+  start_node = tree;
+  do
+  {
+    asset_node = mxmlFindElement(start_node, tree, "ui_layout", NULL, NULL, MXML_DESCEND);
+    if (asset_node)
+    {
+      read_ui_layout_file(asset_node);
+    }
+    start_node = asset_node;
+  } while (asset_node);
+
+  //read all the generic data assets
+
 
   write_package(output_filename);
 }
@@ -240,6 +258,52 @@ void PackageBaker::read_texture_file(mxml_node_t *texture_node)
   SDL_FreeSurface(image);
 }
 
+void PackageBaker::read_ui_layout_file(mxml_node_t *layout_node)
+{
+  const char *buffer = NULL;
+  UILayoutPackageAsset *layout_asset = new UILayoutPackageAsset;
+  layout_asset->set_type(PACKAGE_ASSET_UI_LAYOUT);
+  assets.push_back(layout_asset);
+
+  SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
+  cout << "\tLoading texture \"";
+  buffer = mxmlElementGetAttr(layout_node, "name");
+  cout << buffer << "\"" << endl;
+  SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+
+  layout_asset->set_name(buffer);
+
+  buffer = mxmlGetText(layout_node, NULL);
+  layout_asset->fname = buffer;
+  cout << "\t\tsource file: " << buffer << " ... ";
+
+  FILE *fp = NULL;
+  FOPEN(fp, layout_asset->fname.c_str(), "rt");
+  if (fp)
+  {
+    fseek(fp, 0, SEEK_END);
+    int string_size = ftell(fp);
+    rewind(fp);
+
+    char *xml_source = (char *)malloc(sizeof(char) * (string_size + 1));
+    memset(xml_source, 0, string_size + 1);
+    fread(xml_source, sizeof(char), string_size, fp);
+    layout_asset->xml_source = xml_source;
+    free(xml_source);
+    fclose(fp);
+
+    SET_TEXT_COLOR(CONSOLE_COLOR_GREEN);
+    cout << "OK" << endl;
+    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+  }
+  else
+  {
+    SET_TEXT_COLOR(CONSOLE_COLOR_RED);
+    cerr << "Could not open file!" << endl;
+    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+  }
+}
+
 void PackageBaker::write_package(std::string output_filename)
 {
   cout << endl << "Writing game package to " << output_filename.c_str() << endl;
@@ -250,6 +314,7 @@ void PackageBaker::write_package(std::string output_filename)
     //collect and count each asset type
     std::vector<ShaderPackageAsset *> shaders;
     std::vector<TexturePackageAsset *> textures;
+    std::vector<UILayoutPackageAsset *> ui_layouts;
     for (uint32_t i = 0; i < assets.size(); i++)
     {
       switch (assets[i]->get_type())
@@ -260,18 +325,24 @@ void PackageBaker::write_package(std::string output_filename)
       case PACKAGE_ASSET_TEXTURE:
         textures.push_back((TexturePackageAsset *)assets[i]);
         break;
+      case PACKAGE_ASSET_UI_LAYOUT:
+        ui_layouts.push_back((UILayoutPackageAsset *)assets[i]);
+        break;
       }
     }
     uint32_t shader_count = shaders.size();
     uint32_t texture_count = textures.size();
+    uint32_t ui_layout_count = ui_layouts.size();
 
     cout << "Packaging " << shader_count << " shaders..." << endl;
     cout << "Packaging " << texture_count << " textures..." << endl;
+    cout << "Packaging " << ui_layout_count << " ui layouts..." << endl;
 
     //file header
     fwrite(&file_version, sizeof(uint32_t), 1, fp);
     fwrite(&shader_count, sizeof(uint32_t), 1, fp);
     fwrite(&texture_count, sizeof(uint32_t), 1, fp);
+    fwrite(&ui_layout_count, sizeof(uint32_t), 1, fp);
 
     SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
     cout << "Writing shader packlets..." << endl;
@@ -289,6 +360,15 @@ void PackageBaker::write_package(std::string output_filename)
     {
       TexturePackageAsset *t = textures[i];
       write_texture_packlet(fp, t);
+    }
+
+    SET_TEXT_COLOR(CONSOLE_COLOR_LIGHT_CYAN);
+    cout << "Writing ui layout packlets..." << endl;
+    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+    for (uint32_t i = 0; i < ui_layouts.size(); i++)
+    {
+      UILayoutPackageAsset *u = ui_layouts[i];
+      write_ui_layout_packlet(fp, u);
     }
 
     fclose(fp);
@@ -359,4 +439,23 @@ void PackageBaker::write_texture_packlet(FILE *fp, TexturePackageAsset *t)
   fwrite(t->fname.c_str(), sizeof(char), fname_length, fp);
 
   fwrite(t->tex_data, t->tex_data_size, 1, fp);
+}
+
+void PackageBaker::write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u)
+{
+  uint32_t hash_id = Math::hash_value_from_string(u->get_name().c_str());
+  cout << "\"" << u->get_name().c_str() << "\"" << " -> " << hash_id << endl;
+
+  uint32_t name_length = (u->name.size() + 1) * sizeof(char);
+  uint32_t fname_length = (u->fname.size() + 1) * sizeof(char);
+  uint32_t xml_length = (u->xml_source.size() + 1) * sizeof(char);
+
+  fwrite(&hash_id, sizeof(uint32_t), 1, fp);
+  fwrite(&name_length, sizeof(uint32_t), 1, fp);
+  fwrite(&fname_length, sizeof(uint32_t), 1, fp);
+  fwrite(&xml_length, sizeof(uint32_t), 1, fp);
+
+  fwrite(u->name.c_str(), sizeof(char), name_length, fp);
+  fwrite(u->fname.c_str(), sizeof(char), fname_length, fp);
+  fwrite(u->xml_source.c_str(), sizeof(char), xml_length, fp);
 }

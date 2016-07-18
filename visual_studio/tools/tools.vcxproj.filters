@@ -115,5 +115,8 @@
     <Xml Include="..\..\..\mundus\data\packages\pkg_test.pkg.xml">
       <Filter>Data Files</Filter>
     </Xml>
+    <Xml Include="..\..\..\mundus\data\ui\mundus.layout.xml">
+      <Filter>Data Files</Filter>
+    </Xml>
   </ItemGroup>
 </Project>
