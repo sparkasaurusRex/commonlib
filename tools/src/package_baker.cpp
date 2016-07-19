@@ -28,7 +28,6 @@ using namespace Graphics;
 
 void PackageBaker::init()
 {
-
 }
 
 void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
@@ -39,7 +38,7 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
   mxml_node_t *asset_node = NULL;
   mxml_node_t *start_node = tree;
   const char *buffer = NULL;
-  
+
   //parse the working dir
   mxml_node_t *root_dir_node = mxmlFindElement(start_node, tree, "root_dir", NULL, NULL, MXML_DESCEND);
   if (root_dir_node)
@@ -48,7 +47,12 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
     cout << "package root dir: " << buffer << endl;
   }
   //change to said directory
-  CHDIR(buffer);
+  if(CHDIR(buffer) != 0)
+  {
+    SET_TEXT_COLOR(CONSOLE_COLOR_RED);
+    cerr<<"Could not change directories!"<<endl;
+    SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
+  }
 
   //make sure we succeeded
   char cwd[FILENAME_MAX];
@@ -63,7 +67,7 @@ void PackageBaker::bake(mxml_node_t *tree, std::string output_filename)
     cout << "output package filename: " << buffer << endl;
     output_filename = buffer;
   }
-  
+
   //read all the shader assets
   do
   {
@@ -231,7 +235,7 @@ void PackageBaker::read_texture_file(mxml_node_t *texture_node)
   SET_TEXT_COLOR(CONSOLE_COLOR_GREEN);
   cout << "OK" << endl;
   SET_TEXT_COLOR(CONSOLE_COLOR_DEFAULT);
-  
+
   cout << "\t\twidth: "<< image->w <<endl;
   cout << "\t\theight: " << image->h << endl;
   texture_asset->bpp = image->format->BytesPerPixel;
