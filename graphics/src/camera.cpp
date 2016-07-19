@@ -27,6 +27,12 @@ void Camera::transform(const Matrix3x3 &m)
   lookat = m * lookat;
 }
 
+void Camera::rotate_in_place(const Matrix3x3 &m)
+{
+  up = m * up;
+  lookat = m * lookat;
+}
+
 void Camera::set_projection_matrix(GLfloat *proj)
 {
   use_proj_mat = true;

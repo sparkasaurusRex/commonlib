@@ -32,8 +32,8 @@ namespace Game
     ~Object3D() {}
 
     virtual void init(const double game_time);
-    virtual void simulate(const double gt, const double dt);
-    virtual void render();
+    virtual void simulate(const double game_time, const double frame_time);
+    virtual void render(const double game_time);
 
     void set_pos(const Math::Float3 p) { pos = p; }
     void set_vel(const Math::Float3 v) { vel = v; }

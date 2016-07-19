@@ -13,7 +13,8 @@ namespace Tool
   {
     PACKAGE_ASSET_SHADER,
     PACKAGE_ASSET_TEXTURE,
-    PACKAGE_ASSET_MESH
+    PACKAGE_ASSET_MESH,
+    PACKAGE_ASSET_UI_LAYOUT
   };
 
   class PackageAsset
@@ -75,6 +76,14 @@ namespace Tool
     void *indices;
   };
 
+  class UILayoutPackageAsset : public PackageAsset
+  {
+  public:
+    UILayoutPackageAsset() {}
+    ~UILayoutPackageAsset() {}
+
+    std::string xml_source;
+  };
 
   class PackageBaker
   {
@@ -84,10 +93,12 @@ namespace Tool
 
     void read_shader_file(mxml_node_t *shader_node);
     void read_texture_file(mxml_node_t *texture_node);
+    void read_ui_layout_file(mxml_node_t *layout_node);
 
     void write_package(std::string output_fname);
     void write_shader_packlet(FILE *fp, ShaderPackageAsset *s);
     void write_texture_packlet(FILE *fp, TexturePackageAsset *t);
+    void write_ui_layout_packlet(FILE *fp, UILayoutPackageAsset *u);
   public:
     PackageBaker() { file_version = PACKAGE_FILE_VERSION; }
     ~PackageBaker() {}
