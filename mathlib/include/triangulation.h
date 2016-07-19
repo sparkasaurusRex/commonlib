@@ -6,6 +6,7 @@
 #include "math_utility.h"
 #include "topology.h"
 #include "shapes.h"
+#include "voronoi_sphere_ellis.h"
 
 namespace Math {
   class Triangulation2D
@@ -24,6 +25,8 @@ namespace Math {
     std::vector<Triangle2D> *get_triangles();
     std::vector<Edge2D> *get_edges();
   private:
+
+    VoronoiSphere voronoi;
 
     //convex hull algorithms
     void quick_hull();
