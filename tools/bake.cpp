@@ -12,6 +12,10 @@ int main(int argc, char **argv)
 
   string in_fname, out_fname;
 
+  char cwd[FILENAME_MAX];
+  GETCWD(cwd, sizeof(cwd));
+  cout << "working dir: " << cwd << endl;
+
   if(argc > 1)
   {
     for(int i = 1; i < argc; i++)
