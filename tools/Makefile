@@ -74,4 +74,4 @@ bake: bake.cpp $(BINPATH)libtool.a $(SRCS)
 clean:
 	rm -f $(BINPATH)*.o
 	rm -f $(BINPATH)libtool.a
-	rm -f test
+	rm -f bake
