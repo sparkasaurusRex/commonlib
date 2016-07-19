@@ -1,6 +1,7 @@
 CC=g++
 LIB_PATH=
-CFLAGS=-I./include -I../mathlib/include -I/usr/include/libxml2 -I../fluids/include
+CFLAGS=-I../
+CFLAGS+=-I./include -I../mathlib/include -I/usr/include/libxml2 -I../fluids/include
 CFLAGS+=-I/usr/local/include -I../game/include -I../ui/include -I./include/vfx
 CFLAGS+=$(shell pkg-config freetype2 --cflags)
 CFLAGS+=$(shell pkg-config glew --cflags)

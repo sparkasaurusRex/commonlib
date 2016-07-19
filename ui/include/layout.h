@@ -28,8 +28,8 @@ namespace UI
     std::string tex_active;
     std::string tex_off;
 
-    Float2 dim;
-    Float2 offset;
+    Math::Float2 dim;
+    Math::Float2 offset;
 
     std::vector<WidgetTemplate *> children;
   };
