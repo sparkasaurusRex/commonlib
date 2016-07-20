@@ -6,7 +6,7 @@ using namespace std;
 using namespace Math;
 using namespace Graphics;
 
-Label::Label(Font *f) : RectangularWidget(f)
+Label::Label(Font *f) : RectangularWidget(WIDGET_LABEL, f)
 {
   text = std::string("Label Text");
   rgb = Float3(1.0f, 1.0f, 1.0f);

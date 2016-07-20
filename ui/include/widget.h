@@ -20,11 +20,52 @@
 
 namespace UI
 {
+  enum WidgetType
+  {
+    //containers
+    WIDGET_TOOLBOX,
+    WIDGET_RADIO_GROUP,
+    
+    //true widgets
+    WIDGET_LABEL,
+    WIDGET_TEXT_EDIT,
+    WIDGET_PUSH_BUTTON,
+    WIDGET_RADIAL_PUSH_BUTTON,
+    WIDGET_CHECK_BUTTON,
+    WIDGET_CURVE_EDITOR,
+    WIDGET_MESSAGE_BOX,
+    WIDGET_METER,
+
+    WIDGET_MENU
+  };
+
   class Widget
   {
+  protected:
+    WidgetType widget_type;
+
+    void render_prep();
+    void render_cleanup();
+
+    bool visible;
+    Graphics::Font *font;
+
+    bool has_focus;
+
+    bool has_tooltip;
+    std::string tooltip;
+    Math::Float2 tooltip_offset;
+
+    bool hovering;
+    float hover_timer;
+
+    bool enabled;
+
   public:
-    Widget(Graphics::Font *f = NULL);
+    Widget(WidgetType t, Graphics::Font *f = NULL);
     ~Widget() {}
+
+    WidgetType get_widget_type() const { return widget_type; }
 
     virtual void show(const bool d = true) { visible = d; }
     bool is_visible() const { return visible; }
@@ -47,24 +88,6 @@ namespace UI
 
     void set_hovering(const bool h) { hovering = h; }
     void enable(const bool e) { enabled = e; }
-
-  protected:
-    void render_prep();
-    void render_cleanup();
-
-    bool visible;
-    Graphics::Font *font;
-
-    bool has_focus;
-
-    bool has_tooltip;
-    std::string tooltip;
-    Math::Float2 tooltip_offset;
-    
-    bool hovering;
-    float hover_timer;
-
-    bool enabled;
   };
 };
 

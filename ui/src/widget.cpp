@@ -3,8 +3,9 @@
 using namespace UI;
 using namespace Graphics;
 
-Widget::Widget(Font *f)
+Widget::Widget(WidgetType t, Font *f)
 {
+  widget_type = t;
   font = f;
   visible = false;
   has_focus = false;

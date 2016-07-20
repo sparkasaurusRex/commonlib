@@ -9,18 +9,13 @@
 
 namespace UI
 {
-  enum WidgetType
-  {
-    WIDGET_TOOLBOX,
-    WIDGET_RADIO_GROUP,
-    WIDGET_PUSH_BUTTON,
-    WIDGET_CHECK_BUTTON
-  };
-
   //temporary storage to read from data files before creating actual game objects
-  class WidgetTemplate
+  class LayoutWidgetTemplate
   {
   public:
+    LayoutWidgetTemplate() {}
+    ~LayoutWidgetTemplate() {}
+
     WidgetType type;
 
     std::string tool_tip;
@@ -31,13 +26,14 @@ namespace UI
     Math::Float2 dim;
     Math::Float2 offset;
 
-    std::vector<WidgetTemplate *> children;
+    std::vector<LayoutWidgetTemplate *> children;
   };
 
   class Layout
   {
   protected:
-    std::vector<Widget *> widgets;
+    //std::vector<Widget *> widgets;
+    std::vector<LayoutWidgetTemplate *> templates;
 
   public:
     Layout() {}
@@ -50,6 +46,6 @@ namespace UI
     void init();
 
   private:
-    void parse_xml_level(mxml_node_t *root, Widget *parent = NULL, RadioGroup *radio_group = NULL);
+    void parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent = NULL);
   };
 };

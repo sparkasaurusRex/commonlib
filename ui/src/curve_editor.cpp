@@ -8,7 +8,7 @@ using namespace Math;
 using namespace std;
 using namespace Graphics;
 
-CurveEditor::CurveEditor(Font *f) : RectangularWidget(f)
+CurveEditor::CurveEditor(Font *f) : RectangularWidget(WIDGET_CURVE_EDITOR, f)
 {
   curve = NULL;
   selected_handle = NULL;
