@@ -7,11 +7,13 @@
 #include "sdl_game.h"
 #include "label.h"
 #include "menu.h"
+#include "toolbox.h"
 
 using namespace std;
 using namespace Math;
 using namespace UI;
 using namespace Graphics;
+using namespace Game;
 
 void quit()
 {
@@ -355,6 +357,123 @@ void SDLGame::process_events()
     if(!console.is_active()) { user_process_event(event); }
     if(console.is_control_board_active()) { console.process_event(event); }
   }
+}
+
+void SDLGame::generate_ui_from_layout(std::string name)
+{
+  //assert(asset_library);
+  GameAsset *asset = asset_library.retrieve_asset(name);
+  assert(asset->type == UI_LAYOUT_ASSET);
+  Layout *ui_layout = ((UILayoutAsset *)asset)->l;
+  assert(ui_layout);
+
+  //first load all the root level widgets
+  for (uint32_t i = 0; i < ui_layout->templates.size(); i++)
+  {
+    LayoutWidgetTemplate *w = ui_layout->templates[i];
+    if (w->type != WIDGET_TOOLBOX && w->type != WIDGET_RADIO_GROUP)
+    {
+      RectangularWidget *rw = NULL;
+      switch (w->type)
+      {
+        case WIDGET_CHECK_BUTTON:
+        {
+          CheckButton *cb = new CheckButton;
+          rw = cb;
+          cb->set_texture(0, asset_library.retrieve_texture(w->tex_default));
+          cb->set_texture(1, asset_library.retrieve_texture(w->tex_active));
+          cb->set_texture(2, asset_library.retrieve_texture(w->tex_off));
+          cb->set_click_callback(ui_callback_map[hash_value_from_string(w->click_callback.c_str())]);
+          break;
+        }
+        case WIDGET_PUSH_BUTTON:
+        {
+          PushButton *pb = new PushButton;
+          rw = pb;
+          pb->set_texture(0, asset_library.retrieve_texture(w->tex_default));
+          pb->set_texture(1, asset_library.retrieve_texture(w->tex_active));
+          pb->set_texture(2, asset_library.retrieve_texture(w->tex_off));
+          pb->set_click_callback(ui_callback_map[hash_value_from_string(w->click_callback.c_str())]);
+          break;
+        }
+        default:
+          assert(false);
+      }
+
+      if (w->flags & UI_LAYOUT_FLAG_ALIGN_CENTER)
+      {
+        float center_x = (float)resolution[0] / 2.0f;
+        w->offset[0] = center_x - (w->dim[0] / 2.0f) + w->offset[0];
+      }
+
+      rw->set_font(widget_font);
+      rw->scale(w->dim);
+      rw->translate(w->offset);
+      rw->set_tooltip(w->tool_tip);
+      rw->init();
+      w->real_widget = rw;
+
+      if (!w->parent)
+      {
+        rw->show();
+        ww.add_widget(rw);
+      }
+    }
+  }
+
+  for(uint32_t i = 0; i < ui_layout->templates.size(); i++)
+  {
+    LayoutWidgetTemplate *w = ui_layout->templates[i];
+    switch (w->type)
+    {
+      case WIDGET_TOOLBOX:
+      {
+        ToolBox *tb = new ToolBox;
+        tb->scale(w->dim);
+        tb->translate(w->offset);
+        for (uint32_t j = 0; j < w->children.size(); j++)
+        {
+          LayoutWidgetTemplate *child = w->children[j];
+          assert(child);
+          if (child->real_widget)
+          {
+            tb->add_button((PushButton *)child->real_widget);
+            tb->set_button_dim(child->dim);
+          }
+        }
+
+        if (w->flags & UI_LAYOUT_FLAG_VERTICAL)
+        {
+          tb->make_vertical();
+        }
+        tb->set_font(widget_font);
+        tb->init();
+        tb->show();
+        ww.add_widget(tb);
+ 
+        break;
+      }
+      case WIDGET_RADIO_GROUP:
+      {
+        RadioGroup *rg = new RadioGroup;
+        for (uint32_t j = 0; j < w->children.size(); j++)
+        {
+          LayoutWidgetTemplate *child = w->children[j];
+          assert(child);
+          if (child->real_widget)
+          {
+            assert(child->real_widget->get_widget_type() == WIDGET_CHECK_BUTTON);
+            CheckButton *cb = (CheckButton *)child->real_widget;
+            rg->add((CheckButton *)cb);
+            cb->set_radio_group(rg);
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  //ok, we're all done w/ these templates... deallocate
 }
 
 

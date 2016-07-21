@@ -21,6 +21,7 @@
 #include "label.h"
 #include "menu.h"
 #include "game_controller.h"
+#include "asset_library.h"
 
 //TODO: framerate counter
 
@@ -40,11 +41,14 @@ class SDLGame
 {
 protected:
   Game::GameControllerContext game_controller_context;
+  UI::WidgetWrangler      ww;
 
   uint32_t         flags;
 
   bool             recording_movie;
   int              movie_frame_counter;
+
+  Game::AssetLibrary     asset_library;
 
   int              resolution[2];
   SDL_Window       *win;
@@ -76,6 +80,8 @@ protected:
   float            sim_lock_dt;
   bool             vsync_enabled;
 
+  std::unordered_map<uint32_t, void(*)(const SDL_Event &e)> ui_callback_map;
+
 public:
   //SDLGame();
   SDLGame(const int w = SDL_GAME_DEFAULT_WIDTH,
@@ -99,6 +105,8 @@ public:
   void init();
   void run();
   void process_events();
+
+  void generate_ui_from_layout(std::string name);
 
   double get_game_time() const { return (double)SDL_GetTicks(); }
 

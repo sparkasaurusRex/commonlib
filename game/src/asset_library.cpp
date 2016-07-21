@@ -90,6 +90,7 @@ Shader *AssetLibrary::retrieve_shader(std::string name)
 {
   ShaderAsset *shader_asset = (ShaderAsset *)retrieve_asset(name);
   assert(shader_asset);
+  if (!shader_asset) { return NULL; }
   assert(shader_asset->type == SHADER_ASSET);
   assert(shader_asset->s);
   return shader_asset->s;
@@ -99,6 +100,7 @@ Texture2D *AssetLibrary::retrieve_texture(std::string name)
 {
   TextureAsset *tex_asset = (TextureAsset *)retrieve_asset(name);
   assert(tex_asset);
+  if (!tex_asset) { return NULL; }
   assert(tex_asset->type == TEXTURE_ASSET);
   assert(tex_asset->t);
   return tex_asset->t;

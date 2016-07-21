@@ -20,6 +20,7 @@ PushButton::PushButton(Font *f) : Label(f)
   click_callback = NULL;
   textures[0] = textures[1] = NULL;
   click_rgb = Float3(0.8f, 0.8f, 0.8f);
+  widget_type = WIDGET_PUSH_BUTTON;
 }
 
 void PushButton::set_click_callback(void (*cb)(const SDL_Event &e))

@@ -9,7 +9,86 @@ using namespace UI;
 using namespace std;
 using namespace Math;
 
-void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent)
+const char *get_xml_opaque_safe(mxml_node_t *parent, mxml_node_t *root, const char *tag_name)
+{
+  mxml_node_t *n = mxmlFindElement(parent, root, tag_name, NULL, NULL, MXML_NO_DESCEND);
+  if (n)
+  {
+    const char *buffer = mxmlGetOpaque(n);
+    if (buffer)
+    {
+      cout << "\t" << tag_name << ": " << buffer << endl;
+      return buffer;
+    }
+  }
+  return NULL;
+}
+
+void parse_layout_template_xml(LayoutWidgetTemplate *wt, mxml_node_t *widget_node, mxml_node_t *root, LayoutWidgetTemplate *parent, LayoutWidgetTemplate *radio_group)
+{
+  const char *buffer = NULL;
+
+  buffer = mxmlElementGetAttr(widget_node, "name");
+  cout << "\tname: " << buffer << endl;
+
+  uint32_t x = 100;
+  uint32_t y = 100;
+  uint32_t width = 32;
+  uint32_t height = 32;
+  buffer = mxmlElementGetAttr(widget_node, "width");
+  if (buffer) { width = atoi(buffer); }
+  buffer = mxmlElementGetAttr(widget_node, "height");
+  if (buffer) { height = atoi(buffer); }
+  buffer = mxmlElementGetAttr(widget_node, "x");
+  if (buffer) { x = atoi(buffer); }
+  buffer = mxmlElementGetAttr(widget_node, "y");
+  if (buffer) { y = atoi(buffer); }
+  buffer = mxmlElementGetAttr(widget_node, "align_x");
+  if (buffer && !stricmp(buffer, "center")) { wt->flags |= UI_LAYOUT_FLAG_ALIGN_CENTER; }
+  cout << "\tdim: (" << width << ", " << height << ")" << endl;
+  cout << "\toffset: " << x << ", " << y << ")" << endl;
+  wt->dim = Float2((float)width, (float)height);
+  wt->offset = Float2((float)x, (float)y);
+
+  mxml_node_t *child_node = widget_node->child;
+  if (child_node)
+  {
+    //tool tip
+    buffer = get_xml_opaque_safe(child_node, root, "tool_tip");
+    if (buffer) { wt->tool_tip = buffer; }
+
+    //default texture
+    buffer = get_xml_opaque_safe(child_node, root, "tex_default");
+    if (buffer) { wt->tex_default = buffer; }
+
+    //active texture
+    buffer = get_xml_opaque_safe(child_node, root, "tex_active");
+    if (buffer) { wt->tex_active = buffer; }
+
+    //"off" texture
+    buffer = get_xml_opaque_safe(child_node, root, "tex_off");
+    if (buffer) { wt->tex_off = buffer; }
+
+    //callback function
+    buffer = get_xml_opaque_safe(child_node, root, "callback");
+    if (buffer) { wt->click_callback = buffer; }
+  }
+
+  if (parent)
+  {
+    cout << "\tparent detected..." << endl;
+    parent->children.push_back(wt);
+    wt->parent = parent;
+  }
+
+  if (radio_group)
+  {
+    cout << "\tradio group detected..." << endl;
+    radio_group->children.push_back(wt);
+  }
+}
+
+void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent, LayoutWidgetTemplate *radio_group)
 {
   mxml_node_t *start_node = root->child;
   const char *buffer = NULL;
@@ -31,7 +110,11 @@ void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent)
       cout << "\tname: " << buffer << endl;
 
       buffer = mxmlElementGetAttr(toolbar_node, "orientation");
-      cout << "\torientation: " << buffer << endl;
+      if (buffer)
+      {
+        cout << "\torientation: " << buffer << endl;
+        if (!stricmp(buffer, "vertical")) { tb->flags |= UI_LAYOUT_FLAG_VERTICAL; }
+      }
 
       buffer = mxmlElementGetAttr(toolbar_node, "x");
       uint32_t x_offset = atoi(buffer);
@@ -40,11 +123,8 @@ void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent)
 
       cout << "\toffset: (" << x_offset << ", " << y_offset << ")" << endl;
 
-      //tb->translate(Float2((float)x_offset, (float)y_offset));
       tb->offset = Float2((float)x_offset, (float)y_offset);
       templates.push_back(tb);
-
-      //widgets.push_back(tb);
 
       parse_xml_level(toolbar_node, tb);
     }
@@ -60,7 +140,6 @@ void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent)
     if (radio_group_node)
     {
       cout << "adding radio group" << endl;
-      //RadioGroup *rg = new RadioGroup;
       LayoutWidgetTemplate *rg = new LayoutWidgetTemplate;
       rg->type = WIDGET_RADIO_GROUP;
 
@@ -70,7 +149,8 @@ void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent)
         parent->children.push_back(rg);
       }
 
-      parse_xml_level(radio_group_node, parent);
+      templates.push_back(rg);
+      parse_xml_level(radio_group_node, parent, rg);
     }
     start_node = radio_group_node;
   } while (radio_group_node);
@@ -84,90 +164,34 @@ void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent)
     if (check_button_node)
     {
       cout << "adding checkbutton..." << endl;
-      //CheckButton *cb = new CheckButton;
       LayoutWidgetTemplate *cb = new LayoutWidgetTemplate;
       cb->type = WIDGET_CHECK_BUTTON;
 
-      buffer = mxmlElementGetAttr(check_button_node, "name");
-      cout << "\tname: " << buffer << endl;
-
-      buffer = mxmlElementGetAttr(check_button_node, "width");
-      uint32_t cb_width = atoi(buffer);
-      buffer = mxmlElementGetAttr(check_button_node, "height");
-      uint32_t cb_height = atoi(buffer);
-      cout << "\tdim: (" << cb_width << ", " << cb_height << ")" << endl;
-      cb->dim = Float2((float)cb_width, (float)cb_height);
-
-      if (check_button_node->child)
-      {
-
-        //tool tip
-        mxml_node_t *child_node = mxmlFindElement(check_button_node->child, root, "tool_tip", NULL, NULL, MXML_NO_DESCEND);
-        if (child_node)
-        {
-          buffer = mxmlGetOpaque(child_node);
-          if (buffer)
-          {
-            cout << "\ttool tip: " << buffer << endl;
-            cb->tool_tip = buffer;//set_tooltip(buffer);
-          }
-        }
-
-        //default texture
-        child_node = mxmlFindElement(check_button_node->child, root, "tex_default", NULL, NULL, MXML_NO_DESCEND);
-        if (child_node)
-        {
-          buffer = mxmlGetOpaque(child_node);
-          if (buffer)
-          {
-            cout << "\tdefault texture: " << buffer << endl;
-          }
-        }
-
-        //active texture
-        child_node = mxmlFindElement(check_button_node->child, root, "tex_active", NULL, NULL, MXML_NO_DESCEND);
-        if (child_node)
-        {
-          buffer = mxmlGetOpaque(child_node);
-          if (buffer)
-          {
-            cout << "\tactive texture: " << buffer << endl;
-          }
-        }
-
-        //"off" texture
-        child_node = mxmlFindElement(check_button_node->child, root, "tex_off", NULL, NULL, MXML_NO_DESCEND);
-        if (child_node)
-        {
-          buffer = mxmlGetOpaque(child_node);
-          if (buffer)
-          {
-            cout << "\toff texture: " << buffer << endl;
-          }
-        }
-
-        //callback function
-        child_node = mxmlFindElement(check_button_node->child, root, "callback", NULL, NULL, MXML_NO_DESCEND);
-        if (child_node)
-        {
-          buffer = mxmlGetOpaque(child_node);
-          if (buffer)
-          {
-            cout << "\tcallback_function: " << buffer << endl;
-          }
-        }
-      }
-
-      if (parent)
-      {
-        cout << "\tparent detected..." << endl;
-        parent->children.push_back(cb);
-      }
+      parse_layout_template_xml(cb, check_button_node, root, parent, radio_group);
 
       templates.push_back(cb);
     }
     start_node = check_button_node;
   } while (check_button_node);
+
+  //parse push button widgets
+  start_node = root->child;
+  mxml_node_t *push_button_node = NULL;
+  do
+  {
+    push_button_node = mxmlFindElement(start_node, root, "push_button", NULL, NULL, MXML_NO_DESCEND);
+    if (push_button_node)
+    {
+      cout << "adding pushbutton..." << endl;
+      LayoutWidgetTemplate *pb = new LayoutWidgetTemplate;
+      pb->type = WIDGET_PUSH_BUTTON;
+
+      parse_layout_template_xml(pb, push_button_node, root, parent, radio_group);
+
+      templates.push_back(pb);
+    }
+    start_node = push_button_node;
+  } while (push_button_node);
 }
 
 void Layout::read_from_xml(mxml_node_t *root, uint32_t version)
