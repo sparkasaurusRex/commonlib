@@ -2,6 +2,8 @@
 #include <assert.h>
 #include "push_button.h"
 
+#define TOOLBOX_DEFAULT_MARGIN_PX 5.0f
+
 namespace UI
 {
   class ToolBox : public RectangularWidget

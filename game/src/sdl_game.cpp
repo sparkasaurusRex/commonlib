@@ -371,6 +371,44 @@ void SDLGame::generate_ui_from_layout(std::string name)
   for (uint32_t i = 0; i < ui_layout->templates.size(); i++)
   {
     LayoutWidgetTemplate *w = ui_layout->templates[i];
+
+    if (w->type == WIDGET_TOOLBOX)
+    {
+      Float2 max_dim;
+      for (uint32_t j = 0; j < w->children.size(); j++)
+      {
+        LayoutWidgetTemplate *c = w->children[j];
+        max_dim[0] = max(max_dim[0], c->dim[0]);
+        max_dim[1] = max(max_dim[1], c->dim[1]);
+      }
+
+      if (w->flags & UI_LAYOUT_FLAG_VERTICAL)
+      {
+        w->dim[0] = max_dim[0];
+        w->dim[1] = (max_dim[1] + TOOLBOX_DEFAULT_MARGIN_PX) * w->children.size();
+      }
+      else
+      {
+        w->dim[0] = (max_dim[0] + TOOLBOX_DEFAULT_MARGIN_PX) * w->children.size();
+        w->dim[1] = max_dim[1];
+      }
+    }
+
+    //fix alignments
+    if (w->flags & UI_LAYOUT_FLAG_ALIGN_CENTER_X)
+    {
+      float center_x = (float)resolution[0] / 2.0f;
+      w->offset[0] = center_x - (w->dim[0] / 2.0f) + w->offset[0];
+    }
+    if (w->flags & UI_LAYOUT_FLAG_ALIGN_RIGHT)
+    {
+      w->offset[0] = (float)resolution[0] - w->offset[0] - w->dim[0];
+    }
+    if (w->flags & UI_LAYOUT_FLAG_ALIGN_BOTTOM)
+    {
+      w->offset[1] = (float)resolution[1] - w->offset[1] - w->dim[1];
+    }
+
     if (w->type != WIDGET_TOOLBOX && w->type != WIDGET_RADIO_GROUP)
     {
       RectangularWidget *rw = NULL;
@@ -393,17 +431,12 @@ void SDLGame::generate_ui_from_layout(std::string name)
           pb->set_texture(0, asset_library.retrieve_texture(w->tex_default));
           pb->set_texture(1, asset_library.retrieve_texture(w->tex_active));
           pb->set_texture(2, asset_library.retrieve_texture(w->tex_off));
+          pb->set_text("");
           pb->set_click_callback(ui_callback_map[hash_value_from_string(w->click_callback.c_str())]);
           break;
         }
         default:
           assert(false);
-      }
-
-      if (w->flags & UI_LAYOUT_FLAG_ALIGN_CENTER)
-      {
-        float center_x = (float)resolution[0] / 2.0f;
-        w->offset[0] = center_x - (w->dim[0] / 2.0f) + w->offset[0];
       }
 
       rw->set_font(widget_font);
@@ -449,6 +482,7 @@ void SDLGame::generate_ui_from_layout(std::string name)
         tb->set_font(widget_font);
         tb->init();
         tb->show();
+        w->real_widget = tb;
         ww.add_widget(tb);
  
         break;

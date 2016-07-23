@@ -7,8 +7,11 @@
 #include "widget.h"
 #include "radio_group.h"
 
-#define UI_LAYOUT_FLAG_VERTICAL       1<<0
-#define UI_LAYOUT_FLAG_ALIGN_CENTER   1<<1
+#define UI_LAYOUT_FLAG_VERTICAL         (1<<0)
+#define UI_LAYOUT_FLAG_ALIGN_CENTER_X   (1<<1)
+#define UI_LAYOUT_FLAG_ALIGN_CENTER_Y   (1<<2)
+#define UI_LAYOUT_FLAG_ALIGN_RIGHT      (1<<3)
+#define UI_LAYOUT_FLAG_ALIGN_BOTTOM     (1<<4)
 
 namespace UI
 {

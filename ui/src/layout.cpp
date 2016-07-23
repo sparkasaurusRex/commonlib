@@ -29,7 +29,10 @@ void parse_layout_template_xml(LayoutWidgetTemplate *wt, mxml_node_t *widget_nod
   const char *buffer = NULL;
 
   buffer = mxmlElementGetAttr(widget_node, "name");
-  cout << "\tname: " << buffer << endl;
+  if (buffer)
+  {
+    cout << "\tname: " << buffer << endl;
+  }
 
   uint32_t x = 100;
   uint32_t y = 100;
@@ -44,7 +47,14 @@ void parse_layout_template_xml(LayoutWidgetTemplate *wt, mxml_node_t *widget_nod
   buffer = mxmlElementGetAttr(widget_node, "y");
   if (buffer) { y = atoi(buffer); }
   buffer = mxmlElementGetAttr(widget_node, "align_x");
-  if (buffer && !stricmp(buffer, "center")) { wt->flags |= UI_LAYOUT_FLAG_ALIGN_CENTER; }
+  if (buffer && !stricmp(buffer, "center")) { wt->flags |= UI_LAYOUT_FLAG_ALIGN_CENTER_X; }
+  if (buffer && !stricmp(buffer, "right")) { wt->flags |= UI_LAYOUT_FLAG_ALIGN_RIGHT; }
+  buffer = mxmlElementGetAttr(widget_node, "align_y");
+  if (buffer && !stricmp(buffer, "bottom")) { wt->flags |= UI_LAYOUT_FLAG_ALIGN_BOTTOM; }
+  if (buffer && !stricmp(buffer, "center")) { wt->flags |= UI_LAYOUT_FLAG_ALIGN_CENTER_Y; }
+  buffer = mxmlElementGetAttr(widget_node, "orientation");
+  if (buffer && !stricmp(buffer, "vertical")) { wt->flags |= UI_LAYOUT_FLAG_VERTICAL; }
+  
   cout << "\tdim: (" << width << ", " << height << ")" << endl;
   cout << "\toffset: " << x << ", " << y << ")" << endl;
   wt->dim = Float2((float)width, (float)height);
@@ -106,6 +116,9 @@ void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent, La
       LayoutWidgetTemplate *tb = new LayoutWidgetTemplate;
       tb->type = WIDGET_TOOLBOX;
 
+      parse_layout_template_xml(tb, toolbar_node, root, parent, radio_group);
+
+      /*
       buffer = mxmlElementGetAttr(toolbar_node, "name");
       cout << "\tname: " << buffer << endl;
 
@@ -124,8 +137,9 @@ void Layout::parse_xml_level(mxml_node_t *root, LayoutWidgetTemplate *parent, La
       cout << "\toffset: (" << x_offset << ", " << y_offset << ")" << endl;
 
       tb->offset = Float2((float)x_offset, (float)y_offset);
-      templates.push_back(tb);
+      */
 
+      templates.push_back(tb);
       parse_xml_level(toolbar_node, tb);
     }
     start_node = toolbar_node;

@@ -187,7 +187,9 @@
     <Xml Include="..\..\..\mundus\data\packages\pkg_test.pkg.xml">
       <SubType>Designer</SubType>
     </Xml>
-    <Xml Include="..\..\..\mundus\data\ui\mundus.layout.xml" />
+    <Xml Include="..\..\..\mundus\data\ui\mundus.layout.xml">
+      <SubType>Designer</SubType>
+    </Xml>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

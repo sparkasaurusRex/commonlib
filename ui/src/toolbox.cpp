@@ -8,7 +8,7 @@ using namespace Math;
 ToolBox::ToolBox() : RectangularWidget(WIDGET_TOOLBOX)
 {
   horizontal = true;    //horizontal alignment by default
-  margin = 4.0f;        //5 pixels betwixt each button
+  margin = TOOLBOX_DEFAULT_MARGIN_PX;        //5 pixels betwixt each button
   pb_dim[0] = pb_dim[1] = 32;
 }
 
