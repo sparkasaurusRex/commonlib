@@ -108,6 +108,8 @@ public:
 
   void generate_ui_from_layout(std::string name);
 
+  DebugConsole *get_debug_console() { return &console; }
+
   double get_game_time() const { return (double)SDL_GetTicks(); }
 
   void set_pause_menu(UI::Menu *menu) { assert(!(flags & SDL_GAME_GENERATE_PAUSE_MENU)); pause_menu = menu; }
