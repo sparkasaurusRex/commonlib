@@ -81,7 +81,6 @@ namespace Math {
     q.rotation_from_axis_angle(axis, angle);
     orientation.rotation_from_quaternion(q);
   }
-
 }
 
 #endif //__MATRIX_H__

@@ -14,6 +14,8 @@ Object3D::Object3D()
   birth_time = -1;
 
   object_flags = 0;
+  type = 0;
+  data = NULL;
 }
 
 void Object3D::init(const double game_time)

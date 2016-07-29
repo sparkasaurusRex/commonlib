@@ -23,7 +23,9 @@ namespace Game
   class Object3D
   {
   protected:
-    uint32_t object_flags;
+    uint32_t           object_flags;
+    uint32_t           type;    // to be defined by client
+    void               *data;   // to be filled by client
 
     Math::Float3       pos;
     Math::Float3       vel;
@@ -42,6 +44,11 @@ namespace Game
     virtual void init(const double game_time);
     virtual void simulate(const double game_time, const double frame_time);
     virtual void render(const double game_time);
+
+    void set_type(const uint32_t t) { type = t; }
+    uint32_t get_type() const { return type; }
+    void set_data(void *d) { data = d; }
+    void *get_data() { return data; }
 
     void set_pos(const Math::Float3 p) { pos = p; }
     void set_vel(const Math::Float3 v) { vel = v; }
