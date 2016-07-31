@@ -45,6 +45,11 @@ namespace Game
     virtual void simulate(const double game_time, const double frame_time);
     virtual void render(const double game_time);
 
+    void apply_object_flag(uint32_t f) { object_flags = object_flags | f; }
+    void clear_object_flag(uint32_t f) { object_flags = object_flags & ~f; }
+    void toggle_object_flag(uint32_t f) { object_flags = object_flags ^ f; }
+    bool is_object_flag_set(uint32_t f) { return ((object_flags & f) != 0); }
+
     void set_type(const uint32_t t) { type = t; }
     uint32_t get_type() const { return type; }
     void set_data(void *d) { data = d; }

@@ -22,6 +22,7 @@
 #include "menu.h"
 #include "game_controller.h"
 #include "asset_library.h"
+#include "switchboard.h"
 
 //TODO: framerate counter
 
@@ -36,19 +37,31 @@
 #define SDL_GAME_STATE_PAUSED         (1<<0)
 #define SDL_GAME_STATE_FULLSCREEN     (1<<1)
 
+class GameContext
+{
+  friend class SDLGame;
+public:
+  Switchboard            switch_board;
+  Game::AssetLibrary     asset_library;
+  DebugConsole           console;
+
+  GameContext() {}
+  ~GameContext() {}
+};
+
 
 class SDLGame
 {
 protected:
   Game::GameControllerContext game_controller_context;
+  GameContext game_context;
+
   UI::WidgetWrangler      ww;
 
   uint32_t         flags;
 
   bool             recording_movie;
   int              movie_frame_counter;
-
-  Game::AssetLibrary     asset_library;
 
   int              resolution[2];
   SDL_Window       *win;
@@ -75,7 +88,6 @@ protected:
 
   UI::Menu         *pause_menu;
   FadeScreen       title_screen;
-  DebugConsole     console;
 
   float            sim_lock_dt;
   bool             vsync_enabled;
@@ -108,7 +120,7 @@ public:
 
   void generate_ui_from_layout(std::string name);
 
-  DebugConsole *get_debug_console() { return &console; }
+  DebugConsole *get_debug_console() { return &game_context.console; }
 
   double get_game_time() const { return (double)SDL_GetTicks(); }
 
