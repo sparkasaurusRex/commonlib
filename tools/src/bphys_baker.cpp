@@ -277,7 +277,7 @@ float sample_voxel(float *voxels, unsigned int *vox_dim, const Float3 &uvw, bool
   if(trilinear_filter)
   {
     Float3 uvw_weights = scaled_uvw - voxel_xyz;
-
+    \
     float low_val[3];
     float hi_val[3];
     float tri_val[3];
