@@ -27,5 +27,9 @@ int main(int argc, char **argv)
     }
   }
 
+#if defined (_WIN32)
+  Sleep(60 * 1000);
+#endif
+
   return 0;
 }

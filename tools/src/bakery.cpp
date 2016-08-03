@@ -81,7 +81,4 @@ void Bakery::bake(std::string fname, std::string out_fname)
       cerr<<"Bakery::bake() - Could not open file! "<<endl<<"\t"<<fname.c_str()<<endl;
     }
   }
-
-  int a;
-  cin >> a;
 }
