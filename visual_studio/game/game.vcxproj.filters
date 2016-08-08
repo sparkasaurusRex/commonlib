@@ -19,6 +19,9 @@
     <Filter Include="Source Files\cinematics">
       <UniqueIdentifier>{67f20b32-ef83-4d62-bad9-42c5f9e3ff13}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\sequencer">
+      <UniqueIdentifier>{d3e494b9-c255-4db8-ad60-2d381fde3b1c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\game\include\asset_library.h">
@@ -55,6 +58,15 @@
     </ClCompile>
     <ClCompile Include="..\..\game\src\game_controller.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\game\src\sequencer\event.cpp">
+      <Filter>Source Files\sequencer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\game\src\sequencer\message_event.cpp">
+      <Filter>Source Files\sequencer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\game\src\sequencer\sequencer.cpp">
+      <Filter>Source Files\sequencer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

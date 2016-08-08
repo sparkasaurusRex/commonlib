@@ -6,7 +6,7 @@ using namespace std;
 using namespace Math;
 using namespace Graphics;
 
-Menu::Menu(Font *f) : RectangularWidget(f)
+Menu::Menu(Font *f) : RectangularWidget(WIDGET_MENU, f)
 {
   selection = 0;
   item_border = 10.0f;

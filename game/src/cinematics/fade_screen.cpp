@@ -23,7 +23,7 @@ void FadeScreen::simulate(const float dt)
 {
   if(!fade_in_timer.has_elapsed())
   {
-    cout<<"fade in"<<endl;
+    //cout<<"fade in"<<endl;
     fade_opacity = fade_in_timer.pct_elapsed();
     if(fade_opacity >= 1.0f)
     {
@@ -33,7 +33,7 @@ void FadeScreen::simulate(const float dt)
   }
   else if(!linger_timer.has_elapsed())
   {
-    cout<<"linger"<<endl;
+    //cout<<"linger"<<endl;
     fade_opacity = 1.0f;
     if(linger_timer.pct_elapsed() >= 1.0f)
     {
@@ -43,10 +43,10 @@ void FadeScreen::simulate(const float dt)
   }
   else if(!fade_out_timer.has_elapsed())
   {
-    cout<<"fade out"<<endl;
+    //cout<<"fade out"<<endl;
     fade_opacity = clamp(1.0f - fade_out_timer.pct_elapsed(), 0.0f, 1.0f);
   }
-  cout<<"title screen opacity: "<<fade_opacity<<endl;
+  //cout<<"title screen opacity: "<<fade_opacity<<endl;
 }
 
 void FadeScreen::render_gl() const

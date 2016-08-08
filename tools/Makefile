@@ -2,18 +2,19 @@ CC=g++
 
 CFLAGS=-I./include -I../mathlib/include -I../graphics/include
 CFLAGS+=-I/usr/local/include -I../game/include
-CFLAGS+=-I./include/minilzo
+CFLAGS+=-I./include/minilzo -I../
 CFLAGS+=$(shell pkg-config mxml --cflags)
 #CFLAGS+=-Ofast
 CFLAGS+= -g3 -O0
 
 LIB_PATH=
 LDFLAGS=$(shell pkg-config mxml --libs)
+LDFLAGS+=$(shell pkg-config SDL2_image --libs)
 LDFLAGS+=-lgraphics -ltool -lmath
 SRCPATH=src/
 SRCS=src/static_mesh_baker.cpp src/bakery.cpp src/tool.cpp
 SRCS+=src/bphys_baker.cpp src/shader_baker.cpp
-SRCS+=src/minilzo/minilzo.cpp
+SRCS+=src/minilzo/minilzo.cpp src/package_baker.cpp
 OBJS=$(SRCS:.cpp=.o)
 
 UNAME := $(shell uname)
@@ -49,6 +50,9 @@ $(BINPATH)tool.o: $(SRCPATH)tool.cpp
 $(BINPATH)bakery.o: $(SRCPATH)bakery.cpp
 	$(CC) $(CFLAGS) -c src/bakery.cpp -o $(BINPATH)bakery.o
 
+$(BINPATH)package_baker.o: $(SRCPATH)package_baker.cpp
+	$(CC) $(CFLAGS) -c src/package_baker.cpp -o $(BINPATH)package_baker.o
+
 $(BINPATH)static_mesh_baker.o: $(SRCPATH)static_mesh_baker.cpp
 	$(CC) $(CFLAGS) -c src/static_mesh_baker.cpp -o $(BINPATH)static_mesh_baker.o
 
@@ -70,4 +74,4 @@ bake: bake.cpp $(BINPATH)libtool.a $(SRCS)
 clean:
 	rm -f $(BINPATH)*.o
 	rm -f $(BINPATH)libtool.a
-	rm -f test
+	rm -f bake

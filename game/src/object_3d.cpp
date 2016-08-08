@@ -12,6 +12,10 @@ Object3D::Object3D()
 {
   scale = Float3(1.0f, 1.0f, 1.0f);
   birth_time = -1;
+
+  object_flags = 0;
+  type = 0;
+  data = NULL;
 }
 
 void Object3D::init(const double game_time)
@@ -21,13 +25,25 @@ void Object3D::init(const double game_time)
 
 void Object3D::simulate(const double gt, const double dt)
 {
-  pos = pos + (vel * (float)dt);
+  if (object_flags & OBJECT_FLAG_PHYSICS_XYZ)
+  {
+    pos = pos + (vel * (float)dt);
+  }
 
   //TODO: angular velocity
 }
 
-void Object3D::render()
+void Object3D::render(const double game_time)
 {
-  glTranslatef(pos._val[0], pos._val[1], pos._val[2]);
-  glScalef(scale._val[0], scale._val[1], scale._val[2]);
+  GLdouble mat[16] =
+  {
+    rot(0, 0), rot(1, 0), rot(2, 0),    0.0,
+    rot(0, 1), rot(1, 1), rot(2, 1),    0.0,
+    rot(0, 2), rot(1, 2), rot(2, 2),    0.0,
+    pos[0],    pos[1],    pos[2],       1.0
+  };
+
+  //glLoadMatrixd(mat);
+  glMatrixMode(GL_MODELVIEW);
+  glMultMatrixd(mat);
 }

@@ -7,11 +7,13 @@
 #include "sdl_game.h"
 #include "label.h"
 #include "menu.h"
+#include "toolbox.h"
 
 using namespace std;
 using namespace Math;
 using namespace UI;
 using namespace Graphics;
+using namespace Game;
 
 void quit()
 {
@@ -46,6 +48,8 @@ SDLGame::SDLGame(const int w, const int h,
   window_title = title;
 
   last_game_time = 0.0f;
+  game_context.switch_board.assign_socket(ChannelSocketDouble(&last_game_time), "game_time");
+
   fps_idx = 0;
   for(int i = 0; i < SDL_GAME_NUM_FPS_FRAMES; i++)
   {
@@ -140,7 +144,7 @@ void SDLGame::init()
 
   widget_font = new Font(widget_font_face.c_str(), widget_font_size);
   widget_font->init();
-  console.set_font(widget_font);
+  game_context.console.set_font(widget_font);
 
   fps_label.set_font(widget_font);
   fps_label.set_text(std::string("fps"));
@@ -168,8 +172,8 @@ void SDLGame::init()
   }
 
   user_init();
-  console.init();
-  console.register_function(quit, "quit");
+  game_context.console.init();
+  game_context.console.register_function(quit, "quit");
 }
 
 void SDLGame::run()
@@ -241,8 +245,8 @@ void SDLGame::run()
         pause_menu->render();
       }
 
-      console.simulate(game_time, frame_time);
-      console.render_gl();
+      game_context.console.simulate(game_time, frame_time);
+      game_context.console.render_gl();
     }
 
     if(recording_movie)
@@ -295,11 +299,11 @@ void SDLGame::process_events()
       case '`':
         if (keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT])
         {
-          console.activate(console.is_control_board_active() ? CONSOLE_INACTIVE : CONSOLE_ACTIVE_CONTROL_BOARD);
+          game_context.console.activate(game_context.console.is_control_board_active() ? CONSOLE_INACTIVE : CONSOLE_ACTIVE_CONTROL_BOARD);
         }
         else
         {
-          console.activate(console.is_active() ? CONSOLE_INACTIVE : CONSOLE_ACTIVE_DEFAULT);
+          game_context.console.activate(game_context.console.is_active() ? CONSOLE_INACTIVE : CONSOLE_ACTIVE_DEFAULT);
         }
         break;
       case SDLK_ESCAPE:
@@ -310,21 +314,21 @@ void SDLGame::process_events()
         }
         break;
       case SDLK_UP:
-        if (console.is_active()) { console.traverse_command_history(1); }
+        if (game_context.console.is_active()) { game_context.console.traverse_command_history(1); }
         break;
       case SDLK_DOWN:
-        if (console.is_active()) { console.traverse_command_history(-1); }
+        if (game_context.console.is_active()) { game_context.console.traverse_command_history(-1); }
         break;
       case SDLK_RETURN:
         //case SDLK_ENTER:
-        if (console.is_active()) { console.execute(); }
+        if (game_context.console.is_active()) { game_context.console.execute(); }
         if (keystate[SDL_SCANCODE_LALT]) { toggle_fullscreen(); }
         break;
       case SDLK_TAB:
-        if (console.is_active()) { console.tab_complete(); }
+        if (game_context.console.is_active()) { game_context.console.tab_complete(); }
         break;
       case SDLK_BACKSPACE:
-        if (console.is_active()) { console.backspace(); }
+        if (game_context.console.is_active()) { game_context.console.backspace(); }
         break;
       case SDLK_F12:
         if (keystate[SDL_SCANCODE_LSHIFT] || keystate[SDL_SCANCODE_RSHIFT])
@@ -342,19 +346,170 @@ void SDLGame::process_events()
 
     if(event.type == SDL_TEXTINPUT)
     {
-      if(console.is_active())
+      if(game_context.console.is_active())
       {
         if(event.text.text[0] != '`')
         {
-          console.receive_char(event.text.text[0]);
+          game_context.console.receive_char(event.text.text[0]);
         }
       }
     }
 
     if(event.type == SDL_QUIT) { quit_app(); }
-    if(!console.is_active()) { user_process_event(event); }
-    if(console.is_control_board_active()) { console.process_event(event); }
+    if(!game_context.console.is_active()) { user_process_event(event); }
+    if(game_context.console.is_control_board_active()) { game_context.console.process_event(event); }
   }
+}
+
+void SDLGame::generate_ui_from_layout(std::string name)
+{
+  //assert(asset_library);
+  GameAsset *asset = game_context.asset_library.retrieve_asset(name);
+  assert(asset->type == UI_LAYOUT_ASSET);
+  Layout *ui_layout = ((UILayoutAsset *)asset)->l;
+  assert(ui_layout);
+
+  //first load all the root level widgets
+  for (uint32_t i = 0; i < ui_layout->templates.size(); i++)
+  {
+    LayoutWidgetTemplate *w = ui_layout->templates[i];
+
+    if (w->type == WIDGET_TOOLBOX)
+    {
+      Float2 max_dim;
+      for (uint32_t j = 0; j < w->children.size(); j++)
+      {
+        LayoutWidgetTemplate *c = w->children[j];
+        max_dim[0] = max(max_dim[0], c->dim[0]);
+        max_dim[1] = max(max_dim[1], c->dim[1]);
+      }
+
+      if (w->flags & UI_LAYOUT_FLAG_VERTICAL)
+      {
+        w->dim[0] = max_dim[0];
+        w->dim[1] = (max_dim[1] + TOOLBOX_DEFAULT_MARGIN_PX) * w->children.size();
+      }
+      else
+      {
+        w->dim[0] = (max_dim[0] + TOOLBOX_DEFAULT_MARGIN_PX) * w->children.size();
+        w->dim[1] = max_dim[1];
+      }
+    }
+
+    //fix alignments
+    if (w->flags & UI_LAYOUT_FLAG_ALIGN_CENTER_X)
+    {
+      float center_x = (float)resolution[0] / 2.0f;
+      w->offset[0] = center_x - (w->dim[0] / 2.0f) + w->offset[0];
+    }
+    if (w->flags & UI_LAYOUT_FLAG_ALIGN_RIGHT)
+    {
+      w->offset[0] = (float)resolution[0] - w->offset[0] - w->dim[0];
+    }
+    if (w->flags & UI_LAYOUT_FLAG_ALIGN_BOTTOM)
+    {
+      w->offset[1] = (float)resolution[1] - w->offset[1] - w->dim[1];
+    }
+
+    if (w->type != WIDGET_TOOLBOX && w->type != WIDGET_RADIO_GROUP)
+    {
+      RectangularWidget *rw = NULL;
+      switch (w->type)
+      {
+        case WIDGET_CHECK_BUTTON:
+        {
+          CheckButton *cb = new CheckButton;
+          rw = cb;
+          cb->set_texture(0, game_context.asset_library.retrieve_texture(w->tex_default));
+          cb->set_texture(1, game_context.asset_library.retrieve_texture(w->tex_active));
+          cb->set_texture(2, game_context.asset_library.retrieve_texture(w->tex_off));
+          cb->set_click_callback(ui_callback_map[hash_value_from_string(w->click_callback.c_str())]);
+          break;
+        }
+        case WIDGET_PUSH_BUTTON:
+        {
+          PushButton *pb = new PushButton;
+          rw = pb;
+          pb->set_texture(0, game_context.asset_library.retrieve_texture(w->tex_default));
+          pb->set_texture(1, game_context.asset_library.retrieve_texture(w->tex_active));
+          pb->set_texture(2, game_context.asset_library.retrieve_texture(w->tex_off));
+          pb->set_text("");
+          pb->set_click_callback(ui_callback_map[hash_value_from_string(w->click_callback.c_str())]);
+          break;
+        }
+        default:
+          assert(false);
+      }
+
+      rw->set_font(widget_font);
+      rw->scale(w->dim);
+      rw->translate(w->offset);
+      rw->set_tooltip(w->tool_tip);
+      rw->init();
+      w->real_widget = rw;
+
+      if (!w->parent)
+      {
+        rw->show();
+        ww.add_widget(rw);
+      }
+    }
+  }
+
+  for(uint32_t i = 0; i < ui_layout->templates.size(); i++)
+  {
+    LayoutWidgetTemplate *w = ui_layout->templates[i];
+    switch (w->type)
+    {
+      case WIDGET_TOOLBOX:
+      {
+        ToolBox *tb = new ToolBox;
+        tb->scale(w->dim);
+        tb->translate(w->offset);
+        for (uint32_t j = 0; j < w->children.size(); j++)
+        {
+          LayoutWidgetTemplate *child = w->children[j];
+          assert(child);
+          if (child->real_widget)
+          {
+            tb->add_button((PushButton *)child->real_widget);
+            tb->set_button_dim(child->dim);
+          }
+        }
+
+        if (w->flags & UI_LAYOUT_FLAG_VERTICAL)
+        {
+          tb->make_vertical();
+        }
+        tb->set_font(widget_font);
+        tb->init();
+        tb->show();
+        w->real_widget = tb;
+        ww.add_widget(tb);
+ 
+        break;
+      }
+      case WIDGET_RADIO_GROUP:
+      {
+        RadioGroup *rg = new RadioGroup;
+        for (uint32_t j = 0; j < w->children.size(); j++)
+        {
+          LayoutWidgetTemplate *child = w->children[j];
+          assert(child);
+          if (child->real_widget)
+          {
+            assert(child->real_widget->get_widget_type() == WIDGET_CHECK_BUTTON);
+            CheckButton *cb = (CheckButton *)child->real_widget;
+            rg->add((CheckButton *)cb);
+            cb->set_radio_group(rg);
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  //ok, we're all done w/ these templates... deallocate
 }
 
 
@@ -372,14 +527,14 @@ void SDLGame::set_widget_font(std::string font_face_name, unsigned int size)
 
 void SDLGame::screenshot()
 {
-  console.console_log<<"taking screenshot..."<<endl;
+  game_context.console.console_log<<"taking screenshot..."<<endl;
   SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, resolution[0], resolution[1], 24, 0x000000FF, 0x0000FF00, 0x00FF0000, 0);
 
   glReadPixels(0, 0, resolution[0], resolution[1], GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
 
   char filename[256];
   sprintf(filename, "capture/%s%i.bmp", window_title.c_str(), movie_frame_counter++);
-  console.console_log<<"writing "<<filename<<endl;
+  game_context.console.console_log<<"writing "<<filename<<endl;
   SDL_SaveBMP(image, filename);
   SDL_FreeSurface(image);
 }
@@ -422,13 +577,13 @@ void SDLGame::init_sdl()
 
     glewInit();
 
-    console.console_log<<"Initializing OpenGL..."<<endl;
-    console.console_log<<"version "<<glGetString(GL_VERSION)<<endl;//major_version<<"."<<minor_version<<endl;
+    game_context.console.console_log<<"Initializing OpenGL..."<<endl;
+    game_context.console.console_log<<"version "<<glGetString(GL_VERSION)<<endl;//major_version<<"."<<minor_version<<endl;
     //console.log<<"extensions: "<<endl<<glGetString(GL_EXTENSIONS)<<endl;
 
     int max_vertex_attribs;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attribs);
-    console.console_log<<"Max Vertex Attribs: "<<max_vertex_attribs<<endl;
+    game_context.console.console_log<<"Max Vertex Attribs: "<<max_vertex_attribs<<endl;
   }
 }
 

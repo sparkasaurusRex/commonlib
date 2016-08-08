@@ -48,11 +48,7 @@ Texture2D::Texture2D(const unsigned int w,
 
 Texture2D::Texture2D(const char *n)
 {
-#if defined (_WIN32)
-  strcpy_s(fname, n);
-#else
-  strcpy(fname, n);
-#endif //_WIN32
+  fname = n;
   filter_mode = GL_LINEAR;
   wrap_mode[0] = GL_REPEAT;
   wrap_mode[1] = GL_REPEAT;
@@ -63,7 +59,7 @@ Texture2D::Texture2D(const char *n)
 
 Texture2D::~Texture2D()
 {
-  glDeleteTextures(1, &gl_texture);
+  deinit();
 }
 
 void Texture2D::init()
@@ -101,16 +97,13 @@ void Texture2D::init()
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture2D::deinit()
+{
+  glDeleteTextures(1, &gl_texture);
+}
+
 bool Texture2D::load()
 {
-    /*
-    if(gl_texture != 0)
-    {
-        assert(glIsTexture(gl_texture) == GL_TRUE);
-        cerr<<"texture already loaded???"<<endl;
-        return true; //already loaded
-    }*/
-
     int width, height;
 
 #if defined(__USE_SOIL__)
@@ -122,7 +115,7 @@ bool Texture2D::load()
 #else
     //SDL2 way of loading
     cout<<"IMG_Load("<<fname<<")"<<endl;
-    SDL_Surface *image = IMG_Load(fname);
+    SDL_Surface *image = IMG_Load(fname.c_str());
     if(!image)
     {
       cerr<<"Texture2D::load() - "<<IMG_GetError()<<endl;

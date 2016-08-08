@@ -58,6 +58,29 @@ namespace Math {
   };
 
   std::ostream& operator<<(std::ostream &os, const Matrix3x3 &m);
+
+  inline void orient_to_sphere_surface(Float3 &pos, Matrix3x3 &orientation)
+  {
+    /*
+    Float3 up(pos);
+    up.normalize();
+
+    Float3 left = up ^ Float3(0.0f, 1.0f, 0.0f);
+    left.normalize();
+
+    Float3 forward = left ^ up;
+
+    Matrix3x3 orientation(left, up, forward);
+    ht->set_orientation(orientation);*/
+    Float3 up(0.0f, 1.0f, 0.0f);
+    Float3 axis = Float3(0.0f, 1.0f, 0.0f) ^ pos;
+    axis.normalize();
+    float angle = acos(up * pos);
+
+    Quaternion q;
+    q.rotation_from_axis_angle(axis, angle);
+    orientation.rotation_from_quaternion(q);
+  }
 }
 
 #endif //__MATRIX_H__

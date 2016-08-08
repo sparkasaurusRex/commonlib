@@ -20,25 +20,23 @@ namespace Graphics
     Shader();
     ~Shader();
 
+    void deinit();
+
     void set_shader_filenames(std::string vs_fname, std::string fs_fname);
-    GLuint load_and_compile_shader(GLenum shader_type, const char *source);
+    void compile_and_link_from_source(const char *vs, const char *fs);
+    GLuint compile_shader_from_source(GLenum shader_type, const char *source);
+    void link_shader();
     
     bool load_link_and_compile();
     void render();
-  //private:
-    //char name[256];
+
 
     GLuint gl_fragment_shader;
     GLuint gl_vertex_shader;
     GLuint gl_shader_program;
 
-    char gl_fragment_shader_fname[512];
-    char gl_vertex_shader_fname[512];
-
-  	//HACK
-    int gl_pos_loc;
-    int gl_col_loc;
-    int gl_uv_loc;
+    std::string gl_fragment_shader_fname;
+    std::string gl_vertex_shader_fname;
   };
 
   class ShaderUniformVariable

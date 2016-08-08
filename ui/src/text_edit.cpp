@@ -6,7 +6,7 @@ using namespace std;
 using namespace Math;
 using namespace Graphics;
 
-TextEdit::TextEdit(Font *f) : RectangularWidget(f)
+TextEdit::TextEdit(Font *f) : RectangularWidget(WIDGET_TEXT_EDIT, f)
 {
   dim[0] = 100.0f;
   dim[1] = 25.0f;

@@ -5,10 +5,10 @@ using namespace UI;
 using namespace std;
 using namespace Math;
 
-ToolBox::ToolBox() : RectangularWidget()
+ToolBox::ToolBox() : RectangularWidget(WIDGET_TOOLBOX)
 {
   horizontal = true;    //horizontal alignment by default
-  margin = 4.0f;        //5 pixels betwixt each button
+  margin = TOOLBOX_DEFAULT_MARGIN_PX;        //5 pixels betwixt each button
   pb_dim[0] = pb_dim[1] = 32;
 }
 
@@ -18,7 +18,7 @@ void ToolBox::init()
   //dim[1] = margin * 2 + pb_dim[1];
 
   float dx = margin;
-  for(unsigned int i = 0; i < buttons.size(); i++)
+  for(uint32_t i = 0; i < buttons.size(); i++)
   {
     Float2 pb_pos;
     if(horizontal) { pb_pos = Float2(dx, margin); }

@@ -151,6 +151,9 @@ namespace Math {
       void reset();
 
       void bell_curve_cerp(const float x0, const float x1);
+      
+      void flip_vertically();
+      void flip_horizontally();
 
       void add_segment(CurveSegment *s);
       CurveSegment *create_segment(InterpolationMethod m, CurveEndPoint new_a, CurveEndPoint new_b);

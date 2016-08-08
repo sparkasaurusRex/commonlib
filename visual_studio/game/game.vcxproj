@@ -137,6 +137,9 @@
     <ClCompile Include="..\..\game\src\game_controller.cpp" />
     <ClCompile Include="..\..\game\src\object_3d.cpp" />
     <ClCompile Include="..\..\game\src\sdl_game.cpp" />
+    <ClCompile Include="..\..\game\src\sequencer\event.cpp" />
+    <ClCompile Include="..\..\game\src\sequencer\message_event.cpp" />
+    <ClCompile Include="..\..\game\src\sequencer\sequencer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -9,7 +9,7 @@ namespace UI
   class CheckButton : public PushButton
   {
   public:
-    CheckButton() : PushButton() { checked = false; radio_group = NULL; }
+    CheckButton() : PushButton() { checked = false; radio_group = NULL; widget_type = WIDGET_CHECK_BUTTON; }
     ~CheckButton() {}
 
     bool get_state() const { return checked; }

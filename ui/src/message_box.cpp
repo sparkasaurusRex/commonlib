@@ -3,7 +3,7 @@
 using namespace UI;
 using namespace Graphics;
 
-Message::Message(Font *f, bool has_timer) : RectangularWidget(f)
+Message::Message(Font *f, bool has_timer) : RectangularWidget(WIDGET_MESSAGE_BOX, f)
 {
   main_text = "Useful message";
   use_timer = has_timer;

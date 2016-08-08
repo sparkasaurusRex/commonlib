@@ -5,7 +5,7 @@ using namespace std;
 using namespace Math;
 using namespace Graphics;
 
-Meter::Meter(Font *f) : RectangularWidget(f)
+Meter::Meter(Font *f) : RectangularWidget(WIDGET_METER, f)
 {
   pct = 0.0f;
 }

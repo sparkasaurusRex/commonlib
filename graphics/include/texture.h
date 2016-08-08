@@ -7,6 +7,8 @@
 #include <GL/gl.h>
 #endif //_WIN32
 
+#include <string>
+
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #endif
@@ -44,11 +46,17 @@ namespace Graphics
     void set_internal_format(const GLint int_f) { internal_format = int_f; }
     GLenum get_data_format() const { return data_format; }
     void set_data_format(const GLenum df) { data_format = df; }
+    GLuint get_wrap_mode_u() { return wrap_mode[0]; }
+    GLuint get_wrap_mode_v() { return wrap_mode[1]; }
     void set_wrap_mode(GLuint u, GLuint v) { wrap_mode[0] = u; wrap_mode[1] = v; }
+    GLuint get_filtering_mode() { return filter_mode; }
     void set_filtering_mode(GLuint f) { filter_mode = f; }
     void set_resolution(const unsigned int w, const unsigned int h) { dim[0] = w; dim[1] = h; }
 
+    void set_filename(const char *fn) { fname = fn; }
+
     void init();
+    void deinit();
 
     bool load();
     //bool load_from_file_data(TextureFileData &tfd);
@@ -58,7 +66,7 @@ namespace Graphics
 
   private:
     unsigned int       dim[2];          //dimensions of the texture
-    char               fname[256];      //filename
+    std::string        fname;      //filename
     GLenum             tex_format;
     GLenum             data_format;
     GLint              internal_format;

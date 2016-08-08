@@ -22,6 +22,9 @@
     <Filter Include="Source Files\mxml">
       <UniqueIdentifier>{73450b76-36a6-4ab1-8444-c2bc3bae503f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data Files">
+      <UniqueIdentifier>{6a86d08e-fad9-4c9d-bcc2-922c777f96c7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\tools\include\bakery.h">
@@ -47,6 +50,9 @@
     </ClInclude>
     <ClInclude Include="..\..\tools\include\minilzo\lzodefs.h">
       <Filter>Header Files\minilzo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\tools\include\package_baker.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -101,5 +107,16 @@
     <ClCompile Include="..\..\tools\bake.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\tools\src\package_baker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\..\..\mundus\data\packages\pkg_test.pkg.xml">
+      <Filter>Data Files</Filter>
+    </Xml>
+    <Xml Include="..\..\..\mundus\data\ui\mundus.layout.xml">
+      <Filter>Data Files</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

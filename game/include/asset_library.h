@@ -1,91 +1,97 @@
 #ifndef __ASSET_LIBRARY_H__
 #define __ASSET_LIBRARY_H__
 
-#include <iostream>
 #include <vector>
 #include <unordered_map>
 #include <string>
 #include <sys/stat.h>
 
-//namespace Game
-//{
-  template <class T>
+#include "shader.h"
+#include "texture.h"
+#include "timer.h"
+#include "layout.h"
+
+namespace Game
+{
+  enum GameAssetType
+  {
+    SHADER_ASSET,
+    TEXTURE_ASSET,
+    MESH_ASSET,
+    UI_LAYOUT_ASSET,
+    AUDIO_ASSET
+  };
+
+  class GameAsset
+  {
+  public:
+    GameAsset(GameAssetType t);
+    ~GameAsset() {}
+
+    virtual void reload_from_disk() = 0;
+
+    GameAssetType    type;
+
+    //for file monitoring
+    struct FileMonitorInfo
+    {
+      uint32_t      mod_time;
+      std::string   fname;
+    };
+    std::vector<FileMonitorInfo> files_monitored;
+  };
+
+  class ShaderAsset : public GameAsset
+  {
+  public:
+    ShaderAsset() : GameAsset(SHADER_ASSET) {}
+    ~ShaderAsset() {}
+
+    virtual void reload_from_disk();
+  
+    Graphics::Shader *s;
+  };
+  
+  class TextureAsset : public GameAsset
+  {
+  public:
+    TextureAsset() : GameAsset(TEXTURE_ASSET) {}
+    ~TextureAsset() {}
+
+    virtual void reload_from_disk();
+
+    Graphics::Texture2D *t;
+  };
+
+  class UILayoutAsset : public GameAsset
+  {
+  public:
+    UILayoutAsset() : GameAsset(UI_LAYOUT_ASSET) {}
+    ~UILayoutAsset() {}
+
+    virtual void reload_from_disk() {}
+
+    UI::Layout *l;
+  };
+  
   class AssetLibrary
   {
-    public:
-      AssetLibrary()
-      {
-        search_path.push_back(std::string("./"));
-      }
+  protected:
+    std::unordered_map<uint32_t, GameAsset *> lib;
+    UI::Timer file_monitor_timer;
+    float file_monitor_interval_s;
+  public:
+    AssetLibrary() { file_monitor_interval_s = 1.0f; }
+    ~AssetLibrary() {}
 
-      ~AssetLibrary()
-      {
+    void add_asset(uint32_t hash_id, GameAsset *a) { lib.insert({ hash_id, a }); }
+    GameAsset *retrieve_asset(std::string name);
+    Graphics::Shader *retrieve_shader(std::string name);
+    Graphics::Texture2D *retrieve_texture(std::string name);
 
-      }
-
-      void add_data_file_name(std::string fname)
-      {
-        if(file_exists(fname))
-        {
-          file_names.push_back(fname);
-          return;
-        }
-        for(unsigned int i = 0; i < search_path.size(); i++)
-        {
-          std::string full_fname = search_path[i] + fname;
-          if(file_exists(full_fname))
-          {
-            file_names.push_back(full_fname);
-            return;
-          }
-        }
-        std::cerr<<"AssetLibrary::add_data_file_name(): File does not exist: "<<fname<<std::endl;
-      }
-
-      void add_path(std::string p)
-      {
-        search_path.push_back(p);
-      }
-
-      void load_all_data()
-      {
-        std::cout<<"AssetLibrary::load_all_data()..."<<std::endl;
-        for(unsigned int i = 0; i < file_names.size(); i++)
-        {
-          std::cout<<"\t"<<file_names[i]<<std::endl;
-        }
-      }
-
-      T *retrieve_asset(std::string fname)
-      {
-        std::cout<<"Asset Library loading "<<fname<<std::endl;
-        T *asset = lib[fname];
-        std::vector<std::string>::iterator i;
-        for(i = search_path.begin(); (i != search_path.end()) && !asset; i++)
-        {
-          std::cout<<(*i)<<std::endl;
-
-          std::string full_fname = (*i) + fname;
-          /*if(access(fname, F_OK | R_OK) != -1)
-          {
-            //file exists
-            asset = ();
-          }*/
-        }
-        return asset;
-      }
-    protected:
-
-      bool file_exists(std::string fname)
-      {
-        struct stat buffer;
-        return (stat (fname.c_str(), &buffer) == 0);
-      }
-
-      std::vector<std::string>                           search_path;
-      std::vector<std::string>                           file_names;
-      std::unordered_map<unsigned long, T *>             lib;
+    void init();
+    void simulate(const double game_time, const double frame_time);
   };
-//}
+}
 
 #endif //__ASSET_LIBRARY_H__

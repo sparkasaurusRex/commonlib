@@ -9,6 +9,9 @@ using namespace Math;
 
 void Bakery::init()
 {
+  //init openGL / glew so we can compile shaders n shi
+
+  package_baker.init();
   static_mesh_baker.init();
   bphys_baker.init();
   shader_baker.init();
@@ -59,10 +62,18 @@ void Bakery::bake(std::string fname, std::string out_fname)
         static_mesh_baker.bake(tree, output_fname);
       }
 
+      //shader
       node = mxmlFindElement(tree, tree, "shader_graph", "version", NULL, MXML_DESCEND);
       if(node)
       {
         shader_baker.bake(tree, output_fname);
+      }
+
+      //package
+      node = mxmlFindElement(tree, tree, "package", "version", NULL, MXML_DESCEND);
+      if (node)
+      {
+        package_baker.bake(tree, output_fname);
       }
     }
     else

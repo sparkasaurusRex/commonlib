@@ -264,11 +264,11 @@ float sample_voxel(float *voxels, unsigned int *vox_dim, const Float3 &uvw, bool
   unsigned int v_idx[3];
   Float3 scaled_uvw = uvw;
   Float3 voxel_xyz;
-  for(int v_idx_i = 0; v_idx_i < 3; v_idx_i++)
+  for(uint32_t v_idx_i = 0; v_idx_i < 3; v_idx_i++)
   {
     scaled_uvw[v_idx_i] = uvw[v_idx_i] * (float)vox_dim[v_idx_i] - 0.5f;
-    v_idx[v_idx_i] = (unsigned int)(scaled_uvw[v_idx_i]);
-    voxel_xyz[v_idx_i] = v_idx[v_idx_i];
+    v_idx[v_idx_i] = (uint32_t)(scaled_uvw[v_idx_i]);
+    voxel_xyz[v_idx_i] = (float)v_idx[v_idx_i];
   }
 
   //cout<<scaled_uvw - voxel_xyz<<endl;
@@ -277,7 +277,7 @@ float sample_voxel(float *voxels, unsigned int *vox_dim, const Float3 &uvw, bool
   if(trilinear_filter)
   {
     Float3 uvw_weights = scaled_uvw - voxel_xyz;
-
+    \
     float low_val[3];
     float hi_val[3];
     float tri_val[3];
@@ -336,8 +336,8 @@ void BPhysBaker::splat_voxel_data_onto_sphere_surface(unsigned int *vox_dim,
       //interpret i & j as polar coordinates and convert to (x,y,z) space
       float u = (float)i / (float)tex_width;
       float v = (float)j / (float)tex_height;
-      float theta = 2.0f * M_PI * u;
-      float phi = (M_PI / 2.0f) + M_PI * (1.0f - v);
+      float theta = 2.0f * (float)M_PI * u;
+      float phi = ((float)M_PI / 2.0f) + (float)M_PI * (1.0f - v);
 
       Float3 cartesian = polar_to_cartesian(theta, phi, radius);
 

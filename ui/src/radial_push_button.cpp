@@ -5,7 +5,7 @@ using namespace std;
 using namespace Math;
 using namespace Graphics;
 
-RadialPushButton::RadialPushButton(Font *f) : RadialWidget(f)
+RadialPushButton::RadialPushButton(Font *f) : RadialWidget(WIDGET_RADIAL_PUSH_BUTTON, f)
 {
   click_capture = false;
   click_callback = NULL;

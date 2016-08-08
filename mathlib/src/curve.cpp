@@ -182,6 +182,20 @@ void Curve::bell_curve_cerp(const float x0, const float x1)
   build_handle_list();
 }
 
+void Curve::flip_vertically()
+{
+  for (uint32_t i = 0; i < segments.size(); i++)
+  {
+    CurveSegment *cs = segments[i];
+    for (uint32_t j = 0; j < 2; j++)
+    {
+      cs->end_points[j].p[1] = 1.0f - cs->end_points[j].p[1];
+      cs->end_points[j].t[1] = 1.0f - cs->end_points[j].t[1];
+    }
+  }
+  build_handle_list();
+}
+
 void Curve::add_segment(CurveSegment *s)
 {
   cerr<<"Curve::add_segment(): DANGEROUS!!! DON'T USE!!!"<<endl;
